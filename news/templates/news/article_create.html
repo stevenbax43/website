@@ -1,0 +1,20 @@
+{% extends 'home/base.html'%}
+
+{% block content %}
+
+{% load static %}
+<div class="main-banner">
+    <div class="main-banner-items">
+        <div class="create-article">
+            <h2>Create a new article</h2>
+            <form class="site-form" action="{% url 'news:create' %}" method="POST" enctype="multipart/form-data">
+                {%csrf_token%}
+                {{ form }}
+                <input type="submit" name="" value="Create">
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'news/scripts/slugify.js' %}"></script>
+{% endblock %} 

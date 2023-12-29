@@ -1,0 +1,71 @@
+{% extends 'home/base.html'%}
+{% block content %}
+{% load static %} 
+{% csrf_token %}
+
+<div class="top-banner"> 
+        <div class="top-banner-items">
+            <div>            <h1>Chatbot</h1>          </div>
+            <div>            <img src="{% static 'chat/images/chatbot.png' %}">         </div>
+        </div>
+</div>
+        
+<div class="second-banner"> 
+    
+    <div class="second-banner-items">
+        <p></p>
+        <div>
+            <b>Welkom:  <span style="text-transform: uppercase;" id="current_username">{{user.username}}<span></span></b><p>Hier kan de hele afdeling vragen stellen aan O&T via een Custom-Trained     AI-chatbot die getraind is op alle 
+            normen, eisen en een afgeleide is van OpenAI van Google.</p>
+        </div>
+    </div>
+</div>
+
+
+<div class="main-banner">
+    <div class="main-banner-items">
+        <div class="center-container">
+            <div class="container">
+                <div class="sidebar"></div>
+                
+                <div id="chat-container">
+                    <div id="chat-display">
+                        <!-- Display the last conversation -->
+                        {% for conversation in conversations %}
+                            {% if conversation.author_id == request.user %}
+                                <div class="message">
+                                    <div class="circle_user first-letters">{{conversation.author_id|upper}}</div>
+                                    <div class="user_chat"><b>You</b> <br> {{conversation.user_input}}</div>
+                                </div>
+                                <div class="message">
+                                    <div class="circle_bot">K</div>
+                                    <div class="bot_response"><b>Chatbot</b> <br> {{conversation.bot_response}}</div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    
+                    <div id="user-input-container">
+                        <div class="input-with-button">
+                            <input type="text" id="user-input" placeholder="Type your message..." onkeyup="handleEnterKey(event)">
+                            <button id="send-button" onclick="sendMessage()">
+                                <span class="arrow-up-icon">&#9650;</span> <!-- Up arrow icon -->
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Move the deleteDbButton outside of chat-container -->
+                <form method="post" action="{% url 'chat:delete_all_conversations' %}" id="deleteDbForm">   
+                    {% csrf_token %} 
+                    <button id="deleteDbButton">Verwijder alle gesprekken</button>
+                </form>
+            </div>
+        </div>
+   
+</div>
+
+ 
+        
+
+{% endblock %} 

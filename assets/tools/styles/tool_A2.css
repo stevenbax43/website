@@ -1,0 +1,87 @@
+.maintoola2 {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+
+#converter{
+    margin-bottom: 30px;
+    background-color: lightgrey;
+    width: 400px;
+    border-radius: 10px;
+    margin-top: 0px;
+}
+#converter input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+#converter select {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+#converter label {
+    font-size: 18px;
+    margin-top: 10px;
+    display: block;
+}
+
+#converter #convertButton {
+    background: linear-gradient(to right,rgba(92, 216, 35, 0.75), rgba(10, 92, 3, 0.75));
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    margin-top: 20px;
+}
+
+#converter #convertButton:hover {
+    background-color: #2980b9;
+}
+
+#converter #result {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 18px;
+    background-color: #f5f5f5;
+    
+}
+
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 30px;
+    margin-bottom: 20px;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+td.colspan {
+    background-color: #e6e6e6;
+    font-weight: bold;
+}

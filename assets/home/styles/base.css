@@ -1,0 +1,187 @@
+main {
+    flex: 1; /* Allow the main content to grow and fill available space */
+}
+
+body {
+	display: flex;
+    flex-direction: column;
+	background: white;
+	border-radius: 20px;
+	margin: 0; 
+	padding: 0;
+	width: 100%;
+}
+
+.header-banner {
+	background-color: #ffffff; /* Background color of the header */
+	border-bottom: 2px solid transparent;
+	border-image: linear-gradient(to right,rgba(92, 216, 35, 0.75), rgba(10, 92, 3, 0.75)) 1;
+}
+
+.navbar{	
+	width: 70%;
+	margin: auto; /*automatically center */
+	display: flex;
+	align-items: center; /* Center images vertically */
+	justify-content: space-between;
+}
+
+.navbar img {	
+	cursor: pointer;
+	float: left;
+}
+
+.navbar ul li{
+	list-style: none;
+	display: inline-block;
+	margin: 0 10px;
+	position: relative;
+}
+
+.navbar ul li a{
+	text-decoration: none;
+	color: #000000;
+	text-transform: uppercase;
+}
+
+.navbar ul li::after {
+	content: "";
+	height: 3px;	
+	width: 0;
+	background: #13f539;
+	position: absolute;
+	left: 0;
+	bottom: -10px;
+	transition: 0.5s;
+}
+
+.navbar ul li:hover::after{
+	width: 100%;
+}
+
+#logoutbutton,
+#login {
+	border-left: 4px solid #09ff00;
+	padding-left: 10px;
+	text-decoration: none;
+	color: #000000;
+	text-transform: lowercase;
+}
+#signup {
+	text-decoration: none;
+	color: #000000;
+	text-transform: lowercase;
+}
+#logoutbutton{
+	border: none;
+	border-left: 3px solid #09ff00;
+	background: transparent;
+	font: inherit;
+	cursor: pointer;
+}
+/* Basisstijlen voor de pagina-indeling */
+.top-banner{
+    background: linear-gradient(to right,rgba(92, 216, 35, 0.75), rgba(10, 92, 3, 0.75));
+	margin: 0;
+	max-height: 300px;
+    display: flex;
+    justify-content: center;
+}
+.top-banner-items{
+    width: 70%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.top-banner h1{
+    font-size: 40px; 
+	color: #f7f7f7;
+}
+.top-banner img {
+	width: 100px;
+	height: auto;
+    padding: 10px;
+	
+}
+.second-banner{
+    background: rgb(241, 241, 241);
+	margin: 0;
+	max-height: 300px;
+    display: flex;
+    justify-content: center;
+}
+.second-banner-items{
+	width: 70%;
+	display: inline-block;
+    align-items: center;
+	margin-right: 10px; /* Add some spacing between list items */
+
+}
+
+
+
+.main-banner{
+	background: transparent; /* because of span button */
+	margin: 0;
+	display: flex; /* zorgt voor centreren van content */
+    justify-content: center;
+}
+
+.main-banner-items{
+	width: 70%;
+	display: flex;
+	flex-direction: column;
+	align-items: left;
+}
+
+footer {
+	display: flex;
+    justify-content: center;
+	bottom: 0;
+	right: 10;
+	width: 100%;
+	background: linear-gradient(to left,rgba(92, 216, 35, 0.75), rgba(10, 92, 3, 0.75));
+	color: rgb(253, 253, 253);
+	
+}
+.footer-banner{
+	width: 70%;
+	margin: auto; /*automatically center */
+	display: flex;
+	align-items: center; /* Center vertically */
+	justify-content: space-between;
+}
+
+.footer-banner img {
+	height: auto; /* Maintain the aspect ratio */
+	cursor: pointer
+}
+
+@media (max-width: 599px) {
+	/* Voeg hier stijlen toe voor kleine schermen */
+
+}
+
+/* Gemiddelde schermen */
+@media (min-width: 600px) and (max-width: 767px) {
+	/* Voeg hier stijlen toe voor gemiddelde schermen */
+
+
+
+
+}
+
+/* Grote schermen */
+@media (min-width: 768px) and (max-width: 991px) {
+	/* Voeg hier stijlen toe voor grote schermen */
+
+
+
+}
+
+/* Styles for larger screens (default) */
+@media (min-width: 991px) {
+	/* Voeg hier stijlen toe voor laptop schermen */
+
+
+}

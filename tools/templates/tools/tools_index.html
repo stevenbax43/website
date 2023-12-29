@@ -1,0 +1,90 @@
+{% extends 'home/base.html'%}
+{% block content %}
+{% load static %} 
+{% csrf_token %}
+
+<div class="top-banner"> 
+        <div class="top-banner-items">
+                <div> <h1 class="topBannertext">Tools</h1>  </div>
+                <div>  <a href="{% url 'tools:tools' %}">  <img src="{% static 'tools/images/engineering.png' %}"> </a> </div>
+        </div> 
+</div>
+
+<div class="second-banner"> 
+        <div class="second-banner-items">
+                <div >  <p> Hierbij een overzicht van de verschillende tools, gecategoriseerd op algemeen, werktuigbouwkunde, elektrotechniek en bouwkundig. </p>    
+                         </div>
+                
+        </div>
+</div>
+
+
+<div class="main-banner">
+        <div class="main-banner-items">
+                <h1> Inhoudsopgave tools</h1>
+                <div class="main-banner-items-1">
+                        <div class="main-content">
+
+                                <div>
+                                        <h2>Algemeen</h2>
+                                        <ul class="TableOfContent">
+                                                <li><nav><a href="/tools/gebouwgegevens">Tool A1: Gebouwgegevens</a></nav></li>
+                                                <li><nav><a href="/tools/omrekenfactoren/druk">Tool A2: Omrekenfactoren</a></nav></li>
+                                                <li><nav><a href="/nieuws">Nieuws</a></nav></li>
+                                                <li><nav><a href="/chat">Chatbot</a></nav></li>
+                                        </ul>     
+                                </div>
+                        </div>
+                </div>
+                <div class="main-banner-items-2">
+                        <div class="main-content">
+
+                                <div>
+                                        <h2>Werktuigbouwkunde</h2>
+                                        <ul class="TableOfContent">
+                                                <li><nav><a href="/tools/buffervat">Tool W1: Inhoud Buffervat</a></nav></li>
+                                                <li><nav><a href="/buffervat">Tool W1: </a></nav></li>
+                                                <li><nav><a href="/nieuws">Nieuws</a></nav></li>
+                                                <li><nav><a href="/chat">Chatbot</a></nav></li>
+                                        </ul>     
+                                </div>
+                        </div>
+                </div>
+                <div class="main-banner-items-3">
+                        <div class="main-content">
+
+                                <div>
+                                        <h2>Elektrotechniek</h2>
+                                        <ul class="TableOfContent">
+                                                <li><nav><a href="/tools/gebouwgegevens">Tool E1: Gebouwgegevens</a></nav></li>
+                                                <li><nav><a href="/tools">Tools</a></nav></li>
+                                                <li><nav><a href="/nieuws">Nieuws</a></nav></li>
+                                                <li><nav><a href="/chat">Chatbot</a></nav></li>
+                                        </ul>     
+                                </div>
+                        </div>
+                </div>
+                <div class="main-banner-items-3">
+                        <div class="main-content">
+
+                                <div>
+                                        <h2>Bouwkundig</h2>
+                                        <ul class="TableOfContent">
+                                                <li><nav><a href="/tools/gebouwgegevens">Tool B1: Gebouwgegevens</a></nav></li>
+                                                <li><nav><a href="/tools">Tools</a></nav></li>
+                                                <li><nav><a href="/nieuws">Nieuws</a></nav></li>
+                                                <li><nav><a href="/chat">Chatbot</a></nav></li>
+                                        </ul>     
+                                </div>
+                        </div>
+                </div>
+        </div>
+</div>
+
+
+
+
+   
+
+
+{% endblock %} 

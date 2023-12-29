@@ -1,0 +1,319 @@
+/* default CSS independent of screen size */
+.main-banner-items-1,
+.main-banner-items-2,
+.main-banner-items-3,
+.main-banner-items-4 {
+	
+	margin-top: 30px;
+	border-bottom: 4px solid #00ff00;
+	display: flex;
+	align-items: left;
+}
+.main-banner-items-4 {
+	border-bottom: none;
+	margin-bottom: 50px;
+}
+
+.main-content {
+	flex: 8;
+}
+.main-image {
+	flex: 2;
+	display: flex;
+	align-items: center; /* center vertically */	
+	justify-content: space-between; /*center horizontally */
+}
+.second-banner-items ul {
+    list-style-type: none;
+    padding: 0;
+	display: flex; /* Use Flexbox for layout */
+    justify-content: space-between; /* Evenly distribute items horizontally */
+}
+
+.second-banner-items li {
+    display: inline-block; /* Align list items horizontally */
+    margin-right: 10px; /* Add some spacing between list items */
+}
+
+.second-banner-items a {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+    font-size: 16px;
+    transition: color 0.3s ease;
+}
+.second-banner-items a:hover {
+    color: #00ff00;
+}
+
+.second-banner-items img {
+	width: 300px;
+	max-height: auto;
+	border-radius: 30px;
+	box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5); 
+}
+
+#PDF {
+	width: 30%;
+	height: auto;
+}
+.location-output {
+	margin-bottom: 30px; /* Stacking elements below each other on smaller screens */
+	margin-top: 10px
+}
+#EPlabel {
+	margin-left: -200px; /* To overlay the waiting sign */
+}
+#WEii_output {
+	margin-left: 200px;
+}
+.form-group {
+display: flex;
+flex-direction: column;
+margin-bottom: 10px; /*add a margin for better spacing */
+margin-right: 5px;
+}
+
+.form-group label {
+font-weight: bold;
+}
+
+.form-group input,
+.form-group output {
+border: 1px solid #13f539;
+border-radius: 10px;
+max-width: 200px;
+min-height: 20px;
+font-size: 14px;
+font-family: inherit;
+padding: 7px;
+}
+
+.button-span {
+	width: 90%;
+	max-height: 20px;
+	padding: 15px 0;
+	text-align: center;
+	line-height: 2px;
+	margin: 10px 10px;
+	border-radius: 10px;
+	font-weight: bold;
+	border: 1px solid #13f539;
+	background: transparent;
+	color: #000000;
+	cursor: pointer;
+	position: relative;
+	overflow: hidden;
+}
+
+
+.button-span span{
+	background: #13f539;
+	height: 100%;
+	width: 0%;
+	border-radius: 10px;
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	z-index: -1;
+	transition: 0.5s;
+}
+
+button:hover span{
+	width: 100%;
+}
+
+button:hover{
+	border: none;
+}
+
+.button-container{
+	display: flex;
+	width: 30%;
+	max-width: 250px;
+	min-width: 170px;
+}
+
+/* Styles for the Table of Contents */
+.TableOfContent {
+    list-style-type: none;
+    padding: 0;
+	margin-left: 40px;
+}
+
+.TableOfContent li {
+    margin-bottom: 8px;
+	position: relative;
+}
+.TableOfContent li::before {
+    content: '\2022'; /* Unicode character for a bullet point */
+    color: transparent; /* Adjust the color as needed */
+    display: inline-block;
+	font-size: 24px;
+    width: 1em;
+    margin-left: -1em;
+    position: absolute;
+    left: -10px; /* Adjust the distance from the left */
+	transition: color 0.3s ease; /* Smooth color transition on hover */
+}
+.TableOfContent a {
+    text-decoration: none;
+    color: #333; /* Adjust the color as needed */
+    font-size: 16px;
+    transition: color 0.3s ease; /* Smooth color transition */
+}
+
+.TableOfContent a:hover {
+    color: #00ff00; /* Adjust the hover color as needed */
+}
+/* Show the bullet point only on hover */
+.TableOfContent li:hover::before {
+    color: #00ff00;
+}
+
+/* Styles for the SVG spinner */
+.spinner {
+    animation: rotate 2s linear infinite;
+    width: 50px;
+    height: 50px;
+}
+
+.path {
+    stroke: blue; /* Adjust the color as needed */
+    stroke-linecap: round;
+    animation: dash 1.5s ease-in-out infinite;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes dash {
+    0% {
+        stroke-dasharray: 1, 150;
+        stroke-dashoffset: 0;
+    }
+    50% {
+        stroke-dasharray: 90, 150;
+        stroke-dashoffset: -35;
+    }
+    100% {
+        stroke-dasharray: 90, 150;
+        stroke-dashoffset: -124;
+    }
+}
+
+
+/* Hide the waiting sign by default */
+.hidden {
+    display: none;
+}
+
+.no-button {
+    background-color: #f44336;
+    color: #fff;
+}
+.dark-green {
+    color: rgb(2, 112, 2);
+    font-size: 40px;
+    font-weight: bold;
+}
+
+.green {
+    color: rgb(56, 163, 7);
+    font-size: 40px;
+    font-weight: bold;
+}
+
+.light-green {
+    color: rgb(123, 255, 0);
+    font-size: 40px;
+    font-weight: bold;
+}
+
+.yellow {
+    color: rgb(219, 235, 0);
+    font-size: 40px;
+    font-weight: bold;
+}
+
+.orange {
+    color: rgb(236, 174, 4);
+    font-size: 50px;
+    font-weight: bold;
+}
+.light-red {
+    color: rgb(255, 0, 0);
+    font-size: 40px;
+    font-weight: bold;
+}
+.red {
+    color: rgb(155, 0, 0);
+    font-size: 40px;
+    font-weight: bold;
+}
+.black {
+    color: rgb(0, 0, 0);
+    font-size: 40px;
+    font-weight: bold;
+}
+
+
+/* For screens sizes, adjust the layout */
+/* Kleine schermen */
+@media (max-width: 599px) {
+	/* Voeg hier stijlen toe voor kleine schermen */
+	.location-input,
+	.location-output {
+		flex-direction: column; /* Stacking elements below each other on smaller screens */
+	}
+	.main-image img{
+		width: 60%;
+		height: auto;
+	}
+
+}
+
+/* Gemiddelde schermen */
+@media (min-width: 600px) and (max-width: 767px) {
+	/* Voeg hier stijlen toe voor gemiddelde schermen */
+	.location-input,
+	.location-output {
+		flex-direction: column; /* Stacking elements below each other on smaller screens */
+	}
+
+	.main-image img{
+		width: 100%;
+		height: auto;
+	}
+}
+
+/* Grote schermen */
+@media (min-width: 768px) and (max-width: 991px) {
+	/* Voeg hier stijlen toe voor grote schermen */
+	.main-image img{
+		width: 90%;
+		height: auto;
+	}
+	
+}
+
+/* Styles for larger screens (default) */
+@media (min-width: 991px) {
+	/* Voeg hier stijlen toe voor laptop schermen */
+	.location-input,
+	.location-output {
+	  display: flex;
+	  flex-wrap: wrap;
+	  justify-content: space-between;
+	}
+	.main-image img{
+		width: 70%;
+		height: auto;
+	}
+}

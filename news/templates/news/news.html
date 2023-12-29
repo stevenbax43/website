@@ -1,0 +1,68 @@
+{% extends 'home/base.html'%}
+{% block content %}
+{% load static %} 
+{% csrf_token %}
+
+<div class="top-banner"> 
+    <div class="top-banner-items">
+        <div>            <h1>Nieuws</h1>          </div>
+        <div> <a href="{% url 'news:news' %}">   <img src="{% static 'news/images/speaker.png' %}">  </a>  </div>
+    </div>
+    
+        
+</div>
+
+<div class="second-banner"> 
+    <div class="second-banner-items">
+        <div>     <p> Het laatste nieuws betreffende <strong>Klimaat & Energie</strong> met betrekking tot de gebouwde omgeving.
+            Daarnaast wordt op deze pagina ook kennis gedeeld vanuit het ontwerp & techniek team.         </p>  
+        </div>
+        {% if user.is_authenticated and user.is_superuser %}
+        <div class="maintoola2">
+            <form method = "post" action="{% url 'news:news' %}">   
+                {% csrf_token %}          
+                    <button id="refreshButton">WeiiNews</button>
+                
+            </form>   
+            <form method = "post" action="{% url 'news:delete_all_news' %}">   
+                {% csrf_token %} 
+                    <button id="deleteDbButton">Verwijder alle artikelen</button>
+                    
+            </form>
+            <form method = "post" action="{% url 'news:create' %}">   
+                {% csrf_token %} 
+                    <button id="createnewarticle">Maak nieuw artikel</button>
+            </form>       
+        </div>
+        {% endif %}
+               
+    </div>
+</div>
+
+<div class="main-banner">
+    <div class="main-banner-items">    
+        <div >
+            <ul class="listView-items"> 
+                {% for article in articles %}
+                <li>
+                    <article class="entry-news">
+                        <a href="{{article.url}}" title="Titel" target="_blank" rel="noopener">
+                            <figure class="entry-image">
+                                <img src="{{article.thumb.url}}">
+                            </figure> 
+                            <header class = "header-news">
+                                <p class="entry-publishedOn"> {{article.date_published}}</p> 
+                                <h3 class="entry-title" >{{article.title}}</h3>
+                            </header> 
+                        </a> 
+                    </article>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'news/scripts/slugify.js' %}"></script>
+
+{% endblock %} 

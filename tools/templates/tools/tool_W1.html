@@ -1,0 +1,191 @@
+{% extends 'home/base.html'%}
+{% block content %}
+{% load static %} 
+{% csrf_token %}
+
+<div class="top-banner"> 
+        <div class="top-banner-items">
+                <div> <h1> Tool W1: Inhoud Buffervat Berekenen</h1>  </div>
+                <div>  <a href="{% url 'tools:tools' %}">  <img src="{% static 'tools/images/engineering.png' %}"> </a> </div>
+        </div> 
+</div>
+
+<div class="second-banner"> 
+        <div class="second-banner-items">
+                <div >  <p> Voor het berekenen van de inhoud van een buffervat, 
+                                   </p>     </div>
+                
+                
+        </div>
+</div>
+
+
+<div class="main-banner">
+        <div class="main-banner-items">
+                <form method = "post" id="myForm">{% csrf_token %}
+                <div class="main-banner-items-1">
+                        <div class="main-content">
+
+                                <div>
+                                        <h2>BAG viewer Kadaster</h2>
+                                        <p>Vul de postcode, het huisnummer en de (eventuele) toevoeging in.  <br> De onderstaande gegevens worden automatisch 
+                                                aangevuld vanuit de BAG-database. Druk daarna op de BAG knop.</p>
+                                </div>
+
+                                
+                                <div class="location-input">  
+                
+                                        <div class="form-group">
+                                                <label for="pcode">Postcode</label>
+                                                <input type="text" name='pcode' id="pcode" placeholder="1234AB" maxlength="6" value="{{ adr1.pcode }}">
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                                <label for="hnumber">Huisnummer</label>
+                                                <input type="text" id="hnumber" name="hnumber" placeholder="10" value="{{ adr1.hnumber }}">
+                                        </div>
+                        
+                                        <div class="form-group">
+                                                <label for="addition">Toevoeging (optioneel)</label>
+                                                <input type="text" id="addition" name="addition" placeholder="A" maxlength="4" value="{{ adr1.addition }}">
+                                        </div>
+                                        
+                                        
+                                        
+                
+                                </div>
+                                
+                                <div class="button-container"> <button class="button-span" id="BAG_button" name="BAG_button"><span></span>--BAG-gegevens--</button></div>
+                                <div class="location-output">
+                                        <div class="form-group">
+                                                <label for="street">Straat</label>
+                                                <output  id="street" value="{{ adr1.street }}">{{adr1.street}}</output>
+                                        </div>
+                                        <div class="form-group">
+                                                <label for="place">Plaats</label>
+                                                <output  id="place" value="{{ adr1.place }}">{{adr1.place}}</output>
+                                        </div>
+                                        <div class="form-group">
+                                                <label for="place">Bouwjaar</label>
+                                                <output  id="bouwjaar" value="{{ adr1.buildyear }}">{{adr1.buildyear}}</output>
+                                        </div>  
+                                        <div class="form-group">
+                                                <label for="place">Oppervlakte (m<sup>2</sup>)</label>
+                                                <output  id="oppervlakte" value="{{ adr1.BAG_surface}}">{{adr1.BAG_surface}}</output>
+                                        </div>  
+                                        <div class="form-group">
+                                                <label for="place">Gebruiksdoel</label>
+                                                <output  id="gebruiksdoel" value="{{ adr1.purpose }}">{{adr1.purpose}}</output>
+                                        </div>    
+                                        
+                                </div>
+                                
+                                 
+                                
+                        </div>
+                        <div class="main-image">
+                                <img id="BAGviewer" src="{% static 'tools/images/BAGkadaster-logo.png' %}">
+                        </div>
+                        
+                        <!-- <p id="adress"></p> -->
+                
+                </div>
+                <div class="main-banner-items-2">
+                        <div class="main-content">
+                                <h2>EP-label</h2>
+                                <p>Het bovenstaand adres wordt gebruikt om de energielabel van de vestiging te achterhalen bij EP-online. Druk op de EP-knop  </p>                          
+                                
+                                <div class="button-container"> <button class="button-span " id="EP_button" name="EP_button"><span></span>--EP-Label--</button></div>
+                                
+                                <div class="location-output">
+                                        <p> De huidige energielabel van het gebouw is:       
+                                                
+                                                <div id="waitingSign" class="hidden">
+                                                        <!-- SVG spinner -->
+                                                        <svg class="spinner" viewBox="0 0 50 50">
+                                                                <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
+                                                        </svg>
+                                                </div>
+                                                <output class="{{EPcolor}}" type="text" name='EPlabel' id="EPlabel" value="{{adr1.EP_label}}" >{{adr1.EP_label}}</output> 
+                                        </p>
+        
+                                </div>
+                                 
+                        </div>
+                        <div class="main-image">
+                                
+                                <img id="eplabelimgage" src="{% static 'tools/images/label-u-bouw.jpg' %}">
+                           
+                        </div>
+                        
+                </div>
+                
+                <div class="main-banner-items-3">
+                        <div class="main-content">
+                                <h2>WEii</h2>
+                                <p>Vul het kalenderjaar in waarin de elektriciteit en gasgebruik is gemeten. Druk op de Weii knop. 
+                                        Aan de hand van bovenstaande adres en oppervlakte wordt de WEii-score berekend. </p>
+                                <div class="location-input">
+                                        <div class="form-group">
+                                                <label>Kalenderjaar (>2017)</label>
+                                                <input type="text" id="calendaryear" name="calendaryear" placeholder="2022" value="{{ adr1.calendaryear}}">
+                                        </div>
+                                        <div class="form-group">
+                                                <label >Elektriciteit (kWh)</label>
+                                                <input type="number" name='elektra' id="elektra" placeholder="kWh" maxlength="10" value="{{ adr1.elektra}}">
+                                        </div>
+                                        <div class="form-group">
+                                                <label > Terug geleverd (optioneel) (kWh)</label>
+                                                <input type="number" name='elektra_terug' id="elektra_terug" placeholder="kWh" maxlength="10" value="{{adr1.elektra_terug}}">
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                                <label>Gasgebruik (m<sup>3</sup>)</label>
+                                                <input type="number" id="gas" name="gas" placeholder="m3" value="{{ adr1.gas}}">
+                                        </div>
+                                </div>
+                                
+                                <div class="button-container"> <button type="submit" class="button-span" id="WEii_button" name="WEii_button"><span></span>WEii-score</button></div>
+
+                                <div class="location-output">
+                                        <p>De WEii-score uit het jaar {{adr1.calendaryear}} is:
+                                        <output class="{{EPcolor}}" type="text" name='WEii' id="WEii_output" value="{{adr1.weii}}"> {{adr1.weii}}</output> 
+                                        </p>
+                                </div>
+                        </div>
+                        
+                        <div class="main-image">
+                                <img id="weii" src="{% static 'tools/images/Weii-logo.png' %}">
+                        </div>
+                </div>
+                
+                <div class="main-banner-items-4">
+                        <div class="main-content">
+                                <h2>Print Samenvatting</h2>
+                                <p>Print een PDF met alle gegevens </p>                          
+                                
+                                <div class="button-container"> <button type="submit" class="button-span " id="PDF_creater" name="PDF_creater" ><span></span>Download PDF</button></div>
+                      
+                        </div>
+                        <div class="main-image">
+                                <img id="PDF" src="{% static 'tools/images/PDF_file_icon.png' %}">
+                        </div>
+                        
+                </div>
+                </form> <!--If somethding is POSTed (like a click on a button) in this form the page will render-->
+                
+                
+                
+    
+        </div>
+        
+        
+</div>
+
+
+
+
+   
+
+
+{% endblock %} 
