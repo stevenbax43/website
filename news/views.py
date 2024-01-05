@@ -95,10 +95,10 @@ def WeiiNews_extract(request):
                         print(f"Failed to download image for URL {href}")
     return
 
-def article_detail(request, slug):
-    article = NewsArticle.objects.get()
-    return render(request, 'news/news.html', {'article':article})
-    #return HttpResponse(slug)
+# def article_detail(request):
+#     article = NewsArticle.objects.get()
+#     return render(request, 'news/news.html', {'article':article})
+#     #return HttpResponse(slug)
 
 
 @login_required(login_url='accounts:login') #this is protecting this view and redirect to the login_url
