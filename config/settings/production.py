@@ -3,7 +3,7 @@ from .base import *
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY_prod')  
 
-ALLOWED_HOSTS = ['34.77.63.146','stevenbaxontwerpt.nl','www.stevenbaxontwerpt.nl'] #['*'] = iedereen toegang
+ALLOWED_HOSTS = ['34.38.151.102','stevenbaxontwerpt.nl','www.stevenbaxontwerpt.nl'] #['*'] = iedereen toegang
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
