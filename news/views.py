@@ -8,7 +8,7 @@ from django.core.files.base import ContentFile
 from urllib.parse import urljoin  
 from django.core.files.storage import default_storage
 from django.conf import settings
-from datetime import datetime
+#from datetime import datetime
 import os
   
 # Create your views here.
