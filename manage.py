@@ -2,16 +2,18 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-from config.settings.base import DEBUG
+from config.settings.base import DEBUG as BASE_DEBUG
 
 def main():
     """Run administrative tasks."""
-    #DEBUG = 'False'
-    if DEBUG:
+    if BASE_DEBUG:
         os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.local')
+        #print('local')
     else:
         os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.production')
-        
+        #print('production')
+
+    print(f'DJANGO_SETTINGS_MODULE: {os.environ["DJANGO_SETTINGS_MODULE"]}')  # Add this line for debugging  
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
