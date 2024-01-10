@@ -10,7 +10,7 @@ ALLOWED_HOSTS = ['34.38.151.102','stevenbaxontwerpt.nl','www.stevenbaxontwerpt.n
 # connect to created database postgresql on the Virtual machine on google cloud platform.
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'mydb',
         'USER': 'sbax', #oude stevenbax
         'PASSWORD':'1234', #oude 3173
