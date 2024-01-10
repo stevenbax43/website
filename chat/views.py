@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-import openai, os
+import os
+from openai import OpenAI
 from .models import Conversation
 from dotenv import load_dotenv
 from django.utils import timezone
@@ -14,7 +15,8 @@ OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 @login_required(login_url='accounts:login')
 def chatbot2(request):
     return render(request, 'chat/chatbot2.html')
-# Create your views here.
+
+#Create your views here.
 @login_required(login_url='accounts:login')
 def chatbot(request):
     conversations = Conversation.objects.filter(author_id=request.user)
@@ -38,19 +40,26 @@ def chatbot(request):
 OPENAI_API_URL = 'https://api.openai.com/v1/engines/davinci/completions'
 
 def generate_openai_response(prompt, max_tokens=100):
-    openai.api_key = OPENAI_API_KEY  # Set the OpenAI API key
-
-    # Use the openai.ChatCompletion.create method
-    chat_completion = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": prompt},
-        ],
-        max_tokens=max_tokens
+    
+    client = OpenAI(
+    # This is the default and can be omitted
+    api_key=OPENAI_API_KEY,
     )
 
-    return chat_completion['choices'][0]['message']['content'].strip()
+    #openai.api_key = OPENAI_API_KEY  # Set the OpenAI API key
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {
+                "role": "user",
+                "content": prompt,
+            }
+        ],
+        model="gpt-3.5-turbo",
+        )
+    #extract content from output: (print(chat_completion))
+    content = chat_completion.choices[0].message.content
+    
+    return content
 
 
 def delete_all_conversations(request):

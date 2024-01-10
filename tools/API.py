@@ -63,7 +63,7 @@ def Weii_API(adr1):
 
     #bereken met elektra
     netto_elektra = int(adr1.elektra) - int(adr1.elektra_terug)
-    print(netto_elektra)
+    #print(netto_elektra)
     # Example input data, replace it with your actual data
     input_data = {
         "year": int(adr1.calendaryear), # mag niet lager dan 2017 zijn!
