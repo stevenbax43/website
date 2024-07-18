@@ -18,7 +18,7 @@ DATABASES = {
         'PORT':'',
     }
 }
-DATABASES['default']['NAME'] = str(BASE_DIR / os.environ.get('name_db')) #link to the correct folder where the database is stored. 
+
 # Static files (CSS, JavaScript, images)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / "assets"
