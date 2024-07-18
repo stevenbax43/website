@@ -12,7 +12,7 @@ load_dotenv(find_dotenv())
 # Git push altijd in Production == False! (Development/local == True) 
 
 DEBUG =  os.environ.get("DEBUG", default="False").lower() == "true"
-print(type(DEBUG)) #check if DEBUG is an boolean value!! else it is not working
+print((DEBUG)) #check if DEBUG is an boolean value!! else it is not working
 
 
 # Application definition
