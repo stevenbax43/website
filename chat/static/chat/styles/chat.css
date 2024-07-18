@@ -22,31 +22,29 @@
     flex-direction: column; /* Adjust the direction to column */
     align-items: center; /* Center horizontally */
 }
-
-/* Style the sidebar */
-.sidebar {
-    width: 200px;
-    /* Add any additional styles for the sidebar */
+.shadow {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
-
 /* Style the chat container */
 #chat-container {
     flex: 1;
     padding: 10px;
-    width: 600px; /* Ensure the chat container takes full width */
+    width: 100%; /* Ensure the chat container takes full width */
     max-height: 800px;
 }
 
 /* Style the chat display area */
 #chat-display {
-    /*border: 1px solid #ccc;*/
+    border: 1px solid #ccc;
     padding: 10px;
     height: auto; /* Set the desired height for the chat display */
     overflow-y: auto; /* Enable vertical scroll if needed */
     border-radius: 4px;
     white-space: normal;
-    max-height: 730px;
+    max-height: 630px;
     scroll-behavior: smooth;
+    scrollbar-width: thin; 
+    scrollbar-color: #56f009 #f1f1f1;
 }
 
 
@@ -87,10 +85,10 @@
     background-color: #4caf50;
     color: #fff;
     border: none;
-    border-radius: 4px;
+    border-radius: 25px;
     cursor: pointer;
     margin-top: 4.5px;
-    margin-right: 2px;
+    margin-right: 4px;
 }
 
 /* Style the arrow-up icon */
@@ -105,14 +103,15 @@
 }
 
 .message {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     display: flex;
-    align-items: top;
+    align-items: flex-start;
 }
-.circle_user {
+
+.circle_user,
+.circle_bot {
     width: 30px;
     height: 30px;
-    background-color: #ce864b; /* You can change the background color */
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -120,22 +119,45 @@
     color: white;
     font-weight: bold;
     margin-right: 10px;
-    
 }
+
+.circle_user {
+    background-color: #ce864b;
+}
+
 .circle_bot {
-    width: 30px;
-    height: 30px;
     background-color: green;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: rgb(255, 255, 255);
-    font-weight: bold;
-    margin-right: 10px;
-    
 }
+
 .user_chat,
 .bot_response {
     width: calc(100% - 70px);
+    border: 1px solid #ffffff;
+    border-radius: 4px;
+    background-color: #fffefe;
+}
+
+.bot_response {
+    background-color: #ffffff;
+}
+
+.wrap {
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+}
+
+.icon_container {
+    display: flex;
+    justify-content: center; /* Center align horizontally */
+    align-items: center; /* Center align vertically */
+    padding: 10px;
+}
+
+.icon_delete, .icon_save {
+    padding: 10px;
+}
+
+.icon_save img, .icon_delete img {
+    width: 30px;
 }

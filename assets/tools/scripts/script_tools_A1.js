@@ -1,33 +1,65 @@
-//show a wainting sign after button pressed
-document.addEventListener('DOMContentLoaded', () => {
-    const waitingSign = document.getElementById('waitingSign');
-    const EPButton = document.getElementById('EP_button');
+// Function to save input values to sessionStorage
+// Function to save input values into sessionStorage
+function saveInputValues() {
+    document.querySelectorAll('input, select').forEach(field => {
+        sessionStorage.setItem(field.id, field.value);
+    });
     
+}
 
-    EPButton.addEventListener('click', () => {
-        // Show the waiting sign by removing the 'hidden' class
-        waitingSign.classList.remove('hidden');
+// Function to load input values from sessionStorage
+function loadInputValues() {
+    document.querySelectorAll('input, select').forEach(field => {
+        const savedValue = sessionStorage.getItem(field.id);
+        if (savedValue !== null) {
+            field.value = savedValue;
+        }
+    });
+}
 
-        // Set a timeout to remove the waiting sign after 5 seconds
-        setTimeout(() => {
-            // Hide the waiting sign by adding the 'hidden' class
-            waitingSign.classList.add('hidden');
-        }, 12000); // 12000 milliseconds = 12 seconds
+// Event listener for DOMContentLoaded event
+document.addEventListener('DOMContentLoaded', function() {
+    let pcodeChanged = false;
+    let hnumberChanged = false;
+
+    // Function to check if both fields have changed
+    function checkBothChanged() {
+        if (pcodeChanged && hnumberChanged) {
+            document.getElementById('searchButton').click();
+        }
+    }
+
+    // Add change event listener to pcode input field
+    document.getElementById('pcode').addEventListener('change', function() {
+        pcodeChanged = true;
+        saveInputValues(); // Save input values when pcode changes
+        checkBothChanged(); // Check if both fields have changed
+    });
+
+    // Add change event listener to hnumber input field
+    document.getElementById('hnumber').addEventListener('change', function() {
+        hnumberChanged = true;
+        saveInputValues(); // Save input values when hnumber changes
+        checkBothChanged(); // Check if both fields have changed
+    });
+
+    // Add change event listener to other input fields to save input values dynamically
+    document.querySelectorAll('input:not(#pcode, #hnumber), select').forEach(field => {
+        field.addEventListener('change', saveInputValues);
+    });
+
+    // Load input values when the page is loaded
+    loadInputValues();
+
+    // Event listener for print button
+    document.getElementById('printButton').addEventListener('click', function() {
+        window.print();
+    });
+
+    // Placeholder for readme button functionality
+    document.getElementById('readMeButton').addEventListener('click', function() {
+    //     // Handle Excel button click event
+        window.open(pdfUrlReadMe, '_blank');
     });
 });
 
-//PDF creater
-document.getElementById('PDF_creater').addEventListener('click', function() {
-    const pText = document.querySelector('p');
-    const longtext = documentm.getElementById(''); 
-    console.log(pText.innerText);
-    // Create a jsPDF instance
-    const pdf = new jsPDF();
-  
-    // Add content to the PDF
-    pdf.text(pText.innerText, 10, 10);
-    pdf.text("This is title 2", 10, 20);
-  
-    // Save the PDF
-    pdf.save('simple.pdf');
-  });

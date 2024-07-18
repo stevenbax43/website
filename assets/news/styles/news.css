@@ -40,6 +40,7 @@
     object-fit: cover; /* This will make the image cover the entire container */
     filter: grayscale(100%); /* Start with the image in grayscale */
     transition: filter 0.4s;
+    border-radius: 10px;
 }
 .entry-image:hover img{
     filter: grayscale(0%)

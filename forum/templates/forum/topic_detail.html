@@ -1,0 +1,85 @@
+{% extends 'home/base.html'%}
+
+{% load static %} 
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'forum/styles/forum.css'%}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+{% endblock %}
+
+
+{% block content %}
+{% csrf_token %}
+
+<div class="top-banner"> 
+        <div class="top-banner-items">
+                <div> <h1> Forum </h1>  </div>
+                <div>  <a href="{% url 'forum:topic_list' %}">  <img src="{% static 'forum/images/forum.png' %}"> </a> </div>
+        </div> 
+</div>
+
+<div class="second-banner"> 
+        <div class="second-banner-items">
+            <p>Dit is een forum platform waar gediscusieerd kan worden over bepaalde zaken op deze website. 
+                Suggesties, op- en aanmerkingen zijn welkom en je kan op elkaar reageren.</p>                 
+              
+        </div>
+</div>
+
+
+<div class="main-banner">
+    <div class="main-banner-items">
+        <div class="container mt-5">
+                <h1 class="mb-4">{{ topic.title }}</h1>
+                <h3 class="text-muted">Gemaakt door {{ topic.created_by }} op {{ topic.created_at }}</h3>
+        
+                <h2 class="mt-4">Replies</h2>
+                <ul class="list-group mb-4">
+                    {% for reply in replies %}
+                        <li class="list-group-item reply-container d-flex justify-content-between align-items-center">
+                                <div class="reply-content">
+                                        <strong>{{ reply.content }}</strong> 
+                                        <small class="text-muted">- by {{ reply.created_by.username }}--{{ reply.created_at }}</small>
+                                        {% if reply.image %}
+                                                <div>
+                                                        <img src="{{ reply.image.url }}" alt="Reply Image" style="max-width: 500px; max-height: 500px;"/>  <!-- Display image -->
+                                                </div>
+                                        {% endif %}
+                                </div>
+                                {% if reply.created_by == request.user %}
+                                <form action="{% url 'forum:delete_reply' reply.pk %}" method="post">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                                {% endif %}
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item">No replies yet.</li>
+                    {% endfor %}
+                </ul>
+        
+                <h2 class="mt-4">Add a Reply</h2>
+                <form method="post" class="mb-4" enctype="multipart/form-data">  <!-- Add enctype -->
+                {% csrf_token %}
+                <div class="form-group">
+                        {{ form.as_p }}
+                </div>
+                <button type="submit" class="btn btn-primary">Reply</button>
+                </form>
+        </div>
+    </div>
+        
+
+</div>
+    
+   
+
+{% endblock content %}
+{% block extra_js %}
+<!-- This makes sure this JS is only be loaded when rendering this HTML page. Whilst the common JS Files included in de extra_js block of base.html will be loaded across all pages -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script src="{% static 'forum/scripts/forum.js' %}"></script>
+{% endblock %}  

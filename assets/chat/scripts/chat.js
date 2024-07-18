@@ -9,8 +9,8 @@ function handleEnterKey(event) {
     }
 }
 
+
 function sendMessage() {
-    console.log("sendMessage called");
     var userInput = document.getElementById('user-input').value;
     var username = document.getElementById('current_username').textContent || document.getElementById('current_username').innerHTML ;
     document.getElementById('user-input').value = '';
@@ -19,7 +19,7 @@ function sendMessage() {
     username = username.substring(0, 2).toUpperCase();
     var chatDisplay = document.getElementById('chat-display');
     chatDisplay.innerHTML += '<div class="message"><div class="circle_user">'+ username +'</div><div class="user_chat"><b>You</b> <br>' + userInput + '</div></div>'
-
+    chatDisplay.scrollTop = chatDisplay.scrollHeight;
     // Send the user input to the server and get the response
     fetch('/chatbot/', {
         method: 'POST',
@@ -31,8 +31,10 @@ function sendMessage() {
     })
     .then(response => response.json())
     .then(data => {
-        var chatDisplay = document.getElementById('chat-display');
-        chatDisplay.innerHTML += '<div class="message"><div class="circle_bot">'+ 'K' +'</div><div class="user_bot"><b>Chat</b> <br>' + data.response + '</div></div>'
+        
+        chatDisplay.innerHTML += '<div class="message"><div class="circle_bot">'+ 'K' +'</div><div class="bot_response wrap"><b>Chatbot</b> <br>' + data.response + '</div></div>'
+        // Scroll to the bottom of the chat display
+        chatDisplay.scrollTop = chatDisplay.scrollHeight;
     })
     .catch(error => console.error('Error:', error));
 }
@@ -56,11 +58,20 @@ function getCookie(name) {
  // Get all elements with the class "first-letters"
 var usernameContainers = document.querySelectorAll(".first-letters");
 
-// Loop through each element
+// Loop through each element for user first letters
 usernameContainers.forEach(function (usernameContainer) {
     // Extract the first two letters
     var firstTwoLetters = usernameContainer.textContent.slice(0, 2);
 
     // Update the content of the element
     usernameContainer.innerHTML = firstTwoLetters;
+});
+// add event listener to submit form if image is pressed .
+document.getElementById('delete-allconversation').addEventListener('click', function(event) {
+    event.preventDefault(); // Prevent the default link behavior
+    document.getElementById('deleteDbForm').submit(); // Submit the form
+});
+document.getElementById("save-allconversation").addEventListener("click", function(event) {
+    event.preventDefault();
+    document.getElementById("saveDbForm").submit();
 });

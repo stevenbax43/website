@@ -12,39 +12,95 @@ body {
 	width: 100%;
 }
 
-.header-banner {
-	background-color: #ffffff; /* Background color of the header */
-	border-bottom: 2px solid transparent;
-	border-image: linear-gradient(to right,rgba(92, 216, 35, 0.75), rgba(10, 92, 3, 0.75)) 1;
-}
-
-.navbar{	
-	width: 70%;
+.navbar {
+    background-color: #ffffff;
+	width:  60%;
+	height:  fit-content;
 	margin: auto; /*automatically center */
 	display: flex;
 	align-items: center; /* Center images vertically */
 	justify-content: space-between;
+	line-height: 1;
 }
 
-.navbar img {	
-	cursor: pointer;
+.navbar-brand {
+	display: flex;
+    align-items: center; /* Center items vertically */
+	margin-top: 1%;
+	margin-bottom: 1%;
+}
+.logo-container {
+    display: flex; /* Ensure the logo container is a flex container */
+    align-items: center; /* Center items vertically */
+    text-decoration: none; /* Remove default link underline */
+	
+}
+.logo {
+	max-width: 50px; /* Adjust the maximum width of the logos as needed */
+    height: 50px; /* Maintain aspect ratio */
+}
+
+/* Define animations */
+@keyframes rotateAnimation {
+    0% {        transform: rotate(0);    }
+    100% {        transform: rotate(180deg);    }
+}
+@keyframes rotateAnimationBack {
+    0% {        transform: rotate(180deg);    }
+    100% {        transform: rotate(0);    }
+}
+
+@keyframes moveLeft {
+    0% {       transform: translateX(0);    }
+    50% {        transform: translateX(-300px) scale(1);	}
+    100% {        transform: translateX(0px) scale(1);    }
+}
+
+/* Apply animations on hover */
+.logo-container:hover {
+    animation: rotateAnimation 0.5s linear forwards, rotateAnimationBack 0.5s 2.4s linear forwards; /* rotate animation within 0.5 seconds, wait 2.4s and rotate back */
+}
+.logo-container:hover .logo-i {
+    animation: moveLeft 2s 0.45s linear forwards; /* wait 0.45s moveLeft logo-I part and do that for 2 seconds */
+}
+
+.navbar-menu {
+    float: right;
+}
+
+.navbar-menu ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+	display: flex;
+    align-items: center;
+}
+
+.navbar-menu ul li {
+    display: flex;
 	float: left;
-}
-
-.navbar ul li{
-	list-style: none;
-	display: inline-block;
-	margin: 0 10px;
-	position: relative;
-}
-
-.navbar ul li a{
 	text-decoration: none;
-	color: #000000;
+	color: #ffffff;
 	text-transform: uppercase;
+	margin: 0 10px;
+    position: relative;
+	text-align: center;
+	align-items: center;
 }
 
-.navbar ul li::after {
+.navbar-menu ul li a {
+    display: block;
+    color: rgb(0, 0, 0);
+    text-align: center;
+	text-decoration: none;
+}
+.navbar-menu ul li form {
+    display: flex;
+    justify-content: center; /* Horizontally center the form */
+    align-items: center; /* Vertically center the form */
+    margin: 0; /* Reset margin */
+}
+.navbar-menu ul li::after {
 	content: "";
 	height: 3px;	
 	width: 0;
@@ -54,31 +110,57 @@ body {
 	bottom: -10px;
 	transition: 0.5s;
 }
-
-.navbar ul li:hover::after{
+.navbar-menu ul li:hover::after{
 	width: 100%;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.header-banner {
+	background-color: #ffffff; /* Background color of the header */
+	margin-top: 1%;
+	border-bottom: 2px solid transparent;
+	border-image: linear-gradient(to right,rgba(92, 216, 35, 0.75), rgba(10, 92, 3, 0.75)) 1;
 }
 
 #logoutbutton,
 #login {
+	border: none;
 	border-left: 4px solid #09ff00;
 	padding-left: 10px;
-	text-decoration: none;
 	color: #000000;
-	text-transform: lowercase;
-}
-#signup {
-	text-decoration: none;
-	color: #000000;
-	text-transform: lowercase;
-}
-#logoutbutton{
-	border: none;
-	border-left: 3px solid #09ff00;
 	background: transparent;
-	font: inherit;
 	cursor: pointer;
+	text-transform: lowercase;
 }
+
+#signup {
+	text-transform: lowercase;
+}
+
 /* Basisstijlen voor de pagina-indeling */
 .top-banner{
     background: linear-gradient(to right,rgba(92, 216, 35, 0.75), rgba(10, 92, 3, 0.75));
@@ -88,7 +170,7 @@ body {
     justify-content: center;
 }
 .top-banner-items{
-    width: 70%;
+    width: 60%;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -111,14 +193,11 @@ body {
     justify-content: center;
 }
 .second-banner-items{
-	width: 70%;
-	display: inline-block;
-    align-items: center;
+	width: 60%;
+	display: flex;
+    justify-content: space-between;
 	margin-right: 10px; /* Add some spacing between list items */
-
 }
-
-
 
 .main-banner{
 	background: transparent; /* because of span button */
@@ -128,7 +207,7 @@ body {
 }
 
 .main-banner-items{
-	width: 70%;
+	width: 60%;
 	display: flex;
 	flex-direction: column;
 	align-items: left;
@@ -145,7 +224,7 @@ footer {
 	
 }
 .footer-banner{
-	width: 70%;
+	width: 60%;
 	margin: auto; /*automatically center */
 	display: flex;
 	align-items: center; /* Center vertically */
@@ -165,10 +244,7 @@ footer {
 /* Gemiddelde schermen */
 @media (min-width: 600px) and (max-width: 767px) {
 	/* Voeg hier stijlen toe voor gemiddelde schermen */
-
-
-
-
+	
 }
 
 /* Grote schermen */
@@ -185,3 +261,15 @@ footer {
 
 
 }
+
+@media print {
+	@page {
+		size: A4;
+		/* You can also adjust other properties like margins, orientation, etc. */
+		margin: 2cm; /* Example margin */
+	  }
+	header.navbar,
+	footer {
+	  display: none;
+	}
+  }

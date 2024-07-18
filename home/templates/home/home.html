@@ -1,18 +1,40 @@
 {% extends 'home/base.html'%}
-{% block content %}
 {% load static  %}
 
-        <div class="home-content">
-                <h1>Steven Bax ontwerpt!</h1>
-                <p>Ons "Kropman" platform is gericht op installatietechniek, werktuigbouwkunde, elektrotechniek en bouwkunde met een focus op gebouwautomatisering.
-                    <br> 
-                    We bieden geavanceerde ontwerptools, levendige forums en integratie van AI-technologieën om professionals te ondersteunen. 
-                    <br>
-                    Onze unieke "Innovatie Top" benadrukt en beloont baanbrekende projecten en ideeën binnen deze gemeenschap.
-                    <br>
-                </p>
-                <div class="button-container-home">
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'home/styles/home.css'%}">
+{% endblock %}
 
+
+{% block content %}
+
+<div class="banner">
+    <div class="bg-image kenburns-top"></div>
+    <div class="contain">
+        <h1>Ontwerptools<br>
+            Installatietechniek</h1>
+    </div>
+</div>
+
+<div class="main-banner">
+        <div class="home-items">
+            <div class="text-column">
+                <br>
+                <h1>Steven Bax ontwerpt!</h1>
+                <br>
+                <p>
+                    Mijn visie is het creëren van een universeel platform dat ondersteuning biedt bij het ontwerpen en dimensioneren van gebouwinstallaties. 
+                </p>
+               
+                <p>
+                    De forums fungeren als platform waar uitdagingen worden besproken, maar ook als ideeën-box en broedplaats voor nieuwe tools. Ik geloof dat een actieve en collaboratieve gemeenschap de voedingsbodem is voor innovatie.
+                </p>
+               
+                <p>
+                    Met deze website wil ik de huidige technologie integreren in de bestaande ontwerpfase. Onder de knop 'Energietransitie' is de tool terug te vinden die ik in 2023 heb ontwikkeld bij mijn vorige werkgever: Talent voor Transitie. 
+                </p>
+            
+                <div class="button-container-home">
                     <a href="https://www.talentvoortransitie.nl/stapaanboord/" target="_blank" rel="noopener">
                         <button class="button-span" type="button" id="openLink"><span></span>Energietransitie</button>
                     </a>
@@ -20,16 +42,8 @@
                         <button class="button-span" type="button" id="openLink"><span></span>Kropman website</button>
                     </a>
                 </div>
-                <img src="{% static 'home/images/trudo-toren.jpg' %}">
         </div>
-
-       
-        <div>
-   
-        </div>
-
-
-
-
+    </div>  
+</div>
     
 {% endblock content %} 

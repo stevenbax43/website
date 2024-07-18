@@ -1,656 +1,96 @@
 //https://www.eenheden.com/debiet-m3-h-s-cfm-cfs-gpm.php
+// Conversion table
+var conversion_table = {
+    Afstand: { meter: 1, millimeter: 1000, centimeter: 100, decimeter: 10, kilometer: 0.001, feet: 3.28084, inches: 39.3701, seamile: 0.000539957, landmile: 0.000621371 },
+    Massa: { kilogram: 1, gram: 1000, milligram: 1000000, ton: 0.001, pond: 2.20462 },
+    Druk: { pascal: 1, kilopascal: 0.001, mH2O: 0.00010204081632, bar: 0.000010204081632, millibar: 0.010204081632},
+    Volume: { cubicmeters: 1, liters: 1000, milliliters: 1000000},
+    Debiet: { cubicmeterpersecond: 1, cubicmeterperhour: 3600, cubicmeterperminute: 60, litersperhour: 3600000, litersperminute: 60000, literspersecond: 1000},
+    Energie: { joules: 1, kilojoules: 0.001, kilowattuur: 0.0000002778, wattuur: 0.0002778, wattseconde: 1, britischthermalunits: 0.0009478, calorie: 0.2388, kilocalorie: 0.0002388},
+    
+};
 
 function convert() {
-    // Get values from inputs
-    var value = parseFloat(document.getElementById('value').value);
-    var fromUnit = document.getElementById('from').value;
-    var toUnit = document.getElementById('to').value;
+    var targetDiv = document.querySelector(".maintoola2[style='display: flex;']");
 
-    // Perform the conversion
-    var result;
-    switch (fromUnit) {
-         //Druk ------------------------------------------------------------------------
-        case 'kilopascal':
-            result = convertFromKiloPascal(value, toUnit);
-            break;
-        case 'mH2O':
-            result = convertFrommH20(value, toUnit);
-            break;
-        case 'pascal':
-            result = convertFromPascal(value, toUnit);
-            break;
-        case 'bar':
-            result = convertFromBar(value, toUnit);
-        case 'millibar':
-                result = convertFromMilliBar(value, toUnit);
-            break;
-        //Volume -----------------------------------------------------------------------
-        case 'milliliters':
-            result = convertFromMilliliters(value, toUnit);
-            break;
-        case 'liters':
-            result = convertFromLiters(value, toUnit);
-            break;
-        case 'cubicmeters':
-            result = convertFromCubicMeters(value, toUnit);
-            break;
-        //Debiet -----------------------------------------------------------------------
-        case 'cubicmeterperhour':
-            result = convertFromCubicMeterPerHour(value, toUnit);
-            break;
-        case 'cubicmeterperminute':
-            result = convertFromCubicMeterPerMinute(value, toUnit);
-            break;
-        case 'cubicmeterpersecond':
-            result = convertFromCubicMeterPerSecond(value, toUnit);
-            break;
-        case 'litersperhour':
-            result = convertFromLiterPerHour(value, toUnit);
-            break;
-        case 'litersperminute':
-            result = convertFromLiterPerMinute(value, toUnit);
-            break;
-        case 'literspersecond':
-            result = convertFromLiterPerSecond(value, toUnit);
-            break;
-        //Massa -----------------------------------------------------------------------
-        case 'kilogram':
-            result = convertFromKiloGram(value, toUnit);
-            break;
-        case 'gram':
-            result = convertFromGram(value, toUnit);
-            break;
-        case 'milligram':
-            result = convertFromMilliGram(value, toUnit);
-            break;
-        case 'ton':
-            result = convertFromTon(value, toUnit);
-            break;
-        case 'pond':
-            result = convertFromPond(value, toUnit);
-            break;
-        //Energie -----------------------------------------------------------------------
-        case 'joules':
-            result = convertFromJoules(value, toUnit);
-            break;
-        case 'kilojoules':
-            result = convertFromKiloJoules(value, toUnit);
-            break;
-        case 'kilowattuur':
-            result = convertFromKiloWattUur(value, toUnit);
-            break;
-        case 'wattuur':
-            result = convertFromWattUur(value, toUnit);
-            break;
-        case 'wattseconde':
-            result = convertFromWattSeconde(value, toUnit);
-            break;
-        case 'britishthermalunit':
-            result = convertFromBritishThermalUnit(value, toUnit);
-            break;
-        case 'calorie':
-            result = convertFromCalorie(value, toUnit);
-            break;
-        case 'kilocalorie':
-            result = convertFromKiloCalorie(value, toUnit);
-            break;
-
-
-        // Add more cases for other units as needed
-        default:
-            result = 'Invalid unit';
+    if (!targetDiv) {
+        alert("No category selected!");
+        return;
     }
 
-    // Display the result
-    document.getElementById('result').innerText = result;
-}
-//--------------------------------------------------------------------------------------------------
-// function "Druk"
-function convertFromKiloPascal(value, toUnit) {
-    // Return the converted value
-    switch (toUnit) {
-        case 'kilopascal':
-            return value * 1; //
-        case 'pascal':
-            return value * 1000; // 
-        case 'mH2O':
-            return value * 0.102 ; // 
-        case 'bar':
-            return value * 0.0102; // 
-        case 'millibar':
-            return value * 10.2; //
-        // Add more cases for other units as needed
-        default:
-            return 'Invalid unit';
+    var value = parseFloat(targetDiv.querySelector("#value").value);
+    var fromUnit = targetDiv.querySelector("#from").value;
+    var toUnit = targetDiv.querySelector("#to").value;
+    var magnitude = targetDiv.querySelector("#magnitude").innerHTML;
+    
+    // Check if conversion is possible
+    if (!conversion_table.hasOwnProperty(magnitude)) {
+        alert("Invalid category: " + magnitude);
+        return;
     }
-}
-function convertFromPascal(value, toUnit) {
-    // Return the converted value
-    switch (toUnit) {
-        case 'kilopascal':
-            return value / 1000; //
-        case 'pascal':
-            return value * 1; // 
-        case 'mH2O':
-            return value * 0.000102 ; // 
-        case 'bar':
-            return value * 0.00001; // 
-        case 'millibar':
-            return value * 0.01; //
-        // Add more cases for other units as needed
-        default:
-            return 'Invalid unit';
+
+    if (!conversion_table[magnitude].hasOwnProperty(fromUnit) || !conversion_table[magnitude].hasOwnProperty(toUnit)) {
+        alert("Conversion from " + fromUnit + " to " + toUnit + " is not supported in category " + magnitude);
+        return;
     }
-}
-function convertFrommH2O(value, toUnit) {
-    // Return the converted value
-    switch (toUnit) {
-        case 'kilopascal':
-            return value * 9.8; //
-        case 'pascal':
-            return value * 9800; // 
-        case 'mH2O':
-            return value * 1 ; // 
-        case 'bar':
-            return value * 0.1; // 
-        case 'millibar':
-            return value * 100; //
-        // Add more cases for other units as needed
-        default:
-            return 'Invalid unit';
-    }
-}
-function convertFromBar(value, toUnit) {
-    // Return the converted value
-    switch (toUnit) {
-        case 'kilopascal':
-            return value * 98; //
-        case 'pascal':
-            return value * 9800; // 
-        case 'mH2O':
-            return value * 10  ; // 
-        case 'bar':
-            return value * 1; // 
-        case 'millibar':
-            return value * 1000; //
-        // Add more cases for other units as needed
-        default:
-            return 'Invalid unit';
-    }
-}
-function convertFromMilliBar(value, toUnit) {
-    // Return the converted value
-    switch (toUnit) {
-        case 'kilopascal':
-            return value * 98 / 1000; //
-        case 'pascal':
-            return value * 9800 / 1000; // 
-        case 'mH2O':
-            return value * 10 / 1000  ; // 
-        case 'bar':
-            return value / 1000; // 
-        case 'millibar':
-            return value * 1; //
-        // Add more cases for other units as needed
-        default:
-            return 'Invalid unit';
-    }
-}
-//--------------------------------------------------------------------------------------------------------
-// functions "Volume"
-function convertFromMilliliters(value, toUnit) {
-    // Implement the conversion logic for milliliters
-    // Return the converted value
-    switch (toUnit) {
-        case 'milliliters':
-            return value; // 1 liter = 1000 milliliters
-        case 'liters':
-            return value / 1000; // 1 liter = 1000 milliliters
-        case 'cubicmeters':
-            return value / 1000000; // 1 liter = 1000000 cubicmeters
-        // Add more cases for other units as needed
-        default:
-            return 'Invalid unit';
-    }
-}
-function convertFromLiters(value, toUnit) {
-    // Implement the conversion logic for liters
-    // Return the converted value
-    switch (toUnit) {
-        case 'milliliters':
-            return value * 1000; // 1 liter = 1000 milliliters
-        case 'liters':
-            return value; // 1 liter = 1000 milliliters
-        case 'cubicmeters':
-            return value / 1000; // 1 liter = 1000000 cubicmeters
-        // Add more cases for other units as needed
-        default:
-            return 'Invalid unit';
-    }
-}
-function convertFromCubicMeters(value, toUnit) {
-    // Implement the conversion logic for liters
-    // Return the converted value
-    switch (toUnit) {
-        case 'milliliters':
-            return value * 1000000; // 1 liter = 1000 milliliters
-        case 'liters':
-            return value * 1000; // 1 liter = 1000 milliliters
-        case 'cubicmeters':
-            return value ; // 1 liter = 1000000 cubicmeters
-        // Add more cases for other units as needed
-        default:
-            return 'Invalid unit';
+
+    // Perform conversion
+    var fromUnitToBase = conversion_table[magnitude][fromUnit];
+    var toUnitToBase = conversion_table[magnitude][toUnit];
+    var conversionFactor = toUnitToBase / fromUnitToBase;
+    var result = (value * conversionFactor);
+
+    // Display result in the corresponding output container
+    var outputContainer = targetDiv.querySelector(".output-container output");
+    if (outputContainer) {
+        outputContainer.innerHTML = result;
+    } else {
+        alert("Output container not found!");
     }
 }
 
-//--------------------------------------------------------------------------------------------------------
-// functions "Debiet"
-function convertFromCubicMeterPerHour(value, toUnit) {
-    // Return the converted value
-    switch (toUnit) {
-        case 'cubicmeterperhour':
-            return value * 1; // 
-        case 'cubicmeterperminute':
-            return value / 60; // 
-        case 'cubicmeterpersecond':
-            return value  / 3600 ; // 60*60 = 3600
-        case 'litersperhour':
-            return value * 1000; //
-        case 'litersperminute':
-            return value * 1000 /60; // 
-        case 'literspersecond':
-            return value * 1000/3600; // 
-        // Add more cases for other units as needed
-        default:
-            return 'Invalid unit';
-    }
-}
-function convertFromCubicMeterPerMinute(value, toUnit) {
-    // Return the converted value
-    switch (toUnit) {
-        case 'cubicmeterperhour':
-            return value * 60; // 
-        case 'cubicmeterperminute':
-            return value * 1; // 
-        case 'cubicmeterpersecond':
-            return value  / 60 ; // 1 m³/s = 60 m³/min
-        case 'litersperhour':
-            return value  * 1000 * 60; //
-        case 'litersperminute':
-            return value * 1000; // 
-        case 'literspersecond':
-            return value * 1000/60; // 
-        // Add more cases for other units as needed
-        default:
-            return 'Invalid unit';
-    }
-}
-function convertFromCubicMeterPerSecond(value, toUnit) {
-    // Return the converted value
-    switch (toUnit) {
-        case 'cubicmeterperhour':
-            return value * 3600; // 1 m³/s = 3600 m³/h
-        case 'cubicmeterperminute':
-            return value * 60; // 1 m³/s = 60 m³/min
-        case 'cubicmeterpersecond':
-            return value * 1 ; // 1 m³/s = 1 m³/s
-        case 'litersperhour':
-            return value * 1000 * 3600; // 1 m³/s = 3.600.000 l/h
-        case 'litersperminute':
-            return value * 1000 * 60 ; // 1 m³/s = 60.000 l/min
-        case 'literspersecond':
-            return value * 1000; //  1m³/s = 1000 l/s
-        // Add more cases for other units as needed
-        default:
-            return 'Invalid unit';
-    }
-}
-function convertFromLiterPerHour(value, toUnit) {
-    // Return the converted value
-    switch (toUnit) {
-        case 'cubicmeterperhour':
-            return value / 1000; // 
-        case 'cubicmeterperminute':
-            return value / 1000 / 60; // 
-        case 'cubicmeterpersecond':
-            return value  / 1000 / 3600 ; //
-        case 'litersperhour':
-            return value *1; //
-        case 'litersperminute':
-            return value / 60; // 
-        case 'literspersecond':
-            return value / 3600; // 
-        // Add more cases for other units as needed
-        default:
-            return 'Invalid unit';
-    }
-}
-function convertFromLiterPerMinute(value, toUnit) {
-    // Return the converted value
-    switch (toUnit) {
-        case 'cubicmeterperhour':
-            return value / 1000 * 60; // 
-        case 'cubicmeterperminute':
-            return value / 1000; // 
-        case 'cubicmeterpersecond':
-            return value  / 1000 /60 ; // 60*60 = 3600
-        case 'litersperhour':
-            return value * 60; //
-        case 'litersperminute':
-            return value * 1; // 
-        case 'literspersecond':
-            return value / 60; // 
-        // Add more cases for other units as needed
-        default:
-            return 'Invalid unit';
-    }
-}
-function convertFromLiterPerSecond(value, toUnit) {
-    // Return the converted value
-    switch (toUnit) {
-        case 'cubicmeterperhour':
-            return value / 1000 * 3600; // 
-        case 'cubicmeterperminute':
-            return value / 1000 * 60; // 
-        case 'cubicmeterpersecond':
-            return value  / 1000 ; // 60*60 = 3600
-        case 'litersperhour':
-            return value * 60 * 60; //
-        case 'litersperminute':
-            return value * 60; // 
-        case 'literspersecond':
-            return value * 1; // 
-        // Add more cases for other units as needed
-        default:
-            return 'Invalid unit';
-    }
-}
-//--------------------------------------------------------------------------------------------------
-// function "Massa"
-function convertFromKiloGram(value, toUnit) {
-    // Return the converted value
-    switch (toUnit) {
-        case 'kilogram':
-            return value * 1; // 1kG = 1 kG
-        case 'gram':
-            return value * 1000; // 1000g = 1kg
-        case 'milligram':
-            return value * 1000 * 1000 ; // 1.000.000 mg = 1kg 
-        case 'ton':
-            return value / 1000; // 1000 kg = 1 ton
-        case 'pond':
-            return value * 2.20462; //
-        // Add more cases for other units as needed
-        default:
-            return 'Invalid unit';
-    }
-}
-function convertFromGram(value, toUnit) {
-    // Return the converted value
-    switch (toUnit) {
-        case 'kilogram':
-            return value / 1000; // 1kG = 1 kG
-        case 'gram':
-            return value * 1; // 1000g = 1kg
-        case 'milligram':
-            return value * 1000 ; // 1.000.000 mg = 1kg 
-        case 'ton':
-            return value / 1000 /1000; // 1000 kg = 1 ton
-        case 'pond':
-            return value * 2.20462 / 1000; //
-        // Add more cases for other units as needed
-        default:
-            return 'Invalid unit';
-    }
-}
-function convertFromMilliGram(value, toUnit) {
-    // Return the converted value
-    switch (toUnit) {
-        case 'kilogram':
-            return value / 1000 /1000; // 1kG = 1 kG
-        case 'gram':
-            return value /1000; // 1000g = 1kg
-        case 'milligram':
-            return value * 1 ; // 1.000.000 mg = 1kg 
-        case 'ton':
-            return value / 1000 / 1000 / 1000; // 1000 kg = 1 ton
-        case 'pond':
-            return value * 2.20462 / 1000 / 1000; //
-        // Add more cases for other units as needed
-        default:
-            return 'Invalid unit';
-    }
-}
 
-function convertFromTon(value, toUnit) {
-    // Return the converted value
-    switch (toUnit) {
-        case 'kilogram':
-            return value *1000; // 1kG = 1 kG
-        case 'gram':
-            return value * 1000* 1000; // 1000g = 1kg
-        case 'milligram':
-            return value * 1000 * 1000* 1000 ; // 1.000.000 mg = 1kg 
-        case 'ton':
-            return value * 1; // 1000 kg = 1 ton
-        case 'pond':
-            return value * 2.20462 *1000 ; //
-        // Add more cases for other units as needed
-        default:
-            return 'Invalid unit';
-    }
-}
-function convertFromPond(value, toUnit) {
-    // Return the converted value
-    switch (toUnit) {
-        case 'kilogram':
-            return value / 2.20462; // 1kG = 1 kG
-        case 'gram':
-            return value / 2.20462 *1000; // 1000g = 1kg
-        case 'milligram':
-            return value / 2.20462 * 1000 * 1000; // 1.000.000 mg = 1kg 
-        case 'ton':
-            return value / 2.20462 / 1000; // 1000 kg = 1 ton
-        case 'pond':
-            return value * 1 ; //
-        // Add more cases for other units as needed
-        default:
-            return 'Invalid unit';
-    }
-}
-//--------------------------------------------------------------------------------------------------
-// function "Energie"
-function convertFromJoules(value, toUnit) {
-    // Return the converted value
-    switch (toUnit) {
-        case 'joules':
-            return value * 1; //
-        case 'kilojoules':
-            return value / 1000; // 
-        case 'kilowattuur':
-            return value / 3600 / 1000 ; // 
-        case 'wattuur':
-            return value / 3600; // 
-        case 'wattseconde':
-            return value * 1; // 
-        case 'britishthermalunit':
-            return value / 1055.05585; // 
-        case 'calorie':
-            return value * 0.2388; // 
-        case 'kilocalorie':
-            return value * 0.2388 / 1000; // 
-        // Add more cases for other units as needed
-        default:
-            return 'Invalid unit';
-    }
-}
-function convertFromKiloJoules(value, toUnit) {
-    // Return the converted value
-    switch (toUnit) {
-        case 'joules':
-            return value * 1000; //
-        case 'kilojoules':
-            return value * 1; // 
-        case 'kilowattuur':
-            return value / 3600 ; // 
-        case 'wattuur':
-            return value / 3600 * 1000; // 
-        case 'wattseconde':
-            return value * 1000 ; // 
-        case 'britishthermalunit':
-            return value / 1055.05585 * 1000; // 
-        case 'calorie':
-            return value * 0.2388 * 1000; // 
-        case 'kilocalorie':
-            return value * 0.2388 ; // 
-        // Add more cases for other units as needed
-        default:
-            return 'Invalid unit';
-    }
-}
-function convertFromKiloWattUur(value, toUnit) {
-    // Return the converted value
-    switch (toUnit) {
-        case 'joules':
-            return value * 3600 * 1000 ; //
-        case 'kilojoules':
-            return value * 3600; // 
-        case 'kilowattuur':
-            return value * 1 ; // 
-        case 'wattuur':
-            return value * 1000; // 
-        case 'wattseconde':
-            return value * 1000 * 3600; // 
-        case 'britishthermalunit':
-            return value * 3412.13; // 
-        case 'calorie':
-            return value * 859845; // 
-        case 'kilocalorie':
-            return value * 859.845; // 
-        // Add more cases for other units as needed
-        default:
-            return 'Invalid unit';
-    }
-}
-function convertFromWattUur(value, toUnit) {
-    // Return the converted value
-    switch (toUnit) {
-        case 'joules':
-            return value * 3600  ; //
-        case 'kilojoules':
-            return value * 3600 / 1000; // 
-        case 'kilowattuur':
-            return value / 1000 ; // 
-        case 'wattuur':
-            return value * 1000; // 
-        case 'wattseconde':
-            return value * 3600; // 
-        case 'britishthermalunit':
-            return value * 3412.13 / 1000; // 
-        case 'calorie':
-            return value * 859.845; // 
-        case 'kilocalorie':
-            return value * 859.845 / 1000; // 
-        // Add more cases for other units as needed
-        default:
-            return 'Invalid unit';
-    }
-}
-function convertFromWattSeconde(value, toUnit) {
-    // Return the converted value
-    switch (toUnit) {
-        case 'joules':
-            return value * 1  ; //
-        case 'kilojoules':
-            return value / 1000; // 
-        case 'kilowattuur':
-            return value / 1000 / 3600 ; // 
-        case 'wattuur':
-            return value / 3600; // 
-        case 'wattseconde':
-            return value * 1; // 
-        case 'britishthermalunit':
-            return value *  0.0009478; // 
-        case 'calorie':
-            return value * 0.2388; // 
-        case 'kilocalorie':
-            return value * 0.2388 / 1000; // 
-        // Add more cases for other units as needed
-        default:
-            return 'Invalid unit';
-    }
-}
-function convertFromBritishThermalUnit(value, toUnit) {
-    // Return the converted value
-    switch (toUnit) {
-        case 'joules':
-            return value * 1055.06  ; //
-        case 'kilojoules':
-            return value * 1055.06 / 1000; // 
-        case 'kilowattuur':
-            return value * 0.00029307 ; // 
-        case 'wattuur':
-            return value * 0.29307; // 
-        case 'wattseconde':
-            return value * 1055.06; // 
-        case 'britishthermalunit':
-            return value *  1; // 
-        case 'calorie':
-            return value * 251.996; // 
-        case 'kilocalorie':
-            return value * 251.996 / 1000; // 
-        // Add more cases for other units as needed
-        default:
-            return 'Invalid unit';
-    }
-}
-function convertFromCalorie(value, toUnit) {
-    // Return the converted value
-    switch (toUnit) {
-        case 'joules':
-            return value * 4.1868 ; //
-        case 'kilojoules':
-            return value * 4.1868 / 1000; // 
-        case 'kilowattuur':
-            return value * 0.000001163 ; // 
-        case 'wattuur':
-            return value * 0.001163; // 
-        case 'wattseconde':
-            return value * 4.1868; // 
-        case 'britishthermalunit':
-            return value *  0.003968; // 
-        case 'calorie':
-            return value * 1; // 
-        case 'kilocalorie':
-            return value / 1000; // 
-        // Add more cases for other units as needed
-        default:
-            return 'Invalid unit';
-    }
-}
-function convertFromKiloCalorie(value, toUnit) {
-    // Return the converted value
-    switch (toUnit) {
-        case 'joules':
-            return value * 4.1868 * 1000 ; //
-        case 'kilojoules':
-            return value * 4.1868 ; // 
-        case 'kilowattuur':
-            return value * 0.000001163 * 1000 ; // 
-        case 'wattuur':
-            return value * 0.001163 * 1000; // 
-        case 'wattseconde':
-            return value * 4.1868 * 1000; // 
-        case 'britishthermalunit':
-            return value *  0.003968 * 1000; // 
-        case 'calorie':
-            return value * 1000; // 
-        case 'kilocalorie':
-            return value *1 ; // 
-        // Add more cases for other units as needed
-        default:
-            return 'Invalid unit';
-    }
-}
+// Add event listener for click event
+document.getElementById("categoryList").addEventListener("click", function(event) {
+  // Check if the clicked element is an li
+  if (event.target.tagName === "LI") {
+    var targetDivId = event.target.getAttribute("data-target");
 
+    // Hide all divs with class "maintoola2"
+    var allDivs = document.querySelectorAll(".maintoola2");
+    allDivs.forEach(function(div) {
+      div.style.display = "none";
+    });
+
+    // Show the corresponding div
+    var targetDiv = document.getElementById(targetDivId);
+    if (targetDiv) {
+      targetDiv.style.display = "flex";
+      //convert();
+    }
+  }
+});
+
+
+// Attach event listeners to input field and select elements within the maintoola2 divs
+var maintoola2Divs = document.querySelectorAll('.maintoola2');
+maintoola2Divs.forEach(function(div) {
+    div.querySelector('#value').addEventListener('input', convert);
+    div.querySelector('#from').addEventListener('change', convert);
+    div.querySelector('#to').addEventListener('change', convert);
+});
+// Event listener for DOMContentLoaded event
+document.addEventListener('DOMContentLoaded', function() {
+  // Event listener for print button
+  document.getElementById('readMeButton').addEventListener('click', function() {
+      window.open(pdfUrlReadMe, '_blank');
+  });
+  document.getElementById('printButton').addEventListener('click', function() {
+      window.print();
+  });
+  // Event listener for excel button
+  document.getElementById('excelButton').addEventListener('click', function() {
+      // Make a GET request to the Django view that generates the Excel file
+      window.open(pdfUrlExcel, '_blank');
+  });
+})

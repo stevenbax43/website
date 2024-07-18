@@ -1,0 +1,616 @@
+{% extends 'home/base.html'%}
+
+{% load static %} 
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'tools/styles/tools.css'%}">
+    <link rel="stylesheet" href="{% static 'tools/styles/tool_A_2.css'%}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+{% endblock %}
+
+{% block content %}
+
+{% csrf_token %}
+
+<div class="top-banner"> 
+        <div class="top-banner-items">
+                <div> <h1> Tool A2: Eenhedenconversie</h1>  </div>
+                <div>  <a href="{% url 'tools:tools' %}">  <img src="{% static 'tools/images/engineering.png' %}"> </a> </div>
+        </div> 
+</div>
+
+<div class="second-banner no-print">        
+    <div class="second-banner-items">
+        <div class="second-alignment">
+            <div class="second-text">  
+                <ul id="categoryList">
+                    <li data-target="drukcontainer">Druk</li>
+                    <li data-target="volumecontainer">Volume</li>
+                    <li data-target="debietcontainer">Debiet</li>
+                    <li data-target="massacontainer">Massa</li>
+                    <li data-target="energiecontainer">Energie</li>
+                    <li data-target="afstandcontainer">Afstand</li>
+            </ul>         
+            </div>
+            <div class="tools-icons">
+                <div>  <a href="#" id="readMeButton" > ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" alt="ReadMe Button"> </a> </div>
+                <div>  <a href="#" id="printButton" >  <img src="{% static 'tools/images/print.png' %}" alt="Print Button"> </a> </div>
+                <div>  <a href="#" id="excelButton">  <img src="{% static 'tools/images/Excel.png' %}" alt="Excel Button"> </a> </div>          
+            </div>      
+        </div>      
+    </div>
+</div>
+
+
+<div class="main-banner">
+        <div class="main-banner-items">
+                <div class="maintoola2" id="drukcontainer" style="display: flex;">
+                        <div>
+                                <h1 id="magnitude">Druk</h1>
+                                <div id="converter">
+                                        <div class="input-container">
+                                                <div>
+                                                        <label for="value">Waarde:</label>
+                                                        <input type="number" id="value" placeholder="Vul hier de waarde in" step="any">
+                                                </div>
+                                               
+                                                <div>
+                                                        <div>
+                                                                <label for="from">Van Eenheid:</label>
+                                                                <select id="from">
+                                                                        <option value="pascal">Pa</option>
+                                                                        <option value="kilopascal">kPa</option>
+                                                                        <option value="mH2O">mH20</option>
+                                                                        <option value="bar">bar</option>
+                                                                        <option value="millibar">mbar</option>
+                                                                <!-- Add more options as needed -->
+                                                                </select>
+                                                        </div>
+                                                </div>
+                                        </div>
+                                        <div class="output-container">
+                                                <div>
+                                                        <label for="number">Resultaat:</label>
+                                                        
+                                                        <output id="result" class="output"></output> 
+                                                </div>
+                                                <div>
+                                                        <label for="to">Naar Eenheid:</label>
+                                                        <select id="to">
+                                                                <option value="pascal">Pa</option>
+                                                                <option value="kilopascal">kPa</option>
+                                                                <option value="bar">bar</option>
+                                                                <option value="millibar">mbar</option>
+                                                                <option value="mH2O">mH20</option>
+                                                        <!-- Add more options as needed -->
+                                                        </select>
+                                                </div>
+                                        </div> 
+                                </div>     
+                        </div>
+                       
+                        <div> 
+                                
+                                <h2>The SI-eenheid van druk is: <u>Pa</u></h2>
+                                <table>
+                                        
+                                        <thead>
+                                            <tr>
+                                                <th>Grootheid</th>
+                                                <th>SI-eenheid</th>
+                                                <th>Eenheid om te zetten in</th>
+                                                <th>Gelijkwaardigheid</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td rowspan="4" class="colspan rounded-corner">Druk</td>
+                                                <td rowspan="4" class="colspan">1 Pa</td>
+                                                <td>Kilopascal</td>
+                                                <td>0,001 kPa</td>
+                                                
+                                            </tr>
+                                            <tr>
+                                                <td>Bar</td>
+                                                <td>0,00001 bar</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Millibar</td>
+                                                <td>0,01 mbar</td>
+                                            </tr>
+                                           
+                                            <tr>
+                                                <td>Meter Waterkolom</td>
+                                                <td>0,000102 mH2O</td>
+                                            </tr>
+                                        
+                                            <!-- Add more rows as needed -->
+                                        </tbody>
+                                </table>
+                                
+                        </div>
+                </div>
+                <div class="maintoola2" id="volumecontainer" style="display: none;">
+                        <div>
+                                <h1 id="magnitude">Volume</h1>
+                                <div id="converter">
+                                        <div class="input-container">
+                                                <div >
+                                                        <label for="value">Waarde:</label>
+                                                        <input type="number" id="value" placeholder="Vul hier de waarde in" step="any">
+                                                </div>      
+                                                <div >
+                                                        <label for="from">Van Eenheid:</label>
+                                                        <select id="from">
+                                                                <option value="cubicmeters" selected>m³</option>
+                                                                <option value="liters">l</option>
+                                                                <option value="milliliters">ml</option>
+                                                            <!-- Add more options as needed -->
+                                                        </select>
+                                                </div>           
+                                        </div>
+
+                                        <div class="output-container">
+                                                <div>
+                                                        <label for="number">Resultaat:</label>
+                                                        <br>
+                                                        <output id="result"></output> 
+                                                </div>
+                                                
+                                                <div>
+                                                        <label for="to">Naar Eenheid:</label>
+                                                        <select id="to">
+                                                            <option value="milliliters">ml</option>
+                                                            <option value="liters">l</option>
+                                                            <option value="cubicmeters" selected>m³</option>
+                                                            <!-- Add more options as needed -->
+                                                        </select>
+                                                </div>
+                                        </div>
+                                        
+                                        
+                                        
+                                      
+                                    </div>
+                                    
+                        </div>
+                       
+                        <div> 
+                                
+                                <h2>The SI-eenheid van volume is: <u>m³</u> </h2>
+                                <table>
+                                       
+                                        <thead>
+                                            <tr>
+                                                <th>Grootheid</th>
+                                                <th>SI-eenheid</th>
+                                                <th>Eenheid om te zetten in</th>
+                                                <th>Gelijkwaardigheid</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td rowspan="4" class="colspan">Volume</td>
+                                                <td rowspan="4" class="colspan">1 m³ </td>
+                                                <td>Liters</td>
+                                                <td>1000 l</td>
+                                            </tr>
+                                            <tr>
+                                                <td>milliliters</td>
+                                                <td>1.000.000 ml</td>
+                                            </tr>
+                                                                                    
+                                            <!-- Add more rows as needed -->
+                                        </tbody>
+                                </table>
+                                
+                        </div>
+                </div>
+                <div class="maintoola2" id="debietcontainer" style="display: none;">
+                        <div>
+                                <h1 id="magnitude">Debiet</h1>
+                                <div id="converter">
+                                        <div class="input-container">
+                                                <div>
+                                                        <label for="value">Waarde:</label>
+                                                        <input type="number" id="value" placeholder="Vul hier de waarde in" step="any">
+                                                </div>
+                                                <div>
+                                                        <label for="from">Van Eenheid:</label>
+                                                        <select id="from">
+                                                                <option value="cubicmeterpersecond">m³/s</option>
+                                                                <option value="cubicmeterperhour">m³/h</option>
+                                                                <option value="cubicmeterperminute">m³/min</option>
+                                                                <option value="litersperhour">l/h</option>
+                                                                <option value="litersperminute">l/min</option>
+                                                                <option value="literspersecond">l/s</option>
+                                                                
+                                                            <!-- Add more options as needed -->
+                                                        </select>
+                                                </div>
+                                        </div>
+                                        
+                                        <div class="output-container">
+                                                <div>
+                                                        <label for="number">Resultaat:</label>
+                                                        <br>
+                                                        <output id="result"></output> 
+                                                </div>
+                                                <div>
+                                                        <label for="to">Naar Eenheid:</label>
+                                                        <select id="to">
+                                                                <option value="cubicmeterpersecond">m³/s</option>
+                                                                <option value="cubicmeterperhour">m³/h</option>
+                                                                <option value="cubicmeterperminute">m³/min</option>
+                                                                <option value="litersperhour">l/h</option>
+                                                                <option value="litersperminute">l/min</option>
+                                                                <option value="literspersecond">l/s</option>
+                                                                
+                                                            <!-- Add more options as needed -->
+                                                        </select>
+                                                </div>
+                                        </div>
+
+                                        
+                  
+                                    
+                                </div>
+                        </div>
+                
+                        <div> 
+                                
+                                <h2>The SI-eenheid van debiet is: <u>m³/s</u></h2>
+                                <table>
+                                       
+                                        <thead>
+                                            <tr>
+                                                <th>Grootheid</th>
+                                                <th>SI-eenheid</th>
+                                                <th>Eenheid om te zetten in</th>
+                                                <th>Gelijkwaardigheid</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td rowspan="5" class="colspan">Debiet</td>
+                                                <td rowspan="5" class="colspan">1 m³/s</td>
+                                                <td>Kubieke meter per uur</td>
+                                                <td>3600 m³/h </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Kubieke meter per minuut</td>
+                                                <td>60 m³/min</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Liter per uur</td>
+                                                <td>3.600.000 l/h</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Liter per minuut</td>
+                                                <td>60.000 l/min</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Liter per seconde</td>
+                                                <td>1000 l/s</td>
+                                            </tr>
+                                        
+                                            <!-- Add more rows as needed -->
+                                        </tbody>
+                                </table>
+                                
+                        </div>
+                </div>
+                <div class="maintoola2" id="massacontainer" style="display: none;">
+                        <div>
+                                <h1 id="magnitude">Massa</h1>
+                                <div id="converter">
+                                        <div class="input-container">
+                                                <div>
+                                                        <label for="value">Waarde:</label>
+                                                        <input type="number" id="value" placeholder="Vul hier de waarde in" step="any">
+                                                </div>
+                                                <div>
+                                                        <label for="from">Van Eenheid:</label>
+                                                        <select id="from">
+                                                                <option value="kilogram">kg</option>
+                                                                <option value="gram">g</option>
+                                                                <option value="milligram">mg</option>
+                                                                <option value="ton">ton</option>
+                                                                <option value="pond">lb</option>
+                                                                <!-- Add more options as needed -->
+                                                        </select>
+                                                
+                                                </div>
+
+                                        </div>
+                                        
+                                        <div class="output-container">
+                                                <div>
+                                                        <label for="number">Resultaat:</label>
+                                                        <br>
+                                                        <output id="result"></output> 
+                                                </div>
+                                                <div>
+                                                        <label for="to">Naar Eenheid:</label>
+                                                        <select id="to">
+                                                                <option value="kilogram">kg</option>
+                                                                <option value="gram">g</option>
+                                                                <option value="milligram">mg</option>
+                                                                <option value="ton">ton</option>
+                                                                <option value="pond">lb</option>
+                                                        <!-- Add more options as needed -->
+                                                        </select>
+                                                </div>
+                                         
+                                       
+                                        </div>
+                                
+                                        
+                                </div>
+                                        
+                               
+                               
+                        </div>
+                       
+                        <div> 
+                                
+                                <h2>The SI-eenheid van massa is: <u>kg</u></h2>
+                                <table>
+                                        
+                                        <thead>
+                                            <tr>
+                                                <th>Grootheid</th>
+                                                <th>SI-eenheid</th>
+                                                <th>Eenheid om te zetten in</th>
+                                                <th>Gelijkwaardigheid</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td rowspan="4" class="colspan">Massa</td>
+                                                <td rowspan="4" class="colspan">1 kg</td>
+                                                <td>Gram</td>
+                                                <td>1000 bar</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Milligram</td>
+                                                <td>1.000.000 mbar</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Ton</td>
+                                                <td>0,001 ton</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Pond (pound)</td>
+                                                <td>2,20462 lb</td>
+                                            </tr>
+                                        
+                                            <!-- Add more rows as needed -->
+                                        </tbody>
+                                </table>
+                                
+                        </div>
+                </div>
+                <div class="maintoola2" id="energiecontainer" style="display: none;">
+                        <div>
+                                <h1 id="magnitude">Energie</h1>
+                                <div id="converter">
+                                        <div class="input-container">
+                                            <div>
+                                                <label for="value">Waarde:</label>
+                                                <input type="number" id="value" placeholder="Vul hier de waarde in" step="any">
+                                            </div>
+                                            <div>
+                                                <label for="from">Van Eenheid:</label>
+                                                <select id="from">
+                                                    <option value="joules">J</option>
+                                                    <option value="kilojoules">kJ</option>
+                                                    <option value="kilowattuur">kWh</option>
+                                                    <option value="wattuur">Wh</option>
+                                                    <option value="wattseconde">Ws</option>
+                                                    <option value="britischthermalunits">btu</option>
+                                                    <option value="calorie">cal</option>
+                                                    <option value="kilocalorie">kcal</option>
+                                                    <!-- Add more options as needed -->
+                                                </select>
+                                        
+                                            </div>
+                                        </div>
+                                        <div class="output-container">
+                                            <div>
+                                                <label for="number">Resultaat:</label>
+                                                <br>
+                                                <output id="result"></output> 
+                                            </div>
+                                            <div>
+                                                <label for="to">Naar Eenheid:</label>
+                                                <select id="to">
+                                                    <option value="joules">J</option>
+                                                    <option value="kilojoules">kJ</option>
+                                                    <option value="kilowattuur">kWh</option>
+                                                    <option value="wattuur">Wh</option>
+                                                    <option value="wattseconde">Ws</option>
+                                                    <option value="britischthermalunits">btu</option>
+                                                    <option value="calorie">cal</option>
+                                                    <option value="kilocalorie">kcal</option>
+                                                    <!-- Add more options as needed -->
+                                                </select>
+                                            </div>
+                                            
+                                        </div>                                
+                                                        
+                                                        
+                                    
+                                </div>
+                        </div>
+                       
+                        <div> 
+                                
+                                <h2>The SI-eenheid van energie is: <u>J</u></h2>
+                                <table>
+                                        
+                                        <thead>
+                                            <tr>
+                                                <th>Grootheid</th>
+                                                <th>SI-eenheid</th>
+                                                <th>Eenheid om te zetten in</th>
+                                                <th>Gelijkwaardigheid</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td rowspan="7" class="colspan">Energie</td>
+                                                <td rowspan="7" class="colspan">1 J</td>
+                                                <td>Kilojoules</td>
+                                                <td>0,001 kJ</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Kilowattuur</td>
+                                                <td> 2,778E-07 kWh</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Wattuur</td>
+                                                <td>0,0002777 Wh</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Wattseconde</td>
+                                                <td>1 Ws</td>
+                                            </tr>
+                                            <tr>
+                                                <td>British Thermal Units</td>
+                                                <td>9,478E-04 btu</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Calorie</td>
+                                                <td>0,2388 cal</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Kilocalorie</td>
+                                                <td>0,0002388 kcal</td>
+                                            </tr>
+                                        
+                                            <!-- Add more rows as needed -->
+                                        </tbody>
+                                </table>
+                                
+                        </div>
+                </div>
+                <div class="maintoola2" id="afstandcontainer" style="display: none;">
+                        <div>
+                                <h1 id="magnitude">Afstand</h1>
+                                <div id="converter">
+                                    <div class="input-container">
+                                        <div>
+                                            <label for="value">Waarde:</label>
+                                            <input type="number" id="value" placeholder="Vul hier de waarde in" step="any">
+                                        </div>
+                                        <div>
+                                            <label for="from">Van Eenheid:</label>
+                                            <select id="from">
+                                                <option value="millimeter">mm</option>
+                                                <option value="centimeter">cm</option>
+                                                <option value="decimeter">dm</option>
+                                                <option value="meter" selected>m</option>
+                                                <option value="kilometer"> km</option>
+                                                <option value="feet">ft</option>
+                                                <option value="inches">inch</option>
+                                                <option value="seamile">mijl (zee)</option>
+                                                <option value="landmile">mijl (land)</option>
+                                                <!-- Add more options as needed -->
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="output-container">
+                                        <div>
+                                            <label for="number">Resultaat:</label>
+                                            <br>
+                                            <output id="result"></output> 
+                                        </div>
+                                        <div>
+                                            <label for="to">Naar Eenheid:</label>
+                                            <select id="to">
+                                                <option value="millimeter">mm</option>
+                                                <option value="centimeter">cm</option>
+                                                <option value="decimeter">dm</option>
+                                                <option value="meter" selected>m</option>
+                                                <option value="kilometer"> km</option>
+                                                <option value="feet">ft</option>
+                                                <option value="inches">inch</option>
+                                                <option value="seamile">mijl (zee)</option>
+                                                <option value="landmile">mijl (land)</option>
+                                                <!-- Add more options as needed -->
+                                            </select>
+                                        </div>
+                                    </div>
+                               
+                                </div>
+                               
+                        </div>
+                       
+                        <div> 
+                            
+                                <h2>The SI-eenheid van afstand is: <u>m</u></h2>
+                                <table>
+                                        
+                                        <thead>
+                                            <tr>
+                                                <th>Grootheid</th>
+                                                <th>SI-eenheid</th>
+                                                <th>Eenheid om te zetten in</th>
+                                                <th>Gelijkwaardigheid</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td rowspan="8" class="colspan">Afstand</td>
+                                                <td rowspan="8" class="colspan">1 m</td>
+                                                <td>Millimeter</td>
+                                                <td>1000 mm</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Centimeter</td>
+                                                <td> 100 cm</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Decimeter</td>
+                                                <td> 10 m</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Kilometer</td>
+                                                <td> 0,001 km</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Feet</td>
+                                                <td>3,28 ft</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Inches</td>
+                                                <td>39,37 inch</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Zeemijl</td>
+                                                <td>5,40E-04 mijl</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Landmijl</td>
+                                                <td>6,21E-04 mijl</td>
+                                            </tr>
+                                        
+                                            <!-- Add more rows as needed -->
+                                        </tbody>
+                                </table>
+                                
+                        </div>
+                </div>
+        </div> 
+</div>
+
+
+{% endblock %} 
+{% block extra_js %}
+<!-- This makes sure this JS is only be loaded when rendering this HTML page. Whilst the common JS Files included in de extra_js block of base.html will be loaded across all pages -->
+<script src="{% static 'tools/scripts/script_tools_A2.js' %}"></script>
+<script>pdfUrlReadMe = "{% static 'tools/files/TOOLA2-README.pdf' %}"</script>
+<script>pdfUrlExcel = "{% static 'tools/files/TOOL_A2_Eenhedenconversie.xlsx' %}"</script>
+{% endblock %}

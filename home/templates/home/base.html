@@ -6,51 +6,47 @@
         <meta charset="utf-8">
         <title>Ontwerp & Techniek</title>
         <link rel="stylesheet" href="{% static 'home/styles/base.css'%}">
-        <link rel="stylesheet" href="{% static 'home/styles/home.css'%}">
-        <link rel="stylesheet" href="{% static 'tools/styles/tools.css'%}">
-        <link rel="stylesheet" href="{% static 'tools/styles/tool_A2.css'%}">
-        <link rel="stylesheet" href="{% static 'news/styles/news.css'%}">
-        <link rel="stylesheet" href="{% static 'chat/styles/chat.css'%}">
-        <link rel="stylesheet" href="{% static 'accounts/styles/accounts.css'%}">
-        <link rel="icon" type="image/png" sizes="32x32" href="{% static 'home/images/favicon-32x32.png'%}">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> <!-- for PDF generator-->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.2/jspdf.debug.js" ></script> <!-- for PDF generator-->
-    
+        <link rel="icon" type="image/png" sizes="32x32" href="{% static 'home/images/favicon.ico' %}">
+        {% block extra_css %}{% endblock %}
     </head>
 
     <body>
-        <header class="header-banner">
-            <div class = "navbar" id="navbar">
-                <a href="{% url 'home'%}"><img id="navbarImage" src ="{% static 'home/images/kropman.png' %}"></a>
-                
-                <ul id="navbarList">
-                    <li><nav><a href="/">Home</a></nav></li>
-                    <li><nav><a href="/tools">Tools</a></nav></li>
-                    <li><nav><a href="/nieuws">Nieuws</a></nav></li>
-                    <li><nav><a href="/chatbot">Chatbot</a></nav></li>
-                    <li><nav><a href="/about">Over mij</a></nav></li>
-                        {% if user.is_authenticated %}
-                            <li><nav> 
-                            <form class="logout-link" action="{% url 'accounts:logout'%}" method="POST">
-                                {% csrf_token %}
-                                <button type="submit" name="logoutbutton" id="logoutbutton">Logout</button>
-                            </form>
-                            </nav></li>
-                        {% else %}
-                            <li><nav><a href="{% url 'accounts:login'%}" id="login">Login</a></nav></li>
-                            <li><nav><a href="{% url 'accounts:signup'%}" id="signup">Signup</a></nav></li>
-                        {% endif %}
-                </ul>
+        <header class="navbar">
+            <div class="navbar-brand">
+                <a href="https://kropman.nl/" class="logo-container" target="_blank">
+                    <img src="{% static 'home/images/I.png' %}" class="logo logo-i" alt="Logo I">
+                    <img src="{% static 'home/images/bigger_than.png' %}" class="logo logo-bigger-than" alt="Logo Bigger Than">
+                </a>
             </div>
-            
+            <nav class="navbar-menu">
+                <ul>
+                    <li><a href="\">Home</a></li>
+                    <li><a href="\tools">Tools</a></li>
+                    <li><a href="\forum">Forum</a></li>
+                    <li><a href="\chatbot">Chat</a></li>
+
+                    {% if user.is_authenticated %}
+                    <li> 
+                        <form action="{% url 'accounts:logout'%}" method="POST">
+                            
+                            <button type="submit" name="logoutbutton" id="logoutbutton">Logout</button>
+                            {% csrf_token %}
+                        </form>
+                    </li>
+                    {% else %}
+                    <li><a href="{% url 'accounts:login'%}" id="login">Login</a></li>
+                    <li><a href="{% url 'accounts:signup'%}" id="signup">Signup</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
         </header>
-                  
+ 
            
                       
         <main>
 
             {% block content %}
-            {% endblock content %}
+            {% endblock %}
 
         </main>
         
@@ -73,11 +69,16 @@
                     <a href="https://www.linkedin.com/company/kropman-installatietechniek">
                         <img class="footer-image" src ="{% static 'home/images/linkedin.png' %}" alt = "Footer image" width="30" height=auto></a> &ensp;
                 </div>
+            
+               
+
             </div>
-            <script src="{% static 'home/scripts/script_home.js' %}"></script>
-            <script src="{% static 'chat/scripts/chat.js' %}"></script>
-            <script src="{% static 'tools/scripts/script_tools_A1.js' %}"></script>
-            <script src="{% static 'tools/scripts/script_tools_A2.js' %}"></script>
+          
         </footer>
+         
+        <script src="{% static 'home/scripts/script_home.js' %}"></script>
+        {% block extra_js %} {% endblock %}
+       
+        
     </body>
 </html>

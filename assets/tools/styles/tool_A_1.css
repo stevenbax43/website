@@ -1,0 +1,75 @@
+.input-output{
+
+}
+.border img{
+	width: 150px;
+	align-self: center;
+}
+
+
+
+
+
+/* default CSS independent of screen size */
+.main-banner-items-1,
+.main-banner-items-2,
+.main-banner-items-3,
+.main-banner-items-4 {
+	
+	margin-top: 30px;
+	border-bottom: 4px solid #00ff00;
+	display: flex;
+	align-items: left;
+}
+.main-banner-items-4 {
+	border-bottom: none;
+	margin-bottom: 50px;
+}
+.main-content {
+	flex: 8;
+}
+.main-image {
+	flex: 2;
+	display: flex;
+	align-items: center; /* center vertically */	
+	justify-content: space-between; /*center horizontally */
+}
+
+
+#PDF {
+	width: 30%;
+	height: auto;
+}
+
+/* Print styles */
+.location-output {
+	margin-bottom: 30px; /* Stacking elements below each other on smaller screens */
+	margin-top: 10px
+}
+#EPlabel {
+	margin-left: -200px; /* To overlay the waiting sign */
+}
+#WEii_output {
+	margin-left: 200px;
+}
+.form-group {
+display: flex;
+flex-direction: column;
+margin-bottom: 10px; /*add a margin for better spacing */
+margin-right: 5px;
+}
+
+.form-group label {
+font-weight: bold;
+}
+
+.form-group input,
+.form-group output {
+border: 1px solid #13f539;
+border-radius: 10px;
+max-width: 200px;
+min-height: 20px;
+font-size: 14px;
+font-family: inherit;
+padding: 7px;
+}

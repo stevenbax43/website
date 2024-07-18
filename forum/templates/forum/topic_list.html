@@ -1,0 +1,63 @@
+{% extends 'home/base.html'%}
+
+{% load static %} 
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'forum/styles/forum.css'%}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+{% endblock %}
+
+
+{% block content %}
+{% csrf_token %}
+
+<div class="top-banner"> 
+        <div class="top-banner-items">
+                <div> <h1> Forum </h1>  </div>
+                <div>  <a href="{% url 'forum:topic_list' %}">  <img src="{% static 'forum/images/forum.png' %}"> </a> </div>
+        </div> 
+</div>
+
+<div class="second-banner"> 
+        <div class="second-banner-items">
+            <p>Dit is een forum platform waar gediscusieerd kan worden over bepaalde zaken op deze website. 
+                Suggesties, op- en aanmerkingen zijn welkom en je kan op elkaar reageren.</p>                 
+              
+        </div>
+</div>
+
+
+<div class="main-banner">
+    <div class="main-banner-items">
+        <div class="container mt-5">
+                <div class="main-banner text-center mb-4">
+                    <h1 class="display-4">Forum Topics</h1>
+                    
+                </div>
+                
+                <div class="list-group">
+                    {% for topic in topics %}
+                        <a href="{% url 'forum:topic_detail' topic.pk %}" class="list-group-item list-group-item-action">
+                            {{ topic.title }} by {{ topic.created_by.username }}
+                        </a>
+                    {% empty %}
+                        <div class="alert alert-warning" role="alert">
+                            No topics available.
+                        </div>
+                    {% endfor %}
+                    <a href="{% url 'forum:create_topic' %}" class="btn btn-primary mb-3">Create New Topic</a>
+                </div>
+            </div>
+    </div>
+        
+
+</div>
+    
+   
+
+{% endblock content %}
+{% block extra_js %}
+<!-- This makes sure this JS is only be loaded when rendering this HTML page. Whilst the common JS Files included in de extra_js block of base.html will be loaded across all pages -->
+
+<script src="{% static 'forum/scripts/forum.js' %}"></script>
+{% endblock %}  

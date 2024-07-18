@@ -13,7 +13,7 @@ def main():
         os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.production')
         #print('production')
 
-    print(f'DJANGO_SETTINGS_MODULE: {os.environ["DJANGO_SETTINGS_MODULE"]}')  # Add this line for debugging  
+    #print(f'DJANGO_SETTINGS_MODULE: {os.environ["DJANGO_SETTINGS_MODULE"]}')  # Add this line for debugging  
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

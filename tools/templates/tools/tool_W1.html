@@ -1,191 +1,301 @@
 {% extends 'home/base.html'%}
-{% block content %}
+
 {% load static %} 
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'tools/styles/tools.css'%}">
+    <link rel="stylesheet" href="{% static 'tools/styles/tool_W_1.css'%}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
 {% csrf_token %}
 
 <div class="top-banner"> 
         <div class="top-banner-items">
-                <div> <h1> Tool W1: Inhoud Buffervat Berekenen</h1>  </div>
+                <div> <h1> Tool W1: Mollier Diagram</h1>  </div>
+                
                 <div>  <a href="{% url 'tools:tools' %}">  <img src="{% static 'tools/images/engineering.png' %}"> </a> </div>
         </div> 
 </div>
 
-<div class="second-banner"> 
+<div class="second-banner no-print">        
         <div class="second-banner-items">
-                <div >  <p> Voor het berekenen van de inhoud van een buffervat, 
-                                   </p>     </div>
-                
-                
+            <div class="second-alignment">
+                <div class="second-text">  
+                    <p> Het Mollier diagram, of H-x diagram, is een grafische voorstelling van de thermodynamische eigenschappen die van invloed zijn op vochtige lucht.</p>    
+                </div>
+                <div class="tools-icons">
+                    <div>  <a href="#" id="readMeButton" > ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" alt="ReadMe Button"> </a> </div>
+                    <div>  <a href="#" id="printButton" >  <img src="{% static 'tools/images/print.png' %}" alt="Print Button"> </a> </div>
+                    <div>  <a href="#" id="excelButton">  <img src="{% static 'tools/images/Excel.png' %}" alt="Excel Button"> </a> </div>          
+                </div>      
+            </div>      
         </div>
 </div>
-
 
 <div class="main-banner">
-        <div class="main-banner-items">
-                <form method = "post" id="myForm">{% csrf_token %}
-                <div class="main-banner-items-1">
-                        <div class="main-content">
-
-                                <div>
-                                        <h2>BAG viewer Kadaster</h2>
-                                        <p>Vul de postcode, het huisnummer en de (eventuele) toevoeging in.  <br> De onderstaande gegevens worden automatisch 
-                                                aangevuld vanuit de BAG-database. Druk daarna op de BAG knop.</p>
-                                </div>
-
-                                
-                                <div class="location-input">  
-                
-                                        <div class="form-group">
-                                                <label for="pcode">Postcode</label>
-                                                <input type="text" name='pcode' id="pcode" placeholder="1234AB" maxlength="6" value="{{ adr1.pcode }}">
-                                        </div>
-                                        
-                                        <div class="form-group">
-                                                <label for="hnumber">Huisnummer</label>
-                                                <input type="text" id="hnumber" name="hnumber" placeholder="10" value="{{ adr1.hnumber }}">
-                                        </div>
-                        
-                                        <div class="form-group">
-                                                <label for="addition">Toevoeging (optioneel)</label>
-                                                <input type="text" id="addition" name="addition" placeholder="A" maxlength="4" value="{{ adr1.addition }}">
-                                        </div>
-                                        
-                                        
-                                        
-                
-                                </div>
-                                
-                                <div class="button-container"> <button class="button-span" id="BAG_button" name="BAG_button"><span></span>--BAG-gegevens--</button></div>
-                                <div class="location-output">
-                                        <div class="form-group">
-                                                <label for="street">Straat</label>
-                                                <output  id="street" value="{{ adr1.street }}">{{adr1.street}}</output>
-                                        </div>
-                                        <div class="form-group">
-                                                <label for="place">Plaats</label>
-                                                <output  id="place" value="{{ adr1.place }}">{{adr1.place}}</output>
-                                        </div>
-                                        <div class="form-group">
-                                                <label for="place">Bouwjaar</label>
-                                                <output  id="bouwjaar" value="{{ adr1.buildyear }}">{{adr1.buildyear}}</output>
-                                        </div>  
-                                        <div class="form-group">
-                                                <label for="place">Oppervlakte (m<sup>2</sup>)</label>
-                                                <output  id="oppervlakte" value="{{ adr1.BAG_surface}}">{{adr1.BAG_surface}}</output>
-                                        </div>  
-                                        <div class="form-group">
-                                                <label for="place">Gebruiksdoel</label>
-                                                <output  id="gebruiksdoel" value="{{ adr1.purpose }}">{{adr1.purpose}}</output>
-                                        </div>    
-                                        
-                                </div>
-                                
-                                 
-                                
+    <div class="main-banner-items" id="print_content">
+        <form method="post" id="inputForm">
+            {% csrf_token %}
+            <div class="container-fluid mt-3 ">
+                <div class="row mb-3">
+                    <!-- Input Form -->
+                    <div class="col-md-3" style="min-width: 250px;">
+                        <div class="border p-3 shadow">
+                            <h4>Input</h4>
+                            <!-- Input fields -->
+                            <div class="mb-3">
+                                <label for="Tdb_var">Temperatuur (T<sub>db</sub>) [°C]:</label>
+                                <input type="number" class="form-control" id="Tdb_var" name="Tdb_var" value="10" min="-10" max="40">
+                            </div>
+                            <div class="mb-3">
+                                <label for="RH_var">Luchtvochtigheid (RH) [%]:</label>
+                                <input type="number" class="form-control" id="RH_var" name="RH_var" value="50" min="10" max="100">
+                            </div>
+                            <div class="mb-3">
+                                <label for="Heigth_var">Hoogte (h) [m]:</label>
+                                <input type="number" class="form-control" id="Heigth_var" name="Heigth_var" value="0" min="0" max="4000">
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="display: none;" id="mollierButton" name="mollierButton"></button>
                         </div>
-                        <div class="main-image">
-                                <img id="BAGviewer" src="{% static 'tools/images/BAGkadaster-logo.png' %}">
-                        </div>
-                        
-                        <!-- <p id="adress"></p> -->
-                
-                </div>
-                <div class="main-banner-items-2">
-                        <div class="main-content">
-                                <h2>EP-label</h2>
-                                <p>Het bovenstaand adres wordt gebruikt om de energielabel van de vestiging te achterhalen bij EP-online. Druk op de EP-knop  </p>                          
-                                
-                                <div class="button-container"> <button class="button-span " id="EP_button" name="EP_button"><span></span>--EP-Label--</button></div>
-                                
-                                <div class="location-output">
-                                        <p> De huidige energielabel van het gebouw is:       
-                                                
-                                                <div id="waitingSign" class="hidden">
-                                                        <!-- SVG spinner -->
-                                                        <svg class="spinner" viewBox="0 0 50 50">
-                                                                <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
-                                                        </svg>
-                                                </div>
-                                                <output class="{{EPcolor}}" type="text" name='EPlabel' id="EPlabel" value="{{adr1.EP_label}}" >{{adr1.EP_label}}</output> 
-                                        </p>
-        
+                    </div>
+                    <div class="col-md-8 no-print" style="min-width: 250px;">
+                        <div class="border p-3 shadow">
+                            <h4>Output</h4>
+                            <!-- Output fields -->
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="Td_out">Dauwpunt (T<sub>d</sub>) [°C]:</label>
+                                    <output class="form-control" id="Td_out" name="Td_out">{{ calculated_values.6 }}</output>
                                 </div>
-                                 
+                                <div class="col-md-6 mb-3">
+                                    <label for="Patm_out"> Druk (P<sub>atm</sub>) [Pa]:</label>
+                                    <output class="form-control" id="Patm_out" name="Patm_out">{{ calculated_values.7 }}</output>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="humid_out">Abs. Vocht (x) [g/kg]:</label>
+                                    <output class="form-control" id="humid_out" name="humid_out">{{ calculated_values.0 }}</output>
+                                </div>
+                            
+                            
+                                <div class="col-md-6 mb-3">
+                                    <label for="Enth_out">Enthalpie (H) [kJ/kg]:</label>
+                                    <output class="form-control" id="Enth_out" name="Enth_out">{{ calculated_values.2 }}</output>
+                                </div>
+                            </div>
+                            <div class="row" >
+                                <div class="col-md-6 mb-3">
+                                    <label for="rho_out">Dichtheid (&rho;) [kg/m<sup>3</sup>]:</label>
+                                    <output class="form-control" id="rho_out" name="rho_out">{{ calculated_values.4 }}</output>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="par_out">Dampspanning (p<sub>h20</sub>) [Pa]:</label>
+                                    <output class="form-control" id="par_out" name="par_out">{{ calculated_values.5 }}</output>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="display: none;" id="mollierButton" name="mollierButton"></button>
                         </div>
-                        <div class="main-image">
-                                
-                                <img id="eplabelimgage" src="{% static 'tools/images/label-u-bouw.jpg' %}">
-                           
-                        </div>
-                        
+                    </div>
                 </div>
                 
-                <div class="main-banner-items-3">
-                        <div class="main-content">
-                                <h2>WEii</h2>
-                                <p>Vul het kalenderjaar in waarin de elektriciteit en gasgebruik is gemeten. Druk op de Weii knop. 
-                                        Aan de hand van bovenstaande adres en oppervlakte wordt de WEii-score berekend. </p>
-                                <div class="location-input">
-                                        <div class="form-group">
-                                                <label>Kalenderjaar (>2017)</label>
-                                                <input type="text" id="calendaryear" name="calendaryear" placeholder="2022" value="{{ adr1.calendaryear}}">
-                                        </div>
-                                        <div class="form-group">
-                                                <label >Elektriciteit (kWh)</label>
-                                                <input type="number" name='elektra' id="elektra" placeholder="kWh" maxlength="10" value="{{ adr1.elektra}}">
-                                        </div>
-                                        <div class="form-group">
-                                                <label > Terug geleverd (optioneel) (kWh)</label>
-                                                <input type="number" name='elektra_terug' id="elektra_terug" placeholder="kWh" maxlength="10" value="{{adr1.elektra_terug}}">
-                                        </div>
-                                        
-                                        <div class="form-group">
-                                                <label>Gasgebruik (m<sup>3</sup>)</label>
-                                                <input type="number" id="gas" name="gas" placeholder="m3" value="{{ adr1.gas}}">
-                                        </div>
-                                </div>
-                                
-                                <div class="button-container"> <button type="submit" class="button-span" id="WEii_button" name="WEii_button"><span></span>WEii-score</button></div>
-
-                                <div class="location-output">
-                                        <p>De WEii-score uit het jaar {{adr1.calendaryear}} is:
-                                        <output class="{{EPcolor}}" type="text" name='WEii' id="WEii_output" value="{{adr1.weii}}"> {{adr1.weii}}</output> 
-                                        </p>
-                                </div>
+                <div class="row">
+                    <!-- Graphs -->
+                    <div class="col-md-12" width="100%">
+                        <div class="border p-3 shadow mb-3">
+                            <!-- Graph canvas 2 -->
+                            <div style="min-height: 200px; overflow:hidden;">
+                                <canvas id="myLinesRH" style="min-height: 200px;"></canvas>
+                            </div>
                         </div>
-                        
-                        <div class="main-image">
-                                <img id="weii" src="{% static 'tools/images/Weii-logo.png' %}">
-                        </div>
+                    </div>
                 </div>
-                
-                <div class="main-banner-items-4">
-                        <div class="main-content">
-                                <h2>Print Samenvatting</h2>
-                                <p>Print een PDF met alle gegevens </p>                          
-                                
-                                <div class="button-container"> <button type="submit" class="button-span " id="PDF_creater" name="PDF_creater" ><span></span>Download PDF</button></div>
-                      
-                        </div>
-                        <div class="main-image">
-                                <img id="PDF" src="{% static 'tools/images/PDF_file_icon.png' %}">
-                        </div>
-                        
-                </div>
-                </form> <!--If somethding is POSTed (like a click on a button) in this form the page will render-->
-                
-                
-                
-    
-        </div>
-        
-        
+            </div>
+        </form>
+    </div>
 </div>
+<!-- Charts met chart.js en ajax weergeven, wel gevaarlijk voor verdere development. -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.3/xlsx.full.min.js"></script>
 
 
+<script >
+
+// Define a JavaScript variable to hold the URL
+const downloadExcelUrl = "{% url 'tools:download_excel' %}";
+
+// Define the x and y values
+const lines_RH = JSON.parse('{{ lines_RH|escapejs }}');
+const TValues = lines_RH.x_values; //
+const RHPercentages = [ 
+    {label: '10%', data: lines_RH.ten_percent, color: 'rgb(255, 0, 0)'},
+    {label: '20%', data: lines_RH.twenty_percent, color: 'rgb(255, 127, 0)'},
+    {label: '30%', data: lines_RH.thirty_percent, color: 'rgb(255, 255, 0)'},
+    {label: '40%', data: lines_RH.fourty_percent, color: 'rgb(127, 255, 0)'},
+    {label: '50%', data: lines_RH.fifty_percent, color: 'rgb(0, 255, 0)'},
+    {label: '60%', data: lines_RH.sixty_percent, color: 'rgb(0, 255, 127)'},
+    {label: '70%', data: lines_RH.seventy_percent, color: 'rgb(0, 255, 255)'},
+    {label: '80%', data: lines_RH.eighty_percent, color: 'rgb(0, 127, 255)'},
+    {label: '90%', data: lines_RH.ninety_percent, color: 'rgb(0, 0, 255)'},
+    {label: '100%', data: lines_RH.onehondered_percent, color: 'rgb(127, 0, 255)'}
+];
+const lines_H = JSON.parse('{{ lines_H|escapejs }}');
+const HLabels = ['H=-5', 'H=0', 'H=5', 'H=10', 'H=15', 'H=20', 'H=25', 'H=30', 'H=35', 'H=40', 'H=45', 'H=50', 'H=55', 'H=60', 'H=65', 'H=70', 'H=75', 'H=80', 'H=85', 'H=90'];
+const HData = HLabels.map((label, index) => ({
+    label: label,
+    data: [
+        {x: lines_H.x1[index ], y: 0}, // First point (x1, y1)
+        {x: lines_H.x2[index ], y: lines_H.y2[index]} // Second point (x2, y2)
+    ],
+    borderColor: 'rgb(0, 0, 0)',
+    borderWidth: 0.5,
+    pointRadius: 2, // Set point radius for visibility
+    pointBackgroundColor: 'rgb(0, 0, 0)',
+    
+}));
+ // make square 
+const Tdb_var = parseFloat(sessionStorage.getItem('Tdb_var'));
+const Td_out = document.getElementById('Td_out').value;
+const W_out = document.getElementById('humid_out').value;
+const squareDataset = {
+    label: 'Abs.Vocht',
+    data: [
+        {x: Td_out, y: 0},   // Bottom-left corner
+        {x: Tdb_var, y: 0},  // Bottom-right corner
+        {x: Tdb_var, y: W_out}, // Top-right corner
+        {x: Td_out, y: W_out},  // Top-left corner
+        {x: Td_out, y: 0}    // Back to the starting point to close the square
+    ],
+    borderColor: 'rgb(255, 0, 0)', // Red color
+    borderWidth: 1.5,
+    tension: 0, // No tension for straight lines
+    pointRadius: [0, 0, 12, 0, 0], // Set point radius for each data point
+    pointStyle: ['circle', 'circle', 'crossRot', 'circle', 'circle'], // Set point style for each data point
+    pointBorderColor: ['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0)', 'rgb(255, 0, 0)', 'rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0)'], // Set point border color for each data point
+    pointBackgroundColor: ['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0)', 'rgb(255, 0, 0)', 'rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0)'] // Set point background color for each data point
+
+};
+
+// Create the line chart
+const labels2 = Array.from({length: 111}, (_, i) => i - 10);
+const ctx3 = document.getElementById('myLinesRH').getContext('2d');
+
+const myLineChart = new Chart(ctx3, {
+    type: 'line',
+    data: {
+        labels: labels2, // make x-values to 100
+        datasets: [
+            squareDataset,
+            ...RHPercentages.map(({ label, data, color }) => ({
+                label: label,
+                data: data,
+                borderColor: color,
+                borderWidth: 0.5,
+                tension: 0.1,
+                pointRadius: 0, //remove dot's
+                pointBackgroundColor: color,
+            })),
+            
+            ...HData,
+            
+        ]
+    },
+    options: {
+        
+        scales: {
+            x: {
+                type: 'linear',
+                min: -10,
+                max: 40,
+                display: true,
+                title: {
+                    display: true,
+                    text: 'Temperatuur [°C]'
+                },
+                clip: false // Prevent points from being clipped
+            },
+            y: {
+                max: 20,
+                title: {
+                    display: true,
+                    text: 'x [g/kg]',
+                }
+            },
+        },
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    // Customize the tooltip to only show the label
+                    label: function(tooltipItem) {
+                        return tooltipItem.dataset.label;
+                    },
+                    // Remove the title (which by default shows the x value)
+                    title: function() {
+                        return '';
+                    }
+                }
+            },
+            legend: {
+                display: true,
+                labels: {
+                    usePointStyle: true, // Use point style for legend
+                    // Custom label filtering function
+                    filter: function(legendItem, chartData) {
+                        // Hide labels for HData datasets
+                        const HDataIndexStart = chartData.datasets.length - HData.length;
+                        return legendItem.datasetIndex < HDataIndexStart+1;
+                    },
+                    generateLabels: function(chart) {
+                        const originalLabels = Chart.defaults.plugins.legend.labels.generateLabels(chart);
+                        const HDataIndexStart = chart.data.datasets.length - HData.length;
+
+                        return originalLabels.map((label, index) => {
+                            if (index === HDataIndexStart) {
+                                label.text = 'Enthalpy [kJ/kg]'; // Custom label for the combined entry
+                            }
+                            return label;
+                        });
+                    }
+                },
+                // Custom onClick function to hide/show HData
+                onClick: function(event, legendItem) {
+                    const chart = this.chart;
+                    const index = legendItem.datasetIndex;
+                    const HDataIndexStart = chart.data.datasets.length - HData.length;
+
+                    if (index === HDataIndexStart) {
+                        chart.data.datasets.slice(HDataIndexStart).forEach(dataset => {
+                            dataset.hidden = !dataset.hidden;
+                        });
+                        chart.update();
+                    } else {
+                        const meta = chart.getDatasetMeta(index);
+                        if (meta.hidden === null) {
+                            meta.hidden = !chart.data.datasets[index].hidden;
+                        } else {
+                            meta.hidden = null;
+                        }
+                        chart.update();
+                    }
+                }
+            }
+        }
+    }
+});
 
 
-   
+</script>
 
+{% endblock content%} 
 
+{% block extra_js %}
+
+<!-- This makes sure this JS is only be loaded when rendering this HTML page. Whilst the common JS Files included in de extra_js block of base.html will be loaded across all pages -->
+<script src="{% static 'tools/scripts/script_tools_W1.js' %}"></script>
+<script>pdfUrlReadMe = "{% static 'tools/files/TOOLW1-README.pdf' %}"</script>
+<script>pdfUrlExcel = "{% static 'tools/files/TOOL_W1_Mollierdiagram.xlsx' %}"</script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js"></script>  -->
 {% endblock %} 

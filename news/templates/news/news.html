@@ -1,6 +1,13 @@
 {% extends 'home/base.html'%}
-{% block content %}
+
+
 {% load static %} 
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'news/styles/news.css'%}">
+{% endblock %}
+
+{% block content %}
 {% csrf_token %}
 
 <div class="top-banner"> 

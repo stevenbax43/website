@@ -11,7 +11,7 @@ load_dotenv(find_dotenv())
 # SECURITY WARNING: don't run with debug turned on in production!
 # Git push altijd in Production == False! (Development/local == True) 
 
-DEBUG =  os.environ.get("DEBUG", default="False").lower() == "true"
+DEBUG =  os.environ.get("DEBUG", default="False").lower() == "False"
 #print(type(DEBUG)) #check if DEBUG is an boolean value!! else it is not working
 
 
@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'tools',
     'news',
     'chat',
+    'forum',
 ]
 
 MIDDLEWARE = [
@@ -88,7 +89,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Paris'
 
 USE_I18N = True
 

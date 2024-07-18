@@ -1,178 +1,304 @@
 {% extends 'home/base.html'%}
-{% block content %}
+
 {% load static %} 
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'tools/styles/tools.css'%}">
+    <link rel="stylesheet" href="{% static 'tools/styles/tool_A_1.css'%}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+ 
+{% endblock %}
+
+{% block content %}
+
 {% csrf_token %}
 
 <div class="top-banner"> 
         <div class="top-banner-items">
-                <div> <h1> Tool A1: Gebouwgegevens Generator Tool</h1>  </div>
+                <div> <h1> Tool A1: Gebouwgegevens</h1>  </div>
                 <div>  <a href="{% url 'tools:tools' %}">  <img src="{% static 'tools/images/engineering.png' %}"> </a> </div>
         </div> 
 </div>
 
-<div class="second-banner"> 
+<div class="second-banner no-print">        
         <div class="second-banner-items">
-                <div >  <p> Met minimale informatie navigeren door diverse websites om details over een organisatie en hun gebouw te onthullen, 
-                                terwijl tegelijkertijd inzicht wordt verkregen in de energieprestaties van je eigen pand.   </p>     </div>
-                
-                
+            <div class="second-alignment">
+                <div class="second-text">  
+                    <p> Met minimale informatie navigeren door diverse websites om details over een organisatie en hun gebouw te onthullen, 
+                        terwijl tegelijkertijd inzicht wordt verkregen in de energieprestaties van je eigen pand.</p>    
+                </div>
+                <div class="tools-icons">
+                    <div>  <a href="#" id="readMeButton" >ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" alt="ReadMe Button"> </a> </div>
+                    <div>  <a href="#" id="printButton" >  <img src="{% static 'tools/images/print.png' %}" alt="Print Button"> </a> </div>
+                    <!-- <div>  <a href="#" id="excelButton">  <img src="{% static 'tools/images/Excel.png' %}" alt="Excel Button"> </a> </div>           -->
+                </div>      
+            </div>      
         </div>
 </div>
-
-
 <div class="main-banner">
         <div class="main-banner-items">
-                <form method = "post" id="myForm">{% csrf_token %}
-                <div class="main-banner-items-1">
-                        <div class="main-content">
-
-                                <div>
-                                        <h2>BAG viewer Kadaster</h2>
-                                        <p>Vul de postcode, het huisnummer en de (eventuele) toevoeging in.  <br> De onderstaande gegevens worden automatisch 
-                                                aangevuld vanuit de BAG-database. Druk daarna op de BAG knop.</p>
+        <form method = "post" id="buildingdata">
+        {% csrf_token %}
+            <div class="input-output">
+                <div class="container mt-3 borderline">
+                    <div class="row">
+                        <!-- Input Form -->
+                        <div class="col-md-3">
+                            <div class="border p-3 shadow">
+                                <h4>Zoeken</h4>
+                                <!-- Input fields -->
+                                <div class="mb-3">
+                                    <label for="pcode" class="form-label">Postcode</label>
+                                    <input type="text" class="form-control" id="pcode" name="pcode"  placeholder="1234AB" maxlength="6" value="{{ adr1.pcode }}" required>                   
                                 </div>
-
-                                
-                                <div class="location-input">  
-                
-                                        <div class="form-group">
-                                                <label for="pcode">Postcode</label>
-                                                <input type="text" name='pcode' id="pcode" placeholder="1234AB" maxlength="6" value="{{ adr1.pcode }}">
-                                        </div>
-                                        
-                                        <div class="form-group">
-                                                <label for="hnumber">Huisnummer</label>
-                                                <input type="text" id="hnumber" name="hnumber" placeholder="10" value="{{ adr1.hnumber }}">
-                                        </div>
-                        
-                                        <div class="form-group">
-                                                <label for="addition">Toevoeging (optioneel)</label>
-                                                <input type="text" id="addition" name="addition" placeholder="A" maxlength="4" value="{{ adr1.addition }}">
-                                        </div>
-                                        
-                                        
-                                        
-                
+                                <div class="mb-3">
+                                    <label for="hnumber" class="form-label">Huisnummer</label>
+                                    <input type="text" class="form-control" id="hnumber" name="hnumber"  placeholder="10" maxlength="6" value="{{ adr1.hnumber }}" required>                   
                                 </div>
-                                
-                                <div class="button-container"> <button class="button-span" id="BAG_button" name="BAG_button"><span></span>--BAG-gegevens--</button></div>
-                                <div class="location-output">
-                                        <div class="form-group">
-                                                <label for="street">Straat</label>
-                                                <output  id="street" value="{{ adr1.street }}">{{adr1.street}}</output>
-                                        </div>
-                                        <div class="form-group">
-                                                <label for="place">Plaats</label>
-                                                <output  id="place" value="{{ adr1.place }}">{{adr1.place}}</output>
-                                        </div>
-                                        <div class="form-group">
-                                                <label for="place">Bouwjaar</label>
-                                                <output  id="bouwjaar" value="{{ adr1.buildyear }}">{{adr1.buildyear}}</output>
-                                        </div>  
-                                        <div class="form-group">
-                                                <label for="place">Oppervlakte (m<sup>2</sup>)</label>
-                                                <output  id="oppervlakte" value="{{ adr1.BAG_surface}}">{{adr1.BAG_surface}}</output>
-                                        </div>  
-                                        <div class="form-group">
-                                                <label for="place">Gebruiksdoel</label>
-                                                <output  id="gebruiksdoel" value="{{ adr1.purpose }}">{{adr1.purpose}}</output>
-                                        </div>    
-                                        
+                                <div class="mb-3">
+                                    <label for="addition" class="form-label">Toevoeging</label>
+                                    <input type="text" class="form-control" id="addition" name="addition"  placeholder="A" maxlength="6" value="{{ adr1.addition }}">                   
                                 </div>
-                                
-                                 
-                                
-                        </div>
-                        <div class="main-image">
-                                <img id="BAGviewer" src="{% static 'tools/images/BAGkadaster-logo.png' %}">
-                        </div>
-                        
-                        <!-- <p id="adress"></p> -->
-                
-                </div>
-                <div class="main-banner-items-2">
-                        <div class="main-content">
-                                <h2>EP-label</h2>
-                                <p>Het bovenstaand adres wordt gebruikt om de energielabel van de vestiging te achterhalen bij EP-online. Druk op de EP-knop  </p>                          
-                                
-                                <div class="button-container"> <button class="button-span " id="EP_button" name="EP_button"><span></span>--EP-Label--</button></div>
-                                
-                                <div class="location-output">
-                                        <p> De huidige energielabel van het gebouw is:       
-                                                
-                                                <div id="waitingSign" class="hidden">
-                                                        <!-- SVG spinner -->
-                                                        <svg class="spinner" viewBox="0 0 50 50">
-                                                                <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
-                                                        </svg>
+                                <button type="submit" class="btn btn-secondary" id="searchButton" name="searchButton">Search</button>
+                            </div>
+                        </div>  
+                        <!-- Output fields -->
+                        <div class="col-md-3">
+                                <div class="border p-3 shadow">
+                                        <h4>Adres</h4>
+                                        <div class="mb-3">
+                                                <label for="street" class="form-label">Straat</label>
+                                                <output class="form-control" id="street" name="street">{{ adr1.street }}</output>
+                                        </div>
+                                        <div class="mb-3">
+                                                <label for="place" class="form-label">Plaats</label>
+                                                <output class="form-control" id="place" name="place">{{ adr1.place }}</output>
+                                        </div>
+                                        <div class="mb-3">
+                                                <label for="W/U" class="form-label">Gebouwklasse</label>
+                                                <output class="form-control" id="W/U" name="W/U">{{ adr1.gebouwklasse }}</output>
+                                        </div>
+                                     
+                                     
+                                        <img id="BAGviewer" src="{% static 'tools/images/location.png' %}">
+                                </div>
+                               
+                        </div>      
+                        <div class="col-md-3">
+                                <div class="border p-3 shadow">
+                                        <h4>BAG</h4>
+                                        <div class="mb-3">
+                                                <label for="purpose" class="form-label">Gebruikersdoel</label>
+                                                <output class="form-control" id="purpose" name="purpose">{{ adr1.purpose }}</output>
+                                        </div>
+                                        <div class="mb-3">
+                                                <label for="BAGsurface" class="form-label">Oppervlakte</label>
+                                                <div class="input-group">
+                                                        <output class="form-control" id="BAGsurface" name="BAGsurface">{{ adr1.BAG_surface }}</output>
+                                                        <span class="input-group-text">m<sup>2</sup></span>
                                                 </div>
-                                                <output class="{{EPcolor}}" type="text" name='EPlabel' id="EPlabel" value="{{adr1.EP_label}}" >{{adr1.EP_label}}</output> 
-                                        </p>
-        
+                                        </div>
+                                        <div class="mb-3">
+                                                <label for="EPHeat" class="form-label">Bouwjaar</label>
+                                                <output class="form-control" id="EPHeat" name="EPHeat">{{ adr1.buildyear }}</output>
+                                        </div>
+                                        <img id="BAGviewer" src="{% static 'tools/images/BAGkadaster-logo.png' %}">
                                 </div>
-                                 
+                               
+                        </div>      
+                        <div class="col-md-3">
+                                <div class="border p-3 shadow">
+                                        <h4>EP-label</h4>
+                                        <output class="form-control" id="EP_label" name="EP_label">{{ adr1.EP_label }}</output>
+                                        <div class="mb-3">
+                                                <label for="EPsurface" class="form-label">Thermisch gebr. Oppervlakte</label>
+                                                <div class="input-group">
+                                                        <output class="form-control" id="EPsurface" name="EPsurface">{{ adr1.EP_surface }}</output>
+                                                        <span class="input-group-text">m<sup>2</sup></span>
+                                                </div>
+                                        </div>
+                                        <div class="mb-3">
+                                                <label for="EPenergie" class="form-label">Energiebehoefte</label>
+                                                <div class="input-group">
+                                                        <output class="form-control" id="EPenergie" name="EPenergie">{{ adr1.EP_energie }}</output>
+                                                        <span class="input-group-text">kWh/m<sup>2</sup>*jaar</span>
+                                                </div>
+                                        </div>
+                                        <div class="mb-3">
+                                                <label for="EPTO_juli" class="form-label">TO-juli</label>
+                                                <output class="form-control" id="EPTO_juli" name="EPTO_juli">{{ adr1.EP_TO }}</output>
+                                        </div>
+                                     
+                                        
+                                        <img id="BAGviewer" src="{% static 'tools/images/label-u-bouw.jpg' %}">
+                                </div>
+                               
+                        </div>      
                         </div>
-                        <div class="main-image">
-                                
-                                <img id="eplabelimgage" src="{% static 'tools/images/label-u-bouw.jpg' %}">
-                           
-                        </div>
-                        
+                       
+                               
                 </div>
-                
-                <div class="main-banner-items-3">
-                        <div class="main-content">
-                                <h2>WEii</h2>
-                                <p>Vul het kalenderjaar in waarin de elektriciteit en gasgebruik is gemeten. Druk op de Weii knop. 
-                                        Aan de hand van bovenstaande adres en oppervlakte wordt de WEii-score berekend. </p>
-                                <div class="location-input">
-                                        <div class="form-group">
-                                                <label>Kalenderjaar (>2017)</label>
-                                                <input type="text" id="calendaryear" name="calendaryear" placeholder="2022" value="{{ adr1.calendaryear}}">
+            </div>
+        </form>
+        </div>
+</div>
+    
+
+<!-- 
+<div class="main-banner">
+        <div class="main-banner-items">
+                <form method = "post" id="myForm">
+                        {% csrf_token %}
+                        <div class="main-banner-items-1">
+                                <div class="main-content">
+
+                                        <div>
+                                                <h2>BAG viewer Kadaster</h2>
+                                                <p>Vul de postcode, het huisnummer en de (eventuele) toevoeging in.  <br> De onderstaande gegevens worden automatisch 
+                                                        aangevuld vanuit de BAG-database. Druk daarna op de BAG knop.</p>
                                         </div>
-                                        <div class="form-group">
-                                                <label >Elektriciteit (kWh)</label>
-                                                <input type="number" name='elektra' id="elektra" placeholder="kWh" maxlength="10" value="{{ adr1.elektra}}">
-                                        </div>
-                                        <div class="form-group">
-                                                <label > Terug geleverd (optioneel) (kWh)</label>
-                                                <input type="number" name='elektra_terug' id="elektra_terug" placeholder="kWh" maxlength="10" value="{{adr1.elektra_terug}}">
+
+                                        
+                                        <div class="location-input">  
+                        
+                                                <div class="form-group">
+                                                        <label for="pcode">Postcode</label>
+                                                        <input type="text" name='pcode' id="pcode" placeholder="1234AB" maxlength="6" value="{{ adr1.pcode }}">
+                                                </div>
+                                                
+                                                <div class="form-group">
+                                                        <label for="hnumber">Huisnummer</label>
+                                                        <input type="text" id="hnumber" name="hnumber" placeholder="10" value="{{ adr1.hnumber }}">
+                                                </div>
+                                
+                                                <div class="form-group">
+                                                        <label for="addition">Toevoeging (optioneel)</label>
+                                                        <input type="text" id="addition" name="addition" placeholder="A" maxlength="4" value="{{ adr1.addition }}">
+                                                </div>
+                                                
+                                                
+                                                
+                        
                                         </div>
                                         
-                                        <div class="form-group">
-                                                <label>Gasgebruik (m<sup>3</sup>)</label>
-                                                <input type="number" id="gas" name="gas" placeholder="m3" value="{{ adr1.gas}}">
+                                        <div class="button-container"> <button class="button-span" id="BAG_button" name="BAG_button"><span></span>--BAG-gegevens--</button></div>
+                                        <div class="location-output">
+                                                <div class="form-group">
+                                                        <label for="street">Straat</label>
+                                                        <output  id="street" value="{{ adr1.street }}">{{adr1.street}}</output>
+                                                </div>
+                                                <div class="form-group">
+                                                        <label for="place">Plaats</label>
+                                                        <output  id="place" value="{{ adr1.place }}">{{adr1.place}}</output>
+                                                </div>
+                                                <div class="form-group">
+                                                        <label for="place">Bouwjaar</label>
+                                                        <output  id="bouwjaar" value="{{ adr1.buildyear }}">{{adr1.buildyear}}</output>
+                                                </div>  
+                                                <div class="form-group">
+                                                        <label for="place">Oppervlakte (m<sup>2</sup>)</label>
+                                                        <output  id="oppervlakte" value="{{ adr1.BAG_surface}}">{{adr1.BAG_surface}}</output>
+                                                </div>  
+                                                <div class="form-group">
+                                                        <label for="place">Gebruiksdoel</label>
+                                                        <output  id="gebruiksdoel" value="{{ adr1.purpose }}">{{adr1.purpose}}</output>
+                                                </div>    
+                                                
+                                        </div>
+                                        
+                                        
+                                        
+                                </div>
+                                <div class="main-image">
+                                        <img id="BAGviewer" src="{% static 'tools/images/BAGkadaster-logo.png' %}">
+                                </div>
+                                
+                            
+                        
+                        </div>
+                        <div class="main-banner-items-2">
+                                <div class="main-content">
+                                        <h2>EP-label</h2>
+                                        <p>Het bovenstaand adres wordt gebruikt om de energielabel van de vestiging te achterhalen bij EP-online. Druk op de EP-knop  </p>                          
+                                        
+                                        <div class="button-container"> <button class="button-span " id="EP_button" name="EP_button"><span></span>--EP-Label--</button></div>
+                                        
+                                        <div class="location-output">
+                                                <p> De huidige energielabel van het gebouw is:       
+                                                        
+                                                        <div id="waitingSign" class="hidden">
+                                                                
+                                                                <svg class="spinner" viewBox="0 0 50 50">
+                                                                        <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
+                                                                </svg>
+                                                        </div>
+                                                        <output class="{{EPcolor}}" type="text" name='EPlabel' id="EPlabel" value="{{adr1.EP_label}}" >{{adr1.EP_label}}</output> 
+                                                </p>
+                
+                                        </div>
+                                        
+                                </div>
+                                <div class="main-image">
+                                        
+                                        <img id="eplabelimgage" src="{% static 'tools/images/label-u-bouw.jpg' %}">
+                                
+                                </div>
+                                
+                        </div>
+                        
+                        <div class="main-banner-items-3">
+                                <div class="main-content">
+                                        <h2>WEii</h2>
+                                        <p>Vul het kalenderjaar in waarin de elektriciteit en gasgebruik is gemeten. Druk op de Weii knop. 
+                                                Aan de hand van bovenstaande adres en oppervlakte wordt de WEii-score berekend. </p>
+                                        <div class="location-input">
+                                                <div class="form-group">
+                                                        <label>Kalenderjaar (>2017)</label>
+                                                        <input type="text" id="calendaryear" name="calendaryear" placeholder="2022" value="{{ adr1.calendaryear}}">
+                                                </div>
+                                                <div class="form-group">
+                                                        <label >Elektriciteit (kWh)</label>
+                                                        <input type="number" name='elektra' id="elektra" placeholder="kWh" maxlength="10" value="{{ adr1.elektra}}">
+                                                </div>
+                                                <div class="form-group">
+                                                        <label > Terug geleverd (optioneel) (kWh)</label>
+                                                        <input type="number" name='elektra_terug' id="elektra_terug" placeholder="kWh" maxlength="10" value="{{adr1.elektra_terug}}">
+                                                </div>
+                                                
+                                                <div class="form-group">
+                                                        <label>Gasgebruik (m<sup>3</sup>)</label>
+                                                        <input type="number" id="gas" name="gas" placeholder="m3" value="{{ adr1.gas}}">
+                                                </div>
+                                        </div>
+                                        
+                                        <div class="button-container"> <button  type="submit" class="button-span" id="WEii_button" name="WEii_button"><span></span>WEii-score</button></div>
+
+                                        <div class="location-output">
+                                                <p>De WEii-score uit het jaar {{adr1.calendaryear}} is:
+                                                <output class="{{EPcolor}}" type="text" name='WEii' id="WEii_output" value="{{adr1.weii}}"> {{adr1.weii}}</output> 
+                                                </p>
                                         </div>
                                 </div>
                                 
-                                <div class="button-container"> <button type="submit" class="button-span" id="WEii_button" name="WEii_button"><span></span>WEii-score</button></div>
-
-                                <div class="location-output">
-                                        <p>De WEii-score uit het jaar {{adr1.calendaryear}} is:
-                                        <output class="{{EPcolor}}" type="text" name='WEii' id="WEii_output" value="{{adr1.weii}}"> {{adr1.weii}}</output> 
-                                        </p>
+                                <div class="main-image">
+                                        <img id="weii" src="{% static 'tools/images/Weii-logo.png' %}">
                                 </div>
                         </div>
                         
-                        <div class="main-image">
-                                <img id="weii" src="{% static 'tools/images/Weii-logo.png' %}">
-                        </div>
-                </div>
-                
-                <div class="main-banner-items-4">
-                        <div class="main-content">
-                                <h2>Print Samenvatting</h2>
-                                <p>Print een PDF met alle gegevens </p>                          
-                                
-                                <div class="button-container"> <button type="submit" class="button-span " id="PDF_creater" name="PDF_creater" ><span></span>Download PDF</button></div>
-                      
-                        </div>
-                        <div class="main-image">
-                                <img id="PDF" src="{% static 'tools/images/PDF_file_icon.png' %}">
-                        </div>
+                        <div class="main-banner-items-4">
+                                <div class="main-content">
+                                        <h2>Print Samenvatting</h2>
+                                        <p>Print een PDF met alle gegevens </p>                          
+                                        
+                                        <div class="button-container"> <button type="submit" class="button-span " id="PDF_creater" name="PDF_creater" ><span></span>Download PDF</button></div>
                         
-                </div>
-                </form> <!--If somethding is POSTed (like a click on a button) in this form the page will render-->
+                                </div>
+                                <div class="main-image">
+                                        <img id="PDF" src="{% static 'tools/images/PDF_file_icon.png' %}">
+                                </div>
+                                
+                        </div>
+                </form>
                 
                 
                 
@@ -180,7 +306,7 @@
         </div>
         
         
-</div>
+</div> -->
 
 
 
@@ -188,4 +314,10 @@
    
 
 
-{% endblock %} 
+{% endblock content%} 
+{% block extra_js %}
+<!-- This makes sure this JS is only be loaded when rendering this HTML page. Whilst the common JS Files included in de extra_js block of base.html will be loaded across all pages -->
+<!-- <script src="{% static 'tools/scripts/script_tools_A1.js' %}"></script> -->
+<script>pdfUrlReadMe = "{% static 'tools/files/TOOLA1-README.pdf' %}"</script>
+
+{% endblock %}
