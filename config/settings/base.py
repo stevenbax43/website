@@ -4,7 +4,7 @@ from dotenv import load_dotenv, find_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent 
-#print(BASE_DIR)
+print(BASE_DIR)
 #load environmental variables
 load_dotenv(find_dotenv()) 
 
