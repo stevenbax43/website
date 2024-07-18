@@ -11,7 +11,7 @@ load_dotenv(find_dotenv())
 # SECURITY WARNING: don't run with debug turned on in production!
 # Git push altijd in Production == False! (Development/local == True) 
 
-DEBUG =  os.environ.get("DEBUG", default="False").lower() == "False"
+DEBUG =  os.environ.get("DEBUG")
 #print(type(DEBUG)) #check if DEBUG is an boolean value!! else it is not working
 
 
