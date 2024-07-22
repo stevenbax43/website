@@ -14,7 +14,6 @@ load_dotenv(find_dotenv())
 DEBUG =  os.environ.get("DEBUG", default="False").lower() == "true"
 print((DEBUG)) #check if DEBUG is an boolean value!! else it is not working
 
-
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
