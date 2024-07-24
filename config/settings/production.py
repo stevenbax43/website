@@ -3,7 +3,7 @@ from .base import *
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY_prod')  
 
-ALLOWED_HOSTS = ['34.90.54.105','localhost', '127.0.0.1'] #['*'] = iedereen toegang
+ALLOWED_HOSTS = ['34.90.54.105','localhost', '127.0.0.1', 'www.stevenbaxontwerpt.nl'] #['*'] = iedereen toegang
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -21,7 +21,7 @@ DATABASES = {
 
 # Static files (CSS, JavaScript, images)
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / "assets"
+STATIC_ROOT = os.path.join(BASE_DIR , 'assets/')
 
 # Media files
 MEDIA_URL = '/media/'
