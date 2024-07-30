@@ -22,6 +22,8 @@ DATABASES = {
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
+#f you are using HTTPS, set SECURE_SSL_REDIRECT to True in your settings.py to redirect all HTTP requests to HTTPS:
+SECURE_SSL_REDIRECT = True
 
 # Static files (CSS, JavaScript, images)
 STATIC_URL = '/static/'
