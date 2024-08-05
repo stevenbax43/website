@@ -11,9 +11,9 @@ ALLOWED_HOSTS = ['35.204.155.206','stevenbaxontwerpt.nl'] #['*'] = iedereen toeg
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('name_db'),
-        'USER':  os.environ.get('user_db'), #oude stevenbax
-        'PASSWORD': os.environ.get('password_db'), #oude 3173
+        'NAME': os.getenv('name_db'),
+        'USER':  os.getenv('user_db'), #oude stevenbax
+        'PASSWORD': os.getenv('password_db'), #oude 3173
         'HOST':'localhost',
         'PORT':'',
     }
