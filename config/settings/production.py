@@ -15,7 +15,7 @@ DATABASES = {
         'USER':  os.getenv('user_db'), #oude stevenbax
         'PASSWORD': os.getenv('password_db'), #oude 3173
         'HOST':'localhost',
-        'PORT':'',
+        'PORT':'5432',
     }
 }
 
