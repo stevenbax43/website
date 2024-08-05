@@ -11,15 +11,12 @@ ALLOWED_HOSTS = ['35.204.155.206','stevenbaxontwerpt.nl', 'localhost', '34.147.1
 DATABASES = {
     'default': {
         "ENGINE": "django.db.backends.postgresql",
-        'Options':{
-            'NAME': 'mydb',
-            'USER':  'sbax', #oude stevenbax
-            'PASSWORD': '3173', #oude 3173
-            'HOST':'127.0.0.1',
-            'PORT':'5432',
-        },
-      
-    }
+        'NAME': 'mydb',
+        'USER':  'sbax', #oude stevenbax
+        'PASSWORD': '3173', #oude 3173
+        'HOST':'127.0.0.1',
+        'PORT':'5432',
+    },
 }
 
 # AUTHENTICATION_BACKENDS = [
