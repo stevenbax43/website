@@ -10,17 +10,17 @@ ALLOWED_HOSTS = ['35.204.155.206','stevenbaxontwerpt.nl', 'localhost', '34.147.1
 # connect to created database postgresql on the Virtual machine on google cloud platform.
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'dbontwerpt',
-        'USER':  'stevenbax', #oude stevenbax
-        'PASSWORD': '3173', #oude 3173
-        'HOST':'localhost',
-        'PORT':'5432',
+        "ENGINE": "django.db.backends.postgresql",
+        'Options':{
+            'NAME': 'mydb',
+            'USER':  'sbax', #oude stevenbax
+            'PASSWORD': '3173', #oude 3173
+            'HOST':'127.0.0.1',
+            'PORT':'5432',
+        },
+      
     }
 }
-print(os.getenv('name_db'))
-print(os.getenv('user_db'))
-print(os.getenv('password_db'))
 
 # AUTHENTICATION_BACKENDS = [
 #     'django.contrib.auth.backends.ModelBackend',
