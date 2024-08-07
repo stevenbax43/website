@@ -14,7 +14,7 @@ DATABASES = {
         'NAME': 'mydb',
         'USER':  'sbax', #oude stevenbax
         'PASSWORD': '3173', #oude 3173
-        'HOST':'127.0.0.1',
+        'HOST':'localhost',
         'PORT':'5432',
     },
 }

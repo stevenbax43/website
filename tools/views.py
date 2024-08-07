@@ -57,6 +57,11 @@ def tool_W2(request):
     #toekomstig: je kan nog een model maken met expansievat variabelen net als adress
     return render(request, 'tools/tool_W2.html', {'expansievat_output': expansievat_ouput})
 
+# drukverlies pagina
+@login_required(login_url='accounts:login')
+def tool_W3(request):
+    #toekomstig: je kan nog een model maken met expansievat variabelen net als adress
+    return render(request, 'tools/tool_W3.html')
 
 
 @login_required(login_url='accounts:login')
