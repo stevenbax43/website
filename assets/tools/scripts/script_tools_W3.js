@@ -1,7 +1,7 @@
 // JavaScript function to calculate pressure loss and related values
 function calculateDrukverlies(di_value, velocity, length) {
     // Constants
-    const kinematicViscosity = 1.0084e-6; // Pa·s (e.g., water at room temperature)
+    const kinematicViscosity = 1.31e-6; // Pa·s (e.g., water at room temperature)
     const roughness = 4.5e-6; // meters (e.g., pipe roughness)
     const density = 997.3; // kg/m³ (e.g., water)
 
@@ -83,7 +83,7 @@ function updateValues() {
     console.log('Calculation result:', result);
     // Update result display
     document.getElementById('pressureLossBar').textContent = ` ${(result[0]/100).toFixed(2)} `;
-    document.getElementById('pressureLosskPa').textContent = ` ${Math.round(result[0])} `;
+    document.getElementById('pressureLosskPa').textContent = ` ${Math.round(result[0]*1000)} `;
     document.getElementById('flowM3H').textContent = ` ${result[1]}`;
     document.getElementById('flowLMin').textContent = ` ${result[2]}`;
     document.getElementById('flowLS').textContent = ` ${result[3]}`;
