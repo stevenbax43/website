@@ -1,0 +1,23 @@
+# Ignore Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore Django-specific files and directories
+db.sqlite3
+media/
+assets/
+tools/static/tools/files/
+
+# Ignore log and temporary files
+*.log
+*.pot
+
+# Environment files
+config/settings/.env
+
+# IDE or system files
+.DS_Store
+Thumbs.db
+
