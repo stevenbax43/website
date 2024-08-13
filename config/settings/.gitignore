@@ -1,6 +1,11 @@
-.env
 ../../../tools/static/tools/files
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+*.log
+*.pot
+db.sqlite3
+media/
+staticfiles/
+.env
