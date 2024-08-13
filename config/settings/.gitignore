@@ -1,2 +1,6 @@
 .env
 ../../../tools/static/tools/files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
