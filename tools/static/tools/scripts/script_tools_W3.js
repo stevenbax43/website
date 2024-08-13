@@ -2,8 +2,8 @@
 function calculateDrukverlies(di_value, velocity, length) {
     // Constants
     const kinematicViscosity = 1.31e-6; // Pa·s (e.g., water at room temperature)
-    const roughness = 4.5e-6; // meters (e.g., pipe roughness)
-    const density = 997.3; // kg/m³ (e.g., water)
+    const roughness = 4.5e-5; // meters (e.g., pipe roughness)
+    const density = 999.65; // kg/m³ (e.g., water)
 
     // Data dictionary
     const dataDict = {
