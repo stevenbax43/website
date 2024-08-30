@@ -14,7 +14,7 @@ class Topic(models.Model):
     content = models.TextField(default='', verbose_name='Bericht')
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE,  default=1, verbose_name='Categorie') 
+    category = models.ForeignKey(Category, on_delete=models.CASCADE,  null=True, blank=True, default=1, verbose_name='Categorie') 
     
     def __str__(self):
         return self.title

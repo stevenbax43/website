@@ -14,7 +14,7 @@ class SingleUserBot(models.Model):
     user_input = models.TextField()
     bot_response = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-    parent = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='bot_entries', null=True)
+    parent = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='bot_entries', null=True, blank=True)
 
     def __str__(self):
         return f"{self.user}: {self.user_input}"
