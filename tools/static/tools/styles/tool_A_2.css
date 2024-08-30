@@ -17,7 +17,6 @@
     margin-right: 10px; /* Add some spacing between list items */
 }
 
-
 .input-container, .output-container {
     display: flex;
     justify-content: space-between;
@@ -78,7 +77,6 @@
 
 #converter input[type="number"],
 #converter select {
-    width: calc(100% - 22px); /* Adjusted width to account for padding and border */
     padding: 10px;
     margin: 8px 0;
     box-sizing: border-box;
@@ -100,7 +98,7 @@
     border-radius: 5px;
    
     background-color: #fafafa;
-    width: 172px; /* Set a fixed width for the output */
+    min-width: 172px; /* Set a fixed width for the output */
    /* height: 17px; /* Set a fixed height for the output */
     max-width: 210px;
     overflow: hidden;
@@ -144,4 +142,7 @@ table th:last-child {
 }
 table tr:last-child td:last-child {
     border-bottom-right-radius: 10px;
+}
+.container {
+    overflow: hidden; /* Ensure that overflow is handled properly */
 }

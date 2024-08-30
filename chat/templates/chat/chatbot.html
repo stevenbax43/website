@@ -13,7 +13,7 @@
 <div class="top-banner"> 
         <div class="top-banner-items">
             <div>            <h1>Chatbot</h1>          </div>
-            <div>            <img src="{% static 'chat/images/chatbot.png' %}">         </div>
+            <div>       <a href="{% url 'chat:create_new_conversation' %}"><img src="{% static 'chat/images/chatbot.png' %}">  </a>             </div>
         </div>
 </div>
         
@@ -22,9 +22,11 @@
     <div class="second-banner-items">
         <p></p>
         <div>
-            <b>Welkom  <span style="text-transform: uppercase;" id="current_username">{{user.username}},<span></span></b><p>Hier kan de hele afdeling vragen stellen aan O&T via een Custom-Trained     AI-chatbot die getraind is op alle 
+            Welkom  <b><span >{{user.first_name}} {{user.last_name}},</span></b>
+            <p>Dit is jouw persoonlijke omgeving waar je vragen kan stellen aan O&T via een Custom-Trained AI-chatbot die getraind is op alle 
             normen, eisen en een afgeleide is van OpenAI van Google.</p>
         </div>
+        <span type="hidden" style="text-transform: uppercase;" id="current_username" hidden>{{ user.username }}</span>
     </div>
 </div>
 
@@ -32,64 +34,75 @@
     <div class="main-banner-items">
         <div class="container">
             <div class="row">
-                <div class="col-md-3 sidebar shadow p-3 bg-white rounded">
-                    <!-- Sidebar content can go here -->
-                     <h4>Opgeslagen gesprekken</h4>
-                     <ul class="list-group">
-                        {% for saved_conversation in saved_conversations %}
-                            <li class="list-group-item" data-conversation-id="{{ saved_conversation.id }}">
-                                {{ saved_conversation.title }}
-                            </li>
+                <div class="saved_conversations col-md-3 sidebar shadow p-3 bg-white rounded">
+                    <div class="header-container d-flex justify-content-between align-items-center mb-3">
+                        <h4>Opgeslagen gesprekken</h4>
+                        <a href="{% url 'chat:create_new_conversation' %}" class="create-link">
+                            <img src="{% static 'chat/images/new-conversation.png' %}" alt="Create New Conversation" style="width: auto; height: 30px;">
+                        </a>
+                    </div>
+                    
+                    <ul class="list-group">
+                        {% for conversation in conversations %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div class="conversation-title">
+                                <a href="{% url 'chat:chatbot_with_conversation' pk=conversation.pk %}">
+                                    {{ conversation.title }}
+                                    <input type="hidden" id="conversation-id" value="{{ selected_conversation.pk }}">
+                                </a>
+                            </div>
+                            <form action="{% url 'chat:delete_specific_conversation' pk=conversation.pk %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn">
+                                    <img src="{% static 'chat/images/delete-icon.png' %}" alt="Delete Conversation" style="width: auto; height: 20px; color:red;">
+                                </button>
+                            </form>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item">No conversations found.</li>
                         {% endfor %}
                     </ul>
                 </div>
-                
+                <!-- Chat Display and Input -->
                 <div class="col-md-9">
                     <div id="chat-container">
-                        <div id="chat-display" class="mb-3">
-                            <!-- Display the last conversation -->
-                            {% for conversation in conversations %}
-                                {% if conversation.author_id == request.user %}
-                                    <div class="message mb-2">
-                                        <div class="circle_user first-letters">{{ conversation.author_id|upper }}</div>
-                                        <div class="user_chat wrap"><b>You</b> <br> {{ conversation.user_input }}</div>
-                                    </div>
-                                    <div class="message mb-2">
-                                        <div class="circle_bot">K</div>
-                                        <div class="bot_response wrap"><b>Chatbot</b> <br>{{ conversation.bot_response }}</div>
-                                    </div>
+                        <div class="chat-header">
+                            {% if selected_conversation %}
+                                <h2>{{ selected_conversation.title }}</h2>
+                            {% else %}
+                                <h2>Select or Start a Conversation</h2>
+                            {% endif %}
+                        </div>
+                        <div id="chat-container">
+                            <div id="chat-display" class="mb-3">
+                                <!-- Display conversations if any -->
+                                {% if user_bot_responses %}
+                                    {% for user_bot_response in user_bot_responses %}
+                                        <div class="message mb-2 user-message">
+                                            <div class="user_chat wrap"><b>You</b> <br> {{ user_bot_response.user_input }}</div>
+                                            <div class="circle_user first-letters">{{ request.user.username|slice:":2"|upper }}</div>
+                                        </div>
+                                        <div class="message mb-2 bot-message">
+                                            <div class="circle_bot">K</div>
+                                            <div class="bot_response wrap"><b>Chatbot</b> <br>{{ user_bot_response.bot_response|safe }}</div>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <h3 id="start_new_conversation">Start nieuw gesprek</h3>
                                 {% endif %}
-                            {% endfor %}
-                        </div>
+                            </div>
                         
-                        <div id="user-input-container" class="input-group mb-3">
-                            <input type="text" id="user-input" class="form-control" placeholder="Type your message..." onkeyup="handleEnterKey(event)">
-                            <button id="send-button" class="btn btn-primary" onclick="sendMessage()">
-                                <span class="arrow-up-icon">&#9650;</span>
-                            </button>
+                            <div id="user-input-container" class="input-group mb-3">
+                                <input type="text" id="user_input" class="form-control" placeholder="Schrijf je bericht..." onkeyup="handleEnterKey(event)">
+                                <button id="send-button" class="btn send-button" onclick="sendMessage()">
+                                    <span class="arrow-up-icon">&#9650;</span>
+                                </button>
+                            </div>
+                        
+                            <!-- Hidden input to store chat_name -->
+                            <input type="hidden" id="chat_name" value="{{ chat_name }}">
                         </div>
-                    </div>
-
-                    <!-- Forms for delete and save buttons -->
-                    <div class="icon_container d-flex justify-content-center">
-                        <form method="post" action="{% url 'chat:delete_all_conversations' %}" id="deleteDbForm" class="me-3">   
-                            {% csrf_token %} 
-                            <div class="icon_delete">
-                                <a href="#" id="delete-allconversation">  
-                                    <img src="{% static 'chat/images/delete-icon.png' %}" alt="Delete Icon" class="img-fluid"> 
-                                </a>    
-                            </div>
-                        </form>
-                        <form method="post" action="{% url 'chat:save_all_conversations' %}" id="saveDbForm">   
-                            {% csrf_token %} 
-                            <div class="icon_save">
-                                <a href="#" id="save-allconversation">  
-                                    <img src="{% static 'chat/images/save-icon.png' %}" alt="Save Icon" class="img-fluid"> 
-                                </a>    
-                            </div>
-                        </form>
-                    </div>  
-                </div>    
+                </div>
             </div>
         </div>
     </div>

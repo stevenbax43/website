@@ -14,10 +14,10 @@
 {% csrf_token %}
 
 <div class="top-banner"> 
-        <div class="top-banner-items">
-                <div> <h1 class="topBannertext">Tools</h1>  </div>
-                <div>  <a href="{% url 'tools:tools' %}">  <img src="{% static 'tools/images/engineering.png' %}"> </a> </div>
-        </div> 
+    <div class="top-banner-items">
+        <div> <h1 class="topBannertext">Tools</h1>  </div>
+        <div>  <a href="{% url 'tools:tools' %}">  <img src="{% static 'tools/images/engineering.png' %}"> </a> </div>
+    </div> 
 </div>
 
 
@@ -97,7 +97,7 @@
 {% block extra_js %}
 <!-- This makes sure this JS is only be loaded when rendering this HTML page. Whilst the common JS Files included in de extra_js block of base.html will be loaded across all pages -->
 <script src="{% static 'tools/scripts/script_tools_index.js' %}"></script>
-<script>pdfUrlReadMe = "{% static 'tools/files/TOOLA2-README.pdf' %}"</script>
+<script>pdfUrlReadMe = "{% static 'tools/files/TOOLINDEX-README.pdf' %}"</script>
 <script>pdfUrlExcel = "{% static 'tools/files/TOOLS_INDEX.xlsx' %}"</script>
 
 

@@ -22,20 +22,24 @@
                 <ul>
                     <li><a href="\">Home</a></li>
                     <li><a href="\tools">Tools</a></li>
+                    <li><a href="\nieuws">Nieuws</a></li>
                     <li><a href="\forum">Forum</a></li>
-                    <li><a href="\chatbot">Chat</a></li>
+                    <li><a href="\create-new-chat/">Chat</a></li>
 
                     {% if user.is_authenticated %}
+                    <li><a href="{% url 'accounts:profile_edit'%}" id="change_pass"><img src="{% static 'accounts/images/profile.png' %}"> </a></li> 
                     <li> 
                         <form action="{% url 'accounts:logout'%}" method="POST">
-                            
-                            <button type="submit" name="logoutbutton" id="logoutbutton">Logout</button>
+                            <button type="submit" name="logoutbutton" id="logoutbutton"><img src="{% static 'accounts/images/logout_icon.png' %}">  </button>
                             {% csrf_token %}
                         </form>
                     </li>
+                    {% if user.is_superuser %}
+                    <li><a href="{% url 'accounts:signup'%}" id="signup"><img src="{% static 'accounts/images/sign-up.png' %}"></a></li>
+                    {% endif %}
                     {% else %}
-                    <li><a href="{% url 'accounts:login'%}" id="login">Login</a></li>
-                    <li><a href="{% url 'accounts:signup'%}" id="signup">Signup</a></li>
+                    <li><a href="{% url 'accounts:login'%}" id="login"><img src="{% static 'accounts/images/login_icon.png' %}"> </a></li>
+                    
                     {% endif %}
                 </ul>
             </nav>
@@ -59,7 +63,9 @@
                     <p>&copy; 2023 www.kropman.nl</p>
                     <p>Lagelandseweg 84, 6545CG Nijmegen Nederland</p>
                     <p>Email: steven.bax@kropman.nl</p>
+                    <p>Versie 1.0</p>
                 </div>
+                
                 <div>
                     <p>Volg ons op:</p>
                     &ensp; <a href="https://www.facebook.com/KropmanInstallatietechniek">
@@ -69,6 +75,7 @@
                     <a href="https://www.linkedin.com/company/kropman-installatietechniek">
                         <img class="footer-image" src ="{% static 'home/images/linkedin.png' %}" alt = "Footer image" width="30" height=auto></a> &ensp;
                 </div>
+                
             
                
 

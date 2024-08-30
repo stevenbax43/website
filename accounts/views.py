@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout
-from django.contrib.auth.decorators import user_passes_test
-
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
+from django.contrib.auth.decorators import user_passes_test, login_required
+from django.contrib.auth.views import PasswordChangeView
+from django.urls import reverse_lazy
+from .forms import CustomUserChangeForm
 # Create your views here.
 @user_passes_test(lambda u: u.is_superuser)
 def signup_view(request):
@@ -23,6 +25,16 @@ def signup_view(request):
         form = UserCreationForm()
 
     return render(request,'accounts/signup.html', {'form':form})
+
+class CustomPasswordChangeView(PasswordChangeView):
+    form_class = PasswordChangeForm
+    template_name = 'accounts/password_change_form.html'
+    success_url = reverse_lazy('password_change_done')
+
+@login_required(login_url='accounts:login')
+def password_change_done(request):
+    return render(request, 'accounts/password_change_done.html')
+
 
 # create a login 
 def login_view(request):
@@ -48,3 +60,15 @@ def logout_view(request):
     else:
         form = AuthenticationForm()
     return render(request, 'accounts/login.html', {'form':form})
+
+@login_required(login_url='accounts:login')
+def profile_edit(request):
+    if request.method == 'POST':
+        form = CustomUserChangeForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('accounts:profile_edit')
+    else:
+        form = CustomUserChangeForm(instance=request.user)
+    
+    return render(request, 'accounts/profile.html', {'form': form})

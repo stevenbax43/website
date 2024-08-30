@@ -1,22 +1,114 @@
+/* Textarea Styling */
 textarea {
     width: 100%;
     padding: 8px;
     margin-bottom: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid #ffffff;
     border-radius: 5px;
-    resize: vertical;
+    resize: vertical; /* Allow vertical resizing */
+}
+.topic-content{
+    background-color: #f1f1f1;
 }
 
+/* Reply Content Styling */
 .reply-content {
-    display: flex;
-    flex-direction: column;   /* Stack content vertically */
-    overflow-wrap: break-word; /* Allow words to break */
-    word-wrap: break-word;     /* For compatibility with older browsers */
-    max-width: 90%;            /* Adjust max width as needed */
+    display: flex; /* Flexbox for alignment */
+    align-items: center; /* Center items vertically */
+    width: 100%; /* Full width */
+    border: 1px solid #ffffff; 
+    padding: 10px;
+    height: auto; /* Auto height */
+    overflow-y: auto; /* Enable vertical scroll */
+    border-radius: 4px;
+    white-space: normal; /* Wrap text */
+    max-height: 630px; /* Maximum height */
+    scroll-behavior: smooth; /* Smooth scrolling */
+    scrollbar-width: thin; 
+    scrollbar-color: #56f009 #f1f1f1; /* Custom scrollbar colors */
 }
 
+/* Reply Text Styling */
+.reply-text {
+    flex: 1; /* Take up available space */
+}
+
+/* Reply Container Styling */
 .reply-container {
+    border: 1px solid #ffffff;
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;   /* Align items at the start */
+    justify-content: space-between; /* Space between items */
+    align-items: flex-start; /* Align items at the start */
+    padding: 10px; /* Padding inside container */
+    border: 1px solid #ddd;
+}
+
+/* Header Styling */
+.display-4 {
+    color: #343a40; /* Dark color */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); /* Text shadow */
+}
+
+/* List Group Item Styling */
+.list-group-item {
+    border: 1px solid #ffffff;
+    transition: transform 0.2s ease-in-out; /* Smooth transform transition */
+    border-color: #26ff00; /* Green border color */
+    margin-bottom: 15px;
+}
+
+/* Nested Replies Styling */
+.nested-replies {
+    display: flex; /* Flexbox for alignment */
+    flex-direction: column; /* Vertical alignment */
+    margin: 0; /* Remove default list margins */
+    padding: 0; /* Remove default padding */
+    list-style-type: none; /* Remove bullet points */
+    margin-left: 20px; /* Indentation for nested replies */
+}
+
+/* Child Reply Styling */
+.child-reply {
+    max-width: 100%; /* Full width of parent */
+    background-color: #fff; /* White background */
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+    border-left: 3px solid #007bff; /* Blue accent color */
+}
+
+/* Primary Button Styling */
+.btn-primary {
+    background-color: #00a41e; /* Green background */
+    border: none;
+    font-size: 0.875rem; /* Smaller font size */
+    padding: 0.5rem 1rem; /* Adjusted padding */
+    border-radius: 0.25rem; /* Subtle rounding */
+}
+
+/* Alert Warning Styling */
+.alert-warning {
+    border-radius: 5px; /* Rounded corners */
+}
+
+/* Form Group Styling */
+.form-group {
+    transition: box-shadow 0.3s ease; /* Smooth shadow transition */
+}
+.user_chat {
+    /* Ensure content wraps properly */
+    word-wrap: break-word;
+}
+.form-control {
+    border-radius: 20px;
+}
+.image-container {
+    /* Container styling for the image */
+    margin-top: 10px;
+}
+.img-fluid {
+    /* Ensure the image is responsive */
+    max-width: 100%;
+    height: auto;
 }

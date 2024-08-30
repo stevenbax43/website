@@ -22,6 +22,11 @@ body {
 	justify-content: space-between;
 	line-height: 1;
 }
+.navbar-menu img {
+	height: 30px;
+	width: auto;
+	vertical-align: middle;
+}
 
 .navbar-brand {
 	display: flex;
@@ -157,7 +162,8 @@ body {
 	text-transform: lowercase;
 }
 
-#signup {
+#signup,
+#change_pass {
 	text-transform: lowercase;
 }
 
@@ -193,6 +199,7 @@ body {
     justify-content: center;
 }
 .second-banner-items{
+	margin-top:10px;
 	width: 60%;
 	display: flex;
     justify-content: space-between;

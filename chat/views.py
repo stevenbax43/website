@@ -1,59 +1,120 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-import os, re, nltk
+import os, re, nltk,json
 from openai import OpenAI
-from .models import Conversation, SavedConversation
+from .models import Conversation, SingleUserBot
 from dotenv import load_dotenv
 from django.utils import timezone
-
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 # Load environment variables from .env
 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config/settings/.env')
 load_dotenv(dotenv_path)
 
-# Download NLTK data for title stopwords
-nltk.download('punkt')
-nltk.download('stopwords')
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
+# # Download NLTK data for title stopwords
+# nltk.download('punkt')
+# nltk.download('stopwords')
+# from nltk.corpus import stopwords
+# from nltk.tokenize import word_tokenize
 
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 
-#Create your views here.
 @login_required(login_url='accounts:login')
-def chatbot(request):
-    conversations = Conversation.objects.filter(author_id=request.user)
-    saved_conversations = SavedConversation.objects.filter(author=request.user)
+def chatbot(request, pk):
+   # Retrieve all conversations associated with the current user
+    conversations = Conversation.objects.filter(user=request.user)
+    print(request.user.first_name)
+    # Get the selected conversation based on the pk passed in the URL
+    selected_conversation = get_object_or_404(Conversation, id=pk, user=request.user)
     
+    # Retrieve the user-bot responses associated with the selected conversation
+    user_bot_responses = SingleUserBot.objects.filter(user=request.user, parent=selected_conversation)
+
+     # Handle POST request to create a new bot response
     if request.method == 'POST':
         user_input = request.POST.get('user_input', '')
-        response = generate_openai_response(request.user, user_input)
+        print(f"User input: {user_input}")
         
-       
-        conversation = Conversation(
-            author_id = request.user,
-            user_input= user_input,
-            bot_response = response,
+        response = generate_openai_response(request.user, user_input, pk)
+        
+        if selected_conversation:
+            single_user_bot = SingleUserBot(
+                user=request.user,
+                user_input=user_input,
+                bot_response=response,
+                created_at=timezone.now(),
+                parent=selected_conversation,
+            )
+            single_user_bot.save()
+      
+        else:
+            print("Error: No selected conversation to associate with SingleUserBot entry.")
+        
+        return JsonResponse({'response': response})
+    
+    return render(request, 'chat/chatbot.html', {
+        'conversations': conversations,
+        'user_bot_responses': user_bot_responses,
+        'selected_conversation': selected_conversation
+    })
+
+def conversation_detail(request, id):
+    conversation = get_object_or_404(Conversation, id=id)
+    # Render a template with the conversation details
+    print(id)
+    return render(request, 'chat/chatbot.html', {'conversation': conversation})
+
+@login_required(login_url='accounts:login')
+def create_new_chat(request):
+    conversations = Conversation.objects.filter(user=request.user)
+    return render(request, 'chat/chatbot_start.html',  {'conversations': conversations})
+
+@csrf_exempt
+def process_input(request):
+   
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        user_input = data.get('input', '')
+        print(user_input)
+        # Pak het eerste woord van de input
+        first_word = user_input.split()[0] if user_input else ''
+        New_conversation = Conversation(
+            user = request.user,
+            title= first_word,
             created_at = timezone.now()
         )
-        conversation.save()
-        return JsonResponse({'response': response})
+        New_conversation.save()
+        #
+        selected_conversation = get_object_or_404(Conversation, id=New_conversation.pk, user=request.user)
+        #create botresponse and save with newly created conversation
+        response = generate_openai_response(request.user, user_input, pk=None)
+        single_user_bot = SingleUserBot(
+                user=request.user,
+                user_input=user_input,
+                bot_response=response,
+                created_at=timezone.now(),
+                parent=selected_conversation,
+            )
+        single_user_bot.save()
         
-    return render(request, 'chat/chatbot.html', {'conversations': conversations,'saved_conversations': saved_conversations})
-
-
+        return JsonResponse({'redirect_url': f'/chatbot/{New_conversation.pk}/'})
+    
 OPENAI_API_URL = 'https://api.openai.com/v1/engines/davinci/completions'
 
-def generate_openai_response(user, user_input, max_history=5):
-    previous_conversations = Conversation.objects.filter(author_id=user).order_by('created_at')[:max_history]
+def generate_openai_response(user, user_input, pk=None, max_history=5):
     conversation_log = []
-    for conv in previous_conversations:
+
+    if pk is not None:  # Als er niet al een gesprek hiervoor is gemaakt.
+        previous_conversations = SingleUserBot.objects.filter(user=user, id=pk).order_by('created_at')[:max_history]
+
+        for conv in previous_conversations:
             conversation_log.append({"role": "user", "content": conv.user_input})
             conversation_log.append({"role": "assistant", "content": conv.bot_response})
 
-    # Voeg de nieuwe gebruikersinvoer toe
+    # Voeg de nieuwe gebruikersinvoer toe, ongeacht of pk None is
     conversation_log.append({"role": "user", "content": user_input})
-
     try:
         # Initialize OpenAI client
         client = OpenAI(api_key=OPENAI_API_KEY)
@@ -78,40 +139,22 @@ def generate_openai_response(user, user_input, max_history=5):
     except Exception as e:
         return str(e)
 
-
-def delete_all_conversations(request):
+@require_POST
+def delete_specific_conversation(request, pk):
     # Delete all instances of Conversation
-    Conversation.objects.filter(author_id=request.user).delete()
+    conversation = get_object_or_404(Conversation, user=request.user, id=pk)
+    conversation.delete()
+    return redirect('chat:create_new_conversation')
 
-    return redirect('chat:chatbot')
 
-@login_required(login_url='accounts:login')
-def save_all_conversations(request):
-   
-    if request.method == 'POST':
-        title = request.POST.get('title', 'Conversation')
-        conversations = Conversation.objects.filter(author_id=request.user, saved_conversation__isnull=True)
-
-        if conversations.exists():
-            first_user_input = conversations.order_by('created_at').first().user_input
-            title = generate_title_from_input(first_user_input)
-            saved_conversation = SavedConversation(author=request.user, title=title)
-            saved_conversation.save()
-
-            for conv in conversations:
-                conv.saved_conversation = saved_conversation
-                conv.save()
-
-    return redirect('chat:chatbot')
-
-def generate_title_from_input(user_input):
-    stop_words = set(stopwords.words('dutch'))
-    word_tokens = word_tokenize(user_input.lower(), language='dutch')
+# def generate_title_from_input(user_input):
+#     stop_words = set(stopwords.words('dutch'))
+#     word_tokens = word_tokenize(user_input.lower(), language='dutch')
     
-    # Remove stop words and non-alphabetic words
-    filtered_words = [word for word in word_tokens if word.isalpha() and word not in stop_words]
+#     # Remove stop words and non-alphabetic words
+#     filtered_words = [word for word in word_tokens if word.isalpha() and word not in stop_words]
     
-    # Join the first 2-3 significant words to create a title
-    title = ' '.join(filtered_words[:3])
+#     # Join the first 2-3 significant words to create a title
+#     title = ' '.join(filtered_words[:3])
     
-    return title.capitalize()
+#     return title.capitalize()

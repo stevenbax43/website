@@ -14,7 +14,7 @@ function calculateDrukverlies(di_value, velocity, length) {
         40: { "Du": 48.3, "δbuis": 3.2, "Di": 41.9 },
         50: { "Du": 60.3, "δbuis": 3.6, "Di": 53.1 },
         65: { "Du": 76.1, "δbuis": 3.6, "Di": 68.9 },
-        80: { "Du": 88.9, "δbuis": 4.0, "Di": 80.9 },
+        80: { "Du": 88.9, "δbuis": 4.0, "Di": 80.9 }, 
         100: { "Du": 114.3, "δbuis": 4.5, "Di": 105.3 }
     };
 
@@ -84,6 +84,7 @@ function updateValues() {
     // Update result display
     document.getElementById('pressureLossBar').textContent = ` ${(result[0]/100).toFixed(2)} `;
     document.getElementById('pressureLosskPa').textContent = ` ${Math.round(result[0]*1000)} `;
+    document.getElementById('pressureLossPam').textContent = ` ${Math.round((result[0]*1000)/length)} `;
     document.getElementById('flowM3H').textContent = ` ${result[1]}`;
     document.getElementById('flowLMin').textContent = ` ${result[2]}`;
     document.getElementById('flowLS').textContent = ` ${result[3]}`;

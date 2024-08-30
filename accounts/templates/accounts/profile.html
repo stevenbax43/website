@@ -1,0 +1,32 @@
+{% extends 'home/base.html'%}
+
+{% load static %} 
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'accounts/styles/accounts.css'%}">
+{% endblock %}
+
+{% block content%}
+
+<div class="main-banner">
+    <div class="main-banner-items">
+        <div class="centered">
+            <h2>Wijzig Profiel</h2>
+            
+            <form method="post" class="site-form">
+                {% csrf_token %}
+                {{ form.as_p }}
+                
+                <button type="submit">Save changes</button>
+                
+            </form>
+            <form action="{% url 'accounts:password_change'%}" class="site-form">
+                <button type="submit">Verander Wachtwoord</a></button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock %}

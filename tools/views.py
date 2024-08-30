@@ -10,6 +10,7 @@ from django.http import HttpResponse
 import io
 
 # inhoudsopgave pagina 
+@login_required(login_url='accounts:login')
 def tools(request):
     return render(request, 'tools/tools_index.html')
 

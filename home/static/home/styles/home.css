@@ -52,10 +52,15 @@
     margin: 0 auto;
 	text-align: center; /* Center the content horizontally */
 }
+.text-column h1 {
+    
+    font-size: 3.0rem;
+}
 
 /* Increase line height for paragraphs */
 .text-column p {
     line-height: 1.6;
+    font-size: 1.25rem;
 }
 
 /* Add spacing between paragraphs */
@@ -63,7 +68,18 @@
     margin-top: 1.5em;
 }
 
-
+.text-line {
+    position: relative;
+    font-size: 1.125rem;
+    margin-bottom: 20px;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
+    border-radius: 8px;
+    z-index: 1;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
 .button-container-home{
 	display: flex;
     max-width: 70%; /* Adjust as needed */
@@ -104,7 +120,6 @@ button:hover{
 	border: none;
 }
 
-
 .text-column {
     flex: 1;
 }
@@ -124,3 +139,14 @@ button:hover{
 }
 
 
+@media (max-width: 768px) {
+    .text-column h1 {
+        font-size: 2.5rem;
+    }
+
+    .text-column p {
+        font-size: 1.1rem;
+    }
+
+    
+}

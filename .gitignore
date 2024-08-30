@@ -9,6 +9,8 @@ db.sqlite3
 media/
 assets/
 tools/static/tools/files/
+news/static/news/files/
+chat/docs/
 
 # Ignore log and temporary files
 *.log

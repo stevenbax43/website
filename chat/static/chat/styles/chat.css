@@ -41,17 +41,25 @@
     overflow-y: auto; /* Enable vertical scroll if needed */
     border-radius: 4px;
     white-space: normal;
-    max-height: 630px;
+    max-height: 600px;
+    min-height: 300px;
+    min-width: 800px;
     scroll-behavior: smooth;
     scrollbar-width: thin; 
-    scrollbar-color: #56f009 #f1f1f1;
+    scrollbar-color: #5e9e3d #f1f1f1;
 }
 
-
+.saved_conversations {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
 /* Style the user input container */
 #user-input-container {
     display: flex;
     margin-top: 10px;
+    width: 800px;
+    align-items: center;
+    min-height: 10px;
 }
 
 /* Style the input field container */
@@ -61,7 +69,8 @@
 }
 
 /* Style the user input field */
-#user-input {
+#user_input_first,
+#user_input {
     width: 100%;
     padding: 8px;
     padding-right: 40px;
@@ -72,40 +81,39 @@
     overflow-x: hidden;
     overflow-y: auto;
     resize: none; /* Disable textarea resizing by the user */
-    min-height: 38px; /* Set a minimum height to prevent collapsing */
+    min-height: 45px; /* Set a minimum height to prevent collapsing */
     white-space: normal;
 }
 
 /* Style the send button */
-#send-button {
+.send-button {
     position: absolute;
     right: 0;
     top: 0;
-    padding: 6px 10px;
     background-color: #4caf50;
-    color: #fff;
     border: none;
-    border-radius: 25px;
+    border-radius: 20px;
     cursor: pointer;
     margin-top: 4.5px;
     margin-right: 4px;
+    z-index: 1000;
 }
 
 /* Style the arrow-up icon */
 .arrow-up-icon {
-    font-size: 14px;
+    font-size: 15px;
 }
 
 /* Hover effect for the send button */
-#send-button:hover {
-    background-color: #45a049;
+.send-button:hover {
+    background-color: #3e9643;
     transition: background-color 0.3s ease;
 }
 
 .message {
     margin-bottom: 10px;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
 }
 
 .circle_user,
@@ -118,7 +126,7 @@
     justify-content: center;
     color: white;
     font-weight: bold;
-    margin-right: 10px;
+    margin: 0 10px; /* Adds margin on both sides */
 }
 
 .circle_user {
@@ -127,25 +135,52 @@
 
 .circle_bot {
     background-color: green;
+
+}
+
+.user-message {
+    background-color: #ffffff; /* Light grey background */
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 85%;
+    margin-left: auto; /* Aligns the user message to the right */
+    display: flex;
+    align-items: center;
+    text-align: right;
+}
+
+.bot-message {
+    background-color: #ffffff; /* White background for bot message */
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 85%;
+    margin-right: auto; /* Aligns the bot message to the left */
+    display: flex;
+    align-items: center;
+    text-align: left;
 }
 
 .user_chat,
 .bot_response {
-    width: calc(100% - 70px);
-    border: 1px solid #ffffff;
+    flex-grow: 1; /*Makes the text area flexible to fill the remaining space */ 
     border-radius: 4px;
-    background-color: #fffefe;
-}
-
-.bot_response {
-    background-color: #ffffff;
-}
-
-.wrap {
+    max-width: 85%;
     white-space: pre-wrap !important;
     word-wrap: break-word !important;
     overflow-wrap: break-word !important;
 }
+.user_chat {
+    background-color: #eaeaea;
+    border-radius: 15px;
+    padding-right: 10px;
+}
+
+.wrap {
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    white-space: pre-wrap !important;
+}
+
 
 .icon_container {
     display: flex;
@@ -153,11 +188,29 @@
     align-items: center; /* Center align vertically */
     padding: 10px;
 }
-
-.icon_delete, .icon_save {
+.list-group{
+    overflow-y: auto; /* Enable vertical scroll if needed */
+    border-radius: 4px;
+    white-space: normal;
+    max-height: 400px;
+    min-height: 300px;
+    scroll-behavior: smooth;
+    scrollbar-width: thin; 
+    scrollbar-color: #5e9e3d #f1f1f1;
+}
+.list-group-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding: 10px;
+    max-width: 100%;
 }
 
-.icon_save img, .icon_delete img {
-    width: 30px;
+.list-group-item .btn-danger {
+    margin-left: 10px; /* Add spacing between button and link */
+}
+.btn .icon {
+    width: auto;
+    height: 20px;
+    fill: red; /* Change the icon color to red */
 }

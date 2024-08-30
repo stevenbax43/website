@@ -1,0 +1,105 @@
+{% extends 'home/base.html'%}
+
+{% load static %} 
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'chat/styles/chat.css'%}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+
+<div class="top-banner"> 
+        <div class="top-banner-items">
+            <div>            <h1>Chatbot</h1>          </div>
+            <div>            <img src="{% static 'chat/images/chatbot.png' %}">         </div>
+        </div>
+</div>
+        
+<div class="second-banner"> 
+    <div class="second-banner-items">
+        <p></p>
+        <div>
+            Welkom  <b><span >{{user.first_name}} {{user.last_name}},</span></b>
+            <p>Dit is jouw persoonlijke omgeving waar je vragen kan stellen aan O&T via een Custom-Trained AI-chatbot die getraind is op alle 
+            normen, eisen en een afgeleide is van OpenAI van Google. Deel geen gevoelige informatie!</p>
+        </div>
+        <span type="hidden" style="text-transform: uppercase;" id="current_username" hidden>{{ user.username }}</span>
+    </div>
+</div>
+
+<div class="main-banner">
+    <div class="main-banner-items">
+        <div class="container">
+            <div class="row">
+                <div class="saved_conversations col-md-3 sidebar shadow p-3 bg-white rounded">
+                    <div class="header-container d-flex justify-content-between align-items-center mb-3">
+                        <h4>Opgeslagen gesprekken</h4>
+                    </div>
+                    
+                    <ul class="list-group">
+                        {% for conversation in conversations %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div class="conversation-title">
+                                <a href="{% url 'chat:chatbot_with_conversation' pk=conversation.pk %}">
+                                    {{ conversation.title }}
+                                    <input type="hidden" id="conversation-id" value="{{ selected_conversation.pk }}">
+                                </a>
+                            </div>
+                            <form action="{% url 'chat:delete_specific_conversation' pk=conversation.pk %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn">
+                                    <img src="{% static 'chat/images/delete-icon.png' %}" alt="Delete Conversation" style="width: auto; height: 20px; color:red;">
+                                </button>
+                            </form>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item">No conversations found.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <!-- Chat Display and Input -->
+                <div class="col-md-9">
+                    <div id="chat-container">
+                        <div id="chat-display" class="mb-3">
+                            <!-- The "Start nieuw gesprek" message is initially visible -->
+                            <h3 id="start_new_conversation" style="display: block;">Start nieuw gesprek</h3>
+                            <!-- Display conversations here -->
+                        </div>
+                
+                        <!-- Form for creating new chat messages -->
+                        <form method="post" id="createTitleForm" class="me-3">
+                            {% csrf_token %}
+                            <div id="user-input-container" class="input-group mb-3">
+                                <input type="text" id="user_input_first" class="form-control" placeholder="Schrijf je bericht...">
+                                <button type="button" id="sent_input" class="btn send-button ">
+                                    <span class="arrow-up-icon">&#9650;</span>
+                                </button>
+                            </div>
+                        </form>
+                
+                       
+                
+                        <!-- Display current username for chat messages -->
+                        <span id="current_username"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+ 
+        
+
+{% endblock content %}
+{% block extra_js %}
+<!-- This makes sure this JS is only be loaded when rendering this HTML page. Whilst the common JS Files included in de extra_js block of base.html will be loaded across all pages -->
+<script src="{% static 'chat/scripts/chat_new.js' %}"></script>
+
+<script>
+    const fetchNewconversation = "{% url 'chat:chatbot' %}";
+</script>
+{% endblock %} 
