@@ -20,7 +20,7 @@ class Topic(models.Model):
         return self.title
 
 class Reply(models.Model):
-    topic = models.ForeignKey(Topic, related_name='replies', on_delete=models.CASCADE)
+    topic = models.ForeignKey(Topic, related_name='replies', null=True, blank=True, on_delete=models.CASCADE)
     content = models.TextField(verbose_name='Bericht')
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -29,3 +29,4 @@ class Reply(models.Model):
 
     def __str__(self):
         return f'In {self.topic} Reply on {self.parent_reply}'
+ 

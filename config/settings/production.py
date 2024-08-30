@@ -11,7 +11,7 @@ ALLOWED_HOSTS = ['35.204.155.206','stevenbaxontwerpt.nl', 'localhost', 'www.stev
 DATABASES = {
     'default': {
         "ENGINE": "django.db.backends.postgresql",
-        'NAME': 'mydb',
+        'NAME': os.getenv('name_db'),
         'USER':  'sbax', #oude stevenbax
         'PASSWORD': '3173', #oude 3173
         'HOST':'localhost',
