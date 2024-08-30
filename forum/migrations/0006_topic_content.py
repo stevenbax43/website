@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('forum', '0005_category_reply_parent_reply_topic_category'),
+        ('forum', '0004_category_reply_parent_reply_topic_category'),
     ]
 
     operations = [
