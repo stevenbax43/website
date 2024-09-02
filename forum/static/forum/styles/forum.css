@@ -112,3 +112,13 @@ textarea {
     max-width: 100%;
     height: auto;
 }
+.btn-green {
+    background-color: #28a745 !important; /* Groene kleur */
+    border-color: #28a745 !important; /* Groene randkleur */
+    color: white !important; /* Witte tekstkleur */
+}
+
+.btn-green:hover {
+    background-color: #218838; /* Iets donkerder groen bij hover */
+    border-color: #1e7e34; /* Iets donkerder randkleur bij hover */
+}
