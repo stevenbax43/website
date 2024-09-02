@@ -17,7 +17,7 @@
                 {% csrf_token %}
                 {{ form.as_p }}
                 
-                <button type="submit">Save changes</button>
+                <button type="submit">Opslaan</button>
                 
             </form>
             <form action="{% url 'accounts:password_change'%}" class="site-form">
