@@ -4,7 +4,9 @@ from django.contrib.auth.decorators import login_required
 from .news_scrape import WeiiNews_extract, InstallatieNews_extract, EenWInstallatieTechniekNews_extract
 from django.core.files.storage import default_storage
 from django.conf import settings
-import os
+import os, logging
+
+logger = logging.getLogger('django')
 
 # Create your views here.
 @login_required(login_url='accounts:login')
@@ -21,19 +23,40 @@ def news(request):
     return render(request, 'news/news.html', {'articles': articles})
 
 def delete_all_news(request):
-    # Delete all instances of NewsArticle
-    NewsArticle.objects.all().delete()
-    # You may also want to delete associated media files, assuming they are stored in the 'news_thumbs' folder
-     # Delete associated media files (assuming they are stored in the 'news_thumbs' folder)
-    media_root = settings.MEDIA_ROOT
-    folder_path = os.path.join(media_root, 'news_thumbs')
-    
-    for file_name in os.listdir(folder_path):
-        file_path = os.path.join(folder_path, file_name)
-        if os.path.isfile(file_path):
-            os.remove(file_path)
-    return redirect('news:news')
+    try:
+        # Log the start of the process
+        logger.debug("Starting to delete all news articles")
 
+        # Delete all instances of NewsArticle
+        NewsArticle.objects.all().delete()
+        logger.debug("All news articles deleted successfully")
+
+        # Path to media files
+        media_root = settings.MEDIA_ROOT
+        folder_path = os.path.join(media_root, 'news_thumbs')
+
+        # Log the path being used
+        logger.debug(f"Deleting files in folder: {folder_path}")
+
+        # Delete associated media files
+        if os.path.exists(folder_path):
+            for file_name in os.listdir(folder_path):
+                file_path = os.path.join(folder_path, file_name)
+                if os.path.isfile(file_path):
+                    os.remove(file_path)
+                    logger.debug(f"Deleted file: {file_path}")
+                else:
+                    logger.warning(f"Skipping non-file item: {file_path}")
+        else:
+            logger.warning(f"Folder does not exist: {folder_path}")
+
+        # Redirect to news list
+        return redirect('news:news')
+    
+    except Exception as e:
+        # Log any exceptions that occur
+        logger.error(f"An error occurred: {e}", exc_info=True)
+        return redirect('news:news')
 
 def check_all_media_file_paths(): # weet niet of ik hier nog iets mee doe?
     media_root = settings.MEDIA_ROOT
