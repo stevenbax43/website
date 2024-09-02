@@ -33,7 +33,7 @@ def EP_API(adr1):
     api_key = os.environ.get('EP_API_KEY')
     
     # EP-label API base URL for the test environment
-    base_url = 'https://public.ep-online.nl/api/v3/'
+    base_url = 'https://public.ep-online.nl/api/v4/'
     # Specific endpoint for querying based on an address
     endpoint = 'PandEnergielabel/Adres'
 
@@ -53,21 +53,22 @@ def EP_API(adr1):
 
     # Make a request to the EP label website
     response = requests.get(url, params=params, headers=headers)
-    
+ 
     if response.status_code == 200:
         try:
-
             label_data = response.json()
+          
             #print(label_data)
             # Request was successful
-            adr1.EP_label = label_data[0]['labelLetter']
-            adr1.EP_surface = label_data[0]['gebruiksoppervlakte']
-            adr1.EP_energie= label_data[0]['energiebehoefte']
+            adr1.EP_label = label_data[0]['Energieklasse']
+            adr1.EP_surface = label_data[0]['Gebruiksoppervlakte_thermische_zone']
+            adr1.EP_energie= label_data[0]['Energiebehoefte']
             adr1.EP_PrimEnergie= label_data[0]['primaireFossieleEnergie']
-            adr1.gebouwklasse = label_data[0]['gebouwklasse']
-            adr1.EP_TO = label_data[0]['toJuli']
-            adr1.EP_warmte = label_data[0]['nettoWarmtevraagTbvEPV']
-
+            adr1.gebouwklasse = label_data[0]['Gebouwklasse']
+            adr1.EP_TO = label_data[0]['Temperatuuroverschrijding']
+            adr1.EP_warmte = label_data[0]['Warmtebehoefte']
+            print(adr1.EP_label)
+            print(adr1.energie)
             if adr1.gebouwklasse == 'U':
                 adr1.gebouwklasse = 'Utiliteit'
             elif adr1.gebouwklasse == 'W':
