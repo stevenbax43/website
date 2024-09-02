@@ -111,7 +111,7 @@
                             <div class="modal-dialog" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="replyModalLabel-{{ reply.pk }}">Reply to {{ reply.created_by }}</h5>
+                                        <h5 class="modal-title" id="replyModalLabel-{{ reply.pk }}">Antwoord op {{ reply.created_by }}</h5>
                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
                                         </button>
@@ -122,8 +122,8 @@
                                             {{ form.as_p }}
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-primary">Submit Reply</button>
+                                            <button type="button" class="btn btn-green" data-dismiss="modal">Sluit</button>
+                                            <button type="submit" class="btn btn-green ">Stuur antwoord</button>
                                         </div>
                                     </form>
                                 </div>
@@ -141,10 +141,10 @@
                 <div class="form-group">
                     {{ form.as_p }}
                 </div>
-                <button type="submit" class="btn btn-primary">Stuur</button>
+                <button type="submit" class="btn btn-green">Stuur</button>
                 
             </form>
-            <a href="{% url 'forum:topic_list' %}" class="btn btn-secondary btn-sm">Back to Topics</a>
+            <a href="{% url 'forum:topic_list' %}" class="btn btn-green btn-sm">Terug naar Topics</a>
         </div>
             
     </div>
