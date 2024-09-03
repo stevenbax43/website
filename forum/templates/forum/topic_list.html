@@ -51,13 +51,16 @@
             {% for category, topics_in_category in topics_by_category.items %}
                 <div class="mb-4">
                     <div class="d-flex align-items-center">
-                        <h3 class="mr-3">{{ category.name }}</h3>
+                        
                         {% if category.image %}
                             <img src="{{ category.image.url }}" alt="{{ category.name }}" class="img-fluid" style="max-height: 50px;">
                         {% endif %}
+                        {%if user=user.superuser%}
                         <a href="{% url 'forum:edit_category' category.pk %}" class="btn btn-sm">
                             <img src="{% static 'forum/images/edit.png' %}" alt="Edit" style="width: 16px; height: 16px;">
                         </a>
+                        {%endif%}
+                        <h3 class="mr-3">{{ category.name }}</h3>
                     </div>
                     <br>
                     <div class="row">
