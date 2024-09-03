@@ -55,12 +55,13 @@
                         {% if category.image %}
                             <img src="{{ category.image.url }}" alt="{{ category.name }}" class="img-fluid" style="max-height: 50px;">
                         {% endif %}
+                        
+                        <h3 class="mr-3" style="margin-left: 5px;">{{ category.name }}</h3>
                         {% if user.is_superuser %}
                         <a href="{% url 'forum:edit_category' category.pk %}" class="btn btn-sm">
                             <img src="{% static 'forum/images/edit.png' %}" alt="Edit" style="width: 16px; height: 16px;">
                         </a>
                         {%endif%}
-                        <h3 class="mr-3">{{ category.name }}</h3>
                     </div>
                     <br>
                     <div class="row">
