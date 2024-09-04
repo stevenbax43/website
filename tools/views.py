@@ -3,6 +3,7 @@ from .Tool_A1_Gebouwdata import gebouwgegevens
 from .Tool_A3_klimaatjaar import klimaatjaar
 from .Tool_W1_MollierDiagram import mollierdiagram
 from .Tool_W2_expansievat import expansievat
+from .Tool_W4_CO2verloop import CO2verloop
 from django.contrib.auth.decorators import login_required
 import json
 import pandas as pd
@@ -64,6 +65,12 @@ def tool_W3(request):
     #toekomstig: je kan nog een model maken met expansievat variabelen net als adress
     return render(request, 'tools/tool_W3.html')
 
+@login_required(login_url='accounts:login')
+def tool_W4(request):
+    CO2_output = CO2verloop(request)
+    CO2_json = json.dumps(CO2_output[0])
+    #toekomstig: je kan nog een model maken met expansievat variabelen net als adress
+    return render(request, 'tools/tool_W4.html', {'CO2_data': CO2_json})
 
 @login_required(login_url='accounts:login')
 def download_excel(request):

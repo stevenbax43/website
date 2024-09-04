@@ -1,30 +1,44 @@
 // Function to save input values to sessionStorage
 function saveInputValues() {
-    document.querySelectorAll('input, select').forEach(field => {
+    document.querySelectorAll('input').forEach(field => {
+        console.log(`Saving ${field.id}: ${field.value}`); // Debugging statement
         sessionStorage.setItem(field.id, field.value);
     });
 }
 
 // Function to load input values from sessionStorage
 function loadInputValues() {
-    document.querySelectorAll('input, select').forEach(field => {
+    document.querySelectorAll('input').forEach(field => {
         const savedValue = sessionStorage.getItem(field.id);
         if (savedValue !== null) {
             field.value = savedValue;
+            console.log(`Loaded ${field.id}: ${field.value}`);
         }
     });
 }
+
+
 
 // Event listener for DOMContentLoaded event
 document.addEventListener('DOMContentLoaded', function() {
     // Load input values when the page is loaded
     loadInputValues();
 
-    // Add change event listener to input fields to save input values and simulate click on the submit button
-    document.querySelectorAll('input, select').forEach(field => {
+   
+    // Add change event listener to input fields to save input values and submit the form
+    document.querySelectorAll('input').forEach(field => {
         field.addEventListener('change', function() {
+            console.log(`Change event detected for ${field.id}`); // Debugging statement
             saveInputValues();
-            document.getElementById('mollierButton').click();
+
+            // Submit the form when an input value changes
+            const form = document.getElementById('inputForm');
+            if (form) {
+                console.log('Form found, submitting...'); // Debugging statement
+                form.submit();
+            } else {
+                console.error('Form not found');
+            }
         });
     });
 
@@ -38,11 +52,10 @@ document.addEventListener('DOMContentLoaded', function() {
         sessionStorage.setItem('scrollPosition', window.scrollY);
     });
 
-  
-    // Placeholder for readme button functionality
+    
+    // Event listener for readme button
     document.getElementById('readMeButton').addEventListener('click', function() {
-        //     // Handle Excel button click event
-            window.open(pdfUrlReadMe, '_blank');
+        window.open(pdfUrlReadMe, '_blank');
     });
     // Event listener for print button
     document.getElementById('printButton').addEventListener('click', function() {
@@ -54,4 +67,5 @@ document.addEventListener('DOMContentLoaded', function() {
         // Make a GET request to the Django view that generates the Excel file
         window.open(pdfUrlExcel, '_blank');
     });
+   
 });
