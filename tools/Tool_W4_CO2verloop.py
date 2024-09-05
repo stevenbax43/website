@@ -5,10 +5,10 @@ def CO2verloop(request):
     lst_C_t, lst_C_t_o, CO2_list= [], [], {}
     ruimteinhoud, ventilatiehoeveelheid_pp,CO2productie_pp,aantal_personen,bezetting,buitenluchtkwaliteit,beginconcentratie,tijd = 0,0,0,0,0,0,0,0
     if request.method =='POST':
-        ruimteinhoud, ventilatiehoeveelheid_pp = map(int, [request.POST.get('volume_room'), request.POST.get('ventilation_pp')])
-        CO2productie_pp, aantal_personen = map(int,[request.POST.get('production_pp'), request.POST.get('number_persons')])
-        bezetting, buitenluchtkwaliteit = map(int,[request.POST.get('bezetting'), request.POST.get('outsite_air_ppm')])
-        beginconcentratie, tijd = map(int,[request.POST.get('start_ppm'), request.POST.get('time_hour')])
+        ruimteinhoud, ventilatiehoeveelheid_pp = map(float, [request.POST.get('volume_room'), request.POST.get('ventilation_pp')])
+        CO2productie_pp, aantal_personen = map(float,[request.POST.get('production_pp'), request.POST.get('number_persons')])
+        bezetting, buitenluchtkwaliteit = map(float,[request.POST.get('bezetting'), request.POST.get('outsite_air_ppm')])
+        beginconcentratie, tijd = map(float,[request.POST.get('start_ppm'), request.POST.get('time_hour')])
 
         #omrekenen 
         time_unit = tijd * 3600 
