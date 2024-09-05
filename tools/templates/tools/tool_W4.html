@@ -25,11 +25,9 @@
     <div class="second-banner-items">
         <div class="second-alignment">
             <div class="second-text">  
-                <p> Bij het bepalen van de CO2-ontwikkeling in een ruimte over de tijd, zijn verschillende zaken van belang. 
-                    Ten eerste de CO2-productie door de personen aanwezig in de ruimte. Ten tweede de ventilatiehoeveelheid van “verse” buitenlucht. 
-                    Ten derde de buitenconcentratie in parts per million (ppm). 
-                    CO2 is een gas dat makkelijk diffundeert (zich verspreid) door de ruimte en er wordt in deze berekening uitgegaan van een ideale mening.
-                    <p>    
+                <p> Bij het bepalen van de CO2-ontwikkeling in een ruimte zijn drie zaken belangrijk: 
+                    de CO2-productie door aanwezige personen, de hoeveelheid verse lucht en de buitenconcentratie in ppm.
+                     CO2 verspreidt zich gemakkelijk, en de berekening gaat uit van een ideale menging.<p>    
             </div>
             <div class="tools-icons">
                 <div>  <a href="#" id="readMeButton" > ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" alt="ReadMe Button"> </a> </div>
@@ -59,21 +57,21 @@
                                     <div class="mb-3">
                                         <label for="volume_room" class="form-label">Ruimte Inhoud (V):</label>
                                         <div class="input-group">
-                                        <input type="number" class="form-control" id="volume_room" name="volume_room" value="50" min="0">
+                                        <input type="number" class="form-control" id="volume_room" name="volume_room" value="50" min="0" step="0.1">
                                         <span class="input-group-text">m<sup>3</sup></span>
                                         </div>
                                     </div>
                                     <div class="mb-3">
                                         <label for="ventilation_pp" class="form-label">Ventilatiehoeveelheid (q<sub>v,pp</sub>):</label>
                                         <div class="input-group">
-                                            <input type="number" class="form-control" id="ventilation_pp" name="ventilation_pp" value="30" min="0" >
+                                            <input type="number" class="form-control" id="ventilation_pp" name="ventilation_pp" value="30" min="0" step="0.1">
                                             <span class="input-group-text">m<sup>3</sup>/h</span>
                                         </div>
                                     </div>
                                     <div class="mb-3">
                                         <label for="production_pp" class="form-label">Productie pp (p<sub>pp</sub>):</label>
                                         <div class="input-group">
-                                            <input type="number" class="form-control" id="production_pp" name="production_pp" value="18" min="0" >
+                                            <input type="number" class="form-control" id="production_pp" name="production_pp" value="18" min="0" step="0.1" >
                                             <span class="input-group-text">l/h</span>
                                         </div>
                                     </div>
@@ -91,7 +89,7 @@
                                     <div class="mb-3">
                                         <label for="bezetting" class="form-label">Bezetting (&#946;):</label>
                                         <div class="input-group">
-                                        <input type="number" class="form-control" id="bezetting" name="bezetting" value="100" min="0" max="100" >
+                                        <input type="number" class="form-control" id="bezetting" name="bezetting" value="100" min="0" max="100">
                                         <span class="input-group-text">%</span>
                                         </div>
                                     </div>
@@ -115,7 +113,7 @@
                                     <div class="mb-3">
                                         <label for="time_hour" class="form-label">Tijd (t):</label>
                                         <div class="input-group">
-                                        <input type="number" class="form-control" id="time_hour" name="time_hour" value="1" min="0" max="100">
+                                        <input type="number" class="form-control" id="time_hour" name="time_hour" value="1" min="0" max="100" step="0.1">
                                         <span class="input-group-text">h</span>
                                         </div>
                                     </div>

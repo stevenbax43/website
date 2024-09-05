@@ -24,8 +24,8 @@
         <div class="second-banner-items">
             <div class="second-alignment">
                 <div class="second-text">  
-                    <p> Met minimale informatie navigeren door diverse websites om details over een organisatie en hun gebouw te onthullen, 
-                        terwijl tegelijkertijd inzicht wordt verkregen in de energieprestaties van je eigen pand.</p>    
+                    <p>Met minimale informatie navigeren door websites om details over een organisatie en hun gebouw te vinden, 
+                        terwijl je tegelijk inzicht krijgt in de energieprestaties van je eigen pand.</p>    
                 </div>
                 <div class="tools-icons">
                     <div>  <a href="#" id="readMeButton" >ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" alt="ReadMe Button"> </a> </div>
@@ -80,7 +80,7 @@
                                         </div>
                                      
                                      
-                                        <img id="BAGviewer" src="{% static 'tools/images/location.png' %}">
+                                        <a href="https://www.postnl.nl/adres-zoeken/"><img id="BAGviewer" src="{% static 'tools/images/location.png' %}"></a>
                                 </div>
                                
                         </div>      
@@ -102,13 +102,14 @@
                                                 <label for="EPHeat" class="form-label">Bouwjaar</label>
                                                 <output class="form-control" id="EPHeat" name="EPHeat">{{ adr1.buildyear }}</output>
                                         </div>
-                                        <img id="BAGviewer" src="{% static 'tools/images/BAGkadaster-logo.png' %}">
+                                        <a href="https://bagviewer.kadaster.nl/lvbag/bag-viewer/?zoomlevel=1"><img id="BAGviewer" src="{% static 'tools/images/BAGkadaster-logo.png' %}"></a>
                                 </div>
                                
                         </div>      
                         <div class="col-md-3">
                                 <div class="border p-3 shadow">
-                                        <h4>EP-label</h4>
+                                        <h4>EP-label-online</h4>
+                                        <label>Label</label>
                                         <output class="form-control" id="EP_label" name="EP_label">{{ adr1.EP_label }}</output>
                                         <div class="mb-3">
                                                 <label for="EPsurface" class="form-label">Thermisch gebr. Oppervlakte</label>
@@ -130,7 +131,7 @@
                                         </div>
                                      
                                         
-                                        <img id="BAGviewer" src="{% static 'tools/images/label-u-bouw.jpg' %}">
+                                       <a href="https://www.ep-online.nl/"> <img id="BAGviewer" src="{% static 'tools/images/label-u-bouw.jpg' %}"></a>
                                 </div>
                                
                         </div>      
