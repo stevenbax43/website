@@ -11,6 +11,7 @@ assets/
 tools/static/tools/files/
 news/static/news/files/
 chat/docs/
+debug.log
 
 # Ignore log and temporary files
 *.log
