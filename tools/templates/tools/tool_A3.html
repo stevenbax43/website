@@ -46,7 +46,7 @@
             <div class="container mt-3 borderline" >
                 <div class="row">
                     <!-- Input Form -->
-                    <div class="col-md-3 no-print" style="min-width: 250px;">
+                    <div class="col-md-4 no-print" style="min-width: 250px;">
                         <div class="border p-3 shadow">
                             <h4>Bedrijfsuren</h4>
                             <!-- Input fields -->
@@ -101,7 +101,7 @@
                     <!-- Graphs -->
                     <div class="col-md-8">
                             <div class="row">
-                                <div class="col-md-12">
+                                <div class="col-md-8">
                                     <div class="border p-3 shadow mb-3">
                                         <!-- Graph canvas 1 -->
                                         <div style="min-height: 150px; overflow:hidden;"><canvas id="myDoughnutChart" style="width: 100%; height: auto;" width="265" height="166"></canvas></div>
@@ -120,100 +120,117 @@
             </div>
 
             <div class="container mt-3 borderline">
-                <div class="row">
+                <div class="row justify-content-center">
                     <!-- Input Form -->
-                    <div class="col-md-3">
+                    <div class="col-md-5 mb-4">
                         <div class="border p-3 shadow">
                             <h4>Stooklijn Verwarmen</h4>
                             <!-- Input fields -->
-                             
-                            <!-- First input field -->
-                            <div class="mb-3">
-                                <label for="designTempheat" class="form-label">Temperatuur(T<sub>min</sub>):</label>
-                                <div class="input-group">
-                                    <input type="number" class="form-control" id="designTempheat" name="designTempheat" min="-30" max="0" step="1" value="-10" placeholder="-20-10">
-                                    <span class="input-group-text">°C</span>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <!-- Second input field -->
+                                    <div class="mb-3">
+                                        <label for="maxTempHeat" class="form-label">Temperatuur(T<sub>max</sub>):</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="maxTempHeat" name="maxTempHeat" min="10" max="20" step="1" value="16" placeholder="-20-40">
+                                            <span class="input-group-text">°C</span>
+                                        </div>
+                                    </div>
+                                    <!-- First input field -->
+                                    <div class="mb-3">
+                                        <label for="designTempheat" class="form-label">Temperatuur(T<sub>min</sub>):</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="designTempheat" name="designTempheat" min="-30" max="0" step="1" value="-10" placeholder="-20-10">
+                                            <span class="input-group-text">°C</span>
+                                        </div>
+                                    </div>
+                                    
+                                    
+                                </div>
+                                <div class="col-md-6">
+                                                              
+                                    <!-- Third input field -->
+                                    <div class="mb-3">
+                                        <label for="HeatPowerMax" class="form-label">Vermogen(P<sub>max</sub>):</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="HeatPowerMax" name="HeatPowerMax" min="0" max="1000" step="1" value="100">
+                                            <span class="input-group-text">kW</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- fourth input field -->
+                                    <div class="mb-3">
+                                        <label for="HeatPowerMin" class="form-label">Vermogen(P<sub>min</sub>):</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="HeatPowerMin" name="HeatPowerMin" min="0" max="100" step="1" value="0" >
+                                            <span class="input-group-text">kW</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            
-                            <!-- Second input field -->
-                            <div class="mb-3">
-                                <label for="maxTempHeat" class="form-label">Temperatuur(T<sub>max</sub>):</label>
-                                <div class="input-group">
-                                    <input type="number" class="form-control" id="maxTempHeat" name="maxTempHeat" min="10" max="20" step="1" value="16" placeholder="-20-40">
-                                    <span class="input-group-text">°C</span>
-                                </div>
-                            </div>
-                          
-                            <!-- Third input field -->
-                            <div class="mb-3">
-                                <label for="HeatPowerMax" class="form-label">Vermogen(P<sub>max</sub>):</label>
-                                <div class="input-group">
-                                    <input type="number" class="form-control" id="HeatPowerMax" name="HeatPowerMax" min="0" max="1000" step="1" value="100">
-                                    <span class="input-group-text">kW</span>
-                                </div>
-                            </div>
-                            
-                            <!-- fourth input field -->
-                            <div class="mb-3">
-                                <label for="HeatPowerMin" class="form-label">Vermogen(P<sub>min</sub>):</label>
-                                <div class="input-group">
-                                    <input type="number" class="form-control" id="HeatPowerMin" name="HeatPowerMin" min="0" max="100" step="1" value="0" >
-                                    <span class="input-group-text">kW</span>
-                                </div>
-                            </div>
-                           
+                        </div>
+                    </div>
+                    <div class="col-md-5 mb-4">
+                        <div class="border p-3 shadow">
                             <h4>Stooklijn Koelen</h4>
                             <!-- FIrst input  -->
-                            <div class="mb-3">
-                                <label for="designTempcool" class="form-label">Temperatuur(T<sub>min</sub>):</label>
-                                <div class="input-group">
-                                    <input type="number" class="form-control" id="designTempcool" name="designTempcool" min="-20" max="40" step="1" value="10">
-                                    <span class="input-group-text">°C</span>
+                            <div class="row ">
+                                <div class="col-md-6">
+                                    <!-- Second input field -->
+                                    <div class="mb-3">
+                                        <label for="maxTempCool" class="form-label">Temperatuur(T<sub>max</sub>):</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="maxTempCool" name="maxTempCool" min="-20" max="40" step="1" value="40">
+                                            <span class="input-group-text">°C</span>
+                                        </div>
+                                    </div>   
+                                    <div class="mb-3">
+                                        <label for="designTempcool" class="form-label">Temperatuur(T<sub>min</sub>):</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="designTempcool" name="designTempcool" min="-20" max="40" step="1" value="10">
+                                            <span class="input-group-text">°C</span>
+                                        </div>
+                                    </div>
+                                
+                                    
                                 </div>
-                            </div>
-                           
-                            <!-- Second input field -->
-                            <div class="mb-3">
-                                <label for="maxTempCool" class="form-label">Temperatuur(T<sub>max</sub>):</label>
-                                <div class="input-group">
-                                    <input type="number" class="form-control" id="maxTempCool" name="maxTempCool" min="-20" max="40" step="1" value="40">
-                                    <span class="input-group-text">°C</span>
+                            
+                                <div class="col-md-6">
+                                    <!-- Third input field -->
+                                    <div class="mb-3">
+                                        <label for="CoolPowerMax" class="form-label">Vermogen(P<sub>max</sub>):</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="CoolPowerMax" name="CoolPowerMax" min="0" max="1000" step="1" value="100" >
+                                            <span class="input-group-text">kW</span>
+                                        </div>
+                                    </div>
+                            
+                                    <!-- Fourth input field -->
+                                    <div class="mb-3">
+                                        <label for="CoolPowerMin" class="form-label">Vermogen(P<sub>min</sub>):</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="CoolPowerMin" name="CoolPowerMin" min="0" max="100" step="1" value="0" >
+                                            <span class="input-group-text">kW</span>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        
-                            <!-- Third input field -->
-                            <div class="mb-3">
-                                <label for="CoolPowerMax" class="form-label">Vermogen(P<sub>max</sub>):</label>
-                                <div class="input-group">
-                                    <input type="number" class="form-control" id="CoolPowerMax" name="CoolPowerMax" min="0" max="1000" step="1" value="100" >
-                                    <span class="input-group-text">kW</span>
-                                </div>
-                            </div>
-                       
-                            <!-- Fourth input field -->
-                            <div class="mb-3">
-                                <label for="CoolPowerMin" class="form-label">Vermogen(P<sub>min</sub>):</label>
-                                <div class="input-group">
-                                    <input type="number" class="form-control" id="CoolPowerMin" name="CoolPowerMin" min="0" max="100" step="1" value="0" >
-                                    <span class="input-group-text">kW</span>
-                                </div>
-                            </div>
-                       </div>
-                    </div>
-                    <!-- Graph -->
-                    <div class="col-md-8">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="border p-3 shadow mb-3">
-                                    <!-- Graph canvas 1 -->
-                                    <div style="min-height: 150px; overflow:hidden;"><canvas id="myLineChart" style="width: 100%; height: auto;" width="265" height="166"></canvas></div>
-                                </div>
-                            </div>
-                           
+                            </div>  
                         </div>
                     </div>
                 </div>
+                <!-- Graph -->
+                <div class="center d-flex justify-content-center">
+                    <div class="col-md-10 ">
+                        <div class="border p-3 shadow mb-3 w-100">
+                            <!-- Graph canvas 1 -->
+                            <div style="min-height: 200px; width: 100%; overflow:hidden;">
+                                <canvas id="myLineChart" style="width: 100%; height: 100%;" width="400" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                
             </div>
             <div class="container mt-3">
                 <div class="row">
@@ -230,14 +247,14 @@
                                     <div class="mb-3">
                                         <label for="maxPowerHeat" class="form-label">Bovengrens (P<sub>p-m</sub>):</label>
                                         <div class="input-group">
-                                        <input type="number" class="form-control" id="maxPowerHeat" name="maxPowerHeat" value="0" min="0" oninput="updateMaxValue()">
+                                        <input type="number" class="form-control" id="maxPowerHeat" name="maxPowerHeat" value="40" min="0" oninput="updateMaxValue()">
                                         <span class="input-group-text">kW</span>
                                         </div>
                                     </div>
                                     <div class="mb-3">
                                         <label for="minPowerHeat" class="form-label">Ondergrens (P<sub>m-b</sub>):</label>
                                         <div class="input-group">
-                                            <input type="number" class="form-control" id="minPowerHeat" name="minPowerHeat" value="0" min="0"  oninput="updateMaxValue()" >
+                                            <input type="number" class="form-control" id="minPowerHeat" name="minPowerHeat" value="15" min="0"  oninput="updateMaxValue()" >
                                             <span class="input-group-text">kW</span>
                                         </div>
                                     </div>
@@ -248,14 +265,14 @@
                                     <div class="mb-3">
                                         <label for="maxPowerCool" class="form-label">Bovengrens (P<sub>p-m</sub>):</label>
                                         <div class="input-group">
-                                        <input type="number" class="form-control" id="maxPowerCool" name="maxPowerCool" value="0" min="0" oninput="updateMaxValue()" >
+                                        <input type="number" class="form-control" id="maxPowerCool" name="maxPowerCool" value="35" min="0" oninput="updateMaxValue()" >
                                         <span class="input-group-text">kW</span>
                                         </div>
                                     </div>
                                     <div class="mb-3">
                                         <label for="minPowerCool" class="form-label">Ondergrens (P<sub>m-b</sub>):</label>
                                         <div class="input-group">
-                                        <input type="number" class="form-control" id="minPowerCool" name="minPowerCool" value="0" min="0" max="100"  oninput="updateMaxValue()">
+                                        <input type="number" class="form-control" id="minPowerCool" name="minPowerCool" value="10" min="0" max="100"  oninput="updateMaxValue()">
                                         <span class="input-group-text">kW</span>
                                         </div>
                                     </div>
@@ -360,7 +377,7 @@ const myDoughnutChart = new Chart(ctx, {
         data: {
                 labels: ['Draaiuren', 'Buiten bedrijf'],
                 datasets: [{
-                label: 'draaiuren',
+                label: 'uren',
                 data: OnOffHours,
                 backgroundColor: [
                         'rgb(50,205,50)',
@@ -459,22 +476,22 @@ const myBarChart = new Chart(ctx2, {
                     {
                         label: 'Basislast',
                         data: [barChartData[4], barChartData[5]], // Part 1 of Warmtevraag and Koudevraag
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        borderColor: 'rgba(255, 99, 132, 1)',
+                        backgroundColor: 'rgba(183, 255, 183, 0.4)',
+                        borderColor: 'rgba(0, 153, 0, 1)',
                         borderWidth: 2
                     },
                     {
                         label: 'Middenlast',
                         data: [barChartData[2], barChartData[3]], // Part 2 of Warmtevraag and Koudevraag
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
+                        backgroundColor: 'rgba(51,255,51, 0.4)',
+                        borderColor: 'rgba(0, 153, 0, 1)',
                         borderWidth: 2
                     },
                     {
                         label: 'Pieklast',
                         data: [barChartData[0], barChartData[1]], // Part 3 of Warmtevraag and Koudevraag
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(0, 123, 0, 0.4)',
+                        borderColor: 'rgba(0, 153, 0, 1)',
                         borderWidth: 2
                     }
                 ]
@@ -489,7 +506,7 @@ const myBarChart = new Chart(ctx2, {
                     stacked: true, // Enable stacking on the y-axis
                     title: {
                         display: true,
-                        text: 'Energie [MWh]',
+                        text: 'Thermische Energie [MWh]',
                     }
                 }
             },
