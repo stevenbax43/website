@@ -4,8 +4,8 @@ var conversion_table = {
     Afstand: { meter: 1, millimeter: 1000, centimeter: 100, decimeter: 10, kilometer: 0.001, feet: 3.28084, inches: 39.3701, seamile: 0.000539957, landmile: 0.000621371 },
     Massa: { kilogram: 1, gram: 1000, milligram: 1000000, ton: 0.001, pond: 2.20462 },
     Druk: { pascal: 1, kilopascal: 0.001, mH2O: 0.00010204081632, bar: 0.000010204081632, millibar: 0.010204081632},
-    Volume: { cubicmeters: 1, liters: 1000, milliliters: 1000000},
-    Debiet: { cubicmeterpersecond: 1, cubicmeterperhour: 3600, cubicmeterperminute: 60, litersperhour: 3600000, litersperminute: 60000, literspersecond: 1000},
+    Volume: { cubicmeters: 1, liters: 1000, milliliters: 1000000, gallons:264.17},
+    Debiet: { cubicmeterpersecond: 1, cubicmeterperhour: 3600, cubicmeterperminute: 60, litersperhour: 3600000, litersperminute: 60000, literspersecond: 1000,cubicfeetperminute:2118.88},
     Energie: { joules: 1, kilojoules: 0.001, kilowattuur: 0.0000002778, wattuur: 0.0002778, wattseconde: 1, britischthermalunits: 0.0009478, calorie: 0.2388, kilocalorie: 0.0002388},
     
 };

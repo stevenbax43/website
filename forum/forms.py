@@ -15,7 +15,11 @@ class ReplyForm(forms.ModelForm):
             'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
-
+    content = forms.CharField(
+        max_length=1000,  # Maximum length of content
+        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        label='Bericht'
+    )
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category

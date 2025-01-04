@@ -14,7 +14,7 @@
 
 <div class="top-banner"> 
     <div class="top-banner-items">
-        <div> <h1> Tool W3: Drukverlies leiding</h1>  </div>
+        <div> <h1> Tool W3: Leidingverliezen</h1>  </div>
         <div>  <a href="{% url 'tools:tools' %}">  <img src="{% static 'tools/images/engineering.png' %}" alt="Engineering"> </a> </div>
     </div> 
 </div>
@@ -23,7 +23,7 @@
   <div class="second-banner-items">
     <div class="second-alignment">
       <div class="second-text">  
-        <p> Drukverlies berekening van water door een stalen buis. Door de stroomsnelheid en leidingdiameter te wijzigen, kan het drukverschil verkregen worden. </p>    
+        <p> Leidingverlies berekening van water door een stalen pijp. Door de stroomsnelheid en leidingdiameter te wijzigen, kan het drukverschil verkregen worden. </p>    
       </div>
       <div class="tools-icons">
         <div>  <a href="#" id="readMeButton" > ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" alt="ReadMe Button"> </a> </div>
@@ -92,7 +92,7 @@
               <div class="col-md-4 mb-1">
                   <div class="d-flex flex-column gap-3 border border-secondary rounded p-3">
                       <div class="value-container">
-                          <label>Drukverlies</label>
+                          <label>Drukval</label>
                           <div class="align-left-right">
                               <span>bar</span>
                               <p id="pressureLossBar" class="result"></p>
@@ -122,5 +122,5 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script> pdfUrlReadMe = "{% static 'tools/files/TOOLW3-README.pdf' %}"</script>
-<script>pdfUrlExcel = "{% static 'tools/files/TOOL_W3_Drukverlies.xlsx'%}" </script>
+<script>pdfUrlExcel = "{% static 'tools/files/TOOL_W3_Leidingverliezen.xlsx'%}" </script>
 {% endblock extra_js%}

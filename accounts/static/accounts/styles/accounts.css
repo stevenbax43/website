@@ -66,3 +66,16 @@ input {
     margin: 10px 0;
     cursor: pointer;
 }
+.button_as_site_form{
+    background: rgba(10, 92, 3, 0.75);
+    border: 0;
+    color: white;
+    font-size: 1.2em;
+    border-radius: 4px;
+    margin: 10px 0;
+    cursor: pointer;
+    padding: 10px;
+}
+.main-banner {
+    min-height: 60vh; /* Minimum height of 75% of the viewport height */
+}

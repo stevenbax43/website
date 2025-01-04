@@ -81,7 +81,7 @@
             <div class="grid-item">
                 <a href="{% url 'tools:drukverlies' %}">
                     <img src="{% static 'tools/images/drukverlies.png' %}" alt="Drukverlies">
-                    <h3>Drukverlies leiding</h3>
+                    <h3>Leidingverliezen</h3>
                 </a>
             </div>
             <div class="grid-item">
@@ -90,8 +90,21 @@
                     <h3>CO<sub>2</sub>-verloop Ruimte</h3>
                 </a>
             </div>
-            <!-- Add more sections as needed -->
+          
         </div>
+         <!-- Section 2: HVAC-tools -->
+         <h2>E-tools</h2>
+         <div class="grid-container-elektra">
+             <div class="grid-item">
+                 <a href="{% url 'tools:vermogen' %}">
+                     <img src="{% static 'tools/images/cosine.png' %}" alt="Vermogen">
+                     <h3>Actief- & schijnbaarvermogen</h3>
+                 </a>
+             </div>
+             
+             <!-- Add more grid items as needed -->
+         </div>
+           <!-- Add more sections as needed -->
     </div>
 
 </div>

@@ -31,6 +31,22 @@
          <!-- Forum Topics Header -->
         <div class="text-center mb-4">
             <h1 class="display-4">Forum Topics</h1>
+         
+           <!-- Toggle Switch for Open/Closed Topics -->
+           <div class="mb-3">
+            <label class="switch">
+                <input type="checkbox" id="topicStatusToggle" {% if filter_status == 'closed' %}checked{% endif %}>
+                <span class="slider round"></span>
+            </label>
+            <span id="toggleLabel">
+                {% if filter_status == 'closed' %}
+                Open & gesloten Topics
+                {% else %}
+                Weergeef ook gesloten Topics    
+                
+                {% endif %}
+            </span>
+            </div>
             <div class="center">
                 <a href="{% url 'forum:create_topic' %}" class="btn btn-green mb-3 mt-3 btn-sm">Maak nieuwe</a>
             </div>
@@ -38,11 +54,9 @@
             <div class="d-inline">
                 <a href="{% url 'forum:add_category' %}" class="btn btn-sm">
                     <img src="{% static 'forum/images/add.png' %}" alt="Add" style="width: 16px; height: 16px;">
+                    <small>nieuwe categorie</small>
                 </a>
-                <!-- Note: Ensure that 'category' is defined in the context of the superuser block -->
-                {% if category %}
-               
-                {% endif %}
+                
             </div>
             {% endif %}
         </div>
@@ -57,9 +71,11 @@
                         {% endif %}
                         
                         <h3 class="mr-3" style="margin-left: 5px;">{{ category.name }}</h3>
+                        <!-- Alleen voor super user kan je categorie editen -->
                         {% if user.is_superuser %}
                         <a href="{% url 'forum:edit_category' category.pk %}" class="btn btn-sm">
                             <img src="{% static 'forum/images/edit.png' %}" alt="Edit" style="width: 16px; height: 16px;">
+                            
                         </a>
                         {%endif%}
                     </div>
@@ -67,14 +83,19 @@
                     <div class="row">
                         {% for topic in topics_in_category %}
                             <div class="col-md-4 mb-3">
-                                <a href="{% url 'forum:topic_detail' topic.pk %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center shadow-sm">
-                                    <span class="font-weight-bold">{{ topic.title }}</span>
-                                    <small class="text-muted">by {{ topic.created_by.username }}</small>
+                                <a href="{% url 'forum:topic_detail' topic.pk %}" 
+                                    class="list-group-item list-group-item-action d-flex justify-content-between align-items-center shadow-sm
+                                            {% if topic.is_closed %} bg-secondary text-white {% else %} bg-light {% endif %}">
+                                    <div class="d-flex align-items-center">
+                                        {%if topic.is_closed%}
+                                        <img src="{% static 'forum/images/closed-sm.png' %}" alt="closed" class="mr-2 img-white" style="width: 16px; height: 16px;">
+                                        {% endif%}
+                                        <span class="font-weight-bold">{{ topic.title }}</span>
+                                    </div>  
+                                    <small>{{ topic.created_by.username }}</small>
                                 </a>
                             </div>
-                            {%if user.is_superuser%}
                             
-                            {%endif%}
                         {% endfor %}
                        
                     </div>
@@ -95,6 +116,7 @@
 {% endblock content %}
 {% block extra_js %}
 <!-- This makes sure this JS is only be loaded when rendering this HTML page. Whilst the common JS Files included in de extra_js block of base.html will be loaded across all pages -->
-
 <script src="{% static 'forum/scripts/forum.js' %}"></script>
+<script src="{% static 'forum/scripts/forum_list.js' %}"></script>
+
 {% endblock %}  

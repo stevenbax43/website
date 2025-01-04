@@ -10,25 +10,44 @@ def is_superuser(user):
     return user.is_superuser
 @login_required(login_url='accounts:login')
 def topic_list(request):
-    # Group topics by category
+    # Get the query parameter to filter topics
+    filter_status = request.GET.get('status', 'open')  # Default to 'open' if no filter is applied
     categories = Category.objects.all()
     topics_by_category = {}
-    
+    # Loop through each category to get topics based on the filter
     for category in categories:
-        topics = Topic.objects.filter(category=category)
+        if filter_status == 'closed':
+            # Get only closed topics for this category
+            topics = Topic.objects.filter(category=category)
+        else:
+            # Get only open topics for this category (default behavior)
+            topics = Topic.objects.filter(category=category, is_closed=False)
+        
+        # Only include categories that have topics
         if topics.exists():
             topics_by_category[category] = topics
     
+    # Pass the filtered topics and filter status to the template
     return render(request, 'forum/topic_list.html', {
-        'topics_by_category': topics_by_category
+        'topics_by_category': topics_by_category,
+        'filter_status': filter_status,
     })
 @login_required(login_url='accounts:login')
 def topic_detail(request, pk):
     topic = get_object_or_404(Topic, pk=pk)
     replies = Reply.objects.filter(topic=topic, parent_reply__isnull=True)  # Top-level replies
     categories = Category.objects.first()
-
-    if request.method == 'POST':
+    # Handle closing the conversation if the user is the creator
+    if request.method == 'POST' and 'close_conversation' in request.POST:
+        if request.user == topic.created_by:
+            topic.is_closed = True
+            topic.save()
+            messages.success(request, "The conversation has been closed successfully.")
+        else:
+            messages.error(request, "You are not authorized to close this conversation.")
+        return redirect('forum:topic_detail', pk=topic.pk)
+    # Handle replies only if the topic is open
+    if request.method == 'POST' and not topic.is_closed:
         form = ReplyForm(request.POST, request.FILES)  
         if form.is_valid():
             reply = form.save(commit=False)
@@ -106,3 +125,4 @@ def edit_category(request, pk):
     else:
         form = CategoryForm(instance=category)
     return render(request, 'forum/edit_category.html', {'form': form, 'category': category})
+

@@ -29,11 +29,7 @@ def signup_view(request):
 class CustomPasswordChangeView(PasswordChangeView):
     form_class = PasswordChangeForm
     template_name = 'accounts/password_change_form.html'
-    success_url = reverse_lazy('password_change_done')
-
-@login_required(login_url='accounts:login')
-def password_change_done(request):
-    return render(request, 'accounts/password_change_done.html')
+    success_url = reverse_lazy('accounts:login')
 
 
 # create a login 

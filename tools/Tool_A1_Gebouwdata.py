@@ -63,19 +63,15 @@ def EP_API(adr1):
             adr1.EP_label = label_data[0]['Energieklasse']
             adr1.EP_surface = label_data[0]['Gebruiksoppervlakte_thermische_zone']
             adr1.EP_energie= label_data[0]['Energiebehoefte']
-            adr1.EP_PrimEnergie= label_data[0]['primaireFossieleEnergie']
             adr1.gebouwklasse = label_data[0]['Gebouwklasse']
+            
+            adr1.EP_PrimEnergie= label_data[0]['PrimaireFossieleEnergie']
+           
             adr1.EP_TO = label_data[0]['Temperatuuroverschrijding']
             adr1.EP_warmte = label_data[0]['Warmtebehoefte']
-            print(adr1.EP_label)
-            print(adr1.energie)
-            if adr1.gebouwklasse == 'U':
-                adr1.gebouwklasse = 'Utiliteit'
-            elif adr1.gebouwklasse == 'W':
-                adr1.gebouwklasse = 'Woning'
-            else:
-                adr1.gebouwklasse = 'onbekend'
-
+           
+            
+            
         except:
             pass
 
@@ -144,7 +140,7 @@ def Weii_API(adr1):
         # Request was successful
         weii_data = response.json()
         adr1.weii = weii_gross = weii_data.get('other', {}).get('WEiiGross')
-
+        #print(weii_data)
     
         # Process the WEii data as needed
 
@@ -188,14 +184,15 @@ def BAG_data(adr1):
         if response_2.status_code == 200:
             # Print the response content (JSON data)
             response_2_json = response_2.json()
-           
+            #print(response_2_json)
             #extract data from JSON 
             adr1.street  = response_2_json['openbareRuimteNaam'] #straatnaam
             adr1.place   = response_2_json['woonplaatsNaam']
             adr1.BAG_surface   = response_2_json['oppervlakte']
             adr1.buildyear   = response_2_json['oorspronkelijkBouwjaar'][0]
             adr1.purpose   = response_2_json['gebruiksdoelen'][0]
-            #print(adr1.street)
+            #adr1.gebouwklasse = response_2_json['']
+            #print(adr1.gebouwklasse)
 
         else:
             # Print an error message if the request was not successful

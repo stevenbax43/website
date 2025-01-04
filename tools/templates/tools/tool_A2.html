@@ -71,7 +71,7 @@
                                         </div>
                                         <div class="output-container">
                                                 <div>
-                                                        <label for="number">Resultaat:</label>
+                                                        <label for="number">Gelijkwaardigheid:</label>
                                                         
                                                         <output id="result" class="output"></output> 
                                                 </div>
@@ -144,8 +144,9 @@
                                                         <label for="from">Van Eenheid:</label>
                                                         <select id="from">
                                                                 <option value="cubicmeters" selected>m³</option>
-                                                                <option value="liters">l</option>
-                                                                <option value="milliliters">ml</option>
+                                                                <option value="liters">L</option>
+                                                                <option value="milliliters">mL</option>
+                                                                <option value="gallons">gal</option>
                                                             <!-- Add more options as needed -->
                                                         </select>
                                                 </div>           
@@ -153,7 +154,7 @@
 
                                         <div class="output-container">
                                                 <div>
-                                                        <label for="number">Resultaat:</label>
+                                                        <label for="number">Gelijkwaardigheid:</label>
                                                         <br>
                                                         <output id="result"></output> 
                                                 </div>
@@ -161,9 +162,10 @@
                                                 <div>
                                                         <label for="to">Naar Eenheid:</label>
                                                         <select id="to">
-                                                            <option value="milliliters">ml</option>
-                                                            <option value="liters">l</option>
+                                                            <option value="milliliters">mL</option>
+                                                            <option value="liters">L</option>
                                                             <option value="cubicmeters" selected>m³</option>
+                                                            <option value="gallons">gal</option>
                                                             <!-- Add more options as needed -->
                                                         </select>
                                                 </div>
@@ -191,14 +193,18 @@
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td rowspan="4" class="colspan">Volume</td>
-                                                <td rowspan="4" class="colspan">1 m³ </td>
+                                                <td rowspan="5" class="colspan">Volume</td>
+                                                <td rowspan="5" class="colspan">1 m³ </td>
                                                 <td>Liters</td>
-                                                <td>1000 l</td>
+                                                <td>1000 L</td>
                                             </tr>
                                             <tr>
                                                 <td>milliliters</td>
-                                                <td>1.000.000 ml</td>
+                                                <td>1.000.000 mL</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Gallons</td>
+                                                <td>264,17 gal</td>
                                             </tr>
                                                                                     
                                             <!-- Add more rows as needed -->
@@ -225,6 +231,7 @@
                                                                 <option value="litersperhour">l/h</option>
                                                                 <option value="litersperminute">l/min</option>
                                                                 <option value="literspersecond">l/s</option>
+                                                                <option value="cubicfeetperminute">ft³/min</option>
                                                                 
                                                             <!-- Add more options as needed -->
                                                         </select>
@@ -233,7 +240,7 @@
                                         
                                         <div class="output-container">
                                                 <div>
-                                                        <label for="number">Resultaat:</label>
+                                                        <label for="number">Gelijkwaardigheid:</label>
                                                         <br>
                                                         <output id="result"></output> 
                                                 </div>
@@ -246,7 +253,7 @@
                                                                 <option value="litersperhour">l/h</option>
                                                                 <option value="litersperminute">l/min</option>
                                                                 <option value="literspersecond">l/s</option>
-                                                                
+                                                                <option value="cubicfeetperminute">ft³/min</option>
                                                             <!-- Add more options as needed -->
                                                         </select>
                                                 </div>
@@ -273,8 +280,8 @@
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td rowspan="5" class="colspan">Debiet</td>
-                                                <td rowspan="5" class="colspan">1 m³/s</td>
+                                                <td rowspan="6" class="colspan">Debiet</td>
+                                                <td rowspan="6" class="colspan">1 m³/s</td>
                                                 <td>Kubieke meter per uur</td>
                                                 <td>3600 m³/h </td>
                                             </tr>
@@ -294,6 +301,11 @@
                                                 <td>Liter per seconde</td>
                                                 <td>1000 l/s</td>
                                             </tr>
+                                            <tr>
+                                                <td>Kubieke feet per minuut</td>
+                                                <td>2118,88 ft³/min</td>
+                                            </tr>
+                                            
                                         
                                             <!-- Add more rows as needed -->
                                         </tbody>
@@ -327,7 +339,7 @@
                                         
                                         <div class="output-container">
                                                 <div>
-                                                        <label for="number">Resultaat:</label>
+                                                        <label for="number">Gelijkwaardigheid:</label>
                                                         <br>
                                                         <output id="result"></output> 
                                                 </div>
@@ -419,7 +431,7 @@
                                         </div>
                                         <div class="output-container">
                                             <div>
-                                                <label for="number">Resultaat:</label>
+                                                <label for="number">Gelijkwaardigheid:</label>
                                                 <br>
                                                 <output id="result"></output> 
                                             </div>
@@ -523,7 +535,7 @@
                                     </div>
                                     <div class="output-container">
                                         <div>
-                                            <label for="number">Resultaat:</label>
+                                            <label for="number">Gelijkwaardigheid:</label>
                                             <br>
                                             <output id="result"></output> 
                                         </div>

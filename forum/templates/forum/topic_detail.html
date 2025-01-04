@@ -5,6 +5,7 @@
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'forum/styles/forum.css'%}">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+   
 {% endblock %}
 
 
@@ -27,10 +28,13 @@
 </div>
 
 
-<div class="main-banner">
+<div class="main-banner mb-5">
     <div class="main-banner-items">
         <div class="container mt-5">
             <div class="d-flex align-items-center mb-3">
+                {%if topic.is_closed%}
+                    <img src="{% static 'forum/images/closed-sm.png' %}" alt="closed" class="mr-2" style="width: 40px; height: 40px;">
+                {% endif%}
                 <h1 class="mb-0 me-3 mr-3">{{ topic.category.name }}</h1>
                 {% if topic.category.image %}
                     <img src="{{ topic.category.image.url }}" alt="{{ topic.category.name }}" class="img-fluid" style="max-height: 50px;">
@@ -42,9 +46,9 @@
                     <h2 class="d-flex mb-0">{{ topic.title }}</h2>
                     <h6 class="text-muted">--Gemaakt door {{ topic.created_by }} op {{ topic.created_at }}</h6>
                 </div>                    
-                <p>{{ topic.content }}</p>
+                <p>{{ topic.content|safe }}</p>
             </div>
-        
+            
             <h2 class="mt-4 mb-3">Antwoorden</h2>
             <ul class="list-group mb-4">
                 {% for reply in replies %}
@@ -64,6 +68,7 @@
                             </div>
                           
                             <div class="ml-2">
+                                {%if not topic.is_closed%}
                                 <!-- Reply Button -->
                                 <button class="btn  btn-sm" data-toggle="modal" data-target="#replyModal-{{ reply.pk }}">
                                     <img src="{% static 'forum/images/reply.png' %}" alt="Reply" style="width: 16px; height: 16px;">
@@ -77,6 +82,7 @@
                                         </button>
                                     </form>
                                 {% endif %}
+                                {%endif%}
                             </div>
                         </div>
         
@@ -93,9 +99,11 @@
                                         {% if child_reply.created_by == request.user or user.is_superuser %}
                                             <form action="{% url 'forum:delete_reply' child_reply.pk %}" method="post" class="d-inline delete-form">
                                                 {% csrf_token %}
+                                                {%if not topic.is_closed%}
                                                 <button type="submit" class="btn  btn-sm">
                                                     <img src="{% static 'chat/images/delete-icon.png' %}" alt="Delete" style="width: 16px; height: 16px;">
                                                 </button>
+                                                {%endif%}
                                             </form>
                                         {% endif %}
                                     </div>
@@ -134,16 +142,25 @@
                     <li class="list-group-item">Nog geen antwoorden</li>
                 {% endfor %}
             </ul>
-        
+            {% if request.user == topic.created_by and not topic.is_closed %}
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <button type="submit" name="close_conversation" class="btn btn-danger">Sluit gesprek</button>
+                </form>
+            {% endif %}
             <h2 class="mt-4 mb-3">Voeg antwoord toe</h2>
-            <form method="post" class="mb-4" enctype="multipart/form-data"> <!-- Add enctype -->
-                {% csrf_token %}
-                <div class="form-group">
-                    {{ form.as_p }}
-                </div>
-                <button type="submit" class="btn btn-green">Stuur</button>
-                
-            </form>
+
+            {% if topic.is_closed %}
+                <p class="text-muted">*Dit gesprek is gesloten door de maker of beheerder. Antwoorden is niet meer mogelijk.</p>
+            {% else %}
+                <form method="post" class="mb-4" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        {{ form.as_p }}
+                    </div>
+                    <button type="submit" class="btn btn-green">Stuur</button>
+                </form>
+            {% endif %}
             <a href="{% url 'forum:topic_list' %}" class="btn btn-green btn-sm">Terug naar Topics</a>
         </div>
             

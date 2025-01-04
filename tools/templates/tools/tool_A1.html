@@ -24,8 +24,8 @@
         <div class="second-banner-items">
             <div class="second-alignment">
                 <div class="second-text">  
-                    <p>Met minimale informatie navigeren door websites om details over een organisatie en hun gebouw te vinden, 
-                        terwijl je tegelijk inzicht krijgt in de energieprestaties van je eigen pand.</p>    
+                    <p>Met behulp van de postcode en huisnummer kan je informatie opvragen bij meerder sites tegelijk met behulp van 
+                        een API-verbinding. Om zo inzicht te krijgen in de prestaties van het betreffende pand.</p>    
                 </div>
                 <div class="tools-icons">
                     <div>  <a href="#" id="readMeButton" >ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" alt="ReadMe Button"> </a> </div>
@@ -80,7 +80,9 @@
                                         </div>
                                      
                                      
-                                        <a href="https://www.postnl.nl/adres-zoeken/"><img id="BAGviewer" src="{% static 'tools/images/location.png' %}"></a>
+                                        <a href="https://www.postnl.nl/adres-zoeken/" target="_blank" rel="noopener">
+                                                <img id="BAGviewer" src="{% static 'tools/images/location.png' %}">
+                                        </a>
                                 </div>
                                
                         </div>      
@@ -102,7 +104,9 @@
                                                 <label for="EPHeat" class="form-label">Bouwjaar</label>
                                                 <output class="form-control" id="EPHeat" name="EPHeat">{{ adr1.buildyear }}</output>
                                         </div>
-                                        <a href="https://bagviewer.kadaster.nl/lvbag/bag-viewer/?zoomlevel=1"><img id="BAGviewer" src="{% static 'tools/images/BAGkadaster-logo.png' %}"></a>
+                                        <a href="https://bagviewer.kadaster.nl/lvbag/bag-viewer/?zoomlevel=1" target="_blank" rel="noopener">
+                                                <img id="BAGviewer" src="{% static 'tools/images/BAGkadaster-logo.png' %}">
+                                        </a>
                                 </div>
                                
                         </div>      
@@ -131,7 +135,9 @@
                                         </div>
                                      
                                         
-                                       <a href="https://www.ep-online.nl/"> <img id="BAGviewer" src="{% static 'tools/images/label-u-bouw.jpg' %}"></a>
+                                        <a href="https://www.ep-online.nl/" target="_blank" rel="noopener">
+                                         <img id="BAGviewer" src="{% static 'tools/images/label-u-bouw.jpg' %}">
+                                        </a>
                                 </div>
                                
                         </div>      

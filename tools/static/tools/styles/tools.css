@@ -62,6 +62,15 @@
 	background-color: #dedeff;
 	border-radius: 20px;
 }
+.grid-container-elektra {
+    display: grid;
+	grid-template-columns: repeat(4, 1fr); /* Two columns grid */
+    grid-template-rows: repeat(1, 1fr); /* Four rows grid */
+    gap: 20px; /* Gap between grid items */
+	margin-bottom: 10px;
+	background-color: #ffbc9e;
+	border-radius: 20px;
+}
 
 .grid-item {
     

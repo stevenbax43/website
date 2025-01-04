@@ -1,0 +1,136 @@
+.panel {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* 2/3 and 1/3 width distribution */
+    gap: 20px; /* Space between the two columns */
+    padding: 20px;
+
+}
+
+.slider-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Space between sliders */
+    padding: 20px;
+    border: 2px solid #ccc; /* Border around each slider group */
+}
+.slider-wrapper {
+    display: flex;
+    flex-direction: column; /* Stack label and slider vertically */
+    align-items: flex-start; /* Align items to the left */
+    border: 2px solid #ccc; /* Border around each slider group */
+    padding: 10px; /* Padding inside slider-wrapper */
+    border-radius: 8px; /* Rounded corners */
+    background-color: #f9f9f9; /* Background color */
+}
+.value-container label,
+.slider-wrapper label {
+    margin-bottom: 8px; /* Space between label and slider-controls */
+    font-weight: bold; /* Make the label text bold */
+    font-size: 15px; /* Set the text size to 10px */
+}
+.value-container {
+    flex: 1; /* Takes up 1/3 of the width */
+
+}
+.slider-controls {
+    display: flex;
+    align-items: center; /* Center value and slider vertically */
+    gap: 10px; /* Space between value and slider */
+    width: 100%; /* Ensure full width of the slider-wrapper */
+}
+.slider-controls input[type="number"] {
+    width: 100px; /* Fixed width for the text input */
+}
+.slider-controls input[type="range"] {
+    flex: 1; /* Make the slider take up remaining space */
+    width: 100%; /* Ensure slider takes full width */
+}
+
+/* Example styling for the output element */
+.align-left-right  {
+    display: flex;
+    justify-content: space-between; /* Space out children elements */
+    align-items: center; /* Align items vertically centered */
+}
+/* Example styling for the output element */
+.align-left-right output {
+    width: 60px; /* Adjust width as needed */
+    text-align: right; /* Align text to the right */
+}
+
+.slider-controls input[type="range"] {
+    -webkit-appearance: none; /* For Chrome, Safari, and Opera */
+    -moz-appearance: none; /* Removes default styling in Firefox */
+    appearance: none; /* Standard property to remove default styling */
+    width: 100%;
+    height: 8px;
+    background: #ffffff; /* Light grey background */
+    border-radius: 5px;
+    outline: none;
+    opacity: 0.6;
+    transition: opacity .15s ease-in-out;
+}
+.slider-controls input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 100%;
+    background: green; /* Green thumb */
+    cursor: pointer;
+    margin-top: -17px; /* Adjust to center the thumb */
+    transition: opacity .15s ease-in-out; /* Smooth opacity transition */
+}
+.slider-controls input[type="range"]::-moz-range-thumb {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: green; /* Green thumb */
+    cursor: pointer;
+    transition: opacity .15s ease-in-out; /* Smooth opacity transition */
+}
+.slider-controls input[type="range"]::-ms-thumb {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: green; /* Green thumb */
+    cursor: pointer;
+    transition: opacity .15s ease-in-out; /* Smooth opacity transition */
+}
+.slider-controls input[type="range"]::-webkit-slider-runnable-track {
+    background: green; /* Green track */
+    height: 5px;
+    border-radius: 5px;
+}
+.slider-controls input[type="range"]::-moz-range-track {
+    background: green; /* Green track */
+    height: 8px;
+    border-radius: 5px;
+}
+.slider-controls input[type="range"]::-ms-track {
+    background: green; /* Green track */
+    height: 8px;
+    border-radius: 5px;
+    border: transparent; /* Hides the default track */
+    color: transparent; /* Hides the default track */
+}
+/* Opacity change when slider is active (being dragged) */
+.slider-controls input[type="range"]:active::-webkit-slider-thumb{
+    opacity: 0.3;
+}
+.slider-controls input[type="range"]:active::-moz-range-thumb {
+    opacity: 0.3;
+}
+.slider-controls input[type="range"]:active::-ms-thumb{
+    opacity: 0.3;
+}
+
+#canvas-container {
+    position: relative;
+    width: 800px;
+    height: 550px;
+  
+}
+canvas {
+    display: block; 
+}

@@ -41,36 +41,50 @@ def tool_A3(request):
 #Mollier diagram pagina 
 @login_required(login_url='accounts:login')
 def tool_W1(request):
-    lines_RH, lines_H, calculated_values= {},{},[]
-    
+    lines_RH, lines_H, calculated_values, calculated_values_end, difference= {},{},[],[],[]
+    Tdb_var_end,RH_var_end = 0,0
     if request.method =='POST':
-        Tdb_var, RH_var, Height_var = map(int, [request.POST.get('Tdb_var'), request.POST.get('RH_var'), request.POST.get('Heigth_var')])
+        #start point
+        Tdb_var, RH_var, Height_var = map(float, [request.POST.get('Tdb_var'), request.POST.get('RH_var'), request.POST.get('Heigth_var')])
         lines_RH, lines_H, calculated_values = mollierdiagram(Tdb_var, RH_var, Height_var)
+        #end point
+        Tdb_var_end, RH_var_end = map(float, [request.POST.get('Tdb_var_end'), request.POST.get('RH_var_end')])
+        NoUse, NoUse2, calculated_values_end = mollierdiagram(Tdb_var_end, RH_var_end, Height_var)
+        
+        difference = [round(abs(Tdb_var_end-Tdb_var),1),
+                      round(abs(calculated_values_end[2]-calculated_values[2]),1),
+                      round(abs(calculated_values_end[0]-calculated_values[0]),1)]#[round(abs(a - b),2) for a,b in zip(calculated_values, calculated_values_end)]
     
     return render(request, 'tools/tool_W1.html', {
         'lines_RH': json.dumps(lines_RH),
         'lines_H': json.dumps(lines_H),
         'calculated_values': calculated_values,
+        'calculated_values_end':calculated_values_end,
+        'difference': difference,   
     })
 # expansievat pagina
 @login_required(login_url='accounts:login')
 def tool_W2(request):
     expansievat_ouput = expansievat(request)
-    #toekomstig: je kan nog een model maken met expansievat variabelen net als adress
     return render(request, 'tools/tool_W2.html', {'expansievat_output': expansievat_ouput})
 
 # drukverlies pagina
 @login_required(login_url='accounts:login')
 def tool_W3(request):
-    #toekomstig: je kan nog een model maken met expansievat variabelen net als adress
     return render(request, 'tools/tool_W3.html')
 
 @login_required(login_url='accounts:login')
 def tool_W4(request):
     CO2_output = CO2verloop(request)
     CO2_json = json.dumps(CO2_output[0])
-    #toekomstig: je kan nog een model maken met expansievat variabelen net als adress
+    
     return render(request, 'tools/tool_W4.html', {'CO2_data': CO2_json})
+
+# drukverlies pagina
+@login_required(login_url='accounts:login')
+def tool_E1(request):
+    return render(request, 'tools/tool_E1.html')
+
 
 @login_required(login_url='accounts:login')
 def download_excel(request):

@@ -9,8 +9,6 @@
 
 
 {% block content %}
-{% csrf_token %}
-
 <div class="top-banner"> 
         <div class="top-banner-items">
                 <div> <h1> Forum </h1>  </div>
@@ -27,7 +25,7 @@
 </div>
 
 
-<div class="main-banner bg-light py-5">
+<div class="main-banner bg-light mb-5">
     <div class="main-banner-items">
         <div class="container mt-5">
             <h1 class="display-4 mb-4 text-center">Nieuw Topic</h1>
@@ -50,9 +48,11 @@
 {% endblock content %}
 {% block extra_js %}
 <!-- This makes sure this JS is only be loaded when rendering this HTML page. Whilst the common JS Files included in de extra_js block of base.html will be loaded across all pages -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
+<!-- <script src="https://cdn.ckeditor.com/4.18.0/standard/ckeditor.js"></script> -->
 
 <script src="{% static 'forum/scripts/forum.js' %}"></script>
 {% endblock %}  

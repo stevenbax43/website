@@ -24,7 +24,7 @@ STATICFILES_FINDERS = [
 # Static files (CSS, JavaScript, images)
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    BASE_DIR / "static",
+    BASE_DIR / "assets",
 ]
 
 # Media files

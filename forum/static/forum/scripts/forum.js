@@ -10,5 +10,14 @@ document.addEventListener("DOMContentLoaded", function() {
         // Update the content of the element
         usernameContainer.innerHTML = firstTwoLetters;
     });
+    CKEDITOR.replace('id_content', {
+        removePlugins: 'easyimage, cloudservices',
+        ignoreEmptyParagraph: true,
+        removeButtons: '',
+        disableNativeSpellChecker: false,
+        height: 300,
+        width:1000,
+        removePlugins: 'scayt',
+        ignoreSecurityWarnings: true
+    });
 });
-

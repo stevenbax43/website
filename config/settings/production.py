@@ -3,7 +3,7 @@ from .base import *
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY_prod')  
 
-ALLOWED_HOSTS = ['35.204.155.206','stevenbaxontwerpt.nl', 'localhost', 'www.stevenbaxontwerpt.nl', '34.91.246.71'] #['*'] = iedereen toegang
+ALLOWED_HOSTS = ['35.204.155.206','stevenbaxontwerpt.nl', 'localhost', 'www.stevenbaxontwerpt.nl', '35.204.201.20'] #['*'] = iedereen toegang
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -27,27 +27,27 @@ DATABASES = {
 
 # Static files (CSS, JavaScript, images)
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR , 'assets/')
+
 
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'debug.log'),
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-    },
-}
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'file': {
+#             'level': 'DEBUG',
+#             'class': 'logging.FileHandler',
+#             'filename': os.path.join(BASE_DIR, 'debug.log'),
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['file'],
+#             'level': 'DEBUG',
+#             'propagate': True,
+#         },
+#     },
+# }

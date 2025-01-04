@@ -24,7 +24,7 @@ OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 @login_required(login_url='accounts:login')
 def chatbot(request, pk):
    # Retrieve all conversations associated with the current user
-    conversations = Conversation.objects.filter(user=request.user)
+    conversations = Conversation.objects.filter(user=request.user).order_by('-created_at')
     print(request.user.first_name)
     # Get the selected conversation based on the pk passed in the URL
     selected_conversation = get_object_or_404(Conversation, id=pk, user=request.user)
@@ -35,7 +35,7 @@ def chatbot(request, pk):
      # Handle POST request to create a new bot response
     if request.method == 'POST':
         user_input = request.POST.get('user_input', '')
-        print(f"User input: {user_input}")
+        #print(f"User input: {user_input}")
         
         response = generate_openai_response(request.user, user_input, pk)
         
@@ -63,7 +63,7 @@ def chatbot(request, pk):
 def conversation_detail(request, id):
     conversation = get_object_or_404(Conversation, id=id)
     # Render a template with the conversation details
-    print(id)
+    #print(id)
     return render(request, 'chat/chatbot.html', {'conversation': conversation})
 
 @login_required(login_url='accounts:login')
@@ -77,7 +77,7 @@ def process_input(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         user_input = data.get('input', '')
-        print(user_input)
+        #print(user_input)
         # Pak het eerste woord van de input
         first_word = user_input.split()[0] if user_input else ''
         New_conversation = Conversation(

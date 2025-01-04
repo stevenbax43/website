@@ -39,16 +39,16 @@
     <div class="main-banner-items" id="print_content">
         <form method="post" id="inputForm">
             {% csrf_token %}
-            <div class="container-fluid mt-3 ">
+            <div class="container-fluid mt-3">
                 <div class="row mb-3">
-                    <!-- Input Form -->
+                    <!-- Input Form Left -->
                     <div class="col-md-3" style="min-width: 250px;">
                         <div class="border p-3 shadow">
-                            <h4>Input</h4>
+                            <h4>Start punt</h4>
                             <!-- Input fields -->
                             <div class="mb-3">
                                 <label for="Tdb_var">Temperatuur (T<sub>db</sub>) [°C]:</label>
-                                <input type="number" class="form-control" id="Tdb_var" name="Tdb_var" value="10" min="-10" max="40">
+                                <input type="number" class="form-control" id="Tdb_var" name="Tdb_var" value="10" min="-10" max="40" step="0.1">
                             </div>
                             <div class="mb-3">
                                 <label for="RH_var">Luchtvochtigheid (RH) [%]:</label>
@@ -58,20 +58,84 @@
                                 <label for="Heigth_var">Hoogte (h) [m]:</label>
                                 <input type="number" class="form-control" id="Heigth_var" name="Heigth_var" value="0" min="0" max="4000">
                             </div>
-                       
+                        </div>
+                        
+                    </div>
+                    <div class="col-md-3" style="min-width: 250px;">
+                        <div class="border p-3 shadow">
+                            <h4>Verschil (&Delta;)</h4>
+                            <!-- Input fields -->
+                            <div class="mb-3">
+                                <label for="T_out_diff">Temperatuur (&Delta;T) [°C]:</label>
+                                <output class="form-control" id="T_out_diff" name="T_out_diff">{{difference.0}} </output>
+                            </div>
+                            <div class="mb-3">
+                                <label for="Enth_out_diff">Enthalpie (&Delta;H) [kJ/kg]:</label>
+                                <output class="form-control" id="Enth_out_diff" name="Enth_out_diff">{{ difference.1 }}</output>
+                            </div>
+                            <div class="mb-3">
+                                <label for="humid_out_diff">Abs. Vocht (&Delta;x) [g/kg]:</label>
+                                <output class="form-control" id="humid_out_diff" name="humid_out_diff">{{ difference.2 }}</output>
+                            </div>
+                           
+                            
+                        </div>
+                    </div>  
+                    
+                    <div class="col-md-3" style="min-width: 250px;">
+                        
+                        
+                        <div class="border p-3 shadow">
+                            <h4>Eind punt</h4>
+                            <!-- Input fields -->
+                            <div class="mb-3">
+                                <label for="Tdb_var_end">Temperatuur (T<sub>db</sub>) [°C]:</label>
+                                <input type="number" class="form-control" id="Tdb_var_end" name="Tdb_var_end" value="10" min="-10" max="40" step="0.1">
+                            </div>
+                            <div class="mb-3">
+                                <label for="RH_var_end">Luchtvochtigheid (RH) [%]:</label>
+                                <input type="number" class="form-control" id="RH_var_end" name="RH_var_end" value="50" min="10" max="100">
+                            </div>
+                            <div class="mb-3">
+                                <label for="humid_out_end">Abs. Vocht (x) [g/kg]:</label>
+                                <output class="form-control" id="humid_out_end" name="humid_out_end">{{ calculated_values_end.0 }}</output>
+                            </div>
+                            
                         </div>
                     </div>
-                    <div class="col-md-8 no-print ml-1" style="min-width: 250px;">
+                </div>
+                
+                  
+
+               
+                
+                    
+                 
+                <div class="row">
+                     <!-- Graphs -->
+                     <div class="col-md-8" style="width: 90%;">
+                        <div class="border p-3 shadow mb-3">
+                            <!-- Graph canvas 2 -->
+                            <div style="min-height: 600px; overflow: hidden;"> <!-- Adjusted min-height to 600px -->
+                                <canvas id="myLinesRH" style="min-height: 600px; height: 900px; width: 100%;"></canvas> <!-- Adjusted height to 1000px and width to 100% -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <!-- Input Form Left -->
+                    
+                    <div class="col-md-7" style="min-width: 250px;">
                         <div class="border p-3 shadow">
-                            <h4>Output</h4>
+                            <h4>Start punt gegevens</h4>
                             <!-- Output fields -->
                             <div class="row">
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-6    mb-3">
                                     <label for="Td_out">Dauwpunt (T<sub>d</sub>) [°C]:</label>
                                     <output class="form-control" id="Td_out" name="Td_out">{{ calculated_values.6 }}</output>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label for="Patm_out"> Druk (P<sub>atm</sub>) [Pa]:</label>
+                                    <label for="Patm_out">Druk (P<sub>atm</sub>) [Pa]:</label>
                                     <output class="form-control" id="Patm_out" name="Patm_out">{{ calculated_values.7 }}</output>
                                 </div>
                             </div>
@@ -80,14 +144,12 @@
                                     <label for="humid_out">Abs. Vocht (x) [g/kg]:</label>
                                     <output class="form-control" id="humid_out" name="humid_out">{{ calculated_values.0 }}</output>
                                 </div>
-                            
-                            
                                 <div class="col-md-6 mb-3">
                                     <label for="Enth_out">Enthalpie (H) [kJ/kg]:</label>
                                     <output class="form-control" id="Enth_out" name="Enth_out">{{ calculated_values.2 }}</output>
                                 </div>
                             </div>
-                            <div class="row" >
+                            <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="rho_out">Dichtheid (&rho;) [kg/m<sup>3</sup>]:</label>
                                     <output class="form-control" id="rho_out" name="rho_out">{{ calculated_values.4 }}</output>
@@ -97,21 +159,32 @@
                                     <output class="form-control" id="par_out" name="par_out">{{ calculated_values.5 }}</output>
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-primary" style="display: none;" id="mollierButton" name="mollierButton"></button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="row">
-                    <!-- Graphs -->
-                    <div class="col-md-12" width="100%">
-                        <div class="border p-3 shadow mb-3">
-                            <!-- Graph canvas 2 -->
-                            <div style="min-height: 200px; overflow:hidden;">
-                                <canvas id="myLinesRH" style="min-height: 200px;"></canvas>
+                            
+                             </div>
+                    </div>  
+                    <div class="col-md-4" style="min-width: 250px;">
+                        <div class="border p-3 shadow">
+                            <h4>Eind punt gegevens</h4>
+                            <!-- Input fields -->
+                            <div class="mb-3">
+                                <label for="Td_out_end">Dauwpunt (T<sub>d</sub>) [°C]:</label>
+                                <output class="form-control" id="Td_out_end" name="Td_out_end">{{ calculated_values_end.6 }}</output>
                             </div>
+                            <div class="mb-3">
+                                <label for="Enth_out_end">Enthalpie (H) [kJ/kg]:</label>
+                                <output class="form-control" id="Enth_out_end" name="Enth_out_end">{{ calculated_values_end.2 }}</output>
+                            </div>
+                            <div class="mb-3">
+                                <label for="rho_out_end">Dichtheid (&rho;) [kg/m<sup>3</sup>]:</label>
+                                <output class="form-control" id="rho_out_end" name="rho_out_end">{{ calculated_values_end.4 }}</output>
+                            </div>
+                            
                         </div>
-                    </div>
+                    </div>  
+                   
+                    
+                    <button type="submit" class="btn btn-primary" style="display: none;" id="mollierButton" name="mollierButton"></button>
+                       
                 </div>
             </div>
         </form>
@@ -131,24 +204,24 @@ const downloadExcelUrl = "{% url 'tools:download_excel' %}";
 const lines_RH = JSON.parse('{{ lines_RH|escapejs }}');
 const TValues = lines_RH.x_values; //
 const RHPercentages = [ 
-    {label: '10%', data: lines_RH.ten_percent, color: 'rgb(255, 0, 0)'},
-    {label: '20%', data: lines_RH.twenty_percent, color: 'rgb(255, 127, 0)'},
-    {label: '30%', data: lines_RH.thirty_percent, color: 'rgb(255, 255, 0)'},
-    {label: '40%', data: lines_RH.fourty_percent, color: 'rgb(127, 255, 0)'},
-    {label: '50%', data: lines_RH.fifty_percent, color: 'rgb(0, 255, 0)'},
-    {label: '60%', data: lines_RH.sixty_percent, color: 'rgb(0, 255, 127)'},
-    {label: '70%', data: lines_RH.seventy_percent, color: 'rgb(0, 255, 255)'},
-    {label: '80%', data: lines_RH.eighty_percent, color: 'rgb(0, 127, 255)'},
-    {label: '90%', data: lines_RH.ninety_percent, color: 'rgb(0, 0, 255)'},
-    {label: '100%', data: lines_RH.onehondered_percent, color: 'rgb(127, 0, 255)'}
+    {label: '10%', data: lines_RH.ten_percent.map((val, idx) => ({ x: val, y: TValues[idx] })), color: 'rgb(255, 0, 0)'},
+    {label: '20%', data: lines_RH.twenty_percent.map((val, idx) => ({ x: val, y: TValues[idx] })), color: 'rgb(255, 127, 0)'},
+    {label: '30%', data: lines_RH.thirty_percent.map((val, idx) => ({ x: val, y: TValues[idx] })), color: 'rgb(255, 255, 0)'},
+    {label: '40%', data: lines_RH.fourty_percent.map((val, idx) => ({ x: val, y: TValues[idx] })), color: 'rgb(127, 255, 0)'},
+    {label: '50%', data: lines_RH.fifty_percent.map((val, idx) => ({ x: val, y: TValues[idx] })), color: 'rgb(0, 255, 0)'},
+    {label: '60%', data: lines_RH.sixty_percent.map((val, idx) => ({ x: val, y: TValues[idx] })), color: 'rgb(0, 255, 127)'},
+    {label: '70%', data: lines_RH.seventy_percent.map((val, idx) => ({ x: val, y: TValues[idx] })), color: 'rgb(0, 255, 255)'},
+    {label: '80%', data: lines_RH.eighty_percent.map((val, idx) => ({ x: val, y: TValues[idx] })), color: 'rgb(0, 127, 255)'},
+    {label: '90%', data: lines_RH.ninety_percent.map((val, idx) => ({ x: val, y: TValues[idx] })), color: 'rgb(0, 0, 255)'},
+    {label: '100%', data: lines_RH.onehondered_percent.map((val, idx) => ({ x: val, y: TValues[idx] })), color: 'rgb(127, 0, 255)'}
 ];
 const lines_H = JSON.parse('{{ lines_H|escapejs }}');
 const HLabels = ['H=-5', 'H=0', 'H=5', 'H=10', 'H=15', 'H=20', 'H=25', 'H=30', 'H=35', 'H=40', 'H=45', 'H=50', 'H=55', 'H=60', 'H=65', 'H=70', 'H=75', 'H=80', 'H=85', 'H=90'];
 const HData = HLabels.map((label, index) => ({
     label: label,
     data: [
-        {x: lines_H.x1[index ], y: 0}, // First point (x1, y1)
-        {x: lines_H.x2[index ], y: lines_H.y2[index]} // Second point (x2, y2)
+        {y: lines_H.x1[index ], x: 0}, // First point (x1, y1)
+        {y: lines_H.x2[index ], x: lines_H.y2[index]} // Second point (x2, y2)
     ],
     borderColor: 'rgb(0, 0, 0)',
     borderWidth: 0.5,
@@ -157,26 +230,23 @@ const HData = HLabels.map((label, index) => ({
     
 }));
  // make square 
-const Tdb_var = parseFloat(sessionStorage.getItem('Tdb_var'));
-const Td_out = document.getElementById('Td_out').value;
-const W_out = document.getElementById('humid_out').value;
+    const Tdb_var = sessionStorage.getItem('Tdb_var');
+    const Tdb_var_end = sessionStorage.getItem('Tdb_var_end');
+    const x_out_start = document.getElementById('humid_out').value;
+    const x_out_end = document.getElementById('humid_out_end').value;
 const squareDataset = {
-    label: 'Abs.Vocht',
+    label: 'Proces',
     data: [
-        {x: Td_out, y: 0},   // Bottom-left corner
-        {x: Tdb_var, y: 0},  // Bottom-right corner
-        {x: Tdb_var, y: W_out}, // Top-right corner
-        {x: Td_out, y: W_out},  // Top-left corner
-        {x: Td_out, y: 0}    // Back to the starting point to close the square
+        {x: x_out_start, y: Number(Tdb_var), label: 'start'}, 
+        {x: x_out_end, y: Number(Tdb_var_end), label:'eind'}, 
     ],
     borderColor: 'rgb(255, 0, 0)', // Red color
     borderWidth: 1.5,
     tension: 0, // No tension for straight lines
-    pointRadius: [0, 0, 12, 0, 0], // Set point radius for each data point
-    pointStyle: ['circle', 'circle', 'crossRot', 'circle', 'circle'], // Set point style for each data point
-    pointBorderColor: ['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0)', 'rgb(255, 0, 0)', 'rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0)'], // Set point border color for each data point
-    pointBackgroundColor: ['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0)', 'rgb(255, 0, 0)', 'rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0)'] // Set point background color for each data point
-
+    pointRadius: [8,8], // Set point radius for each data point
+    pointStyle: ['circle', 'circle'], // Set point style for each data point
+    pointBackgroundColor: 'rgb(255, 0, 0)', // Set point color
+    pointBorderColor: 'rgb(0, 0, 0)' // Set point border color
 };
 
 // Create the line chart
@@ -186,7 +256,7 @@ const ctx3 = document.getElementById('myLinesRH').getContext('2d');
 const myLineChart = new Chart(ctx3, {
     type: 'line',
     data: {
-        labels: labels2, // make x-values to 100
+        labels: labels2, 
         datasets: [
             squareDataset,
             ...RHPercentages.map(({ label, data, color }) => ({
@@ -208,20 +278,28 @@ const myLineChart = new Chart(ctx3, {
         scales: {
             x: {
                 type: 'linear',
+                max: 20,
+                title: {
+                    display: true,
+                    text: 'x [g/kg]',
+                    font: {
+                        size: 14, // Adjust size if needed
+                        weight: 'bold', // Make the title bold
+                    }
+                },
+                clip: false // Prevent points from being clipped
+            },
+            y: {
                 min: -10,
                 max: 40,
                 display: true,
                 title: {
                     display: true,
-                    text: 'Temperatuur [°C]'
-                },
-                clip: false // Prevent points from being clipped
-            },
-            y: {
-                max: 20,
-                title: {
-                    display: true,
-                    text: 'x [g/kg]',
+                    text: 'Temperatuur [°C]',
+                    font: {
+                        size: 14, // Adjust size if needed
+                        weight: 'bold', // Make the title bold
+                    }
                 }
             },
         },
@@ -230,6 +308,16 @@ const myLineChart = new Chart(ctx3, {
                 callbacks: {
                     // Customize the tooltip to only show the label
                     label: function(tooltipItem) {
+                        const dataset = tooltipItem.dataset;
+                        const dataIndex = tooltipItem.dataIndex;
+                        const dataPoint = dataset.data[dataIndex];
+
+                        // Customize tooltip for squareDataset
+                        if (dataset.label === 'Proces') {
+                            return `${dataPoint.label}: (${dataPoint.x.toFixed(2)}, ${dataPoint.y.toFixed(2)})`;
+                        }
+                        
+                        // Default behavior for other datasets
                         return tooltipItem.dataset.label;
                     },
                     // Remove the title (which by default shows the x value)
