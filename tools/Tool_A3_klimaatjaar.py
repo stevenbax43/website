@@ -5,28 +5,29 @@ from datetime import datetime
 def klimaatjaar(request):
     
     OnOffHours, HeatCoolEnergy, line_chart_data, line_chart_data_hoursONOFF, cumulative_data,limit_values, energy_values = [], [], {}, {},{}, [], []
-    designTempheat, maxTempHeat,HeatPowerMax, HeatPowerMin,designTempcool, maxTempCool, CoolPowerMax,CoolPowerMin = 0,0,0,0,0,0,0,0
+    designTempheat, maxTempHeat,HeatBuildingMax, HeatBuildingMin,designTempcool, maxTempCool, CoolBuildingMax,CoolBuildingMin= 0,0,0,0,0,0,0,0
 
     if request.method =='POST':
         startdag, einddag = map(int, [request.POST.get('startdag'), request.POST.get('einddag')])
         startuur, einduur = map(int,[request.POST.get('startuur'), request.POST.get('einduur')])
+        startTemp, eindTemp = map(int,[request.POST.get('starttemp'), request.POST.get('eindtemp')])
         method = request.POST.get('method')
   
-        OnOffHours, df_Temp, df= OnOffTime(startdag,einddag,startuur,einduur, method)
+        OnOffHours, df_Temp, df= OnOffTime(startdag,einddag,startuur,einduur, method, startTemp, eindTemp)
         
-        #print(df_json)
-        designTempheat, maxTempHeat, HeatPowerMax, HeatPowerMin = map(int, [
-            request.POST.get('designTempheat'), request.POST.get('maxTempHeat'), request.POST.get('HeatPowerMax'), request.POST.get('HeatPowerMin')])
-        designTempcool, maxTempCool, CoolPowerMax, CoolPowerMin = map(int, [
-            request.POST.get('designTempcool'), request.POST.get('maxTempCool'), request.POST.get('CoolPowerMax'), request.POST.get('CoolPowerMin')])
-        HeatCoolEnergy, df_Temp = PowerEnergy(df_Temp, designTempheat, maxTempHeat, HeatPowerMax,HeatPowerMin, designTempcool, maxTempCool, CoolPowerMax, CoolPowerMin)
+        #all buildings inputs 
+        designTempheat, maxTempHeat, HeatBuildingMax, HeatBuildingMin = map(int, [
+            request.POST.get('designTempheat'), request.POST.get('maxTempHeat'), request.POST.get('HeatBuildingMax'), request.POST.get('HeatBuildingMin')])
+        designTempcool, maxTempCool, CoolBuildingMax, CoolBuildingMin = map(int, [
+            request.POST.get('designTempcool'), request.POST.get('maxTempCool'), request.POST.get('CoolBuildingMax'), request.POST.get('CoolBuildingMin')])
+        HeatCoolEnergy, df_Temp = PowerEnergy(df_Temp, designTempheat, maxTempHeat, HeatBuildingMax,HeatBuildingMin, designTempcool, maxTempCool, CoolBuildingMax, CoolBuildingMin)
         
 
         #cumulative belastingduurkromme maken. 
-        maxPowerHeat, minPowerHeat, maxPowerCool, minPowerCool = map(int, [
-            request.POST.get('maxPowerHeat'), request.POST.get('minPowerHeat'), request.POST.get('maxPowerCool'),request.POST.get('minPowerCool') ])
+        Limit_Heat_max, Limit_Heat_min, Limit_Cool_Max, Limit_Cool_Min = map(int, [
+            request.POST.get('LimitHeatMax'), request.POST.get('LimitHeatMin'), request.POST.get('LimitCoolMax'),request.POST.get('LimitCoolMin') ])
              
-        df_cum, limit_values, energy_values = cumulative_graph(df_Temp, maxPowerHeat,minPowerHeat,maxPowerCool,minPowerCool, HeatPowerMin,CoolPowerMin, HeatPowerMax, CoolPowerMax)
+        df_cum, limit_values, energy_values = cumulative_graph(df_Temp, Limit_Heat_max,Limit_Heat_min,Limit_Cool_Max,Limit_Cool_Min, HeatBuildingMin,CoolBuildingMax, HeatBuildingMax, CoolBuildingMin)
 
         # prepare df_Temp for download_excel 
         df_Temp_json = df_Temp.to_dict(orient='records')
@@ -42,10 +43,10 @@ def klimaatjaar(request):
             'einduur': [einduur],
             'OntwerpTempHeat': [designTempheat],
             'maxTempHeat': [maxTempHeat],
-            'HeatPowerMax': [HeatPowerMax],
+            'HeatPowerMax': [HeatBuildingMax],
             'OntwerpTempCool': [designTempcool],
             'maxTempCool': [maxTempCool],
-            'CoolPowerMax': [CoolPowerMax]
+            'CoolPowerMax': [CoolBuildingMax]
         }
 
         df_Inputs = pd.DataFrame(input_data)
@@ -61,7 +62,9 @@ def klimaatjaar(request):
         line_chart_data_hoursONOFF = {
         'x_values2': df_Temp['TempRange'].tolist(),  # X-axis values from 0 to 40
         'OnHours': df_Temp['sumOnTemp'].tolist(),  # Dataset 1 y-axis values
-        'OffHours': df_Temp['sumOffTemp'].tolist(),   # Dataset 2 y-axis values
+        'OffHours': df_Temp['sumOffTemp'].tolist(),
+        'CumOnHours': df_Temp['CumOnHours'].tolist(),  
+        'CumOnHoursBtwTemp': df_Temp['CumOnHoursBtwTemp'].tolist(), # Dataset 2 y-axis values   # Dataset 2 y-axis values
         }
         cumulative_data = {
         'x_values3': df_cum['sumOnCum'].tolist(),  # X-axis values from 0 to 40
@@ -75,12 +78,14 @@ def klimaatjaar(request):
         request.session['df'] = df_json
     return  [OnOffHours,HeatCoolEnergy,line_chart_data,line_chart_data_hoursONOFF, cumulative_data,limit_values, energy_values]
 
-def OnOffTime(startday,endday,starthour,endhour, method):
+def OnOffTime(startday,endday,starthour,endhour, method, startTemp, eindTemp):
     df = pd.DataFrame()
     if int(method) == 1:
         df = pd.read_csv('tools/static/tools/files/Klimaatjaar2023deBilt.csv', sep=';')
     elif int(method) == 2:
         df = pd.read_csv('tools/static/tools/files/Klimaatjaar2018deBilt.csv', sep=';')
+    elif int(method) == 3:
+        df = pd.read_csv('tools/static/tools/files/KlimaatjaarNEN5060Energie2018.csv', sep=';')
     else: 
         print('error loading page.')
 
@@ -102,10 +107,18 @@ def OnOffTime(startday,endday,starthour,endhour, method):
     df_Temp = pd.DataFrame({'TempRange': range(lowTemp, highTemp + 1 )})
     df_Temp['sumOnTemp'] = df_Temp['TempRange'].apply(lambda x: ((df['onTemp'] < x) & (df['onTemp'] >= x-1)).sum())
     df_Temp['sumOffTemp'] = df_Temp['TempRange'].apply(lambda x: ((df['offTemp'] < x) & (df['offTemp'] >= x-1)).sum())
-    OnTimeHours = df_Temp['sumOnTemp'].sum()
-    OffTimeHours = df_Temp['sumOffTemp'].sum()
-    OnOffHours = [OnTimeHours, OffTimeHours]
-  
+    #bepaal cumulatieve waarden en maak gebruik van een range in vervolg waarden.
+    df_Temp['CumOnHours'] = df_Temp['sumOnTemp'].cumsum()
+    cum_up = df_Temp.loc[df_Temp['TempRange'] == eindTemp, 'CumOnHours'].values[0]
+    cum_below = df_Temp.loc[df_Temp['TempRange'] == startTemp, 'CumOnHours'].values[0]   
+    cum_between = cum_up - cum_below
+    df_Temp['sumOnHoursTemp'] =df_Temp.apply(lambda row: row['sumOnTemp'] if startTemp <= row['TempRange'] <= eindTemp else 0, axis=1)
+    df_Temp['CumOnHoursBtwTemp'] = df_Temp.apply(lambda row: row['CumOnHours'] if startTemp <= row['TempRange'] <= eindTemp else 0, axis=1)
+    
+    OnTimeHours = df_Temp['sumOnTemp'].sum()-cum_between
+    OffTimeHours = df_Temp['sumOffTemp'].sum() +OnTimeHours
+    OnOffHours = [cum_between, OffTimeHours]
+     
 
     return OnOffHours, df_Temp, df
 
@@ -118,7 +131,7 @@ def PowerEnergy(df_Temp,designTempheat,maxTempHeat,HeatPowerMax,HeatPowerMin, de
     df_Temp['HeatPower'] = np.where((df_Temp['TempRange'] >= designTempheat) & (df_Temp['TempRange'] <= maxTempHeat ),
                                     slopeHeat * df_Temp['TempRange'] + interceptHeat,
                                     np.where(df_Temp['TempRange'] < designTempheat, HeatPowerMax, HeatPowerMin)).round(2)
-    df_Temp['Q_heat[MWh]'] = (df_Temp['HeatPower']/1000 * df_Temp['sumOnTemp']).round(2)
+    df_Temp['Q_heat[MWh]'] = (df_Temp['HeatPower']/1000 * df_Temp['sumOnHoursTemp']).round(2)
     HeatEnergy = df_Temp['Q_heat[MWh]'].sum()
 
     #bereken stooklijn koelen
@@ -129,7 +142,7 @@ def PowerEnergy(df_Temp,designTempheat,maxTempHeat,HeatPowerMax,HeatPowerMin, de
                                     slopeCool * df_Temp['TempRange'] + interceptCool,
                                     np.where(df_Temp['TempRange'] < designTempcool, CoolPowerMin,CoolPowerMax)).round(1)
 
-    df_Temp['Q_cool[MWh]'] = (df_Temp['CoolPower']/1000 * df_Temp['sumOnTemp']).round(1)
+    df_Temp['Q_cool[MWh]'] = (df_Temp['CoolPower']/1000 * df_Temp['sumOnHoursTemp']).round(1)
     CoolEnergy = df_Temp['Q_cool[MWh]'].sum()
     HeatCoolEnergy = [round(HeatEnergy), round(CoolEnergy)]
     #print(df_Temp)
@@ -138,27 +151,28 @@ def PowerEnergy(df_Temp,designTempheat,maxTempHeat,HeatPowerMax,HeatPowerMin, de
 
     return HeatCoolEnergy, df_Temp
 
-def cumulative_graph(df_Temp, maxPowerHeat, minPowerHeat, maxPowerCool, minPowerCool, HeatPowerMin,CoolPowerMin, HeatPowerMax, CoolPowerMax):
+def cumulative_graph(df_Temp, Limit_Heat_max,Limit_Heat_min,Limit_Cool_Max,Limit_Cool_Min, HeatBuildingMin,CoolBuildingMax, HeatBuildingMax, CoolBuildingMin):
     #bereken belastingduurkromme 
+   
     df_cum = df_Temp 
-    df_cum['sumOnCum'] = df_cum['sumOnTemp'].cumsum()
+    df_cum['sumOnCum'] = df_cum['sumOnHoursTemp'].cumsum()
     #verwarmen piek, midden en basislast
-    df_cum['Q_heat_piek'] = df_cum.apply(lambda row: ((row['HeatPower'] - maxPowerHeat) / 1000 * row['sumOnTemp']) if row['HeatPower'] > maxPowerHeat else 0, axis=1)
-    df_cum['Q_heat_btwn'] = df_cum.apply(lambda row: ((row['HeatPower'] - minPowerHeat) / 1000 * row['sumOnTemp']) if row['HeatPower'] > minPowerHeat and row['HeatPower'] < maxPowerHeat 
-                                        else ((maxPowerHeat - minPowerHeat) / 1000 * row['sumOnTemp']) if row['HeatPower'] >= maxPowerHeat else 0,    
+    df_cum['Q_heat_piek'] = df_cum.apply(lambda row: ((row['HeatPower'] - Limit_Heat_max) / 1000 * row['sumOnHoursTemp']) if row['HeatPower'] > Limit_Heat_max else 0, axis=1)
+    df_cum['Q_heat_btwn'] = df_cum.apply(lambda row: ((row['HeatPower'] - Limit_Heat_min) / 1000 * row['sumOnHoursTemp']) if row['HeatPower'] > Limit_Heat_min and row['HeatPower'] < Limit_Heat_max 
+                                        else ((Limit_Heat_max - Limit_Heat_min) / 1000 * row['sumOnHoursTemp']) if row['HeatPower'] >= Limit_Heat_max else 0,    
                                         axis=1)
     df_cum['Q_heat_basis'] = df_cum.apply(
-        lambda row: (row['HeatPower'] / 1000 * row['sumOnTemp']) if row['HeatPower'] > 0 and row['HeatPower'] < minPowerHeat else (
-                    minPowerHeat / 1000 * row['sumOnTemp']) if row['HeatPower'] >= minPowerHeat else 0,    axis=1
+        lambda row: (row['HeatPower'] / 1000 * row['sumOnHoursTemp']) if row['HeatPower'] > 0 and row['HeatPower'] < Limit_Heat_min else (
+                    Limit_Heat_min / 1000 * row['sumOnHoursTemp']) if row['HeatPower'] >= Limit_Heat_min else 0,    axis=1
     )
     #koeling piek, midden en basislast
-    df_cum['Q_cool_piek'] = df_cum.apply(lambda row: ((row['CoolPower'] - maxPowerCool) / 1000 * row['sumOnTemp']) if row['CoolPower'] > maxPowerCool else 0, axis=1)
-    df_cum['Q_cool_btwn'] = df_cum.apply(lambda row: ((row['CoolPower'] - minPowerCool) / 1000 * row['sumOnTemp']) if row['CoolPower'] > minPowerCool and row['CoolPower'] < maxPowerCool 
-                                        else ((maxPowerCool - minPowerCool) / 1000 * row['sumOnTemp']) if row['CoolPower'] >= maxPowerCool else 0,    
+    df_cum['Q_cool_piek'] = df_cum.apply(lambda row: ((row['CoolPower'] - Limit_Cool_Max) / 1000 * row['sumOnHoursTemp']) if row['CoolPower'] > Limit_Cool_Max else 0, axis=1)
+    df_cum['Q_cool_btwn'] = df_cum.apply(lambda row: ((row['CoolPower'] - Limit_Cool_Min) / 1000 * row['sumOnHoursTemp']) if row['CoolPower'] > Limit_Cool_Min and row['CoolPower'] < Limit_Cool_Max 
+                                        else ((Limit_Cool_Max - Limit_Cool_Min) / 1000 * row['sumOnHoursTemp']) if row['CoolPower'] >= Limit_Cool_Max else 0,    
                                         axis=1)
     df_cum['Q_cool_basis'] = df_cum.apply(
-        lambda row: (row['CoolPower'] / 1000 * row['sumOnTemp']) if (row['CoolPower'] > 0 and row['CoolPower'] < minPowerCool) else 
-                    ((minPowerCool / 1000) * row['sumOnTemp']) if (row['CoolPower'] >= minPowerCool) else 0,
+        lambda row: (row['CoolPower'] / 1000 * row['sumOnHoursTemp']) if (row['CoolPower'] > 0 and row['CoolPower'] < Limit_Cool_Min) else 
+                    ((Limit_Cool_Min / 1000) * row['sumOnHoursTemp']) if (row['CoolPower'] >= Limit_Cool_Min) else 0,
         axis=1
     )
     
@@ -213,29 +227,45 @@ def cumulative_graph(df_Temp, maxPowerHeat, minPowerHeat, maxPowerCool, minPower
     # Calculate corrosponderende punten op belastingduurkromme bij opgegeven grensen
        
     hour_max = df_cum['sumOnCum'].max()
-    #koelen x waarde bepalen voor grenzen
-    if HeatPowerMax == 0: #check verwarmingsvraag: 
+    #koelen uur-waarden bepalen voor grenzen
+    if HeatBuildingMax == 0: #check verwarmingsvraag: 
         hour_heat_low, hour_heat_high,hour_max = 0,0,0
-    elif minPowerHeat > HeatPowerMin: 
-        hour_heat_low = calculate_integrated_hour(df_cum, minPowerHeat, 'HeatPower')
-        hour_heat_high = calculate_integrated_hour(df_cum, maxPowerHeat, 'HeatPower')
+    elif Limit_Heat_min > HeatBuildingMin: 
+        hour_heat_low = calculate_integrated_hour(df_cum, Limit_Heat_min, 'HeatPower')
+        hour_heat_high = calculate_integrated_hour(df_cum, Limit_Heat_max, 'HeatPower')
     else: 
         hour_heat_low = hour_max
-        hour_heat_high = calculate_integrated_hour(df_cum, maxPowerHeat, 'HeatPower')
+        hour_heat_high = calculate_integrated_hour(df_cum, Limit_Heat_max, 'HeatPower')
     
     #koelen x waarde bepalen voor grenzen
-    if CoolPowerMax == 0: #check if koelvraag : 
+    if CoolBuildingMax == 0: #check if koelvraag : 
         hour_cool_low,hour_cool_high, hour_max =0,0,0
-    elif minPowerCool > CoolPowerMin: 
-        hour_cool_low = calculate_integrated_hour(df_cum, minPowerCool, 'CoolPower')
-        hour_cool_high = calculate_integrated_hour(df_cum, maxPowerCool, 'CoolPower')
+    elif Limit_Cool_Min > CoolBuildingMin or (Limit_Cool_Min == 0 and CoolBuildingMin == 0): 
+        hour_cool_low = calculate_integrated_hour(df_cum, Limit_Cool_Min, 'CoolPower')
+        hour_cool_high = calculate_integrated_hour(df_cum, Limit_Cool_Max, 'CoolPower')
+    elif Limit_Cool_Max < CoolBuildingMax:
+        hour_cool_low = 0
+        hour_cool_high = 0
     else: 
         hour_cool_low = 0
-        hour_cool_high = calculate_integrated_hour(df_cum, maxPowerCool, 'CoolPower')
-        
-    
+        hour_cool_high = calculate_integrated_hour(df_cum, Limit_Cool_Max, 'CoolPower')
+
+    #Calculate Beta and Energy factors with safe division and logical checks
+    if HeatBuildingMax and heat_total:
+        Beta_factor_heat = min(round((Limit_Heat_max / HeatBuildingMax) * 100),100)
+        Energy_factor_heat = min(round((df_cum['Q_heat_btwn'].sum() / heat_total) * 100),100)
+    else:
+        Beta_factor_heat = 0
+        Energy_factor_heat = 0
+
+    if CoolBuildingMax and cool_total:
+        Beta_factor_cool = min(round((Limit_Cool_Max / CoolBuildingMax) * 100),100)
+        Energy_factor_cool = min(round((df_cum['Q_cool_btwn'].sum() / cool_total) * 100),100)
+    else:
+        Beta_factor_cool = 0
+        Energy_factor_cool = 0
     #Prepare output data in lists
-    limit_values = [hour_heat_low,hour_heat_high,hour_cool_low, hour_cool_high, hour_max]
-    
+    limit_values = [hour_heat_low,hour_heat_high,hour_cool_low, hour_cool_high, hour_max,Beta_factor_heat, Beta_factor_cool,Energy_factor_heat,Energy_factor_cool]
+
     
     return df_cum, limit_values, energy_values

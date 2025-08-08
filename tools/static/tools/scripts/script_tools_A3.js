@@ -1,7 +1,9 @@
 // Function to save input values to sessionStorage
 function saveInputValues() {
     document.querySelectorAll('input, select').forEach(field => {
-        sessionStorage.setItem(field.id, field.value);
+        if(field.type !== 'hidden' && field.name !== 'csrfmiddlewaretoken'){ // ensure the CSRF-token is not saved in the session-storage. 
+            sessionStorage.setItem(field.id, field.value);
+        }
     });
 }
 
@@ -15,26 +17,53 @@ function loadInputValues() {
     });
 }
 function updateMaxValue() {
-    var HeatPowerMax = document.getElementById("HeatPowerMax");
-    var maxPowerHeat = document.getElementById("maxPowerHeat");
-    var CoolPowerMax = document.getElementById("CoolPowerMax");
-    var maxPowerCool = document.getElementById("maxPowerCool");
-    var minPowerHeat = document.getElementById("minPowerHeat");
-    var minPowerCool = document.getElementById("minPowerCool");
+    var HeatBuildingMax = document.getElementById("HeatBuildingMax");
+    var LimitHeatMax = document.getElementById("LimitHeatMax");
+    var CoolBuildingMax = document.getElementById("CoolBuildingMax");
+    var LimitCoolMax = document.getElementById("LimitCoolMax");
+    var LimitHeatMin = document.getElementById("LimitHeatMin");
+    var LimitCoolMin = document.getElementById("LimitCoolMin");
 
-    maxPowerHeat.max = HeatPowerMax.value; // maximale waarde bovengrens is max vermogen verwarmen
-    maxPowerCool.max = CoolPowerMax.value; // maximale waarde bovengrens is max vermogen koelen
-    minPowerHeat.max = maxPowerHeat.value; // maximale waarde ondergrens is bovengrens verwamen
-    minPowerCool.max = maxPowerCool.value; // maximale waarde ondergrens is bovengrens verwamen
+    LimitHeatMax.max = HeatBuildingMax.value; // maximale waarde bovengrens is max vermogen verwarmen
+    LimitCoolMax.max = CoolBuildingMax.value; // maximale waarde bovengrens is max vermogen koelen
+    LimitHeatMin.max = LimitHeatMax.value; // maximale waarde ondergrens is bovengrens verwamen
+    LimitCoolMin.max = LimitCoolMax.value; // maximale waarde ondergrens is bovengrens verwamen
 }
 
+function validateTemperature() {
+    const startTempInput = document.getElementById('starttemp');
+    const eindTempInput = document.getElementById('eindtemp');
+    const tempMessage = document.getElementById('tempMessage');
+    const startTemp = parseFloat(startTempInput.value);
+    const eindTemp = parseFloat(eindTempInput.value);
+    
+    // Als de eindtemperatuur niet hoger is dan de begintemperatuur, toon de foutmelding.
+    if (eindTemp <= startTemp) {
+        tempMessage.style.display = 'block';
+    } else {
+        tempMessage.style.display = 'none';
+    }
+}
+function validateTime() {
+    const startUurInput = document.getElementById('startuur');
+    const eindUurInput = document.getElementById('einduur');
+    const timeMessage = document.getElementById('timeMessage');
 
+    const startUur = parseInt(startUurInput.value);
+    const eindUur = parseInt(eindUurInput.value);
+
+    if (startUur >= eindUur) {
+        timeMessage.style.display = 'block';
+    } else {
+        timeMessage.style.display = 'none';
+    }
+}
 // Event listener for DOMContentLoaded event
 document.addEventListener('DOMContentLoaded', function() {
     // Load input values when the page is loaded
     loadInputValues();
     updateMaxValue(); 
-
+    
     // Add change event listener to input fields to save input values and simulate click on the submit button
     document.querySelectorAll('input, select').forEach(field => {
         field.addEventListener('change', function() {
@@ -63,6 +92,20 @@ document.addEventListener('DOMContentLoaded', function() {
             saveInputValues(); // Save input values to sessionStorage
             location.reload(); // Reload the page
         });
+    });
+
+    // Haal de temperature input-elementen op buiten de functie, zodat je ze kunt hergebruiken
+    const startTempInput = document.getElementById('starttemp');
+    const eindTempInput = document.getElementById('eindtemp');
+
+    // Voeg event listeners toe zodat de validatie live wordt uitgevoerd
+    [startTempInput, eindTempInput].forEach(input => {
+        input.addEventListener('input', validateTemperature);
+    });
+    const startUurInput = document.getElementById('startuur');
+    const eindUurInput = document.getElementById('einduur');
+    [startUurInput, eindUurInput].forEach(input => {
+        input.addEventListener('input', validateTime);
     });
     // Event listener for readme button
     document.getElementById('readMeButton').addEventListener('click', function() {

@@ -1,195 +1,493 @@
-{% extends 'home/base.html'%}
+{% extends 'home/base.html' %}
 
+{% load custom_filters %}
 {% load static %} 
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'tools/styles/tools.css'%}">
     <link rel="stylesheet" href="{% static 'tools/styles/tool_W_1.css'%}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 {% endblock %}
 
 {% block content %}
+
 {% csrf_token %}
 
 <div class="top-banner"> 
-        <div class="top-banner-items">
-                <div> <h1> Tool W1: Mollier Diagram</h1>  </div>
-                
-                <div>  <a href="{% url 'tools:tools' %}">  <img src="{% static 'tools/images/engineering.png' %}"> </a> </div>
-        </div> 
+    <div class="top-banner-items">
+        <div> <h1> Tool: Mollier Diagram</h1>  </div>
+        <div>  <a href="{% url 'tools:tools' %}">  <img src="{% static 'tools/images/engineering.png' %}"> </a> </div>
+    </div> 
 </div>
 
-<div class="second-banner no-print">        
-        <div class="second-banner-items">
-            <div class="second-alignment">
-                <div class="second-text">  
-                    <p> Het Mollier diagram, of H-x diagram, is een grafische voorstelling van de thermodynamische eigenschappen die van invloed zijn op vochtige lucht.</p>    
-                </div>
-                <div class="tools-icons">
-                    <div>  <a href="#" id="readMeButton" > ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" alt="ReadMe Button"> </a> </div>
-                    <div>  <a href="#" id="printButton" >  <img src="{% static 'tools/images/print.png' %}" alt="Print Button"> </a> </div>
-                    <div>  <a href="#" id="excelButton">  <img src="{% static 'tools/images/Excel.png' %}" alt="Excel Button"> </a> </div>          
-                </div>      
-            </div>      
-        </div>
-</div>
-
-<div class="main-banner">
-    <div class="main-banner-items" id="print_content">
-        <form method="post" id="inputForm">
-            {% csrf_token %}
-            <div class="container-fluid mt-3">
-                <div class="row mb-3">
-                    <!-- Input Form Left -->
-                    <div class="col-md-3" style="min-width: 250px;">
-                        <div class="border p-3 shadow">
-                            <h4>Start punt</h4>
-                            <!-- Input fields -->
-                            <div class="mb-3">
-                                <label for="Tdb_var">Temperatuur (T<sub>db</sub>) [°C]:</label>
-                                <input type="number" class="form-control" id="Tdb_var" name="Tdb_var" value="10" min="-10" max="40" step="0.1">
-                            </div>
-                            <div class="mb-3">
-                                <label for="RH_var">Luchtvochtigheid (RH) [%]:</label>
-                                <input type="number" class="form-control" id="RH_var" name="RH_var" value="50" min="10" max="100">
-                            </div>
-                            <div class="mb-3">
-                                <label for="Heigth_var">Hoogte (h) [m]:</label>
-                                <input type="number" class="form-control" id="Heigth_var" name="Heigth_var" value="0" min="0" max="4000">
-                            </div>
-                        </div>
-                        
-                    </div>
-                    <div class="col-md-3" style="min-width: 250px;">
-                        <div class="border p-3 shadow">
-                            <h4>Verschil (&Delta;)</h4>
-                            <!-- Input fields -->
-                            <div class="mb-3">
-                                <label for="T_out_diff">Temperatuur (&Delta;T) [°C]:</label>
-                                <output class="form-control" id="T_out_diff" name="T_out_diff">{{difference.0}} </output>
-                            </div>
-                            <div class="mb-3">
-                                <label for="Enth_out_diff">Enthalpie (&Delta;H) [kJ/kg]:</label>
-                                <output class="form-control" id="Enth_out_diff" name="Enth_out_diff">{{ difference.1 }}</output>
-                            </div>
-                            <div class="mb-3">
-                                <label for="humid_out_diff">Abs. Vocht (&Delta;x) [g/kg]:</label>
-                                <output class="form-control" id="humid_out_diff" name="humid_out_diff">{{ difference.2 }}</output>
-                            </div>
-                           
-                            
-                        </div>
-                    </div>  
-                    
-                    <div class="col-md-3" style="min-width: 250px;">
-                        
-                        
-                        <div class="border p-3 shadow">
-                            <h4>Eind punt</h4>
-                            <!-- Input fields -->
-                            <div class="mb-3">
-                                <label for="Tdb_var_end">Temperatuur (T<sub>db</sub>) [°C]:</label>
-                                <input type="number" class="form-control" id="Tdb_var_end" name="Tdb_var_end" value="10" min="-10" max="40" step="0.1">
-                            </div>
-                            <div class="mb-3">
-                                <label for="RH_var_end">Luchtvochtigheid (RH) [%]:</label>
-                                <input type="number" class="form-control" id="RH_var_end" name="RH_var_end" value="50" min="10" max="100">
-                            </div>
-                            <div class="mb-3">
-                                <label for="humid_out_end">Abs. Vocht (x) [g/kg]:</label>
-                                <output class="form-control" id="humid_out_end" name="humid_out_end">{{ calculated_values_end.0 }}</output>
-                            </div>
-                            
-                        </div>
-                    </div>
-                </div>
-                
-                  
-
-               
-                
-                    
-                 
-                <div class="row">
-                     <!-- Graphs -->
-                     <div class="col-md-8" style="width: 90%;">
-                        <div class="border p-3 shadow mb-3">
-                            <!-- Graph canvas 2 -->
-                            <div style="min-height: 600px; overflow: hidden;"> <!-- Adjusted min-height to 600px -->
-                                <canvas id="myLinesRH" style="min-height: 600px; height: 900px; width: 100%;"></canvas> <!-- Adjusted height to 1000px and width to 100% -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <!-- Input Form Left -->
-                    
-                    <div class="col-md-7" style="min-width: 250px;">
-                        <div class="border p-3 shadow">
-                            <h4>Start punt gegevens</h4>
-                            <!-- Output fields -->
-                            <div class="row">
-                                <div class="col-md-6    mb-3">
-                                    <label for="Td_out">Dauwpunt (T<sub>d</sub>) [°C]:</label>
-                                    <output class="form-control" id="Td_out" name="Td_out">{{ calculated_values.6 }}</output>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="Patm_out">Druk (P<sub>atm</sub>) [Pa]:</label>
-                                    <output class="form-control" id="Patm_out" name="Patm_out">{{ calculated_values.7 }}</output>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="humid_out">Abs. Vocht (x) [g/kg]:</label>
-                                    <output class="form-control" id="humid_out" name="humid_out">{{ calculated_values.0 }}</output>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="Enth_out">Enthalpie (H) [kJ/kg]:</label>
-                                    <output class="form-control" id="Enth_out" name="Enth_out">{{ calculated_values.2 }}</output>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="rho_out">Dichtheid (&rho;) [kg/m<sup>3</sup>]:</label>
-                                    <output class="form-control" id="rho_out" name="rho_out">{{ calculated_values.4 }}</output>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="par_out">Dampspanning (p<sub>h20</sub>) [Pa]:</label>
-                                    <output class="form-control" id="par_out" name="par_out">{{ calculated_values.5 }}</output>
-                                </div>
-                            </div>
-                            
-                             </div>
-                    </div>  
-                    <div class="col-md-4" style="min-width: 250px;">
-                        <div class="border p-3 shadow">
-                            <h4>Eind punt gegevens</h4>
-                            <!-- Input fields -->
-                            <div class="mb-3">
-                                <label for="Td_out_end">Dauwpunt (T<sub>d</sub>) [°C]:</label>
-                                <output class="form-control" id="Td_out_end" name="Td_out_end">{{ calculated_values_end.6 }}</output>
-                            </div>
-                            <div class="mb-3">
-                                <label for="Enth_out_end">Enthalpie (H) [kJ/kg]:</label>
-                                <output class="form-control" id="Enth_out_end" name="Enth_out_end">{{ calculated_values_end.2 }}</output>
-                            </div>
-                            <div class="mb-3">
-                                <label for="rho_out_end">Dichtheid (&rho;) [kg/m<sup>3</sup>]:</label>
-                                <output class="form-control" id="rho_out_end" name="rho_out_end">{{ calculated_values_end.4 }}</output>
-                            </div>
-                            
-                        </div>
-                    </div>  
-                   
-                    
-                    <button type="submit" class="btn btn-primary" style="display: none;" id="mollierButton" name="mollierButton"></button>
-                       
-                </div>
+<div class="second-banner">        
+    <div class="second-banner-items no-print">
+        <div class="second-alignment">
+            <div class="second-text no-print">  
+                <p> Het Mollier diagram, of H-x diagram, is een grafische voorstelling van de thermodynamische eigenschappen die van invloed zijn op vochtige lucht.</p>    
             </div>
-        </form>
+            <div class="tools-icons no-print">
+                <div>  <a href="#" id="readMeButton" > ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" alt="ReadMe Button"> </a> </div>
+                <div>  <a href="#" id="printButton" >  <img src="{% static 'tools/images/print.png' %}" alt="Print Button"> </a> </div>
+                <div>  <a href="#" id="excelButton">  <img src="{% static 'tools/images/Excel.png' %}" alt="Excel Button"> </a> </div>          
+            </div>      
+        </div>      
     </div>
 </div>
+
+<div class="main-banner container-fluid">
+    <div class="main-banner-items container-fluid" >  <!-- Container-fluid maakt de hele pagina geschikt -->
+        <form method="post" id="inputForm">
+            {% csrf_token %}
+            <div class="row">
+                <!-- Graph canvas  -->
+                <div class="col-sm-12 col-md-12 col-lg-8">
+                    <div class="rounded border bg-light mt-4"> 
+                        <div class="border p-3 shadow">
+                                <div style="min-height: 600px; overflow: hidden;"> <!-- Adjusted min-height to 600px -->
+                                    <canvas id="myLinesRH" style="min-height: 600px; height:900px; width: 100%;"></canvas> 
+                                </div>
+                        </div>
+                    </div>
+                   
+                    <!-- PDF Save Button Section -->
+                    <div class="d-flex justify-content-start mt-3">
+                         <button id="SavePDFButton" name="SavePDFButton"
+                                type="button"
+                                data-pdf-url="{% url 'tools:generate_pdf' %}"
+                                class="text-decoration-none text-dark border rounded px-3 py-2 d-flex align-items-center gap-2"
+                                style="background-color: white;">
+                            <p class="mb-0">Save PDF</p>
+                            <img src="{% static 'tools/images/PDF-icon.png' %}" alt="Save PDF"
+                                class="img-fluid"
+                                style="width: 24px; height: 24px; filter: brightness(0) saturate(100%) invert(18%) sepia(100%) saturate(6500%) hue-rotate(0deg) brightness(90%) contrast(105%);">
+                        </button>
+                    
+                    <!-- PDF Save Button Section -->
+                    
+                        <button id="SaveInputsButton" name="SaveInputsButton" type="button"
+                                class="text-decoration-none text-dark ms-3 border rounded px-3 py-2 d-flex align-items-center gap-2"
+                                style="background-color: white;">
+                            <p class="mb-0">Save Inputs</p>
+                            <img src="{% static 'tools/images/save.png' %}" alt="Save Inputs Button"
+                                class="img-fluid"
+                                style="width: 24px; height: 24px; filter: brightness(0) saturate(100%) invert(18%) sepia(100%) saturate(6500%) hue-rotate(0deg) brightness(90%) contrast(105%);">
+                        </button>
+
+                        <button id="LoadInputsButton" type="button"
+                                class="text-decoration-none text-dark ms-3 border rounded px-3 py-2 d-flex align-items-center gap-2"
+                                style="background-color: white;">
+                            <p class="mb-0">Load Project</p>
+                            <img src="{% static 'tools/images/load.png' %}" alt="Load Button"
+                                class="img-fluid"
+                                style="width: 24px; height: 24px;">
+                        </button>
+                        
+                    </div>
+                                    
+                </div>
+                <div class="col-sm-6  col-md-6 col-lg-4 ">
+                    <div class="row">
+                        <div class="p-3 rounded border border-primary-subtle shadow bg-light mb-2 mt-4 position-relative">
+                        <span class=" col-5 position-absolute top-0 start-50  translate-middle"><div class="rounded bg-black text-white p-1 mb-1" >
+                            <h5 class="text-center">Lucht start conditie</h5>
+                        </div></span>
+                        <div class="row justify-content-around align-items-start border-bottom">
+                            <div class="p-2 col-6">
+                                <label for="Heigth_var">Hoogte (h):</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="Height_var" name="Height_var" value="0" min="0" max="4000" step="1">
+                                    <span class="input-group-text">m</span>
+                                </div>
+                            </div>
+                            <div class="p-2 col-6">
+                                <label for="qv_var">Debiet (q<sub>v</sub>)</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="qv_var" name="qv_var" value="10000" min="100" max="100000" step="10">
+                                    <span class="input-group-text"> m<sup>3</sup>/h</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row justify-content-around algn-items-start">
+                            <div class="p-2 col-6">
+                                    <select class="form-select mb-2" id="varStart1" name="varStart1" onchange=updateAirStartInput1()>
+                                    <option selected value="Tdb">Temp. (drogebol)</option>
+                                    <option value="Twb">Temp. (nattebol)</option>
+                                    <option value="RH">Rel. Vochtigheid</option>
+                                    <option value="AH">Abs. Vochtigheid</option>
+                                    <option value="h">Enthalpie</option>
+                                    
+                                </select>
+                                <div class="input-group">
+                                    <input type="number" id="StartInput1" name="StartInput1" class="form-control" value="25.0" min="-10" max="40" placeholder="waarde 1" step="0.1">  
+                                    <span class="input-group-text unit" id="Startunit1">°C</span>                             
+                                </div>
+                            </div>
+                            <div class="p-2 col-6">
+                                <select class="form-select mb-2" id="varStart2" name="varStart2" onchange=updateAirStartInput2()>  
+                                    <option value="Tdb">Temp. (drogebol).</option>
+                                    <option value="Twb">Temp. (nattebol).</option>
+                                    <option selected value="RH">Rel. Vochtigheid</option>
+                                    <option value="AH">Abs. Vochtigheid</option>
+                                    <option value="h">Enthalpie</option>
+                                    
+                                </select>
+                                <div class="input-group">
+                                    <input type="number" id="StartInput2" name="StartInput2" class="form-control" value="50" min="0" max="100" placeholder="waarde 2" step="0.1">
+                                    <span class="input-group-text unit" id="Startunit2">°C</span>
+                                </div>
+                            </div>
+                            {% if warning %}
+                                <div class="alert alert-warning">{{ warning|safe }}</div>
+                            {% endif %}
+                        </div>
+                        </div> 
+                    </div>
+                    
+                    {% for i in process_steps %}
+                    <div class="row" id="row-proces{{ i }}" {% if i > 1 %}style="display:none"{% endif %}>
+                    <div class="p-3 rounded shadow bg-light mb-2 mt-4 position-relative" id="proces{{ i }}_container">
+                        <span class="col-5 position-absolute top-0 start-50 translate-middle">
+                        <div class="rounded text-white p-1 mb-1" id="proces{{ i }}_title">
+                            <h5 class="text-center">Proces {{ i|add:"-1" }} -> {{ i }}</h5>
+                        </div>
+                        </span>
+                        
+                        <!-- Dropdowns -->
+                        <div class="row justify-content-around align-items-start border-bottom">
+                        <div class="p-2 col-6" id="proces{{ i }}_dropdown2_container">
+                            <input type="text" id="inputproces{{ i }}_name" name="inputproces{{ i }}_name" maxlength="13" class="form-control-sm bg-transparent mb-2 rounded-0  fst-italic text-muted p-0 m-0"  placeholder="Proces naam">
+                            <select class="form-select mb-2" id="proces{{ i }}" name="proces{{ i }}" onchange="showDropdownProces('{{ i }}'); updateLineColorChart('{{ i }}')">
+                            <option selected value="selectProces">Selecteer Proces</option>
+                            <option value="heat">Verwarmen</option>
+                            <option value="cool">Koelen</option>
+                            <option value="humid">Bevochtigen</option>
+                            <option value="mix">Mix</option>
+                            <option value="heat_rec">Warmte terugwinnen</option>
+                            <option value="cust_point">Specifiek punt</option>
+                            </select>
+                        </div>
+                        <div class="p-2 col-6" id="proces{{ i }}_func2_container" style="display: none;">
+                            <input type="text" class="form-control-sm bg-transparent mb-2 rounded-0 border-0 fst-italic text-muted p-0 m-0" style="visibility:hidden" maxlength="50" placeholder="Proces naam">
+                            <select class="form-select mb-2" id="proces{{ i }}_func2" name="proces{{ i }}_func2" onchange="showDropdownProces('{{ i }}')">
+                            <option selected value="AdiabaticX">Adiabatisch &Delta;X</option>
+                            <option value="AdiabaticRH">Adiabatisch %RH</option>
+                            <option value="IsoX">Isoltherm &Delta;X</option>
+                            <option value="IsoRH">Isotherm %RH</option>
+                            </select>
+                        </div>
+                        <div class="p-2 col-6" id="proces{{ i }}_func_container" style="visibility: hidden;">
+                            <input type="text" class="form-control-sm bg-transparent mb-2 rounded-0 border-0 fst-italic text-muted p-0 m-0" style="visibility:hidden" maxlength="50" placeholder="Proces naam">
+                            <select class="form-select mb-2" id="proces{{ i }}_func" name="proces{{ i }}_func" onchange="showDropdownProces('{{ i }}')">
+                            <option selected value="power">Vermogen</option>
+                            <option value="deltaT">&Delta;T</option>
+                            <option value="deltaH">&Delta;H</option>
+                            <option value="toTemp">Naar Temp.</option>
+                            </select>
+                        </div>
+                        
+                        </div>
+
+                        <!-- Input Fields Group -->
+                        <div class="row justify-content-around algn-items-start">
+                        <div class="p-2 col-6" id="Proces{{ i }}_value1_container">
+                            <label>Efficiëntie:</label>
+                            <div class="input-group" id="Proces{{ i }}_value1">
+                            <input type="number" class="form-control" id="Proces{{ i }}_value1_input" name="Proces{{ i }}_value1_input" value="80" step="any" max="100" min="0"  step="0.1">
+                            <span class="input-group-text unit" id="coil_eff{{ i }}" name="coil_eff{{ i }}">%</span>
+                            </div>
+                        </div>
+                        <div class="p-2 col-6" id="Proces{{ i }}_value2_container">
+                            <label>Waarde:</label>
+                            <div class="input-group" id="Proces{{ i }}_value2">
+                            <input type="number" class="form-control" id="Proces{{ i }}_value2_input" name="Proces{{ i }}_value2_input" value="10" step="0.1">
+                            <span class="input-group-text unit" id="powerHeatUnit{{ i }}" name="powerHeatUnit{{ i }}">kW</span>
+                            <span class="input-group-text unit" id="DeltaTUnit{{ i }}" name="DeltaTUnit{{ i }}">&Delta;°C</span>
+                            <span class="input-group-text unit" id="DeltaHUnit{{ i }}" name="DeltaHUnit{{ i }}">&Delta;kJ/kg</span>
+                            <span class="input-group-text unit" id="ToTUnit{{ i }}" name="ToTUnit{{ i }}">°C</span>
+                            <span class="input-group-text unit" id="AdXUnit{{ i }}" name="AdXUnit{{ i }}">&Delta;g/kg</span>
+                            <span class="input-group-text unit" id="AdRHUnit{{ i }}" name="AdRHUnit{{ i }}">%RH</span>
+                            </div>
+                        </div>
+                        <div class="p-2 col-6" id="Proces{{ i }}_value3_container">
+                            <label>Bestaande luchtdebiet:</label>
+                            <div class="input-group" id="Proces{{ i }}_value3">
+                            <input type="number" class="form-control" id="Proces{{ i }}_value3_input" name="Proces{{ i }}_value3_input" value="80"  max="100" min="0"  step="0.1">
+                            <span class="input-group-text unit" id="exis_air_flow{{ i }}" name="exis_air_flow{{ i }}">%</span>
+                            </div>
+                        </div>
+                        <div class="p-2 col-6" id="Proces{{ i }}_value8_container">
+                            <label>Thermische efficiëntie:</label>
+                            <div class="input-group" id="Proces{{ i }}_value8">
+                            <input type="number" class="form-control" id="Proces{{ i }}_value8_input" name="Proces{{ i }}_value8_input" value="80" max="100" min="0" step="0.1">
+                            <span class="input-group-text unit" id="therm_eff{{ i }}" name="therm_eff{{ i }}">%</span>
+                            </div>
+                        </div>
+                        <div class="p-2 col-6" id="Proces{{ i }}_value4_container">
+                            <label>Temperatuur:</label>
+                            <div class="input-group" id="Proces{{ i }}_value4">
+                            <input type="number" class="form-control" id="Proces{{ i }}_value4_input" name="Proces{{ i }}_value4_input" value="15"  max="100" min="-10" step="0.1">
+                            <span class="input-group-text unit" id="Temp_{{ i }}_4" name="Temp_{{ i }}_4">°C</span>
+                            </div>
+                        </div>
+                        </div>
+
+                        <!-- Input Fields Group B -->
+                        <div class="row justify-content-around align-items-start border-bottom">
+                        <div class="p-2 col-6" id="Proces{{ i }}_value5_container">
+                            <label>Extra luchtdebiet:</label>
+                            <div class="input-group" id="Proces{{ i }}_value5">
+                            <input type="number" class="form-control" id="Proces{{ i }}_value5_input" name="Proces{{ i }}_value5_input" value="5000" max="1000000" min="0"  step="0.1">
+                            <span class="input-group-text unit" id="extra_airflow{{ i }}" name="extra_airflow{{ i }}">m³/h</span>
+                            </div>
+                        </div>
+                        <div class="p-2 col-6" id="Proces{{ i }}_value7_container">
+                            <label>Vocht efficiëntie:</label>
+                            <div class="input-group" id="Proces{{ i }}_value7">
+                            <input type="number" class="form-control" id="Proces{{ i }}_value7_input" name="Proces{{ i }}_value7_input" value="80"  max="100" min="0" step="0.1">
+                            <span class="input-group-text unit" id="humid_eff{{ i }}" name="humid_eff{{ i }}">%</span>
+                            </div>
+                        </div>
+                        <div class="p-2 col-6" id="Proces{{ i }}_value9_container">
+                            <label>Temperatuur:</label>
+                            <div class="input-group" id="Proces{{ i }}_value9">
+                            <input type="number" class="form-control" id="Proces{{ i }}_value9_input" name="Proces{{ i }}_value9_input" value="10"  max="40" min="-10" step="0.1">
+                            <span class="input-group-text unit" id="Temp_{{ i }}_9" name="Temp_{{ i }}_9">°C</span>
+                            </div>
+                        </div>
+                        <div class="p-2 col-6" id="Proces{{ i }}_value6_container">
+                            <label>Vochtgehalte:</label>
+                            <div class="input-group" id="Proces{{ i }}_value6">
+                            <input type="number" class="form-control" id="Proces{{ i }}_value6_input" name="Proces{{ i }}_value6_input" value="50"  max="100" min="0" step="0.1">
+                            <span class="input-group-text unit" id="humidity{{ i }}" name="humidity{{ i }}">%RH</span>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                    </div>
+                    {% endfor %}
+                    
+                    <div class="row align-items-center mb-3">
+                        <div class="col-auto">
+                            <button type="button" class="btn btn-outline-secondary" id="btn-minus"><b>-</b></button>
+                        </div>
+                        <div class="col text-center">
+                            <span id="procesCounterLabel" class="fw-bold">Toevoegen van proces 2</span>
+                        </div>
+                        <div class="col-auto">
+                            <button type="button" class="btn btn-outline-secondary" id="btn-plus"><b>+</b></button>
+                        </div>
+                    </div>
+                
+                </div>
+                <input type="hidden" name="currentProces" id="currentProces" value="1">
+                <button type="submit" class="btn btn-primary" style="display: none;" id="mollierButton" name="mollierButton"></button>
+            </div>
+            <div class="row">
+                <div class="col-sm-12 col-md-12 col-lg-8">
+                    <div class="p-3 rounded border shadow bg-white mt-4">
+                    <div class="table-title mb-2" id="table_points" name="tabel_points">Berekende punt waarden</div>
+                        <table>
+                            <thead>
+                                <tr class="quantity-row">
+                                    <th>Punt</th>
+                                    <th>T<sub>db</sub></th>
+                                    <th>T<sub>nb</sub></th>
+                                    <th>T<sub>dauw</sub></th>
+                                    <th>X</th>
+                                    <th>H</th>
+                                    <th>RH</th>
+                                    <th>P<sub>w</sub></th>
+                                    <th>ρ</th>
+                                    <th>Q<sub>v</sub></th>
+                                </tr>
+                                <tr class="unit-row">
+                                    <th></th>
+                                    <th>[°C]</th>
+                                    <th>[°C]</th>
+                                    <th>[°C]</th>
+                                    <th>[g/kg]</th>
+                                    <th>[kJ/kg]</th>
+                                    <th>[%]</th>
+                                    <th>[Pa]</th>
+                                    <th>[kg/m³]</th>
+                                    <th>[m³/h]</th>
+                                </tr>
+                            </thead>
+                            
+                            <tbody>
+                                <tr>
+                                    <td>0</td>
+                                    <td>{{ calculated_values_start.9|comma:1}}</td>
+                                    <td>{{ calculated_values_start.8|comma:1 }}</td>
+                                    <td>{{ calculated_values_start.6 |comma:1}}</td>
+                                    <td>{{ calculated_values_start.0|comma:1}}</td>
+                                    <td>{{ calculated_values_start.2 |comma:1}}</td>
+                                    <td>{{ calculated_values_start.10 |comma:1}}</td>
+                                    <td>{{ calculated_values_start.5 |comma:0}}</td>
+                                    <td>{{ calculated_values_start.4 |comma:2}}</td>
+                                    <td>{{ calculated_values_start.11 |comma:0}}</td>
+                                </tr>
+                            {% for point in calculated_values %}
+                                {% if point.0 != None %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ point.9|default_if_none:''|comma:1  }}</td>
+                                    <td>{{ point.8|default_if_none:''|comma:1 }}</td>
+                                    <td>{{ point.6|default_if_none:''|comma:1 }}</td>
+                                    <td>{{ point.0|default_if_none:''|comma:1  }}</td>
+                                    <td>{{ point.2|default_if_none:''|comma:1  }}</td>
+                                    <td>{{ point.10|default_if_none:''|comma:1  }}</td>
+                                    <td>{{ point.5|default_if_none:''|comma:0 }}</td>
+                                    <td>{{ point.4|default_if_none:''|comma:2  }}</td>
+                                    <td>{{ point.11|default_if_none:''|comma:0  }}</td>
+                                </tr>
+                             
+                                {% endif %}
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="p-3 rounded border shadow bg-white mt-4 mb-4">
+                    <div class="table-title mb-2" id="table_proces" name="tabel_proces">Berekende proces verandering</div>
+                    <table>
+                        <thead>
+                            <tr class="quantity-row">
+                                <th>Procesnaam</th>
+                                <th>Actie 1</th>
+                                <th>Actie 2</th>
+                                <th>&Delta;T<sub>db</sub></th>
+                                <th>&Delta;X</th>
+                                <th>&Delta;H</th>
+                                <th>P<sub>totaal</sub></th>
+                                <th>P<sub>voelbaar</sub></th>
+                                <th>P<sub>latent</sub></th>
+                                <th>VWF</th>
+                            </tr>
+                            <tr class="unit-row">
+                                <th></th>
+                                <th>[verw./koel.]</th>
+                                <th>[bevocht./ontvocht.]</th>
+                                <th>[°C]</th>
+                                <th>[g/kg]</th>
+                                <th>[kJ/kg]</th>
+                                <th>[kW]</th>
+                                <th>[kW]</th>
+                                <th>[kW]</th>
+                                <th>[-]</th>
+                            </tr>
+                        </thead>
+                   
+                        <tbody>
+                            {% for proces in process_data %}
+                                {% if proces.values.0 != None %}
+                                    <tr>
+                                        <td>{{ proces.name }}</td>
+                                        <td id="proces_angle_temp_{{ proces.step }}"></td>
+                                        <td id="proces_angle_humid_{{ proces.step }}"></td>
+                                        <td>{{ proces.values.0|floatformat:1 }}</td>
+                                        <td>{{ proces.values.1|floatformat:1 }}</td>
+                                        <td>{{ proces.values.2|floatformat:1 }}</td>
+                                        <td>{{ proces.values.3|floatformat:1 }}</td>
+                                        <td>{{ proces.values.4|floatformat:1 }}</td>
+                                        <td>{{ proces.values.5|floatformat:1 }}</td>
+                                        <td>{{ proces.values.6|floatformat:2 }}</td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    </div>
+                </div>
+               
+                <div class = "col-sm-12 col-md-12 col-lg-4">
+                    <section class="p-3 border rounded shadow mt-4">
+                    <div class="content page-break">
+                        <h2>Informatie over de Processen</h2>
+                        <p>Alle processen worden berekend met de actuele dichtheden van de lucht. Hieronder vindt u de gebruikte parameters en hun uitleg.</p>
+                        <ul>
+                            <li><span class="term"><strong>T<sub>db</sub></strong></span><span class="value">: Drogeboltemperatuur</span></li>
+                            <li><span class="term"><strong>T<sub>nb</sub></strong></span><span class="value">: Natteboltemperatuur</span></li>
+                            <li><span class="term"><strong>T<sub>dauw</sub></strong></span><span class="value">: Dauwpuntstemperatuur</span></li>
+                            <li><span class="term"><strong>X</strong></span><span class="value">: Vochtgehalte</span></li>
+                            <li><span class="term"><strong>H</strong></span><span class="value">: Entalpie</span></li>
+                            <li><span class="term"><strong>RH</strong></span><span class="value">: Relatieve luchtvochtigheid</span></li>
+                            <li><span class="term"><strong>P<sub>w</sub></strong></span><span class="value">: Dampdruk</span></li>
+                            <li><span class="term"><strong>ρ</strong></span><span class="value">: Luchtdichtheid</span></li>
+                            <li><span class="term"><strong>Q<sub>v</sub></strong></span><span class="value">: Luchtdebiet</span></li>
+                            <li><span class="term"><strong>VWF</strong></span><span class="value">: Voelbare Warmte Factor</span></li>
+                        </ul>
+                        <h4 class="warning">Waarschuwing:</h4>
+                        <p class="warning">De berekende en gevisualiseerde resultaten kunnen afwijken van de ingevoerde waarden door onnauwkeurigheden, fysieke beperkingen of grafiekbeperkingen. De trajecten van de luchtprocessen worden als rechte lijnen naar de resulterende waarde weergegeven, maar kunnen in werkelijkheid gekromd zijn door condensatie.</p>
+                    </div>
+                    </section>
+                </div>
+            </div>  
+            <input type="hidden" name="table_points_json" id="table_points_json">
+            <input type="hidden" name="table_process_json" id="table_process_json">
+            <input type="hidden" name="chart_image_base64" id="chart_image_base64">
+            <input type="hidden" name="project_title" id="project_title" value="Mollierdiagram">
+            <input type="hidden" name="username" id="username" value="{{ request.user.username|default:'Onbekend' }}">
+        </form>
+    </div>
+    
+</div>
+<div class="modal fade" id="loadProjectModal" tabindex="-1" role="dialog" aria-labelledby="loadProjectModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Kies een opgeslagen project</h5>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Sluiten">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {% if saved_projects %}
+          <ul class="list-group">
+          {% for project in saved_projects %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>{{ project.projectname }}</span>
+                <div>
+                    <button type="button" class="btn btn-sm btn-outline-primary me-2" onclick="loadSavedProject('{{ project.id }}')">Load</button>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteProject('{{ project.id }}')">Delete</button>
+                </div>
+            </li>
+        {% endfor %}
+          </ul>
+        {% else %}
+          <p>Je hebt nog geen projecten opgeslagen.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Inside <head> or right before </body> -->
+<!-- ✅ PLACE THIS FIRST -->
+{% if restored_sessionstorage %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            sessionStorage.setItem('skipScrollOnLoad', 'true'); 
+            try {
+                const restored = JSON.parse('{{ restored_sessionstorage|escapejs }}');
+                for (const [key, value] of Object.entries(restored)) {
+                    sessionStorage.setItem(key, value);
+                }
+
+                // Wait a bit longer to ensure DOM and dropdown logic is ready
+                setTimeout(() => {
+                    console.log("🔁 Triggering Mollier recalculation after restore");
+                    const button = document.getElementById('mollierButton');
+                    if (button) button.click();
+                    else console.warn("⚠️ mollierButton not found");
+                }, 300);
+            } catch (e) {
+                console.error("❌ Failed to restore session:", e);
+            }
+        });
+
+    </script>
+{% endif %}
 <!-- Charts met chart.js en ajax weergeven, wel gevaarlijk voor verdere development. -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.3/xlsx.full.min.js"></script>
@@ -199,24 +497,23 @@
 
 // Define a JavaScript variable to hold the URL
 const downloadExcelUrl = "{% url 'tools:download_excel' %}";
-
+const saveProjectUrl = "{% url 'tools:save_project' %}";
+const loadProjectUrl = "{% url 'tools:load_project' %}";
+const deleteProjectUrl = "{% url 'tools:delete_project' %}";
 // Define the x and y values
 const lines_RH = JSON.parse('{{ lines_RH|escapejs }}');
 const TValues = lines_RH.x_values; //
-const RHPercentages = [ 
-    {label: '10%', data: lines_RH.ten_percent.map((val, idx) => ({ x: val, y: TValues[idx] })), color: 'rgb(255, 0, 0)'},
-    {label: '20%', data: lines_RH.twenty_percent.map((val, idx) => ({ x: val, y: TValues[idx] })), color: 'rgb(255, 127, 0)'},
-    {label: '30%', data: lines_RH.thirty_percent.map((val, idx) => ({ x: val, y: TValues[idx] })), color: 'rgb(255, 255, 0)'},
-    {label: '40%', data: lines_RH.fourty_percent.map((val, idx) => ({ x: val, y: TValues[idx] })), color: 'rgb(127, 255, 0)'},
-    {label: '50%', data: lines_RH.fifty_percent.map((val, idx) => ({ x: val, y: TValues[idx] })), color: 'rgb(0, 255, 0)'},
-    {label: '60%', data: lines_RH.sixty_percent.map((val, idx) => ({ x: val, y: TValues[idx] })), color: 'rgb(0, 255, 127)'},
-    {label: '70%', data: lines_RH.seventy_percent.map((val, idx) => ({ x: val, y: TValues[idx] })), color: 'rgb(0, 255, 255)'},
-    {label: '80%', data: lines_RH.eighty_percent.map((val, idx) => ({ x: val, y: TValues[idx] })), color: 'rgb(0, 127, 255)'},
-    {label: '90%', data: lines_RH.ninety_percent.map((val, idx) => ({ x: val, y: TValues[idx] })), color: 'rgb(0, 0, 255)'},
-    {label: '100%', data: lines_RH.onehondered_percent.map((val, idx) => ({ x: val, y: TValues[idx] })), color: 'rgb(127, 0, 255)'}
+const rhKeys = [
+  'ten_percent', 'twenty_percent', 'thirty_percent', 'fourty_percent', 'fifty_percent',
+  'sixty_percent', 'seventy_percent', 'eighty_percent', 'ninety_percent', 'onehondered_percent'
 ];
+const RHPercentages = rhKeys.map((key, i) => ({
+    label: `${(i + 1) * 10}%`,
+    data: lines_RH[key].map((val, idx) => ({ x: val, y: TValues[idx] })),
+    color: 'black'
+}));
 const lines_H = JSON.parse('{{ lines_H|escapejs }}');
-const HLabels = ['H=-5', 'H=0', 'H=5', 'H=10', 'H=15', 'H=20', 'H=25', 'H=30', 'H=35', 'H=40', 'H=45', 'H=50', 'H=55', 'H=60', 'H=65', 'H=70', 'H=75', 'H=80', 'H=85', 'H=90'];
+const HLabels = ['-10','-5', '0', '5', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55', '60', '65', '70', '75', '80', '85', '90'];
 const HData = HLabels.map((label, index) => ({
     label: label,
     data: [
@@ -229,36 +526,537 @@ const HData = HLabels.map((label, index) => ({
     pointBackgroundColor: 'rgb(0, 0, 0)',
     
 }));
- // make square 
-    const Tdb_var = sessionStorage.getItem('Tdb_var');
-    const Tdb_var_end = sessionStorage.getItem('Tdb_var_end');
-    const x_out_start = document.getElementById('humid_out').value;
-    const x_out_end = document.getElementById('humid_out_end').value;
-const squareDataset = {
-    label: 'Proces',
-    data: [
-        {x: x_out_start, y: Number(Tdb_var), label: 'start'}, 
-        {x: x_out_end, y: Number(Tdb_var_end), label:'eind'}, 
-    ],
-    borderColor: 'rgb(255, 0, 0)', // Red color
-    borderWidth: 1.5,
-    tension: 0, // No tension for straight lines
-    pointRadius: [8,8], // Set point radius for each data point
-    pointStyle: ['circle', 'circle'], // Set point style for each data point
-    pointBackgroundColor: 'rgb(255, 0, 0)', // Set point color
-    pointBorderColor: 'rgb(0, 0, 0)' // Set point border color
+const RHLabelsPlugin = {
+    id: 'rhLabels',
+    afterDatasetsDraw (chart) {
+        const { ctx, scales, data } = chart;
+
+        const h45 = data.datasets.find(ds => ds.label === 'H=45');
+        const h50 = data.datasets.find(ds => ds.label === 'H=50');
+        if (!h45 || !h50) return;
+
+        const h45Meta = chart.getDatasetMeta(data.datasets.indexOf(h45));
+        const h50Meta = chart.getDatasetMeta(data.datasets.indexOf(h50));
+        if (h45Meta.hidden || h50Meta.hidden) return;
+
+        const [h45start, h45end] = h45Meta.data;
+        const [h50start, h50end] = h50Meta.data;
+
+        // Get slopes for linear interpolation (y = m * x)
+        const slopeH45 = (h45end.y - h45start.y) / (h45end.x - h45start.x);
+        const interceptH45 = h45start.y - slopeH45 * h45start.x;
+
+        const slopeH50 = (h50end.y - h50start.y) / (h50end.x - h50start.x);
+        const interceptH50 = h50start.y - slopeH50 * h50start.x;
+
+        chart.data.datasets.forEach((dataset, i) => {
+            if (!dataset.label.endsWith('%')) return;
+
+            const meta = chart.getDatasetMeta(i);
+            if (meta.hidden || meta.data.length < 2) return;
+
+            // Find point on RH curve between H=45 and H=50 (based on Y comparison)
+            for (let j = 1; j < meta.data.length; j++) {
+                const p1 = meta.data[j - 1];
+                const p2 = meta.data[j];
+                if (!p1 || !p2) continue;
+
+                const midX = (p1.x + p2.x) / 2;
+                const midY = (p1.y + p2.y) / 2;
+
+                const yH45 = slopeH45 * midX + interceptH45;
+                const yH50 = slopeH50 * midX + interceptH50;
+
+                const yMin = Math.min(yH45, yH50);
+                const yMax = Math.max(yH45, yH50);
+
+                if (midY >= yMin && midY <= yMax) {
+                    // Angle of the RH curve
+                    const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+
+                    ctx.save();
+                    ctx.translate(midX, midY);
+                    ctx.rotate(angle);
+                    ctx.fillStyle = 'grey';
+                    ctx.font = '12px sans-serif';
+                    ctx.textAlign = 'left';
+                    ctx.textBaseline = 'middle';
+                    if (dataset.label === '70%') {
+                        ctx.fillText(dataset.label, -12, -8); // custom position for 70%
+                    } else if (dataset.label === '80%') {
+                        ctx.fillText(dataset.label, 8, -6); // custom position for 80%
+                    } else {
+                        ctx.fillText(dataset.label, 4, -6); // default for all others
+                    }
+                    ctx.restore();
+
+                    break; // Only label once per RH line
+                }
+            }
+        });
+    }
+};
+
+const HLabelsPlugin = {
+    id: 'hLabels',
+    afterDatasetsDraw(chart) {
+        const { ctx } = chart;
+
+        chart.data.datasets.forEach((dataset, i) => {
+            if (isNaN(Number(dataset.label))) return; // Only numeric labels
+
+            const meta = chart.getDatasetMeta(i);
+            if (meta.hidden || meta.data.length === 0) return;
+
+            const lastPoint = meta.data[meta.data.length - 1];
+            if (!lastPoint) return;
+
+            ctx.save();
+            ctx.fillStyle = 'gray';
+            ctx.font = '12px sans-serif';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(dataset.label, lastPoint.x + 6, lastPoint.y + 4);
+            ctx.restore();
+        });
+
+        const h0Dataset = chart.data.datasets.find(ds => ds.label === '0');
+        if (h0Dataset) {
+            const meta = chart.getDatasetMeta(chart.data.datasets.indexOf(h0Dataset));
+            if (!meta.hidden && meta.data.length >= 2) {
+                const point = meta.data[1]; // end of H=0 line
+                const x = point.x;
+                const y = point.y;
+
+                const angleRad = 50 * Math.PI / 180;
+                const text = 'Enthalpie h [kJ/kg]';
+
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(-angleRad); // tilt 50° upward
+
+                // Text
+                ctx.font = 'bold 14px sans-serif';
+                ctx.fillStyle = 'black';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(text, -20, 40);
+
+                const lineLength = 60;
+                const startY = 20;
+
+                /// Line
+                ctx.beginPath();
+                ctx.moveTo(0, startY);
+                ctx.lineTo(lineLength, startY);
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 1.2;
+                ctx.stroke();
+
+                // Arrowhead — based at (lineLength, startY)
+                const arrowSize = 8;
+                const arrowAngle = Math.PI / 6; // 30°
+
+                ctx.beginPath();
+                ctx.moveTo(lineLength, startY); // tip of arrow
+                ctx.lineTo(
+                    lineLength - arrowSize * Math.cos(arrowAngle),
+                    startY + arrowSize * Math.sin(arrowAngle)
+                );
+                ctx.lineTo(
+                    lineLength - arrowSize * Math.cos(arrowAngle),
+                    startY - arrowSize * Math.sin(arrowAngle)
+                );
+                ctx.closePath();
+                ctx.fillStyle = 'black';
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+    }
+};
+
+const FillUnder100RHPlugin = {
+    id: 'fillUnder100RH',
+    beforeDatasetsDraw(chart) {
+        const ctx = chart.ctx;
+        const dataset = chart.data.datasets.find(ds => ds.label === '100%');
+        const meta = chart.getDatasetMeta(chart.data.datasets.indexOf(dataset));
+
+        if (!dataset || meta.hidden || meta.data.length === 0) return;
+
+        const xMax = 20;
+        const xScale = chart.scales.x;
+        const yScale = chart.scales.y;
+        const yBottom = yScale.getPixelForValue(yScale.min);
+
+        ctx.save();
+        ctx.beginPath();
+
+        // Start at bottom of first point's x
+        const firstPoint = meta.data[0];
+        ctx.moveTo(firstPoint.x, yBottom);
+        ctx.lineTo(firstPoint.x, firstPoint.y);
+
+        // Draw RH curve points, but stop at x <= 20
+        for (let i = 1; i < meta.data.length; i++) {
+            const pt = meta.data[i];
+            const dataX = dataset.data[i].x;
+            if (dataX <= xMax) {
+                ctx.lineTo(pt.x, pt.y);
+            } else {
+                // Interpolate y at x = 20
+                const prevPt = dataset.data[i - 1];
+                const currPt = dataset.data[i];
+                const t = (xMax - prevPt.x) / (currPt.x - prevPt.x);
+                const interpolatedY = prevPt.y + t * (currPt.y - prevPt.y);
+                const pixelX = xScale.getPixelForValue(xMax);
+                const pixelY = yScale.getPixelForValue(interpolatedY);
+                ctx.lineTo(pixelX, pixelY);
+                ctx.lineTo(pixelX, yBottom); // down to bottom
+                break;
+            }
+        }
+
+        // Close the path and fill
+        ctx.closePath();
+        ctx.fillStyle = '#ffffff'; // bootstrap bg-light color
+        ctx.fill();
+        ctx.restore();
+    }
+};
+const whiteBackgroundPlugin = {
+    id: 'whiteBackground',
+    beforeDraw: (chart) => {
+        const { ctx, chartArea } = chart;
+
+        ctx.save();
+        ctx.globalCompositeOperation = 'destination-over';
+        ctx.fillStyle = '#ffffff'; // pure white
+
+        // ✅ Fill only the graph's chart area (not padding/axes)
+        ctx.fillRect(
+            chartArea.left,
+            chartArea.top,
+            chartArea.right - chartArea.left,
+            chartArea.bottom - chartArea.top
+        );
+
+        ctx.restore();
+    }
+};
+// ——— Pull your Python‑generated arrays into JS ———
+const calculatedValuesStart = JSON.parse('{{ calculated_values_start_json|escapejs }}');
+const calculatedValuesList = JSON.parse('{{ calculated_values_json|escapejs }}');
+
+const x_start   = Number(calculatedValuesStart[0]);
+const Tdb_start = Number(calculatedValuesStart[9]);
+
+let prevX = x_start;
+let prevTdb = Tdb_start;
+let pointLabelCounter = 0; // 🔁 Start from 0
+
+const processDatasets = [];
+const extensionLines = [];
+// Default values
+const defaultProcess = 'selectProces';
+const chartColorMap = {
+    'heat': 'rgb(220, 53, 69)',
+    'cool': 'rgb(0, 123, 255)',
+    'humid': 'rgb(40, 167, 69)',
+    'mix': 'rgb(255, 193, 7)',
+    'heat_rec': 'rgb(23, 162, 184)',
+    'cust_point': 'rgb(162, 0, 255)',
+    'selectProces': 'rgb(108, 117, 125)'
+};
+const startPointDataset = {
+    label: 'Startpunt',
+    isProcess: true,
+    data: [{ x: x_start, y: Tdb_start, label: '0' }],
+    borderColor: 'black',
+    showLine: false,
+    borderWidth: 0,
+    pointRadius: [5, 5],
+    pointStyle: ['circle', 'circle'],
+    pointBackgroundColor: 'white',
+    pointBorderColor: 'black',
+    pointBorderWidth: 1.5,
+    showLine: false,
+};
+calculatedValuesList.forEach((point, index) => {
+    const label = `Proces ${index + 1}`;
+    const x_end = Number(point[0]);
+    const Tdb_end = Number(point[9]);
+    const x_100 = Number(point[13]);
+    const Tdb_100 = Number(point[12]);
+
+    if (isNaN(x_end) || isNaN(Tdb_end) || (x_end === 0 && Tdb_end === 0)) {
+        return; // Skip pushing dataset when process is not yet selected
+    }
+    // Main solid line
+    processDatasets.push({
+        label: label,
+        data: [
+            { x: prevX, y: prevTdb, label: index === 0 ? String(pointLabelCounter) : '' },
+            { x: x_end,   y: Tdb_end, label: String(pointLabelCounter + 1) }
+        ],
+        isProcess: true,
+        borderColor: chartColorMap[`process${index + 1}`] || chartColorMap['selectProces'],
+        borderWidth: 2,
+        tension: 0,
+        pointRadius: [5, 5],
+        pointStyle: ['circle', 'circle'],
+        pointBackgroundColor: 'white',
+        pointBorderColor: 'black',
+        pointBorderWidth: 1.5
+    });
+    prevX = x_end;
+    prevTdb = Tdb_end;
+    pointLabelCounter++;
+    // Optional dashed extension
+    const hasExtensionPoint =
+        !isNaN(x_100) && !isNaN(Tdb_100) && (x_100 !== 0 || Tdb_100 !== 0);
+    
+    if (hasExtensionPoint) {
+        extensionLines.push({
+            label: '',
+            data: [
+                { x: x_end, y: Tdb_end, label: '1' },
+                { x: x_100, y: Tdb_100, label: '2' }
+            ],
+            isExtension: true, // Custom flag
+            sourceProcesStep: index+1, 
+            borderColor: 'rgb(108, 117, 125)',
+            borderDash: [6, 4],
+            borderWidth: 2,
+            tension: 0,
+            pointRadius: [0, 3],
+            pointBackgroundColor: ['rgba(0,0,0,0)', 'rgb(108, 117, 125)'],
+            pointStyle: ['line', 'circle'],
+            spanGaps: true
+        });
+    }
+    
+});
+
+function updateLineColorChart(index) {
+    index = Number(index);
+    const selectEl = document.getElementById(`proces${index}`);
+    if (!selectEl) return;
+
+    const selectedValue = selectEl.value;
+    sessionStorage.setItem(`selectedProces${index}`, selectedValue);
+
+    const newColor = chartColorMap[selectedValue] || chartColorMap['selectProces'];
+
+    const label = `Proces ${index}`;
+    const dataset = myLineChart.data.datasets.find(ds => ds.label === label);
+    if (dataset) {
+        dataset.borderColor = newColor;
+        myLineChart.update();
+    }
+}
+
+function updateProcessText(startX, startY, endX, endY, stepIndex) { 
+    let angle = Math.atan2(endY - startY, endX - startX) * (180 / Math.PI);
+    if (angle < 0) angle += 360;
+    
+    const TOLERANCE = 0.1; // degrees
+    let humidityText = "";
+    if (Math.abs(angle - 90) > TOLERANCE && Math.abs(angle - 270) > TOLERANCE) {
+        humidityText = (angle >= 270 || angle <= 90) ? "Bevochtigen" : "Ontvochtigen";
+    }
+
+    let temperatureText = "";
+    if (Math.abs(angle - 0) > TOLERANCE && Math.abs(angle - 180) > TOLERANCE) {
+        temperatureText = (angle >= 0 && angle <= 180) ? "Koelen" : "Verwarmen";
+    }
+
+    const humidEl = document.getElementById(`proces_angle_humid_${stepIndex}`);
+    const tempEl = document.getElementById(`proces_angle_temp_${stepIndex}`);
+
+    if (humidEl) humidEl.textContent = humidityText;
+    if (tempEl) tempEl.textContent = temperatureText;
+}
+// Function to get pixel positions and update text
+function updateTextBasedOnLine(chart) {
+    const { scales } = chart;
+
+    chart.data.datasets.forEach((ds, index) => {
+        // Only process datasets labeled "Proces X"
+        if (!ds.label?.startsWith('Proces')) return;
+        const data = ds.data;
+        if (data.length < 2) return; // Need two points for a line
+
+        const startX = scales.x.getPixelForValue(data[0].x);
+        const startY = scales.y.getPixelForValue(data[0].y);
+        const endX = scales.x.getPixelForValue(data[1].x);
+        const endY = scales.y.getPixelForValue(data[1].y);
+
+        const stepIndex = parseInt(ds.label.replace('Proces ', ''), 10); // Extract step number
+        updateProcessText(startX, startY, endX, endY, stepIndex);
+    });
+}
+const ProcessPointLabelPlugin = {
+    id: 'processPointLabels',
+    afterDatasetsDraw(chart) {
+        const { ctx } = chart;
+        let lastX = null;
+        let lastY = null;
+        const TOLERANCE = 0.5; // pixel tolerance to consider points identical
+
+        chart.data.datasets.forEach((dataset, dsIndex) => {
+            if (!dataset.label?.startsWith('Proces')) return;
+
+            const meta = chart.getDatasetMeta(dsIndex);
+            if (meta.hidden) return;
+
+            ctx.save();
+            ctx.font = '16px sans-serif';
+            ctx.fillStyle = 'black';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+
+            dataset.data.forEach((point, index) => {
+                const model = meta.data[index];
+                if (!model) return;
+
+                const label = point.label || `#${index}`;
+                const x = model.x + 8;
+                const y = model.y;
+
+                // Skip drawing if too close to the previous label
+                if (
+                    lastX !== null &&
+                    Math.abs(x - lastX) < TOLERANCE &&
+                    Math.abs(y - lastY) < TOLERANCE
+                ) {
+                    return;
+                }
+
+                ctx.fillText(label, x, y);
+
+                // Update last drawn position
+                lastX = x;
+                lastY = y;
+            });
+
+            ctx.restore();
+        });
+    }
+};
+
+// Plugin to rotate arrowhead and hide it when dataset is hidden
+const arrowPlugin = {
+    id: 'arrow',
+    afterDatasetsDraw (chart) {
+        const { ctx, scales } = chart;
+
+        chart.data.datasets.forEach((dataset, i) => {
+            if (!dataset.label?.startsWith('Proces')) return;
+
+            const meta = chart.getDatasetMeta(i);
+            if (meta.hidden || dataset.data.length < 2) return;
+
+            const [start, end] = dataset.data;
+            const startX = scales.x.getPixelForValue(start.x);
+            const startY = scales.y.getPixelForValue(start.y);
+            const endX = scales.x.getPixelForValue(end.x);
+            const endY = scales.y.getPixelForValue(end.y);
+
+            // Midpoint
+            const midX = (startX + endX) / 2;
+            const midY = (startY + endY) / 2;
+
+            // Arrowhead direction
+            const angle = Math.atan2(endY - startY, endX - startX);
+            const arrowSize = 12;
+            const arrowAngle = Math.PI / 6;
+
+            const arrowX1 = midX - arrowSize * Math.cos(angle - arrowAngle);
+            const arrowY1 = midY - arrowSize * Math.sin(angle - arrowAngle);
+            const arrowX2 = midX - arrowSize * Math.cos(angle + arrowAngle);
+            const arrowY2 = midY - arrowSize * Math.sin(angle + arrowAngle);
+
+            ctx.save();
+            ctx.strokeStyle = dataset.borderColor || 'red';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(midX, midY);
+            ctx.lineTo(arrowX1, arrowY1);
+            ctx.moveTo(midX, midY);
+            ctx.lineTo(arrowX2, arrowY2);
+            ctx.stroke();
+            ctx.restore();
+        });
+    }
 };
 
 // Create the line chart
 const labels2 = Array.from({length: 111}, (_, i) => i - 10);
-const ctx3 = document.getElementById('myLinesRH').getContext('2d');
 
+const ctx3 = document.getElementById('myLinesRH').getContext('2d');
+const floatingLegendPlugin = {
+    //currently not used, but can be used to create a floating legend
+    id: 'floatingLegend',
+    afterDatasetsDraw (chart) {
+        const legend = chart.legend;
+        if (!legend) return;
+
+        const { chartArea } = chart;
+        const offsetX = 10;  // Horizontal space from right
+        const offsetY = 10;  // Vertical space from bottom
+
+        const legendWidth = legend.width;
+        const legendHeight = legend.height;
+
+        // Bottom-right position
+        const x = chartArea.right - legendWidth - offsetX;
+        const y = chartArea.bottom - legendHeight - offsetY;
+
+        // Set legend bounds
+        legend.left = x;
+        legend.top = y;
+        legend.right = x + legendWidth;
+        legend.bottom = y + legendHeight;
+
+        // Update hitboxes for interactivity
+        legend.legendHitBoxes = legend.legendHitBoxes.map(box => ({
+            left: x + (box.left - legend.left),
+            top: y + (box.top - legend.top),
+            width: box.width,
+            height: box.height,
+        }));
+    },
+    afterDraw(chart) {
+        const legend = chart.legend;
+        const ctx = chart.ctx;
+        if (!legend) return;
+
+        // Draw soft white background
+        ctx.save();
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+        ctx.fillRect(
+            legend.left - 8,
+            legend.top - 8,
+            legend.width + 16,
+            legend.height + 16
+        );
+        ctx.restore();
+
+        // Draw legend on top of background
+        legend.draw();
+    }
+};
+const hasProces = processDatasets.length > 0;
 const myLineChart = new Chart(ctx3, {
     type: 'line',
     data: {
         labels: labels2, 
         datasets: [
-            squareDataset,
+             ...(hasProces ? [] : [startPointDataset]),
+            ...processDatasets,
+            ...extensionLines,
             ...RHPercentages.map(({ label, data, color }) => ({
                 label: label,
                 data: data,
@@ -274,14 +1072,20 @@ const myLineChart = new Chart(ctx3, {
         ]
     },
     options: {
-        
+        layout: {
+            padding: {
+                right: 50,
+                bottom: 30
+            }
+        },
         scales: {
             x: {
                 type: 'linear',
+                 position: 'top', // ← This moves the axis to the top
                 max: 20,
                 title: {
                     display: true,
-                    text: 'x [g/kg]',
+                    text: 'Vochtgehalte x [g/kg]',
                     font: {
                         size: 14, // Adjust size if needed
                         weight: 'bold', // Make the title bold
@@ -290,12 +1094,12 @@ const myLineChart = new Chart(ctx3, {
                 clip: false // Prevent points from being clipped
             },
             y: {
-                min: -10,
+                min: -15,
                 max: 40,
                 display: true,
                 title: {
                     display: true,
-                    text: 'Temperatuur [°C]',
+                    text: 'Temperatuur T [°C]',
                     font: {
                         size: 14, // Adjust size if needed
                         weight: 'bold', // Make the title bold
@@ -303,87 +1107,74 @@ const myLineChart = new Chart(ctx3, {
                 }
             },
         },
+        responsive: true,
         plugins: {
             tooltip: {
+                enabled: true,
+                displayColors: false, 
                 callbacks: {
-                    // Customize the tooltip to only show the label
-                    label: function(tooltipItem) {
-                        const dataset = tooltipItem.dataset;
-                        const dataIndex = tooltipItem.dataIndex;
-                        const dataPoint = dataset.data[dataIndex];
-
-                        // Customize tooltip for squareDataset
-                        if (dataset.label === 'Proces') {
-                            return `${dataPoint.label}: (${dataPoint.x.toFixed(2)}, ${dataPoint.y.toFixed(2)})`;
-                        }
-                        
-                        // Default behavior for other datasets
-                        return tooltipItem.dataset.label;
-                    },
-                    // Remove the title (which by default shows the x value)
                     title: function() {
-                        return '';
+                        return ''; // remove default x-axis label
+                    },
+                    label: function(ctx) {
+                        const dataset = ctx.dataset;
+
+                        // Only show tooltips for process datasets
+                        if (!dataset.isProcess) {
+                            return [];
+                        }
+
+                        const pointLabel = ctx.raw.label || '';
+                        if (!pointLabel) return ''; // skip blank labels
+                        const x = ctx.raw.x.toFixed(1);
+                        const y = ctx.raw.y.toFixed(1);
+                        let label = [ `Point: ${pointLabel}:`,`T: ${y} °C`, `X: ${x} g/kg`];
+
+                        const datasetLabel = ctx.dataset.label;
+                        if (datasetLabel === 'Startpunt') {
+                            const h = parseFloat(Number(calculatedValuesStart[2]).toFixed(1));
+                            const rv = Math.round(Number(calculatedValuesStart[10]));
+                            label.push(`H: ${h} kJ/kg`, `RV: ${rv} %`);
+                        }else if (datasetLabel?.startsWith('Proces')) {
+                            const stepIndex = parseInt(datasetLabel.split(' ')[1], 10) - 1;
+
+                            // Show for points labeled '0', '1', '2', '3', '4'
+                            if (['0', '1', '2', '3', '4'].includes(pointLabel)) {
+                                const h = parseFloat(Number(pointLabel === '0' ? calculatedValuesStart[2] : calculatedValuesList[stepIndex][2]).toFixed(1));
+                                const rv = Math.round(Number(pointLabel === '0' ? calculatedValuesStart[10] : calculatedValuesList[stepIndex][10]));
+                                label.push(`H: ${h} kJ/kg`, `RV: ${rv} %`);
+                            }
+                        }
+                        return label;
                     }
                 }
             },
             legend: {
-                display: true,
-                labels: {
-                    usePointStyle: true, // Use point style for legend
-                    // Custom label filtering function
-                    filter: function(legendItem, chartData) {
-                        // Hide labels for HData datasets
-                        const HDataIndexStart = chartData.datasets.length - HData.length;
-                        return legendItem.datasetIndex < HDataIndexStart+1;
-                    },
-                    generateLabels: function(chart) {
-                        const originalLabels = Chart.defaults.plugins.legend.labels.generateLabels(chart);
-                        const HDataIndexStart = chart.data.datasets.length - HData.length;
+                display: false,
 
-                        return originalLabels.map((label, index) => {
-                            if (index === HDataIndexStart) {
-                                label.text = 'Enthalpy [kJ/kg]'; // Custom label for the combined entry
-                            }
-                            return label;
-                        });
-                    }
-                },
-                // Custom onClick function to hide/show HData
-                onClick: function(event, legendItem) {
-                    const chart = this.chart;
-                    const index = legendItem.datasetIndex;
-                    const HDataIndexStart = chart.data.datasets.length - HData.length;
-
-                    if (index === HDataIndexStart) {
-                        chart.data.datasets.slice(HDataIndexStart).forEach(dataset => {
-                            dataset.hidden = !dataset.hidden;
-                        });
-                        chart.update();
-                    } else {
-                        const meta = chart.getDatasetMeta(index);
-                        if (meta.hidden === null) {
-                            meta.hidden = !chart.data.datasets[index].hidden;
-                        } else {
-                            meta.hidden = null;
-                        }
-                        chart.update();
-                    }
-                }
             }
         }
-    }
+    },
+    plugins: [whiteBackgroundPlugin,FillUnder100RHPlugin, arrowPlugin, RHLabelsPlugin, HLabelsPlugin,ProcessPointLabelPlugin]
 });
+window.onload = function () {
+    updateTextBasedOnLine(myLineChart);
+};
+window.currentUsername = "{{ username|escapejs }}";
 
-
-</script>
+</script>    
 
 {% endblock content%} 
 
 {% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.legacy.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+
 
 <!-- This makes sure this JS is only be loaded when rendering this HTML page. Whilst the common JS Files included in de extra_js block of base.html will be loaded across all pages -->
 <script src="{% static 'tools/scripts/script_tools_W1.js' %}"></script>
 <script>pdfUrlReadMe = "{% static 'tools/files/TOOLW1-README.pdf' %}"</script>
 <script>pdfUrlExcel = "{% static 'tools/files/TOOL_W1_Mollierdiagram.xlsx' %}"</script>
-<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js"></script>  -->
-{% endblock %} 
+{% endblock %}

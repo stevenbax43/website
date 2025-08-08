@@ -25,7 +25,7 @@
     <div class="second-banner-items">
         <div class="second-alignment">
             <div class="second-text">  
-                <p> Een referentieklimaatjaar met een stooklijn geeft de belastingduurkromme voor verwarmen en koelen. 
+                <p> Een referentieklimaatjaar met een vermogen-temperatuurcurve geeft de belastingduurkromme voor verwarmen en koelen. 
                     Op basis van bedrijfsuren, temperaturen en vermogens wordt de warmte- en koudevraag automatisch aangepast. 
                     Ook kunnen boven- en ondergrenzen worden toegepast om de basis- en pieklast te bepalen. <p>    
             </div>
@@ -43,18 +43,19 @@
         <form method="post" id="inputForm">
             {% csrf_token %}
             <div class="container mt-3 borderline" >
-                <div class="row">
+                <div class="row mb-3">
                     <!-- Input Form -->
                     <div class="col-md-4 no-print" style="min-width: 250px;">
                         <div class="border p-3 shadow">
-                            <h4>Bedrijfsuren</h4>
+                            <h4>Bedrijfsuren input</h4>
                             <!-- Input fields -->
                             <!-- First input field -->
                             <div class="mb-3">
                                 <label for="method">Methode:</label>
                                 <select id="method" class="form-control" name="method">
-                                    <option selected value="1">Klimaatjaar2023deBilt</option>
+                                    <option value="1">Klimaatjaar2023deBilt</option>
                                     <option value="2">Klimaatjaar2018deBilt</option>
+                                    <option selected value="3">KlimaatjaarNEN5060Energie2018</option>
                                 </select>
                             </div>
                             <!-- Second input field -->
@@ -92,6 +93,23 @@
                             <div class="mb-3">
                                 <label for="einduur">Einduur:</label>
                                 <input type="number" class="form-control" id="einduur" name="einduur" value="17" min="1" max="24">
+                                <small id="timeMessage" style="display: none; color: red;">
+                                    Let op: Startuur moet lager zijn dan Einduur.
+                                </small>
+                            </div>
+                            <h4>Buitentemperatuur grens</h4>
+                            <!-- Sixth input field -->
+                            <div class="mb-3">
+                                <label for="starttemp">Begin [°C]:</label>
+                                <input type="number" class="form-control" id="starttemp" name="starttemp" value="-20" min="-20" max="40">
+                            </div>
+                            <!-- Seventh input field -->
+                            <div class="mb-3">
+                                <label for="eindtemp">Eind [°C]:</label>
+                                <input type="number" class="form-control" id="eindtemp" name="eindtemp" value="40" min="-20" max="40">
+                                <small id="tempMessage" class="form-text text-danger" style="display: none;">
+                                    Eind Temperatuur moet altijd hoger zijn dan Begin Temperatuur!
+                                </small>
                             </div>
                             <!-- Submit button -->
                             <button type="submit" class="btn btn-primary" style="display: none;" id="bedrijfsurenknop" name="bedrijfsurenknop"></button>
@@ -123,7 +141,7 @@
                     <!-- Input Form -->
                     <div class="col-md-5 mb-4">
                         <div class="border p-3 shadow">
-                            <h4>Stooklijn Verwarmen</h4>
+                            <h4>Verwarmingsvraag gebouw input</h4>
                             <!-- Input fields -->
                             <div class="row">
                                 <div class="col-md-6">
@@ -131,7 +149,7 @@
                                     <div class="mb-3">
                                         <label for="maxTempHeat" class="form-label">Temperatuur(T<sub>max</sub>):</label>
                                         <div class="input-group">
-                                            <input type="number" class="form-control" id="maxTempHeat" name="maxTempHeat" min="10" max="20" step="1" value="16" placeholder="-20-40">
+                                            <input type="number" class="form-control" id="maxTempHeat" name="maxTempHeat" min="10" max="20" step="1" value="14" placeholder="-20-40">
                                             <span class="input-group-text">°C</span>
                                         </div>
                                     </div>
@@ -150,18 +168,18 @@
                                                               
                                     <!-- Third input field -->
                                     <div class="mb-3">
-                                        <label for="HeatPowerMax" class="form-label">Vermogen(P<sub>max</sub>):</label>
+                                        <label for="HeatBuildingMax" class="form-label">Vermogen(P<sub>max</sub>):</label>
                                         <div class="input-group">
-                                            <input type="number" class="form-control" id="HeatPowerMax" name="HeatPowerMax" min="0" max="1000" step="1" value="100">
+                                            <input type="number" class="form-control" id="HeatBuildingMax" name="HeatBuildingMax" min="0" max="1000" step="1" value="100">
                                             <span class="input-group-text">kW</span>
                                         </div>
                                     </div>
                                     
                                     <!-- fourth input field -->
                                     <div class="mb-3">
-                                        <label for="HeatPowerMin" class="form-label">Vermogen(P<sub>min</sub>):</label>
+                                        <label for="HeatBuildingMin" class="form-label">Vermogen(P<sub>min</sub>):</label>
                                         <div class="input-group">
-                                            <input type="number" class="form-control" id="HeatPowerMin" name="HeatPowerMin" min="0" max="100" step="1" value="0" >
+                                            <input type="number" class="form-control" id="HeatBuildingMin" name="HeatBuildingMin" min="0" max="100" step="1" value="0" >
                                             <span class="input-group-text">kW</span>
                                         </div>
                                     </div>
@@ -171,7 +189,7 @@
                     </div>
                     <div class="col-md-5 mb-4">
                         <div class="border p-3 shadow">
-                            <h4>Stooklijn Koelen</h4>
+                            <h4>Koelvraag gebouw input</h4>
                             <!-- FIrst input  -->
                             <div class="row ">
                                 <div class="col-md-6">
@@ -186,7 +204,7 @@
                                     <div class="mb-3">
                                         <label for="designTempcool" class="form-label">Temperatuur(T<sub>min</sub>):</label>
                                         <div class="input-group">
-                                            <input type="number" class="form-control" id="designTempcool" name="designTempcool" min="-20" max="40" step="1" value="10">
+                                            <input type="number" class="form-control" id="designTempcool" name="designTempcool" min="-20" max="40" step="1" value="18">
                                             <span class="input-group-text">°C</span>
                                         </div>
                                     </div>
@@ -197,18 +215,18 @@
                                 <div class="col-md-6">
                                     <!-- Third input field -->
                                     <div class="mb-3">
-                                        <label for="CoolPowerMax" class="form-label">Vermogen(P<sub>max</sub>):</label>
+                                        <label for="CoolBuildingMax" class="form-label">Vermogen(P<sub>max</sub>):</label>
                                         <div class="input-group">
-                                            <input type="number" class="form-control" id="CoolPowerMax" name="CoolPowerMax" min="0" max="1000" step="1" value="100" >
+                                            <input type="number" class="form-control" id="CoolBuildingMax" name="CoolBuildingMax" min="0" max="1000" step="1" value="100" >
                                             <span class="input-group-text">kW</span>
                                         </div>
                                     </div>
                             
                                     <!-- Fourth input field -->
                                     <div class="mb-3">
-                                        <label for="CoolPowerMin" class="form-label">Vermogen(P<sub>min</sub>):</label>
+                                        <label for="CoolBuildingMin" class="form-label">Vermogen(P<sub>min</sub>):</label>
                                         <div class="input-group">
-                                            <input type="number" class="form-control" id="CoolPowerMin" name="CoolPowerMin" min="0" max="100" step="1" value="0" >
+                                            <input type="number" class="form-control" id="CoolBuildingMin" name="CoolBuildingMin" min="0" max="100" step="1" value="0" >
                                             <span class="input-group-text">kW</span>
                                         </div>
                                     </div>
@@ -235,6 +253,8 @@
                 <div class="row">
                     <!-- Input Form -->
                     <div class="col-md-6">
+                        
+                                
                         <div class="border p-3 shadow">
                             <h4>Belastingduurkromme input</h4>
                             <!-- Input fields -->
@@ -244,16 +264,16 @@
 
                                     <h5>Verwarmen</h5>
                                     <div class="mb-3">
-                                        <label for="maxPowerHeat" class="form-label">Bovengrens (P<sub>p-m</sub>):</label>
+                                        <label for="LimitHeatMax" class="form-label">Bovengrens (P<sub>p-m</sub>):</label>
                                         <div class="input-group">
-                                        <input type="number" class="form-control" id="maxPowerHeat" name="maxPowerHeat" value="40" min="0" oninput="updateMaxValue()">
+                                        <input type="number" class="form-control" id="LimitHeatMax" name="LimitHeatMax" value="30" min="0" oninput="updateMaxValue()">
                                         <span class="input-group-text">kW</span>
                                         </div>
                                     </div>
                                     <div class="mb-3">
-                                        <label for="minPowerHeat" class="form-label">Ondergrens (P<sub>m-b</sub>):</label>
+                                        <label for="LimitHeatMin" class="form-label">Ondergrens (P<sub>m-b</sub>):</label>
                                         <div class="input-group">
-                                            <input type="number" class="form-control" id="minPowerHeat" name="minPowerHeat" value="15" min="0"  oninput="updateMaxValue()" >
+                                            <input type="number" class="form-control" id="LimitHeatMin" name="LimitHeatMin" value="10" min="0"  oninput="updateMaxValue()" >
                                             <span class="input-group-text">kW</span>
                                         </div>
                                     </div>
@@ -262,22 +282,63 @@
                                 <div class="ms-3" style="flex: 1;">
                                     <h5>Koelen</h5>
                                     <div class="mb-3">
-                                        <label for="maxPowerCool" class="form-label">Bovengrens (P<sub>p-m</sub>):</label>
+                                        <label for="LimitCoolMax" class="form-label">Bovengrens (P<sub>p-m</sub>):</label>
                                         <div class="input-group">
-                                        <input type="number" class="form-control" id="maxPowerCool" name="maxPowerCool" value="35" min="0" oninput="updateMaxValue()" >
+                                        <input type="number" class="form-control" id="LimitCoolMax" name="LimitCoolMax" value="20" min="0" oninput="updateMaxValue()" >
                                         <span class="input-group-text">kW</span>
                                         </div>
                                     </div>
                                     <div class="mb-3">
-                                        <label for="minPowerCool" class="form-label">Ondergrens (P<sub>m-b</sub>):</label>
+                                        <label for="LimitCoolMin" class="form-label">Ondergrens (P<sub>m-b</sub>):</label>
                                         <div class="input-group">
-                                        <input type="number" class="form-control" id="minPowerCool" name="minPowerCool" value="10" min="0" max="100"  oninput="updateMaxValue()">
+                                        <input type="number" class="form-control" id="LimitCoolMin" name="LimitCoolMin" value="10" min="0" max="100"  oninput="updateMaxValue()">
                                         <span class="input-group-text">kW</span>
                                         </div>
                                     </div>
                                 </div>
                            </div>   
                         </div>  
+                        <div class="border p-3 shadow mt-3">
+                            <h4>Betta-factor output</h4>
+                            <div class="d-flex justify-content-between">
+                                <div class="me-3" style="flex: 1;">
+                                    <h5>Verwarmen</h5>                                  
+                                    <div class="mb-3">
+                                        <label for="B_factor" class="form-label">Betta factor (B<sub>f</sub>):</label>
+                                        <div class="input-group">
+                                            <output type="number" class="form-control" id="B_factor" name="B_factor">{{Limit_values.5}}</output>
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="E_factor" class="form-label">Dekking Energievraag (E<sub>f</sub>):</label>
+                                        <div class="input-group">
+                                            <output type="number" class="form-control" id="E_factor" name="E_factor">{{Limit_values.7}}</output>
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                 <div class="ms-3" style="flex: 1;">
+                                    <h5>Koelen</h5>
+                                    <div class="mb-3">
+                                        <label for="B_factor" class="form-label">Betta factor (B<sub>f</sub>):</label>
+                                        <div class="input-group">
+                                            <output type="number" class="form-control" id="B_factor" name="B_factor">{{Limit_values.6}}</output>
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="E_factor" class="form-label">Dekking Energievraag (E<sub>f</sub>):</label>
+                                        <div class="input-group">
+                                            <output type="number" class="form-control" id="E_factor" name="E_factor">{{Limit_values.8}}</output>
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                              
+                        </div>
                     </div>  
                     <div class="col-md-6">
                         <div class="border p-3 shadow">
@@ -298,6 +359,7 @@
                             </div>
                     </div>
             </div>
+            </div>
         </form>
     </div>
 </div>
@@ -306,7 +368,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.3/xlsx.full.min.js"></script>
 
 
-<script >
+<script>
 
 // Define a JavaScript variable to hold the URL
 const downloadExcelUrl = "{% url 'tools:download_excel' %}";
@@ -325,14 +387,14 @@ const myLineChart = new Chart(ctx3, {
         data: {
                 labels: xValues,
                 datasets: [{
-                        label: 'Stooklijn verwarmen',
+                        label: 'Vermogen Verwarmen',
                         data: heatingValues,
                         borderColor: 'rgb(255, 99, 132)',
                         tension: 0.1,
                         pointRadius: 0, //remove dot's
                         pointBackgroundColor: 'rgb(255, 99, 132)',
                 }, {
-                        label: 'Stooklijn koelen',
+                        label: 'Vermogen Koelen',
                         data: coolingValues,
                         borderColor: 'rgb(54, 162, 235)',
                         tension: 0.1,
@@ -363,6 +425,17 @@ const myLineChart = new Chart(ctx3, {
                                     labels: {
                                         usePointStyle: true // Use point style for legend
                                     }
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Vermogen buitentemperatuur curve',
+                                    font: {
+                                        size: 20 // Pas de grootte van de titel aan
+                                    },
+                                    padding: {
+                                        top: 5,  // Voeg padding toe boven de titel
+                                        bottom: 5 // Voeg padding toe onder de titel
+                                    }
                                 }
                             }
                             
@@ -370,7 +443,7 @@ const myLineChart = new Chart(ctx3, {
 });
 const ctx = document.getElementById('myDoughnutChart').getContext('2d');
 const OnOffHours = JSON.parse('{{ OnOffHours|escapejs|safe }}');
-
+const basePercentage = OnOffHours[0]/(OnOffHours[0]+OnOffHours[1])
 const myDoughnutChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
@@ -381,29 +454,58 @@ const myDoughnutChart = new Chart(ctx, {
                 backgroundColor: [
                         'rgb(50,205,50)',
                         'rgb(255,165,0)',
+
                 ],
                 pointstyle: 'circle',
                 hoverOffset: 4
                 }]
         },
         options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                        legend: {
-                            display: true,
-                            labels: {
-                                usePointStyle: true // Use point style for legend
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    labels: { usePointStyle: true }
+                },
+                title: {
+                    display: true,
+                    text: 'Draaiuren van totaal 8760h',
+                    font: { size: 20 },
+                    padding: { top: 5, bottom: 5 }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed;
+                            let computedPercentage = '';
+                            
+                            // Bereken het percentage op basis van het segment
+                            if (label === 'Draaiuren') {
+                                computedPercentage = basePercentage;
+                            } else if (label === 'Buiten bedrijf') {
+                                computedPercentage = 1 - basePercentage;
                             }
+                            
+                            // Formatteer naar een percentage-string met 2 decimalen
+                            computedPercentage = (computedPercentage * 100).toFixed(0) + '%';
+                            
+                            return 'Uren: ' + value + '; ' + computedPercentage;
                         }
-                    },
+                    }
+                }
+            }
         }
-});
+    });
+
 // Define the x and y values
 const lineChartData2 = JSON.parse('{{ line_chart_data_hoursONOFF|escapejs }}');
 const xValues2 = lineChartData2.x_values2; //
 const Onhours = lineChartData2.OnHours; // 
 const Offhours = lineChartData2.OffHours;
+const CumOnhours = lineChartData2.CumOnHours;
+const CumOnHoursBtwTemp = lineChartData2.CumOnHoursBtwTemp;
 
 
 // Create the line chart
@@ -414,54 +516,96 @@ const myLineChart2 = new Chart(ctx4, {
         data: {
                 labels: xValues2,
                 datasets: [ {
-                        label: 'Draaiuren',
-                        data: Onhours,
-                        backgroundColor: 'rgb(50,205,50)',
-                        borderColor: 'rgb(50,205,50)',
-                        tension: 0.1,
-                        fill: true,
-                        pointRadius: 1, //remove dot's
+                    label: 'Cumulatieve draaiuren',
+                    data: CumOnhours,
+                    borderColor: 'rgb(30,144,255)', // mooi blauw
+                    backgroundColor: 'rgba(30,144,155, 0.3)',
+                    tension: 0.1,
+                    pointRadius: 1,
+                    yAxisID: 'y1', // koppelen aan rechter as
+                    fill: false,
+                },
+                {
+                    label: 'Buitentemperatuur grens',
+                    data: CumOnHoursBtwTemp,
+                    borderColor: 'rgb(30,44,155)', // mooi blauw
+                    backgroundColor: 'rgba(30,44,155, 0.35)',
+                    tension: 0.1,
+                    pointRadius: 1,
+                    yAxisID: 'y1', // koppelen aan rechter as
+                    fill: true,
+                },{
+                    label: 'Draaiuren',
+                    data: Onhours,
+                    backgroundColor: 'rgb(50,205,50)',
+                    borderColor: 'rgb(50,205,50)',
+                    tension: 0.1,
+                    fill: true,
+                    pointRadius: 1, //remove dot's
                         
                 },
                 {
-                        label: 'Buiten bedrijf',
-                        data: Offhours,
-                        backgroundColor:'rgb(255,165,0)' ,
-                        borderColor: 'rgb(255,165,0)',
-                        tension: 0.1,
-                        fill: true,
-                        pointRadius: 1,
+                    label: 'Buiten bedrijf',
+                    data: Offhours,
+                    backgroundColor:'rgb(255,165,0)' ,
+                    borderColor: 'rgb(255,165,0)',
+                    tension: 0.1,
+                    fill: true,
+                    pointRadius: 1,
+                    hidden: true 
                         
                 }]
                 },
-        options: {
-                scales: {
+                options: {
+                    scales: {
                         x: {
+                            display: true,
+                            title: {
                                 display: true,
-                                title: {
-                                  display: true,
-                                  text: 'Temperatuur [°C]'
-                                }
-                              },
+                                text: 'Temperatuur [°C]'
+                            }
+                        },
                         y: {
-                          stacked: true, //stack both graphs
-                          title: {
+                            stacked: true,
+                            title: {
                                 display: true,
-                                text: 'Uren [h]',
-                             }  
+                                text: 'Uren [h]'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            position: 'right',
+                            stacked: false,
+                            title: {
+                                display: true,
+                                text: 'Cumulatieve uren [h]'
+                            },
+                            grid: {
+                                drawOnChartArea: false // geen dubbele rasterlijnen
+                            }
                         }
-                 },
-                 plugins: {
+                    },
+                    plugins: {
                         legend: {
                             display: true,
                             labels: {
-                                usePointStyle: true // Use point style for legend
+                                usePointStyle: true
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Draaiuren tegenover buitentemperatuur',
+                            font: {
+                                size: 20
+                            },
+                            padding: {
+                                top: 5,
+                                bottom: 5
                             }
                         }
-                },
-                
-        },
-});
+                    }
+                }
+        }); 
 
 
 
@@ -512,6 +656,17 @@ const myBarChart = new Chart(ctx2, {
             plugins: {
                 legend: {
                     display: true, // Show the legend to distinguish between parts
+                },
+                title: {
+                    display: true,
+                    text: 'Energievraag onderverdeeld',
+                    font: {
+                        size: 20 // Pas de grootte van de titel aan
+                    },
+                    padding: {
+                        top: 5,  // Voeg padding toe boven de titel
+                        bottom: 5 // Voeg padding toe onder de titel
+                    }
                 }
             }
         }
@@ -522,75 +677,81 @@ const linecurvedata = JSON.parse('{{ cumulative_data|escapejs }}');
 const x_values3 = linecurvedata.x_values3; //
 const Q_heat_btwn = linecurvedata.Q_heat; // 
 const Q_cool_btwn = linecurvedata.Q_cool;
+try {
+    const dataHeat = x_values3.map((x, i) => ({ x: x, y: Q_heat_btwn[i] }));
+    const dataCool = x_values3.map((x, i) => ({ x: x, y: Q_cool_btwn[i] }));
+} catch (e) {
+    dataHeat = []
+    dataCool = []
+}
+const LimPiekHeat =  [parseFloat(sessionStorage.getItem('LimitHeatMax')),parseFloat(sessionStorage.getItem('LimitHeatMin'))];
+const LimPiekCool =  [parseFloat(sessionStorage.getItem('LimitCoolMax')),parseFloat(sessionStorage.getItem('LimitCoolMin'))];
 
-const dataHeat = x_values3.map((x, i) => ({ x: x, y: Q_heat_btwn[i] }));
-const dataCool = x_values3.map((x, i) => ({ x: x, y: Q_cool_btwn[i] }));
-
-const LimPiekHeat =  [parseFloat(sessionStorage.getItem('maxPowerHeat')),parseFloat(sessionStorage.getItem('minPowerHeat'))];
-const LimPiekCool =  [parseFloat(sessionStorage.getItem('maxPowerCool')),parseFloat(sessionStorage.getItem('minPowerCool'))];
 const Limit_hour_values = JSON.parse('{{ Limit_values|escapejs|safe }}');
 
 // Create the line chart
 const ctx5 = document.getElementById('belastingduurcurve').getContext('2d');
-
-const linecurve = new Chart(ctx5, {
-    type: 'line',
-    data: {
-        datasets: [
+const datasets = [];
+// Weergeef alleen als er koelvraag of warmtevraag is 
+if (barChartData[6] !== 0) {// Add heating data if barChartData[6] !== 0
+    datasets.push(
         {
-            label: 'Heat',
+            label: 'Verwarmen',
             data: dataHeat,
             backgroundColor: 'rgba(255, 99, 132, 0.2)',
             borderColor: 'rgba(255, 99, 132, 1)',
             borderWidth: 1,
             fill: true,
-            pointRadius: 1, //remove dot's,
+            pointRadius: 1,
             groupID: 'heat',
-        }, {
-            label: 'Cool',
+        },
+        {
+            label: 'Grens Verwarmen max',
+            data: [
+                { x: 0, y: LimPiekHeat[0] },
+                { x: Limit_hour_values[1], y: LimPiekHeat[0] },
+            ],
+            type: 'line',
+            backgroundColor: 'rgba(125, 192, 192, 0.2)',
+            borderColor: 'rgba(125, 192, 192, 1)',
+            borderWidth: 2,
+            fill: false,
+            groupID: 'heat',
+            showInLegend: false
+        },
+        {
+            label: 'Grens Verwarmen min',
+            data: [
+                { x: Limit_hour_values[0], y: LimPiekHeat[1] },
+                { x: 0, y: LimPiekHeat[1] },
+            ],
+            type: 'line',
+            backgroundColor: 'rgba(125, 192, 192, 0.2)',
+            borderColor: 'rgba(125, 192, 192, 1)',
+            borderWidth: 2,
+            fill: false,
+            groupID: 'heat',
+            showInLegend: false
+        }
+    );
+}
+// Add cooling data if barChartData[7] !== 0
+if (barChartData[7] !== 0) {
+    datasets.push(
+        {
+            label: 'Koelen',
             data: dataCool,
             backgroundColor: 'rgba(54, 162, 235, 0.2)',
             borderColor: 'rgba(54, 162, 235, 1)',
             borderWidth: 1,
             fill: true,
-            pointRadius: 1, //remove dot's
-            groupID: 'cool',// Add groupID,
-        }, {
-            label: 'Grens Verwarmen max',
-            data: [
-                { x: 0, y: LimPiekHeat[0] }, 
-                { x: Limit_hour_values[1], y: LimPiekHeat[0] }, 
-                //{ x: Limit_values[2], y: LimPiekHeat[1] }, 
-                //{ x: 0, y: LimPiekHeat[1] }, 
-              //  { x: 0, y: LimPiekHeat[0] }, 
-            ],
-            type: 'line',
-            backgroundColor: 'rgba(125, 192, 192, 0.2)',
-            borderColor: 'rgba(125, 192, 192, 1)',
-            borderWidth: 2,
-            fill: false,
-            groupID: 'heat' ,
-            showInLegend: false // Custom property to control legend visibility
-        },{
-            label: 'Grens Verwarmen min',
-            data: [
-              //  { x: 0, y: LimPiekHeat[0] }, 
-                //{ x: Limit_values[3], y: LimPiekHeat[0] }, 
-                { x: Limit_hour_values[0], y: LimPiekHeat[1] }, 
-                { x: 0, y: LimPiekHeat[1] }, 
-              // { x: 0, y: LimPiekHeat[0] }, 
-            ],
-            type: 'line',
-            backgroundColor: 'rgba(125, 192, 192, 0.2)',
-            borderColor: 'rgba(125, 192, 192, 1)',
-            borderWidth: 2,
-            fill: false,
-            groupID: 'heat' ,
-            showInLegend: false // Custom property to control legend visibility
-        },  {
+            pointRadius: 1,
+            groupID: 'cool',
+        },
+        {
             label: 'Grens Koelen max',
             data: [
-                { x: Limit_hour_values[3], y: LimPiekCool[0] }, 
+                { x: Limit_hour_values[3], y: LimPiekCool[0] },
                 { x: Limit_hour_values[4], y: LimPiekCool[0] },
             ],
             type: 'line',
@@ -599,12 +760,13 @@ const linecurve = new Chart(ctx5, {
             borderWidth: 2,
             fill: false,
             groupID: 'cool',
-            showInLegend: false // Custom property to control legend visibility
-        }, {
+            showInLegend: false
+        },
+        {
             label: 'Grens Koelen min',
             data: [
                 { x: Limit_hour_values[4], y: LimPiekCool[1] },
-                { x: Limit_hour_values[2], y: LimPiekCool[1] },  
+                { x: Limit_hour_values[2], y: LimPiekCool[1] },
             ],
             type: 'line',
             backgroundColor: 'rgba(75, 192, 192, 0.2)',
@@ -612,14 +774,23 @@ const linecurve = new Chart(ctx5, {
             borderWidth: 2,
             fill: false,
             groupID: 'cool',
-            showInLegend: false // Custom property to control legend visibility
-        }]
+            showInLegend: false
+        }
+    );
+}
+
+const linecurve = new Chart(ctx5, {
+    type: 'line',
+    data: {
+        datasets: datasets
     },
     options: {
         scales: {
             x: {
                 type: 'linear',
                 position: 'bottom',
+                min: 0, // Ensure the x-axis starts at 0
+                max: Onhours, // Dynamically set the max value on draaiuren 
                 title: {
                     display: true,
                     text: 'Uren [h]' // Add your y-axis label here
@@ -673,6 +844,17 @@ const linecurve = new Chart(ctx5, {
 
                     ci.update();
                 }
+            },
+            title: {
+                display: true,
+                text: 'Belastingduurkromme',
+                font: {
+                    size: 20 // Pas de grootte van de titel aan
+                },
+                padding: {
+                    top: 5,  // Voeg padding toe boven de titel
+                    bottom: 5 // Voeg padding toe onder de titel
+                }
             }
         }
     }
@@ -685,5 +867,7 @@ const linecurve = new Chart(ctx5, {
 
 <!-- This makes sure this JS is only be loaded when rendering this HTML page. Whilst the common JS Files included in de extra_js block of base.html will be loaded across all pages -->
 <script src="{% static 'tools/scripts/script_tools_A3.js' %}"></script>
-<script> var pdfUrlReadMe = "{% static 'tools/files/TOOLA3-README.pdf' %}"</script>
+<script> 
+    var pdfUrlReadMe = "{% static 'tools/files/TOOLA3-README.pdf' %}" ;
+</script>
 {% endblock %}

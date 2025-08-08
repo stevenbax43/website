@@ -32,4 +32,11 @@ class adress(models.Model):
     def __str__(self):
         return f"{self.pcode} - {self.hnumber}"
 
+class ProjectMollier(models.Model):
+    user           = models.ForeignKey(User, on_delete=models.CASCADE)
+    projectname    = models.CharField(max_length=255)
+    sessionstorage = models.JSONField()
+    created_at     = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"{self.id}: {self.projectname} ({self.user.username})"

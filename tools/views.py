@@ -1,19 +1,88 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from django.http import HttpResponse, JsonResponse
+from django.contrib import messages
+
 from .Tool_A1_Gebouwdata import gebouwgegevens
 from .Tool_A3_klimaatjaar import klimaatjaar
-from .Tool_W1_MollierDiagram import mollierdiagram
+from .Tool_W1_MollierDiagram import MollierView, generate_pdf_file
 from .Tool_W2_expansievat import expansievat
 from .Tool_W4_CO2verloop import CO2verloop
-from django.contrib.auth.decorators import login_required
-import json
+from .Tool_W5_buffervat import buffervat
+from .models import ProjectMollier
+
+import json, io
 import pandas as pd
-from django.http import HttpResponse
-import io
+
+
+
+
 
 # inhoudsopgave pagina 
 @login_required(login_url='accounts:login')
 def tools(request):
     return render(request, 'tools/tools_index.html')
+
+@method_decorator(csrf_exempt, name='dispatch')
+@login_required(login_url='accounts:login')
+def save_project(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            projectname = data.get('projectname')
+            sessionstorage = data.get('sessionstorage')
+
+            # Check if user already has 10 projects
+            existing_projects = ProjectMollier.objects.filter(user=request.user).order_by('created_at')
+            if existing_projects.count() >= 10:
+                # Delete oldest project
+                oldest = existing_projects.first()
+                oldest.delete()
+
+            ProjectMollier.objects.update_or_create(
+                user=request.user,
+                projectname=projectname,
+                defaults={'sessionstorage': sessionstorage}
+            )
+            return JsonResponse({'status': 'success'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    return JsonResponse({'error': 'Invalid method'}, status=405)
+
+@method_decorator(csrf_exempt, name='dispatch')
+@login_required(login_url='accounts:login')
+def load_project(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            project_id = data.get('project_id')
+            project = ProjectMollier.objects.get(pk=project_id, user=request.user)
+
+            # Save session data temporarily in Django session
+            request.session['restored_sessionstorage'] = project.sessionstorage
+
+            return JsonResponse({'status': 'ok'})
+        except ProjectMollier.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Project niet gevonden'}, status=404)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    return JsonResponse({'error': 'Invalid method'}, status=405)
+
+@method_decorator(csrf_exempt, name='dispatch')
+@login_required(login_url='accounts:login')
+def delete_project(request):
+    print("test")
+    # pull from request.POST instead of request.body/JSON
+    project_id = request.POST.get('project_id')
+    print(project_id)
+    project = get_object_or_404(ProjectMollier, id=project_id, user=request.user)
+
+    project.delete()
+    messages.success(request, "Project succesvol verwijderd.")
+    # redirect back to your project‐list page
+    return redirect('tools:tool_W1.html')
 
 # Gebouwgegevens pagina
 @login_required(login_url='accounts:login')
@@ -41,27 +110,30 @@ def tool_A3(request):
 #Mollier diagram pagina 
 @login_required(login_url='accounts:login')
 def tool_W1(request):
-    lines_RH, lines_H, calculated_values, calculated_values_end, difference= {},{},[],[],[]
-    Tdb_var_end,RH_var_end = 0,0
-    if request.method =='POST':
-        #start point
-        Tdb_var, RH_var, Height_var = map(float, [request.POST.get('Tdb_var'), request.POST.get('RH_var'), request.POST.get('Heigth_var')])
-        lines_RH, lines_H, calculated_values = mollierdiagram(Tdb_var, RH_var, Height_var)
-        #end point
-        Tdb_var_end, RH_var_end = map(float, [request.POST.get('Tdb_var_end'), request.POST.get('RH_var_end')])
-        NoUse, NoUse2, calculated_values_end = mollierdiagram(Tdb_var_end, RH_var_end, Height_var)
-        
-        difference = [round(abs(Tdb_var_end-Tdb_var),1),
-                      round(abs(calculated_values_end[2]-calculated_values[2]),1),
-                      round(abs(calculated_values_end[0]-calculated_values[0]),1)]#[round(abs(a - b),2) for a,b in zip(calculated_values, calculated_values_end)]
-    
+    mollierView_output = MollierView(request)
+    # Get saved projects for the current user
+    saved_projects = ProjectMollier.objects.filter(user=request.user).order_by('-created_at')
+
+    # Check if we are restoring a session project
+    restored_sessionstorage = request.session.pop('restored_sessionstorage', None)
+
+    # Final render
     return render(request, 'tools/tool_W1.html', {
-        'lines_RH': json.dumps(lines_RH),
-        'lines_H': json.dumps(lines_H),
-        'calculated_values': calculated_values,
-        'calculated_values_end':calculated_values_end,
-        'difference': difference,   
+        'lines_RH': json.dumps(mollierView_output[0]),
+        'lines_H': json.dumps(mollierView_output[1]),
+        'calculated_values_start_json': json.dumps(mollierView_output[2]),
+        'calculated_values_start': mollierView_output[2],
+        'calculated_values_json': json.dumps(mollierView_output[3]),
+        'calculated_values': mollierView_output[3],
+        'process_data': mollierView_output[4],
+        'warning': mollierView_output[5],  # Used for template iteration
+        'process_steps': list(range(1, 5)),  # Used for template iteration
+        'username': [request.user.first_name, request.user.last_name,request.user.username],
+        'saved_projects': saved_projects,  # Pass projects to template
+        'restored_sessionstorage': json.dumps(restored_sessionstorage) if restored_sessionstorage else None
     })
+    
+
 # expansievat pagina
 @login_required(login_url='accounts:login')
 def tool_W2(request):
@@ -79,8 +151,17 @@ def tool_W4(request):
     CO2_json = json.dumps(CO2_output[0])
     
     return render(request, 'tools/tool_W4.html', {'CO2_data': CO2_json})
+# buffervat pagina
+@login_required(login_url='accounts:login')
+def tool_W5(request):
+    buffervat_output = buffervat(request)
+    return render(request, 'tools/tool_W5.html', {'buffervat_output': buffervat_output})
+# thermisch vermogen pagina
+@login_required(login_url='accounts:login')
+def tool_W6(request):
+    return render(request, 'tools/tool_W6.html')
 
-# drukverlies pagina
+# driefase-vermogen pagina
 @login_required(login_url='accounts:login')
 def tool_E1(request):
     return render(request, 'tools/tool_E1.html')
@@ -115,4 +196,6 @@ def download_excel(request):
         # If the method is not GET, return a 405 Method Not Allowed response
         return HttpResponse(status=405)
 
-
+@login_required(login_url='accounts:login')
+def generate_pdf(request):
+    return generate_pdf_file(request)

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 {% load static %}
+
 {% csrf_token %}
 <html>
     <head>
@@ -23,9 +24,10 @@
                     <li><a href="\">Home</a></li>
                     <li><a href="\tools">Tools</a></li>
                     <li><a href="\nieuws">Nieuws</a></li>
+                    {% if user.is_superuser %}
                     <li><a href="\forum">Forum</a></li>
                     <li><a href="\create-new-chat/">Chat</a></li>
-
+                    {% endif %}
                     {% if user.is_authenticated %}
                     <li><a href="{% url 'accounts:profile_edit'%}" id="change_pass"><img src="{% static 'accounts/images/profile.png' %}"> </a></li> 
                     <li> 
@@ -63,7 +65,7 @@
                     <p>&copy; 2024 www.kropman.nl</p>
                     <p>Lagelandseweg 84, 6545CG Nijmegen Nederland</p>
                     <p>Email: steven.bax@kropman.nl</p>
-                    <p>Versie 1.2</p>
+                    <p>Versie 1.3</p>
                 </div>
                 
                 <div> 
@@ -84,7 +86,9 @@
         </footer>
          
         <script src="{% static 'home/scripts/script_home.js' %}"></script>
-        {% block extra_js %} {% endblock %}
+        {% block extra_js %} 
+        
+        {% endblock %}
        
         
     </body>

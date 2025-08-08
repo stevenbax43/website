@@ -145,19 +145,30 @@
                   <div class="col-md-4">
                       <div class="border p-3 shadow">
                           <h4>Advies Expansievat</h4>
+                          <h6>Bruto volume en voordruk</h6>
                           <!-- Output fields -->
-                          
-                          <div class="mb-3">
-                            <label for="advies" class="form-label">Inhoud/Voordruk:</label>
-                            <div class="input-group">
-                              <output class="form-control" id="advies" name="advies">{{  expansievat_output.3 }}/{{  expansievat_output.4 }}</output>
-                              <span class="input-group-text">L/bar</span>
+                          <!-- Aangepaste afbeelding zonder link, groter en met overlay tekst -->
+                          <div class="grid-item">
+                            <div class="image-container">
+                              <img src="{% static 'tools/images/expansion.png' %}" alt="Inhoud buffervat">
+                              <div class="overlay o_1">{{ expansievat_output.3 }} L</div>
+                              <div class="overlay o_2">{{expansievat_output.4}} bar</div>
                             </div>
-                          </div>  
-                    
+                          
+                          </div>
                           <button type="submit" class="hidden" id="calculateButton" name="calculateButton"></button>
-                          
-                          
+
+                      </div>
+                      <div class="border p-3 shadow mt-3">
+                        <h4>Formules</h4>
+                        <p>Meer info zie "ReadMe" </p>
+                            <h4>
+                              \( 
+                                V_{br}[L] \;=\; 
+                                \frac{ V_{\exp} \cdot \beta}
+                                    {n_{e} }
+                              \)
+                            </h4>
                       </div>
                   </div>
                   <div class="col-md-4">
@@ -205,6 +216,7 @@
 <!-- This makes sure this JS is only be loaded when rendering this HTML page. Whilst the common JS Files included in de extra_js block of base.html will be loaded across all pages -->
 <script src="{% static 'tools/scripts/script_tools_W2.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script> 
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script> pdfUrlReadMe = "{% static 'tools/files/TOOLW2-README.pdf' %}"</script>

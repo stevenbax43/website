@@ -3,7 +3,9 @@
 // Function to save input values into sessionStorage
 function saveInputValues() {
     document.querySelectorAll('input, select').forEach(field => {
-        sessionStorage.setItem(field.id, field.value);
+        if(field.type !== 'hidden' && field.name !== 'csrfmiddlewaretoken'){ // ensure the CSRF-token is not saved in the session-storage. 
+            sessionStorage.setItem(field.id, field.value);
+        }
     });
     const locatieToggle = document.getElementById('locatieToggle').checked;
     sessionStorage.setItem('locatieToggle', locatieToggle);

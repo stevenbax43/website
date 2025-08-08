@@ -1,0 +1,132 @@
+.maintoolw2 {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    
+}
+
+.icons-container {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center; /* Center items horizontally */
+    flex-direction: column; /* Change to column direction */
+    align-items: center; /* Center the content vertically */
+}
+.icon:hover p {
+    color: white;
+}
+.hidden {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out; /* Add a transition effect */
+}
+
+.visible {
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out; /* Add a transition effect */
+}
+.icon {
+    margin: 20px;
+    cursor: pointer;
+    background-color: #c9c9c9;
+    width: 200px;
+    height: 200px;
+    border-radius: 10px;
+    display: flex; /* Add this line to make the icon a flex container */
+    justify-content: center; /* Center the content horizontally */
+    align-items: center; /* Center the content vertically */
+    flex-direction: column; /* Change to column direction */
+}
+
+.icon img {
+    max-width: 100%;
+    max-height: 100%;
+    width: 40%;
+    height: auto;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+th, td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: left;
+}
+th {
+    background-color: #3fa500;
+    color: #fff;
+}
+
+.question {
+    margin-top: 10px;
+    margin-bottom: 0px;
+    max-width: 400px;
+}
+
+
+
+.second-banner-items img {
+	width: 30px;
+	max-height: auto;
+}
+
+.tools-icons a:hover img,
+.top-banner-items a:hover img {
+    opacity: 0.8; /* Optional: Add a hover effect to indicate clickability */
+}
+
+.mb-3 {
+    margin-bottom: 1rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+}
+
+.form-control {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid #ced4da;
+    /* border-radius: 0.25rem; */
+}
+
+.input-group-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    background-color: #e9ecef;
+    border: 1px solid #ced4da;
+    border-left: none;
+    min-width: 60px;
+   
+    /* border-radius: 0 0.25rem 0.25rem 0; */
+}
+
+/* Vergroot de buffervat-afbeelding en positioneer overlay */
+.image-container {
+    position: relative;
+    display: inline-block;
+}
+.image-container img {
+    width: 1000px; /* pas aan naar gewenste grootte */
+    max-width: 100%;
+}
+.image-container .overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #000;
+}

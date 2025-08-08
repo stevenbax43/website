@@ -1,0 +1,152 @@
+{% extends 'home/base.html'%}
+
+{% load static %} 
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'tools/styles/tools.css'%}">
+    <link rel="stylesheet" href="{% static 'tools/styles/tool_W_5.css'%}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+
+<div class="top-banner"> 
+        <div class="top-banner-items">
+                <div> <h1> Tool W6: Inhoud Buffervat</h1>  </div>
+                <div>  <a href="{% url 'tools:tools' %}">  <img src="{% static 'tools/images/engineering.png' %}"> </a> </div>
+        </div> 
+</div>
+
+<div class="second-banner no-print"> 
+  <div class="second-banner-items">
+    <div class="second-alignment">
+      <div class="second-text">  
+        <p> Buffervaten worden toegepast om de warmte- of koudeproductie gelijkmatiger te verdelen. Hierdoor hoeft de compressor bij een warmtepomp minder vaak in- en uit te schakelen.</p>    
+      </div>
+      <div class="tools-icons">
+        <div>  <a href="#" id="readMeButton" > ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" alt="ReadMe Button"> </a> </div>
+        <div>  <a href="#" id="printButton" >  <img src="{% static 'tools/images/print.png' %}" alt="Print Button"> </a> </div>
+        <div>  <a href="#" id="excelButton">  <img src="{% static 'tools/images/Excel.png' %}" alt="Excel Button"> </a> </div>          
+      </div>      
+    </div>      
+  </div>      
+    
+</div>
+
+<div class="main-banner">
+  <div class="main-banner-items">
+      <form method="post" id="inputForm">
+          {% csrf_token %}
+          <div class="container mt-3 borderline">
+              <div class="row">
+                  <!-- Input Form -->
+                  <div class="col-md-4">
+                      <div class="border p-3 shadow">
+                          <h4>Systeemeigenschappen</h4>
+                          <!-- Input fields -->
+                          <div class="mb-3">
+                            <label for="min_vermogen" class="form-label">Minimale vermogen (&Phi;<sub>min</sub>):</label>
+                            <div class="input-group">
+                              <input type="number" class="form-control" id="min_vermogen" name="min_vermogen" value="50" min="0" required>
+                              <span class="input-group-text">kW</span>
+                            </div>
+                          </div>
+                          <div class="mb-3">
+                            <label for="temp_verschil" class="form-label">Temperatuurverschil (&Delta;T):</label>
+                            <div class="input-group">
+                              <input type="number" class="form-control" id="temp_verschil" name="temp_verschil" value="5" min="0" max="100" required>
+                              <span class="input-group-text">K</span>
+                            </div>
+                          </div>
+                           <div class="mb-3">
+                            <label for="tijd_aan" class="form-label">Tijd aan (t<sub>aan</sub>):</label>
+                            <div class="input-group">
+                              <input type="number" class="form-control" id="tijd_aan" name="tijd_aan" value="10" min="0" max="100" required>
+                              <span class="input-group-text">min</span>
+                            </div>
+                          </div>
+                          <div class="mb-3">
+                            <label for="soortelijke_warmte" class="form-label">Soortelijke warmte (c<sub>v</sub>):</label>
+                            <div class="input-group">
+                              <input type="number" class="form-control" id="soortelijke_warmte" name="soortelijke_warmte" value="4.2" min="0" max="100" step="0.1" required>
+                              <span class="input-group-text">kJ/kgK</span>
+                            </div>
+                          </div>
+                          <div class="mb-3">
+                            <label for="dichtheid" class="form-label">Dichtheid (&rho;):</label>
+                            <div class="input-group">
+                              <input type="number" class="form-control" id="dichtheid" name="dichtheid" value="998" min="0" max="2000" required>
+                              <span class="input-group-text">kg/m<sup>3</sup></span>
+                            </div>
+                          </div>
+                         
+                        </div>
+                  </div>
+
+                  <!-- Output Form -->
+                  <div class="col-md-4">
+                      <div class="border p-3 shadow">
+                          <h4>Advies Buffervat</h4>
+                          <!-- Output fields -->
+                          
+                          
+                    
+                          <button type="submit" class="hidden" id="calculateButton" name="calculateButton"></button>
+                          <!-- Aangepaste afbeelding zonder link, groter en met overlay tekst -->
+                          <div class="grid-item">
+                            <div class="image-container">
+                              <img src="{% static 'tools/images/buffervat.png' %}" alt="Inhoud buffervat">
+                              <div class="overlay">{{ buffervat_output.0 }} L</div>
+                            </div>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="col-md-4">
+                      <div class="border p-3 shadow">
+                        <h4>Gegeven Waarden</h4>
+                        <!-- Output fields -->
+                        <div class="mb-3 center">
+                          
+                        
+                          &Phi;<sub>min</sub>={{ buffervat_output.1 }} kW<br>
+                          &Delta;T<sub></sub> = {{ buffervat_output.2 }} K <br>
+                          t<sub>aan</sub> = {{ buffervat_output.3 }} min<br>
+                          c<sub>v</sub> = {{ buffervat_output.4 }} kJ/kgK<br>
+                          &rho; = {{ buffervat_output.5 }} kg/m<sup>3</sup><br>
+                        
+                        
+
+                      </div>
+                        <div >
+                        <h4>Formule ISSO 81</h4>
+                        <!-- Output fields -->
+                        <br>
+                        <h4>
+                          \( 
+                            V_{buf}[L] \;=\; 
+                            \frac{1000 \cdot \Phi_{\min} \cdot t_{\mathrm{aan}} \cdot 60}
+                                {\rho \cdot  c_{v} \cdot \Delta T }
+                          \)
+                        </h4>
+                    </div>
+                  </div>
+              </div>
+          </div>
+      </form>
+  </div>
+</div>
+
+{% endblock content %} 
+{% block extra_js %}
+<!-- This makes sure this JS is only be loaded when rendering this HTML page. Whilst the common JS Files included in de extra_js block of base.html will be loaded across all pages -->
+<script src="{% static 'tools/scripts/script_tools_W5.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script> 
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script> pdfUrlReadMe = "{% static 'tools/files/TOOLW5-README.pdf' %}"</script>
+<script>pdfUrlExcel = "{% static 'tools/files/TOOL_W5_Buffervat.xlsx' %}"</script>
+{% endblock %}

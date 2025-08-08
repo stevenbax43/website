@@ -1,36 +1,51 @@
-// Function to save input values to sessionStorage
 function saveInputValues() {
-    document.querySelectorAll('input').forEach(field => {
-        console.log(`Saving ${field.id}: ${field.value}`); // Debugging statement
-        sessionStorage.setItem(field.id, field.value);
-    });
-}
-
-// Function to load input values from sessionStorage
-function loadInputValues() {
-    document.querySelectorAll('input').forEach(field => {
-        const savedValue = sessionStorage.getItem(field.id);
-        if (savedValue !== null) {
-            field.value = savedValue;
-            console.log(`Loaded ${field.id}: ${field.value}`);
+    const fields = document.querySelectorAll('input[type="number"],input[type="text"], select');
+    fields.forEach(field => {
+        const { id, type, name, value } = field;
+        if (id && type !== 'hidden' && name !== 'csrfmiddlewaretoken') {
+            sessionStorage.setItem(id, value);
         }
     });
 }
 
+function loadInputValues() {
+    const fields = document.querySelectorAll('input[type="number"],input[type="text"], select');
+    fields.forEach(field => {
+        const { id, type, name } = field;
+        if (id && type !== 'hidden' && name !== 'csrfmiddlewaretoken') {
+            const savedValue = sessionStorage.getItem(id);
+            if (savedValue !== null) {
+                field.value = savedValue;
+            }
+        }
+    });
+}
 
+function triggerPageAtStart() {
+  // if we've never been here in this tab…
+  if (!sessionStorage.getItem('CO2Initialized')) {
+    // 1) mark that we've initialized *before* any navigation happens
+    sessionStorage.setItem('CO2Initialized', 'true');
+
+    // 2) now do your save + click
+    saveInputValues();
+    document.getElementById('CO2button').click();
+  }
+}
 
 // Event listener for DOMContentLoaded event
 document.addEventListener('DOMContentLoaded', function() {
+    triggerPageAtStart();
     // Load input values when the page is loaded
     loadInputValues();
-
    
+    
     // Add change event listener to input fields to save input values and submit the form
-    document.querySelectorAll('input').forEach(field => {
+    document.querySelectorAll('input, select').forEach(field => {
         field.addEventListener('change', function() {
             console.log(`Change event detected for ${field.id}`); // Debugging statement
             saveInputValues();
-
+            
             // Submit the form when an input value changes
             const form = document.getElementById('inputForm');
             if (form) {
