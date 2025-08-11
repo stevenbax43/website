@@ -27,7 +27,7 @@ DATABASES = {
 
 # Static files (CSS, JavaScript, images)
 STATIC_URL = '/static/'
-
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
 
 # Media files
 MEDIA_URL = '/media/'
