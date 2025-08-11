@@ -16,10 +16,13 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    # ...
+]
 
 # Static files (CSS, JavaScript, images)
-
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / "assets",
 ]

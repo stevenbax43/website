@@ -73,3 +73,7 @@ section {
     border-radius: .5rem;
     box-shadow: 0 .25rem .75rem rgba(0,0,0,0.1);
 }
+
+.quarter { width:25%; height:auto; display:block; margin-top:1.5rem; }
+/* optioneel centreren */
+.center { margin: 1.5rem auto 0; }
