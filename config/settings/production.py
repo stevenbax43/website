@@ -1,5 +1,5 @@
 from .base import *
-
+import sys
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY_prod')  
 
@@ -32,21 +32,12 @@ STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesSto
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'file': {
-#             'level': 'DEBUG',
-#             'class': 'logging.FileHandler',
-#             'filename': os.path.join(BASE_DIR, 'debug.log'),
-#         },
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['file'],
-#             'level': 'DEBUG',
-#             'propagate': True,
-#         },
-#     },
-# }
+LOGGING = {
+  "version": 1,
+  "disable_existing_loggers": False,
+  "handlers": {"console": {"class": "logging.StreamHandler", "stream": sys.stdout}},
+  "root": {"handlers": ["console"], "level": "INFO"},
+  "loggers": {
+    "django.request": {"handlers": ["console"], "level": "ERROR", "propagate": False},
+  },
+}
