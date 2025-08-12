@@ -202,7 +202,7 @@ def generate_pdf(request):
     return generate_pdf_file(request)
 
 # Whitelist allowed tools; add more as needed for the ReadME!
-ALLOWED = {"INDEX","A1","A3", "E1","W2", "W3", "W4", "W5", "W6"}
+ALLOWED = {"INDEX","A1","A2","A3", "E1","W1","W2", "W3", "W4", "W5", "W6"}
 def tool_readme(request, tool):
     code = tool.upper()
     if code not in ALLOWED:
