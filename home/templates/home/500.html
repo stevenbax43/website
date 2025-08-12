@@ -1,0 +1,17 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Something went wrong</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="{% static 'css/app.css' %}" rel="stylesheet">
+</head>
+<body>
+  <main style="max-width: 640px; margin: 12vh auto; text-align:center;">
+    <h1>Oops! Something went wrong.</h1>
+    <p>Sorry about that. Please try again or head back to the tools page.</p>
+    <p><a href="{{ tools_url|default:'/' }}" class="btn">Go to Tools</a></p>
+  </main>
+</body>
+</html>
