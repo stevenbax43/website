@@ -32,7 +32,7 @@ def _best_tools_url():
     return getattr(settings, "TOOLS_FALLBACK_URL", "/")
 
 def server_error(request):
-    return render(request, "500.html", {"tools_url": _best_tools_url()}, status=500)
+    return render(request, "home/500.html", {"tools_url": _best_tools_url()}, status=500)
 
 handler500 = server_error
 # Serving static files during development : DEBUG = True
