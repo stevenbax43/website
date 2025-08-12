@@ -490,11 +490,7 @@ function initEventListeners() {
     
     }
    
-    // Other UI buttons
-    document.getElementById('readMeButton').addEventListener('click', () => {
-        window.open(pdfUrlReadMe, '_blank');
-    });
-
+ 
     document.getElementById('printButton').addEventListener('click', () => {
         window.print();
     });

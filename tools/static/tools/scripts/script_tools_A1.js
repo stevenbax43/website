@@ -58,10 +58,6 @@ document.addEventListener('DOMContentLoaded', function() {
         window.print();
     });
 
-    // Placeholder for readme button functionality
-    document.getElementById('readMeButton').addEventListener('click', function() {
-    //     // Handle Excel button click event
-        window.open(pdfUrlReadMe, '_blank');
-    });
+   
 });
 

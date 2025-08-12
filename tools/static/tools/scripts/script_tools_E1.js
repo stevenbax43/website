@@ -199,10 +199,7 @@ document.addEventListener('DOMContentLoaded', function() {
         window.print();
     });
 
-    // Event listener for readme button
-    document.getElementById('readMeButton').addEventListener('click', function() {
-        window.open(pdfUrlReadMe, '_blank');
-    });
+    
 
     // Event listener for excel button
     document.getElementById('excelButton').addEventListener('click', function() {

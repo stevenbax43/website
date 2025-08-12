@@ -57,6 +57,6 @@ def expansievat(request):
         
         
         expansievat_output = [Temp_average, nuttig_effect, bruto_vessel, volume_advies, voordruk, based_on_sys, based_on_voor, expansion_percentage,
-                              round(expansion_volume,1), Temp_aanvoer, Temp_retour,einddruk ,input_sys_inhoud, round(sys_inhoud), round(st_height),CV_volume_norm,locatie_toggle ]   
+                              round(expansion_volume,1), Temp_aanvoer, Temp_retour,round(einddruk,1) ,input_sys_inhoud, round(sys_inhoud), round(st_height),CV_volume_norm,locatie_toggle ]   
         
     return expansievat_output

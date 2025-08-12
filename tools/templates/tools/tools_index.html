@@ -29,7 +29,9 @@
                     Het Excel-bestand onder het Excel-pictogram is het basisbestand voor de tool.</p>   
             </div>
             <div class="tools-icons">
-                <div>  <a href="#" id="readMeButton" > ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" alt="ReadMe Button"> </a> </div>
+                <div>  <a href="{% url 'tools:tool-readme' 'INDEX' %}" target="_blank" rel="noopener">
+                        ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" alt="PDF">
+                    </a>  </div>
                 <div>  <a href="#" id="printButton" >  <img src="{% static 'tools/images/print.png' %}" alt="Print Button"> </a> </div>
                 <div>  <a href="#" id="excelButton">  <img src="{% static 'tools/images/Excel.png' %}" alt="Excel Button"> </a> </div>          
             </div>      
@@ -128,7 +130,7 @@
 {% block extra_js %}
 <!-- This makes sure this JS is only be loaded when rendering this HTML page. Whilst the common JS Files included in de extra_js block of base.html will be loaded across all pages -->
 <script src="{% static 'tools/scripts/script_tools_index.js' %}"></script>
-<script>pdfUrlReadMe = "{% static 'tools/files/TOOLINDEX-README.pdf' %}"</script>
+
 <script>pdfUrlExcel = "{% static 'tools/files/TOOLS_INDEX.xlsx' %}"</script>
 
 

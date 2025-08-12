@@ -2,8 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, Http404
 from django.contrib import messages
+from django.templatetags.static import static
 
 from .Tool_A1_Gebouwdata import gebouwgegevens
 from .Tool_A3_klimaatjaar import klimaatjaar
@@ -199,3 +200,29 @@ def download_excel(request):
 @login_required(login_url='accounts:login')
 def generate_pdf(request):
     return generate_pdf_file(request)
+
+# Whitelist allowed tools; add more as needed for the ReadME!
+ALLOWED = {"INDEX","A1","A3", "E1","W2", "W3", "W4", "W5", "W6"}
+def tool_readme(request, tool):
+    code = tool.upper()
+    if code not in ALLOWED:
+        raise Http404("Unknown readme")
+
+    pdf_url = static(f"tools/files/TOOL{code}-README.pdf")
+    title = f"TOOL{code} – README"
+    iframe_src = f"{pdf_url}#page=1&zoom=100"   # <-- was ...#view=FitH
+
+    html = f"""<!doctype html>
+            <html lang="nl">
+            <head>
+            <meta charset="utf-8">
+            <title>{title}</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <style>html,body,iframe{{height:100%;margin:0}} iframe{{width:100%;border:0}}</style>
+            </head>
+            <body>
+            <iframe src="{iframe_src}"></iframe>
+            <noscript><p><a href="{pdf_url}">Download PDF</a></p></noscript>
+            </body>
+            </html>"""
+    return HttpResponse(html)   

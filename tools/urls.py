@@ -21,4 +21,5 @@ urlpatterns = [
     path('thermisch-vermogen', views.tool_W6, name='thermisch_vermogen'),
     path('driefase-vermogen', views.tool_E1, name='driefase_vermogen'),
     path('download-excel/', views.download_excel, name='download_excel'),
+    path("readme/<slug:tool>/", views.tool_readme, name="tool-readme"),
 ]

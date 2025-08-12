@@ -27,7 +27,9 @@
         <p> Buffervaten worden toegepast om de warmte- of koudeproductie gelijkmatiger te verdelen. Hierdoor hoeft de compressor bij een warmtepomp minder vaak in- en uit te schakelen.</p>    
       </div>
       <div class="tools-icons">
-        <div>  <a href="#" id="readMeButton" > ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" alt="ReadMe Button"> </a> </div>
+        <div>  <a href="{% url 'tools:tool-readme' 'W5' %}" target="_blank" rel="noopener">
+                        ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" alt="PDF">
+                    </a>  </div>
         <div>  <a href="#" id="printButton" >  <img src="{% static 'tools/images/print.png' %}" alt="Print Button"> </a> </div>
         <div>  <a href="#" id="excelButton">  <img src="{% static 'tools/images/Excel.png' %}" alt="Excel Button"> </a> </div>          
       </div>      
@@ -147,6 +149,6 @@
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script> 
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script> pdfUrlReadMe = "{% static 'tools/files/TOOLW5-README.pdf' %}"</script>
+
 <script>pdfUrlExcel = "{% static 'tools/files/TOOL_W5_Buffervat.xlsx' %}"</script>
 {% endblock %}

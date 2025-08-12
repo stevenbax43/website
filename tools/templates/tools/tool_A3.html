@@ -30,7 +30,9 @@
                     Ook kunnen boven- en ondergrenzen worden toegepast om de basis- en pieklast te bepalen. <p>    
             </div>
             <div class="tools-icons">
-                <div>  <a href="#" id="readMeButton" > ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" alt="ReadMe Button"> </a> </div>
+                <div> <a href="{% url 'tools:tool-readme' 'A3' %}" target="_blank" rel="noopener">
+                        ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" alt="PDF">
+                    </a> </div>
                 <div>  <a href="#" id="printButton" >  <img src="{% static 'tools/images/print.png' %}" alt="Print Button"> </a> </div>
                 <div>  <a href="#" id="excelButton">  <img src="{% static 'tools/images/Excel.png' %}" alt="Excel Button"> </a> </div>          
             </div>      
@@ -677,9 +679,12 @@ const linecurvedata = JSON.parse('{{ cumulative_data|escapejs }}');
 const x_values3 = linecurvedata.x_values3; //
 const Q_heat_btwn = linecurvedata.Q_heat; // 
 const Q_cool_btwn = linecurvedata.Q_cool;
+let dataHeat = [];
+let dataCool = [];
+
 try {
-    const dataHeat = x_values3.map((x, i) => ({ x: x, y: Q_heat_btwn[i] }));
-    const dataCool = x_values3.map((x, i) => ({ x: x, y: Q_cool_btwn[i] }));
+    dataHeat = x_values3.map((x, i) => ({ x: x, y: Q_heat_btwn[i] }));
+    dataCool = x_values3.map((x, i) => ({ x: x, y: Q_cool_btwn[i] }));
 } catch (e) {
     dataHeat = []
     dataCool = []
@@ -867,7 +872,5 @@ const linecurve = new Chart(ctx5, {
 
 <!-- This makes sure this JS is only be loaded when rendering this HTML page. Whilst the common JS Files included in de extra_js block of base.html will be loaded across all pages -->
 <script src="{% static 'tools/scripts/script_tools_A3.js' %}"></script>
-<script> 
-    var pdfUrlReadMe = "{% static 'tools/files/TOOLA3-README.pdf' %}" ;
-</script>
+
 {% endblock %}

@@ -82,9 +82,7 @@ maintoola2Divs.forEach(function(div) {
 // Event listener for DOMContentLoaded event
 document.addEventListener('DOMContentLoaded', function() {
   // Event listener for print button
-  document.getElementById('readMeButton').addEventListener('click', function() {
-      window.open(pdfUrlReadMe, '_blank');
-  });
+ 
   document.getElementById('printButton').addEventListener('click', function() {
       window.print();
   });

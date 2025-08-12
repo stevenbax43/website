@@ -26,7 +26,9 @@
         <p> Leidingverlies berekening van water door een stalen pijp. Door de stroomsnelheid en leidingdiameter te wijzigen, kan het drukverschil verkregen worden. </p>    
       </div>
       <div class="tools-icons">
-        <div>  <a href="#" id="readMeButton" > ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" alt="ReadMe Button"> </a> </div>
+        <div>  <a href="{% url 'tools:tool-readme' 'W3' %}" target="_blank" rel="noopener">
+                        ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" alt="PDF">
+                    </a>  </div>
         <div>  <a href="#" id="printButton" >  <img src="{% static 'tools/images/print.png' %}" alt="Print Button"> </a> </div>
         <div>  <a href="#" id="excelButton">  <img src="{% static 'tools/images/Excel.png' %}" alt="Excel Button"> </a> </div>          
       </div>      
@@ -121,6 +123,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script> pdfUrlReadMe = "{% static 'tools/files/TOOLW3-README.pdf' %}"</script>
+
 <script>pdfUrlExcel = "{% static 'tools/files/TOOL_W3_Leidingverliezen.xlsx'%}" </script>
 {% endblock extra_js%}

@@ -27,7 +27,9 @@
                 <p> Het Mollier diagram, of H-x diagram, is een grafische voorstelling van de thermodynamische eigenschappen die van invloed zijn op vochtige lucht.</p>    
             </div>
             <div class="tools-icons no-print">
-                <div>  <a href="#" id="readMeButton" > ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" alt="ReadMe Button"> </a> </div>
+                <div> <a href="{% url 'tools:tool-readme' 'W1' %}" target="_blank" rel="noopener">
+                        ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" alt="PDF">
+                    </a>  </div>
                 <div>  <a href="#" id="printButton" >  <img src="{% static 'tools/images/print.png' %}" alt="Print Button"> </a> </div>
                 <div>  <a href="#" id="excelButton">  <img src="{% static 'tools/images/Excel.png' %}" alt="Excel Button"> </a> </div>          
             </div>      
