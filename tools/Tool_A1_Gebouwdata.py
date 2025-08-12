@@ -33,7 +33,7 @@ def EP_API(adr1):
     api_key = os.environ.get('EP_API_KEY')
     
     # EP-label API base URL for the test environment
-    base_url = 'https://public.ep-online.nl/api/v4/'
+    base_url = 'https://public.ep-online.nl/api/v5/'
     # Specific endpoint for querying based on an address
     endpoint = 'PandEnergielabel/Adres'
 
@@ -80,7 +80,7 @@ def EP_API(adr1):
         error_data = response.json()
         adr1.EP_label = 'Niet gevonden'
         print(f"Error: {response.status_code} - {error_data['title']}")
-       
+        print("EPlabel niet gevonden, probeer opnieuw met een ander adres.")
     return adr1
 
 def Weii_API(adr1):
