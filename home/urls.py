@@ -19,6 +19,7 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('forum/', include('forum.urls')),
     path('favicon.ico', RedirectView.as_view(url='/static/home/images/favicon.png')),
+    path("boom/", views.boom)
 ]
 def _best_tools_url():
     candidates = getattr(settings, "TOOLS_URL_NAMES", ["tools", "tools:index", "core:tools"])
