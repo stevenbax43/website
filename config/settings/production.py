@@ -9,8 +9,6 @@ SECRET_KEY = os.getenv('SECRET_KEY_prod')
 ALLOWED_HOSTS = [
     'stevenbaxontwerpt.nl',
     'www.stevenbaxontwerpt.nl',
-    '35.204.201.20',          # keep while DNS/IP testing; remove later if not needed
-    'localhost',              # remove in strict prod if not accessed locally
 ]
 
 # Django 4.x+ requires full scheme for trusted origins
