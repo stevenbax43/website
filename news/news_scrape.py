@@ -79,19 +79,16 @@ def WeiiNews_extract(request):
 #     #return HttpResponse(slug)
 
 def InstallatieNews_extract(request):
+    
     base_url = 'https://www.installatie.nl/'
     url = base_url + '/categorie/nieuws/'
-
+  
     response = requests.get(url)
-    #print(response)
+ 
 
     if response.status_code == 200:
         soup = BeautifulSoup(response.text, 'html.parser')
-      
-        article_div = soup.select_one('div.grid.grid-cols-2.md\\:grid-cols-1.gap-3.md\\:gap-6.lg\\:gap-6.md\\:pr-3.lg\\:pr-4')
-
-        articles = article_div.find_all('article') if article_div else []
-        #print(articles)
+        articles = soup.select('article.post-list') if soup else []
         # look for first 5 valid article in articles 
         saved_count = 0
         for article in articles:

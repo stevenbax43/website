@@ -14,6 +14,7 @@ def news(request):
    
     if request.method == 'POST':
         delete_all_news(request)
+       
         InstallatieNews_extract(request)
         WeiiNews_extract(request)
         EenWInstallatieTechniekNews_extract(request)
