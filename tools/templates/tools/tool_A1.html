@@ -1,164 +1,216 @@
 {% extends 'home/base.html'%}
-
-{% load static %} 
+{% load static %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'tools/styles/tools.css'%}">
-    <link rel="stylesheet" href="{% static 'tools/styles/tool_A_1.css'%}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
- 
+  <!-- Shared Tools page styles (hero/intro/cards) -->
+  <link rel="stylesheet" href="{% static 'tools/styles/tools.css' %}">
+  <!-- Page-specific styles -->
+  <link rel="stylesheet" href="{% static 'tools/styles/tool_A_1.css' %}">
 {% endblock %}
 
 {% block content %}
-
 {% csrf_token %}
 
-<div class="top-banner"> 
-        <div class="top-banner-items">
-                <div> <h1> Tool A1: Gebouwgegevens</h1>  </div>
-                <div>  <a href="{% url 'tools:tools' %}">  <img src="{% static 'tools/images/engineering.png' %}"> </a> </div>
-        </div> 
-</div>
+<!-- ===== HERO (full-bleed gradient, like tools.html) ===== -->
+<header class="tools-hero">
+  <div class="container py-3">
+    <div class="row align-items-center g-3 flex-nowrap">
+      <div class="col">
+        <h1 class="display-6 mb-0 text-white">Tool A1: Gebouwgegevens</h1>
+      </div>
+      <div class="col-auto">
+        <a href="{% url 'tools:tools' %}" class="d-inline-block">
+          <img src="{% static 'tools/images/engineering.png' %}" class="hero-icon flex-shrink-0" alt="Engineering">
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
 
-<div class="second-banner no-print">        
-        <div class="second-banner-items">
-            <div class="second-alignment">
-                <div class="second-text">  
-                    <p>Met behulp van de postcode en huisnummer kan je informatie opvragen bij meerder sites tegelijk met behulp van 
-                        een API-verbinding. Om zo inzicht te krijgen in de prestaties van het betreffende pand.</p>    
-                </div>
-                <div class="tools-icons">
-                    <div>  <div> <a href="{% url 'tools:tool-readme' 'A1' %}" target="_blank" rel="noopener">
-                        ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" alt="PDF">
-                    </a> </div> </div>
-                    <div>  <a href="#" id="printButton" >  <img src="{% static 'tools/images/print.png' %}" alt="Print Button"> </a> </div>
-                    <!-- <div>  <a href="#" id="excelButton">  <img src="{% static 'tools/images/Excel.png' %}" alt="Excel Button"> </a> </div>           -->
-                </div>      
-            </div>      
+<!-- ===== INTRO (full-bleed light) ===== -->
+<section class="tools-intro no-print">
+  <div class="container py-3">
+    <div class="row align-items-center g-3">
+      <div class="col-12 col-lg-8">
+        <p class="lead mb-0">
+          Met behulp van de postcode en huisnummer kan je informatie opvragen bij meerdere sites tegelijk via
+          een API-verbinding. Zo krijg je snel inzicht in de prestaties van het betreffende pand.
+        </p>
+      </div>
+      <div class="col-12 col-lg-4">
+        <div class="d-flex justify-content-lg-end align-items-center gap-3 flex-wrap">
+          <a href="{% url 'tools:tool-readme' 'A1' %}" target="_blank" rel="noopener" class="intro-link">
+            ReadMe
+            <img src="{% static 'tools/images/PDF-icon.png' %}" class="icon-30" alt="PDF">
+          </a>
+          <a href="#" id="printButton" class="intro-link">
+            <img src="{% static 'tools/images/print.png' %}" class="icon-30" alt="Print">
+          </a>
         </div>
-</div>
-<div class="main-banner">
-        <div class="main-banner-items">
-        <form method = "post" id="buildingdata">
-        {% csrf_token %}
-            <div class="input-output">
-                <div class="container mt-3 borderline">
-                    <div class="row">
-                        <!-- Input Form -->
-                        <div class="col-md-3">
-                            <div class="border p-3 shadow">
-                                <h4>Zoeken</h4>
-                                <!-- Input fields -->
-                                <div class="mb-3">
-                                    <label for="pcode" class="form-label">Postcode</label>
-                                    <input type="text" class="form-control" id="pcode" name="pcode"  placeholder="1234AB" maxlength="6" value="{{ adr1.pcode }}" required>                   
-                                </div>
-                                <div class="mb-3">
-                                    <label for="hnumber" class="form-label">Huisnummer</label>
-                                    <input type="text" class="form-control" id="hnumber" name="hnumber"  placeholder="10" maxlength="6" value="{{ adr1.hnumber }}" required>                   
-                                </div>
-                                <div class="mb-3">
-                                    <label for="addition" class="form-label">Toevoeging</label>
-                                    <input type="text" class="form-control" id="addition" name="addition"  placeholder="A" maxlength="6" value="{{ adr1.addition }}">                   
-                                </div>
-                                <button type="submit" class="btn btn-secondary" id="searchButton" name="searchButton">Zoeken</button>
-                            </div>
-                        </div>  
-                        <!-- Output fields -->
-                        <div class="col-md-3">
-                                <div class="border p-3 shadow">
-                                        <h4>Adres</h4>
-                                        <div class="mb-3">
-                                                <label for="street" class="form-label">Straat</label>
-                                                <output class="form-control" id="street" name="street">{{ adr1.street }}</output>
-                                        </div>
-                                        <div class="mb-3">
-                                                <label for="place" class="form-label">Plaats</label>
-                                                <output class="form-control" id="place" name="place">{{ adr1.place }}</output>
-                                        </div>
-                                        <div class="mb-3">
-                                                <label for="W/U" class="form-label">Gebouwklasse</label>
-                                                <output class="form-control" id="W/U" name="W/U">{{ adr1.gebouwklasse }}</output>
-                                        </div>
-                                     
-                                     
-                                        <a href="https://www.postnl.nl/adres-zoeken/" target="_blank" rel="noopener">
-                                                <img id="BAGviewer" src="{% static 'tools/images/location.png' %}">
-                                        </a>
-                                </div>
-                               
-                        </div>      
-                        <div class="col-md-3">
-                                <div class="border p-3 shadow">
-                                        <h4>BAG</h4>
-                                        <div class="mb-3">
-                                                <label for="purpose" class="form-label">Gebruikersdoel</label>
-                                                <output class="form-control" id="purpose" name="purpose">{{ adr1.purpose }}</output>
-                                        </div>
-                                        <div class="mb-3">
-                                                <label for="BAGsurface" class="form-label">Oppervlakte</label>
-                                                <div class="input-group">
-                                                        <output class="form-control" id="BAGsurface" name="BAGsurface">{{ adr1.BAG_surface }}</output>
-                                                        <span class="input-group-text">m<sup>2</sup></span>
-                                                </div>
-                                        </div>
-                                        <div class="mb-3">
-                                                <label for="EPHeat" class="form-label">Bouwjaar</label>
-                                                <output class="form-control" id="EPHeat" name="EPHeat">{{ adr1.buildyear }}</output>
-                                        </div>
-                                        <a href="https://bagviewer.kadaster.nl/lvbag/bag-viewer/?zoomlevel=1" target="_blank" rel="noopener">
-                                                <img id="BAGviewer" src="{% static 'tools/images/BAGkadaster-logo.png' %}">
-                                        </a>
-                                </div>
-                               
-                        </div>      
-                        <div class="col-md-3">
-                                <div class="border p-3 shadow">
-                                        <h4>EP-label-online</h4>
-                                        <label>Label</label>
-                                        <output class="form-control" id="EP_label" name="EP_label">{{ adr1.EP_label }}</output>
-                                        <div class="mb-3">
-                                                <label for="EPsurface" class="form-label">Thermisch gebr. Oppervlakte</label>
-                                                <div class="input-group">
-                                                        <output class="form-control" id="EPsurface" name="EPsurface">{{ adr1.EP_surface }}</output>
-                                                        <span class="input-group-text">m<sup>2</sup></span>
-                                                </div>
-                                        </div>
-                                        <div class="mb-3">
-                                                <label for="EPenergie" class="form-label">Energiebehoefte</label>
-                                                <div class="input-group">
-                                                        <output class="form-control" id="EPenergie" name="EPenergie">{{ adr1.EP_energie }}</output>
-                                                        <span class="input-group-text">kWh/m<sup>2</sup>*jaar</span>
-                                                </div>
-                                        </div>
-                                        <div class="mb-3">
-                                                <label for="EPTO_juli" class="form-label">TO-juli</label>
-                                                <output class="form-control" id="EPTO_juli" name="EPTO_juli">{{ adr1.EP_TO }}</output>
-                                        </div>
-                                     
-                                        
-                                        <a href="https://www.ep-online.nl/" target="_blank" rel="noopener">
-                                         <img id="BAGviewer" src="{% static 'tools/images/label-u-bouw.jpg' %}">
-                                        </a>
-                                </div>
-                               
-                        </div>      
-                        </div>
-                       
-                               
-                </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FORM + OUTPUTS ===== -->
+<section class="py-4">
+  <div class="container">
+    <form method="post" id="buildingdata">
+      {% csrf_token %}
+
+      <div class="row g-3 g-lg-4">
+
+        <!-- Search panel -->
+        <div class="col-12 col-lg-3">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h4 class="h5">Zoeken</h4>
+
+              <div class="mb-3">
+                <label for="pcode" class="form-label">Postcode</label>
+                <input type="text"
+                       class="form-control"
+                       id="pcode" name="pcode"
+                       placeholder="1234AB"
+                       maxlength="6"
+                       value="{{ adr1.pcode }}"
+                       required>
+              </div>
+
+              <div class="mb-3">
+                <label for="hnumber" class="form-label">Huisnummer</label>
+                <input type="text"
+                       class="form-control"
+                       id="hnumber" name="hnumber"
+                       placeholder="10"
+                       maxlength="6"
+                       value="{{ adr1.hnumber }}"
+                       required>
+              </div>
+
+              <div class="mb-3">
+                <label for="addition" class="form-label">Toevoeging</label>
+                <input type="text"
+                       class="form-control"
+                       id="addition" name="addition"
+                       placeholder="A"
+                       maxlength="6"
+                       value="{{ adr1.addition }}">
+              </div>
+
+              <button type="submit" class="btn btn-secondary w-100" id="searchButton" name="searchButton">
+                Zoeken
+              </button>
             </div>
-        </form>
+          </div>
         </div>
-</div>
-    
- 
 
+        <!-- Adres -->
+        <div class="col-12 col-lg-3">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h4 class="h5">Adres</h4>
 
-{% endblock content%} 
+              <div class="mb-3">
+                <label for="street" class="form-label">Straat</label>
+                <output class="form-control output" id="street" name="street">{{ adr1.street }}</output>
+              </div>
+
+              <div class="mb-3">
+                <label for="place" class="form-label">Plaats</label>
+                <output class="form-control output" id="place" name="place">{{ adr1.place }}</output>
+              </div>
+
+              <div class="mb-3">
+                <label for="W/U" class="form-label">Gebouwklasse</label>
+                <output class="form-control output" id="W/U" name="W/U">{{ adr1.gebouwklasse }}</output>
+              </div>
+
+              <a href="https://www.postnl.nl/adres-zoeken/" target="_blank" rel="noopener" class="d-block text-center mt-2">
+                <img src="{% static 'tools/images/location.png' %}" class="panel-logo" alt="Adres zoeken">
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- BAG -->
+        <div class="col-12 col-lg-3">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h4 class="h5">BAG</h4>
+
+              <div class="mb-3">
+                <label for="purpose" class="form-label">Gebruikersdoel</label>
+                <output class="form-control output" id="purpose" name="purpose">{{ adr1.purpose }}</output>
+              </div>
+
+              <div class="mb-3">
+                <label for="BAGsurface" class="form-label">Oppervlakte</label>
+                <div class="input-group">
+                  <output class="form-control output" id="BAGsurface" name="BAGsurface">{{ adr1.BAG_surface }}</output>
+                  <span class="input-group-text">m<sup>2</sup></span>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="EPHeat" class="form-label">Bouwjaar</label>
+                <output class="form-control output" id="EPHeat" name="EPHeat">{{ adr1.buildyear }}</output>
+              </div>
+
+              <a href="https://bagviewer.kadaster.nl/lvbag/bag-viewer/?zoomlevel=1"
+                 target="_blank" rel="noopener"
+                 class="d-block text-center mt-2">
+                <img src="{% static 'tools/images/BAGkadaster-logo.png' %}" class="panel-logo" alt="BAG Kadaster">
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- EP-label-online -->
+        <div class="col-12 col-lg-3">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h4 class="h5">EP-label-online</h4>
+
+              <div class="mb-3">
+                <label for="EP_label" class="form-label">Label</label>
+                <output class="form-control output" id="EP_label" name="EP_label">{{ adr1.EP_label }}</output>
+              </div>
+
+              <div class="mb-3">
+                <label for="EPsurface" class="form-label">Thermisch gebr. Oppervlakte</label>
+                <div class="input-group">
+                  <output class="form-control output" id="EPsurface" name="EPsurface">{{ adr1.EP_surface }}</output>
+                  <span class="input-group-text">m<sup>2</sup></span>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="EPenergie" class="form-label">Energiebehoefte</label>
+                <div class="input-group">
+                  <output class="form-control output" id="EPenergie" name="EPenergie">{{ adr1.EP_energie }}</output>
+                  <span class="input-group-text">kWh/m<sup>2</sup>·jaar</span>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="EPTO_juli" class="form-label">TO-juli</label>
+                <output class="form-control output" id="EPTO_juli" name="EPTO_juli">{{ adr1.EP_TO }}</output>
+              </div>
+
+              <a href="https://www.ep-online.nl/" target="_blank" rel="noopener" class="d-block text-center mt-2">
+                <img src="{% static 'tools/images/label-u-bouw.jpg' %}" class="panel-logo" alt="EP-online">
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div> <!-- /row -->
+    </form>
+  </div>
+</section>
+{% endblock %}
+
 {% block extra_js %}
-<!-- This makes sure this JS is only be loaded when rendering this HTML page. Whilst the common JS Files included in de extra_js block of base.html will be loaded across all pages -->
-<!-- <script src="{% static 'tools/scripts/script_tools_A1.js' %}"></script> -->
-
-
+  {# Keep your page-specific JS here if/when you add it #}
 {% endblock %}

@@ -1,309 +1,81 @@
-.second-banner-items img {
-	width: 30px;
-	max-height: auto;
-}
-.second-banner-items a {
-    text-decoration: none;
-    color: #333;
-    font-weight: bold;
-    font-size: 16px;
-    transition: color 0.3s ease;
-}
-.second-banner-items a:hover {
-    color: #00ff00;
-	transition: color 0.3s ease;
-}
-.second-alignment {
-    display: flex;
-    width: 100%;
+/* =========================
+   Tools page (Bootstrap 5)
+   ========================= */
+
+/* --- Full-bleed wrapper for hero/intro even inside base container --- */
+.tools-hero,
+.tools-intro {
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  width: 100vw;
 }
 
-.second-text {
-    flex: 0 0 80%; /* Take up 80% of the width */
-	size: 28px;
+/* --- Hero (gradient) --- */
+.tools-hero {
+  background: linear-gradient(to right, rgba(92,216,35,.75), rgba(10,92,3,.75));
 }
- 
+.tools-hero .display-6 { color: #fff; }
+.hero-icon { width: 64px; height: auto; }
+@media (max-width: 575.98px) { .hero-icon { width: 48px; } }
 
+/* --- Intro (light) --- */
+.tools-intro {
+  background: #f5f6f7;
+}
+.intro-link {
+  text-decoration: none;
+  color: #333;
+  font-weight: 600;
+  font-size: 16px;
+}
+.intro-link:hover { color: #00c000; }
+.icon-30 { width: 30px; height: auto; vertical-align: middle; }
 
-.tools-icons {
-    flex: 0 0 20%; /* Take up 20% of the width */
-    display: flex;
-    justify-content: flex-end; /* Align items on the right */
-    align-items: center; /* Align items vertically */
-    gap: 10px; /* Add space between the icons */
-    margin: 10px; /* Add margin around the container */
-}
+/* --- Tool sections (colored backgrounds) --- */
+.tool-section { background: #f8f9fa; }
+.tool-section--algemeen { background: #edffe8; }
+.tool-section--hvac     { background: #dedeff; }
+.tool-section--elektra  { background: #ffbc9e; }
 
-.tools-icons div {
-    display: flex;
-    align-items: center; /* Center content vertically within each div */
-}
-.tools-icons a:hover img,
-.top-banner-items a:hover img,
-.grid-item:hover{
-    opacity: 0.7; /* Optional: Add a hover effect to indicate clickability */
-}
-
-.grid-container-algemeen {
-    display: grid;
-	grid-template-columns: repeat(4, 1fr); /* Two columns grid */
-    grid-template-rows: repeat(1, 1fr); /* Four rows grid */
-    gap: 20px; /* Gap between grid items */
-	margin-bottom: 10px;
-	background-color: #edffe8;
-	border-radius: 20px;
-}
-.grid-container-hvac {
-    display: grid;
-	grid-template-columns: repeat(4, 1fr); /* Two columns grid */
-    grid-template-rows: repeat(1, 1fr); /* Four rows grid */
-    gap: 20px; /* Gap between grid items */
-	margin-bottom: 10px;
-	background-color: #dedeff;
-	border-radius: 20px;
-}
-.grid-container-elektra {
-    display: grid;
-	grid-template-columns: repeat(4, 1fr); /* Two columns grid */
-    grid-template-rows: repeat(1, 1fr); /* Four rows grid */
-    gap: 20px; /* Gap between grid items */
-	margin-bottom: 10px;
-	background-color: #ffbc9e;
-	border-radius: 20px;
+/* --- Cards --- */
+.tool-card {
+  --bs-card-bg: transparent;     /* Bootstrap var */
+  background-color: transparent; /* safety */
+  border: 0;
+  box-shadow: none;
 }
 
-.grid-item {
-    
-    padding: 20px;
-    text-align: center;
-    border-radius: 8px;
+.tool-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 .5rem 1rem rgba(0,0,0,.08);
+  text-decoration: none;
+}
+.tool-card .card-body { padding: 1rem 0.75rem; }
+
+/* Tool icon inside cards */
+.tool-icon {
+  display: block;
+  width: 56%;
+  height: auto;
+  margin: 0 auto;
+  transition: opacity .2s ease;
+}
+.tool-card:hover .tool-icon { opacity: .85; }
+
+/* Headings in cards */
+.tool-card h3 {
+  color: #333;
+  font-weight: 600;
+  line-height: 1.2;
 }
 
-.grid-item a {
-    text-decoration: none;
-    color: inherit; /* Inherit text color */
-}
+/* Typography (keep close to your original tone) */
+h1, h2, h3 { color: #333; }
 
-.grid-item img {
-    max-width: 50%;
-    height: auto;
-    border-radius: 4px;
-}
-
-.grid-item h3 {
-    margin-top: 10px;
-    font-size: 18px;
-}
-
-h1, h2, h3 {
-    font-family: Arial, sans-serif;
-    color: #333;
-}
-
-
-
-
-
-
-
-
-
-.icons-container {
-    margin-bottom: 20px;
-    display: flex;
-    justify-content: center; /* Center items horizontally */
-    flex-direction: column; /* Change to column direction */
-    align-items: center; /* Center the content vertically */
-}
-.icon:hover p {
-    color: white;
-}
-.borderline {
-	border-bottom: 4px solid #00ff00;
-	padding: 15px;
-}
-
-
-
-
-.button-span {
-	width: 90%;
-	max-height: 20px;
-	padding: 15px 0;
-	text-align: center;
-	line-height: 2px;
-	margin: 10px 10px;
-	border-radius: 10px;
-	font-weight: bold;
-	border: 1px solid #13f539;
-	background: transparent;
-	color: #000000;
-	cursor: pointer;
-	position: relative;
-	overflow: hidden;
-}
-
-
-.button-span span{
-	background: #13f539;
-	height: 100%;
-	width: 0%;
-	border-radius: 10px;
-	position: absolute;
-	left: 0;
-	bottom: 0;
-	z-index: -1;
-	transition: 0.5s;
-}
-
-button:hover span{
-	width: 100%;
-}
-
-button:hover{
-	border: none;
-}
-
-.button-container{
-	display: flex;
-	width: 30%;
-	max-width: 250px;
-	min-width: 170px;
-}
-
-/* Styles for the Table of Contents */
-.TableOfContent {
-    list-style-type: none;
-    padding: 0;
-	margin-left: 40px;
-}
-
-.TableOfContent li {
-    margin-bottom: 8px;
-	position: relative;
-}
-.TableOfContent li::before {
-    content: '\2022'; /* Unicode character for a bullet point */
-    color: transparent; /* Adjust the color as needed */
-    display: inline-block;
-	font-size: 24px;
-    width: 1em;
-    margin-left: -1em;
-    position: absolute;
-    left: -10px; /* Adjust the distance from the left */
-	transition: color 0.3s ease; /* Smooth color transition on hover */
-}
-.TableOfContent a {
-    text-decoration: none;
-    color: #333; /* Adjust the color as needed */
-    font-size: 16px;
-    transition: color 0.3s ease; /* Smooth color transition */
-}
-
-.TableOfContent a:hover {
-    color: #00ff00; /* Adjust the hover color as needed */
-}
-/* Show the bullet point only on hover */
-.TableOfContent li:hover::before {
-    color: #00ff00;
-}
-
-/* Styles for the SVG spinner */
-.spinner {
-    animation: rotate 2s linear infinite;
-    width: 50px;
-    height: 50px;
-}
-
-.path {
-    stroke: blue; /* Adjust the color as needed */
-    stroke-linecap: round;
-    animation: dash 1.5s ease-in-out infinite;
-}
-
-@keyframes rotate {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-@keyframes dash {
-    0% {
-        stroke-dasharray: 1, 150;
-        stroke-dashoffset: 0;
-    }
-    50% {
-        stroke-dasharray: 90, 150;
-        stroke-dashoffset: -35;
-    }
-    100% {
-        stroke-dasharray: 90, 150;
-        stroke-dashoffset: -124;
-    }
-}
-
-
-/* Hide the waiting sign by default */
-.hidden {
-    display: none;
-}
-
-.no-button {
-    background-color: #f44336;
-    color: #fff;
-}
-.dark-green {
-    color: rgb(2, 112, 2);
-    font-size: 40px;
-    font-weight: bold;
-}
-
-.green {
-    color: rgb(56, 163, 7);
-    font-size: 40px;
-    font-weight: bold;
-}
-
-.light-green {
-    color: rgb(123, 255, 0);
-    font-size: 40px;
-    font-weight: bold;
-}
-
-.yellow {
-    color: rgb(219, 235, 0);
-    font-size: 40px;
-    font-weight: bold;
-}
-
-.orange {
-    color: rgb(236, 174, 4);
-    font-size: 50px;
-    font-weight: bold;
-}
-.light-red {
-    color: rgb(255, 0, 0);
-    font-size: 40px;
-    font-weight: bold;
-}
-.red {
-    color: rgb(155, 0, 0);
-    font-size: 40px;
-    font-weight: bold;
-}
-.black {
-    color: rgb(0, 0, 0);
-    font-size: 40px;
-    font-weight: bold;
-}
-
-
-
+/* Print */
 @media print {
-	.no-print {
-        display: none !important;
-    }
+  .no-print { display: none !important; }
 }

@@ -1,282 +1,212 @@
-main {
-    flex: 1; /* Allow the main content to grow and fill available space */
+/* =========================================================
+   Kropman – Base Styles (Bootstrap 5 compatible)
+   - Works with your current HTML (logo split across two images)
+   - Keeps original rotation + slide animation
+   - Narrows only the "I" image
+   ========================================================= */
+
+/* ---------- Brand variables ---------- */
+:root {
+  --kropman-green-1: rgba(92, 216, 35, 0.75);
+  --kropman-green-2: rgba(10, 92, 3, 0.75);
+  --kropman-underline: #13f539;
 }
+.pt-0p03 { padding-top: 0.03rem !important; }  /* ~0.48px at 16px root */
+/* ---------- Global ---------- */
+html { box-sizing: border-box; }
+*, *::before, *::after { box-sizing: inherit; }
 
 body {
-	display: flex;
-    flex-direction: column;
-	background: white;
-	border-radius: 20px;
-	margin: 0; 
-	padding: 0;
-	width: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;         /* sticky footer with .min-vh-100 body fallback */
+  background: #fff;
+  margin: 0;
+  padding: 0;
+}
+main { flex: 1 1 auto; }
+
+img { max-width: 100%; height: auto; }
+
+/* ---------- Navbar / Header ---------- */
+.header-banner {
+  background-color: #fff;
+  border-bottom: 2px solid transparent;
+  border-image: linear-gradient(to right, var(--kropman-green-1), var(--kropman-green-2)) 1;
 }
 
-.navbar {
-    background-color: #ffffff;
-	width:  60%;
-	height:  fit-content;
-	margin: auto; /*automatically center */
-	display: flex;
-	align-items: center; /* Center images vertically */
-	justify-content: space-between;
-	line-height: 1;
+/* Prevent animation clipping */
+.header-banner .navbar,
+.header-banner .navbar .container,
+.navbar-brand { overflow: visible; }
+
+/* Brand block */
+.navbar-brand.logo-container {
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  padding: 0;
+  line-height: 1;
+  text-decoration: none;
+  position: relative;
 }
 
+/* ---------- Split-logo sizing (two images make one logo) ---------- */
+/* Base: keep height consistent and prevent flex stretch */
+.logo { height: 50px !important; flex: 0 0 auto !important; display: block; }
 
-.navbar-brand {
-	display: flex;
-    align-items: center; /* Center items vertically */
-	margin-top: 1%;
-	margin-bottom: 1%;
-}
-.logo-container {
-    display: flex; /* Ensure the logo container is a flex container */
-    align-items: center; /* Center items vertically */
-    text-decoration: none; /* Remove default link underline */
-	
-}
-.logo {
-	max-width: 50px; /* Adjust the maximum width of the logos as needed */
-    height: 50px; /* Maintain aspect ratio */
+/* Make ONLY the "I" narrower */
+.logo-i { width: 20px !important;  margin-right: -4px !important; /* tweak until perfect */ }              /* tweak to taste */
+
+/* Keep the >K full width */
+.logo-bigger-than { width: 50px !important; }
+
+/* Mobile tweak: slightly smaller to fit collapsed nav neatly */
+@media (max-width: 576px) {
+  .logo        { height: 40px !important; }
+  .logo-i      { width: 15px !important; }
+  .logo-bigger-than { width: 40px !important; }
 }
 
-/* Define animations */
+/* Small nav icons (login/logout/profile) */
+.nav-icon { height: 25px; width: auto; vertical-align: middle; }
+
+/* Desktop underline for nav links */
+@media (min-width: 992px) {
+  .navbar-nav .nav-link { position: relative; }
+  .navbar-nav .nav-link::after {
+    content: "";
+    position: absolute; left: 0; bottom: -6px;
+    height: 3px; width: 0;
+    background: var(--kropman-underline);
+    transition: width .3s ease;
+  }
+  .navbar-nav .nav-link:hover::after,
+  .navbar-nav .nav-link:focus::after { width: 100%; }
+}
+
+/* Optional: avoid z-index overlap on ultra-narrow screens */
+@media (max-width: 360px) {
+  .navbar .navbar-toggler { z-index: 2; }
+  .navbar .navbar-brand   { z-index: 1; }
+}
+
+/* ---------- Animations (unchanged behavior) ---------- */
 @keyframes rotateAnimation {
-    0% {        transform: rotate(0);    }
-    100% {        transform: rotate(180deg);    }
+  0% { transform: rotate(0); }
+  100% { transform: rotate(180deg); }
 }
 @keyframes rotateAnimationBack {
-    0% {        transform: rotate(180deg);    }
-    100% {        transform: rotate(0);    }
+  0% { transform: rotate(180deg); }
+  100% { transform: rotate(0); }
 }
 
+/* Original big slide for desktop */
 @keyframes moveLeft {
-    0% {       transform: translateX(0);    }
-    50% {        transform: translateX(-300px) scale(1);	}
-    100% {        transform: translateX(0px) scale(1);    }
+  0%   { transform: translateX(0); }
+  50%  { transform: translateX(-300px) scale(1); }
+  100% { transform: translateX(0) scale(1); }
 }
 
-/* Apply animations on hover */
+/* Gentler slide for small screens (so it doesn’t clip) */
+@keyframes moveLeftMobile {
+  0%   { transform: translateX(0); }
+  50%  { transform: translateX(-80px) scale(1); }
+  100% { transform: translateX(0) scale(1); }
+}
+
+/* Apply animations to the split-logo container */
 .logo-container:hover {
-    animation: rotateAnimation 0.5s linear forwards, rotateAnimationBack 0.5s 2.4s linear forwards; /* rotate animation within 0.5 seconds, wait 2.4s and rotate back */
+  animation: rotateAnimation 0.5s linear forwards,
+             rotateAnimationBack 0.5s 2.4s linear forwards;
 }
+/* Default to mobile-friendly slide … */
 .logo-container:hover .logo-i {
-    animation: moveLeft 2s 0.45s linear forwards; /* wait 0.45s moveLeft logo-I part and do that for 2 seconds */
+  animation: moveLeftMobile 2s 0.45s linear forwards;
+}
+/* … and on md+ use the original long slide */
+@media (min-width: 768px) {
+  .logo-container:hover .logo-i { animation-name: moveLeft; }
 }
 
-.navbar-menu {
-    float: right;
-}
-.navbar-menu img {
-	height: 25px;
-	width: auto;
-	vertical-align: middle;
-}
-.navbar-menu ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-	display: flex;
-    align-items: center;
+/* Respect user motion prefs */
+@media (prefers-reduced-motion: reduce) {
+  .logo-container:hover,
+  .logo-container:hover .logo-i { animation: none !important; }
 }
 
-.navbar-menu ul li {
-    display: flex;
-	float: left;
-	text-decoration: none;
-	color: #ffffff;
-	text-transform: uppercase;
-	margin: 0 10px;
-    position: relative;
-	text-align: center;
-	align-items: center;
+/* ---------- Banners (use Bootstrap containers inside) ---------- */
+.top-banner {
+  background: linear-gradient(to right, var(--kropman-green-1), var(--kropman-green-2));
+}
+.top-banner h1 { color: #f7f7f7; }
+
+/* Keep your structural wrappers centered on large screens */
+.top-banner-items,
+.second-banner-items,
+.main-banner-items,
+.footer-banner {
+  width: min(1200px, 100% - 2rem);
+  margin-inline: auto;
 }
 
-.navbar-menu ul li a {
-    display: block;
-    color: rgb(0, 0, 0);
-    text-align: center;
-	text-decoration: none;
-}
-.navbar-menu ul li form {
-    display: flex;
-    justify-content: center; /* Horizontally center the form */
-    align-items: center; /* Vertically center the form */
-    margin: 0; /* Reset margin */
-}
-.navbar-menu ul li::after {
-	content: "";
-	height: 3px;	
-	width: 0;
-	background: #13f539;
-	position: absolute;
-	left: 0;
-	bottom: -10px;
-	transition: 0.5s;
-}
-.navbar-menu ul li:hover::after{
-	width: 100%;
-}
-
-.dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #f9f9f9;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
-}
-
-.dropdown-content a {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-    text-align: left;
-}
-
-.dropdown-content a:hover {
-    background-color: #f1f1f1;
-}
-
-.dropdown:hover .dropdown-content {
-    display: block;
-}
-
-.header-banner {
-	background-color: #ffffff; /* Background color of the header */
-	margin-top: 1%;
-	border-bottom: 2px solid transparent;
-	border-image: linear-gradient(to right,rgba(92, 216, 35, 0.75), rgba(10, 92, 3, 0.75)) 1;
-}
-
-#logoutbutton,
-#login {
-	border: none;
-	border-left: 4px solid #09ff00;
-	padding-left: 10px;
-	color: #000000;
-	background: transparent;
-	cursor: pointer;
-	text-transform: lowercase;
-}
-
-#signup,
-#change_pass {
-	text-transform: lowercase;
-}
-
-/* Basisstijlen voor de pagina-indeling */
-.top-banner{
-    background: linear-gradient(to right,rgba(92, 216, 35, 0.75), rgba(10, 92, 3, 0.75));
-	margin: 0;
-	max-height: 300px;
-    display: flex;
-    justify-content: center;
-}
-.top-banner-items{
-    width: 60%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.top-banner h1{
-    font-size: 40px; 
-	color: #f7f7f7;
-}
-.top-banner img {
-	width: 100px;
-	height: auto;
-    padding: 10px;
-	
-}
-.second-banner{
-    background: rgb(241, 241, 241);
-	margin: 0;
-	max-height: 300px;
-    display: flex;
-    justify-content: center;
-}
-.second-banner-items{
-	margin-top:10px;
-	width: 60%;
-	display: flex;
-    justify-content: space-between;
-	margin-right: 10px; /* Add some spacing between list items */
-}
-
-.main-banner{
-	background: transparent; /* because of span button */
-	margin: 0;
-	display: flex; /* zorgt voor centreren van content */
-    justify-content: center;
-}
-
-.main-banner-items{
-	width: 60%;
-	display: flex;
-	flex-direction: column;
-	align-items: left;
-}
-
+/* ---------- Footer ---------- */
 footer {
-	display: flex;
-    justify-content: center;
-	bottom: 0;
-	right: 10;
-	width: 100%;
-	background: linear-gradient(to left,rgba(92, 216, 35, 0.75), rgba(10, 92, 3, 0.75));
-	color: rgb(253, 253, 253);
-	
+  background: linear-gradient(to left, var(--kropman-green-1), var(--kropman-green-2));
+  color: #fdfdfd;
 }
-.footer-banner{
-	width: 60%;
-	margin: auto; /*automatically center */
-	display: flex;
-	align-items: center; /* Center vertically */
-	justify-content: space-between;
+.footer-image { cursor: pointer; }
+
+/* Stack footer bits on small screens */
+@media (max-width: 767.98px) {
+  .footer-banner { display: flex; flex-direction: column; gap: 1rem; }
 }
 
-.footer-banner img {
-	height: auto; /* Maintain the aspect ratio */
-	cursor: pointer
+/* ---------- Auth buttons look like icons in nav ---------- */
+#logoutbutton, #login {
+  border: none;
+  border-left: 4px solid #09ff00;
+  padding-left: 10px;
+  color: #000;
+  background: transparent;
+  cursor: pointer;
+  text-transform: lowercase;
 }
+#signup, #change_pass { text-transform: lowercase; }
 
-@media (max-width: 599px) {
-	/* Voeg hier stijlen toe voor kleine schermen */
-
-}
-
-/* Gemiddelde schermen */
-@media (min-width: 600px) and (max-width: 767px) {
-	/* Voeg hier stijlen toe voor gemiddelde schermen */
-	
-}
-
-/* Grote schermen */
-@media (min-width: 768px) and (max-width: 991px) {
-	/* Voeg hier stijlen toe voor grote schermen */
-
-
-
-}
-
-/* Styles for larger screens (default) */
-@media (min-width: 991px) {
-	/* Voeg hier stijlen toe voor laptop schermen */
-
-
-}
-
+/* ---------- Print ---------- */
 @media print {
-	@page {
-		size: A4;
-		/* You can also adjust other properties like margins, orientation, etc. */
-		margin: 2cm; /* Example margin */
-	  }
-	header.navbar,
-	footer {
-	  display: none;
-	}
-  }
+  @page { size: A4; margin: 2cm; }
+  header, footer { display: none !important; }
+}
+/* ===== Nav link color override ===== */
+.navbar-nav .nav-link {
+  color: #000000 !important;         /* black by default */
+  position: relative;             /* for underline positioning */
+  transition: color 0.3s ease;
+  font-size: 1.2rem;           /* groter maken (standaard ≈16px → 17.6px) */
+  
+}
+
+/* ===== Gradient underline on hover ===== */
+.navbar-nav .nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;                    /* adjust to taste */
+  height: 3px;
+  width: 0;
+  background: linear-gradient(to right,
+              rgba(92, 216, 35, 0.75),
+              rgba(10, 92, 3, 0.75));
+  transition: width 0.4s ease;
+}
+
+.navbar-nav .nav-link:hover::after {
+  width: 100%;
+}
+
+/* ===== Hover text color change ===== */
+.navbar-nav .nav-link:hover {
+  color: #666 !important;          /* grey on hover */
+}

@@ -1,227 +1,264 @@
 {% extends 'home/base.html'%}
-
-{% load static %} 
+{% load static %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'tools/styles/tools.css'%}">
-    <link rel="stylesheet" href="{% static 'tools/styles/tool_W_4.css'%}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'tools/styles/tools.css'%}">
+  <link rel="stylesheet" href="{% static 'tools/styles/tool_W_4.css'%}">
+ 
 {% endblock %}
 
-{% block content %}
+{% block content_wrapper_start %}{% endblock %}
+{% block content_wrapper_end %}{% endblock %}
 
+{% block content %}
 {% csrf_token %}
 
-<div class="top-banner"> 
-        <div class="top-banner-items">
-                <div> <h1> Tool W4: CO<sub>2</sub>-verloop </h1>  </div>
-                <div>  <a href="{% url 'tools:tools' %}">  <img src="{% static 'tools/images/engineering.png' %}"> </a> </div>
-        </div> 
-</div>
-
-
-<div class="second-banner no-print">        
-    <div class="second-banner-items">
-        <div class="second-alignment">
-            <div class="second-text">  
-                <p> Bij het bepalen van de CO2-ontwikkeling in een ruimte zijn drie zaken belangrijk: 
-                    de CO2-productie door aanwezige personen, de hoeveelheid verse lucht en de buitenconcentratie in ppm.
-                     CO2 verspreidt zich gemakkelijk, en de berekening gaat uit van een ideale menging.<p>    
-            </div>
-            <div class="tools-icons">
-                <div>  <a href="{% url 'tools:tool-readme' 'W4' %}" target="_blank" rel="noopener">
-                        ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" alt="PDF">
-                    </a>  </div>
-                <div>  <a href="#" id="printButton" >  <img src="{% static 'tools/images/print.png' %}" alt="Print Button"> </a> </div>
-                <div>  <a href="#" id="excelButton">  <img src="{% static 'tools/images/Excel.png' %}" alt="Excel Button"> </a> </div>          
-            </div>      
-        </div>      
+<!-- HERO -->
+ <header class="tools-hero">
+  <div class="container py-3">
+    <div class="row align-items-center g-3 flex-nowrap">
+      <div class="col">
+        <h1 class="display-6 mb-0 text-white ">Tool W4: CO<sub>2</sub>-verloop</h1>
+      </div>
+      <div class="col-auto">
+        <a href="{% url 'tools:tools' %}" class="d-inline-block">
+          <img src="{% static 'tools/images/engineering.png' %}" class="hero-icon flex-shrink-0" alt="Engineering">
+        </a>
+      </div>
     </div>
-</div>
+  </div>
+</header>
 
-<div class="main-banner">
-    <div class="main-banner-items" id="print_content">
-        <form method="post" id="inputForm">
-            {% csrf_token %}
-            <div class="container mt-15 ">
-                <div class="row mx-auto ">
-                    <!-- Input Form -->
-                    <div class="col-md-12" style="margin-top: 15px;">
-                        <div class="border p-3 shadow ">
-                            <h4>Input</h4>
-                            <!-- Input fields -->
-                            <!-- First input field -->
-                            <div class="d-flex justify-content-between">
-                                <div class="me-3" style="flex: 1;">
-                               
-                                                                    
-                                    <div class="mb-3">
-                                        <label for="volume_room" class="form-label">Ruimte Inhoud (V):</label>
-                                        <div class="input-group">
-                                        <input type="number" class="form-control" id="volume_room" name="volume_room" value="50" min="0" step="0.1">
-                                        <span class="input-group-text">m<sup>3</sup></span>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="ventilation_pp" class="form-label">Ventilatiehoeveelheid (q<sub>v,pp</sub>):</label>
-                                        <div class="input-group">
-                                            <input type="number" class="form-control" id="ventilation_pp" name="ventilation_pp" value="30" min="0" step="0.1">
-                                            <span class="input-group-text">m<sup>3</sup>/h</span>
-                                        </div>
-                                    </div>
-                                
-                                    <div class="mb-3">
-                                        <label for="production_pp" class="form-label">CO₂-productie per persoon (p<sub>pp</sub>):</label>
-                                        <div class="input-group">
-                                            <select class="form-select" id="production_pp" name="production_pp">
-                                                <option value="10.6">Slapen [10.6]</option>
-                                                <option value="14.2" selected>Zitten (kantoorwerk) [14.2]</option>
-                                                <option value="21.2">Staand werk [21.2]</option>
-                                                <option value="29.5">Wandelen (3 km/h) [29.5]</option>
-                                                <option value="35.4">Huishoudelijk werk [35.4]</option>
-                                                <option value="41.3">Wandelen (5 km/h) [41.3] </option>
-                                                <option value="47.2">Fietsen licht (100 W)[47.2]</option>
-                                                <option value="82.6">Joggen (8 km/h) [82.6]</option>
-                                                <option value="118.0">Intensief sporten [118]</option>
-                                            </select>
-                                            <span class="input-group-text">l/h</span>
-                                        </div>
-                                    </div>
-                                </div>
 
-                                <div class="ms-3" style="flex: 1;">
-                                   
-                                    <div class="mb-3">
-                                        <label for="number_persons" class="form-label">Aantal personen (n):</label>
-                                        <div class="input-group">
-                                        <input type="number" class="form-control" id="number_persons" name="number_persons" value="10" min="0" >
-                                        <span class="input-group-text">personen</span>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="bezetting" class="form-label">Bezetting (&#946;):</label>
-                                        <div class="input-group">
-                                        <input type="number" class="form-control" id="bezetting" name="bezetting" value="100" min="0" max="100">
-                                        <span class="input-group-text">%</span>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="outsite_air_ppm" class="form-label">Kwaliteit buitenlucht (C<sub>ex</sub>):</label>
-                                        <div class="input-group">
-                                            <input type="number" class="form-control" id="outsite_air_ppm" name="outsite_air_ppm" value="400" min="0"  >
-                                            <span class="input-group-text">ppm</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="ms-3" style="flex: 1;">
-                                    
-                                    <div class="mb-3">
-                                        <label for="start_ppm" class="form-label">Beginconcentratie (C<sub>0</sub>):</label>
-                                        <div class="input-group">
-                                        <input type="number" class="form-control" id="start_ppm" name="start_ppm" value="400" min="0" >
-                                        <span class="input-group-text">ppm</span>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="time_hour" class="form-label">Tijd (t):</label>
-                                        <div class="input-group">
-                                        <input type="number" class="form-control" id="time_hour" name="time_hour" value="1" min="0" max="100" step="0.1">
-                                        <span class="input-group-text">h</span>
-                                        </div>
-                                    </div>
-                                    
-                                </div>
-                           </div>   
-                        </div>  
-                    </div>  
-                    <!-- Submit button -->
-                    <button type="submit" class="btn btn-primary mx-auto" style="display: none;" id="CO2button" name="CO2button"></button>
-                    
-                    <!-- Graph -->
-                    <div class="col-md-12 mx-auto" style="margin-top: 15px;">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="border p-3 shadow mb-3">
-                                        <!-- Graph canvas 1 -->
-                                        <div style="min-height: 150px; overflow:hidden;"><canvas id="CO2_verloop" style="width: 100%; height: auto;" width="265" height="166"></canvas></div>
-                                    </div>
-                                </div>
-                            </div>
-                    </div>
+<!-- INTRO -->
+<section class="bg-light py-3 no-print">
+  <div class="container">
+    <div class="row align-items-center g-3">
+      <div class="col-12 col-lg-8">
+        <p class="mb-0">
+          Bij het bepalen van de CO₂-ontwikkeling in een ruimte zijn drie zaken belangrijk:
+          de CO₂-productie door aanwezige personen, de hoeveelheid verse lucht en de buitenconcentratie
+          (ppm). Er wordt uitgegaan van ideale menging.
+        </p>
+      </div>
+      <div class="col-12 col-lg-4 d-flex justify-content-lg-end align-items-center gap-3 flex-wrap">
+        <a href="{% url 'tools:tool-readme' 'W4' %}" target="_blank" rel="noopener" class="intro-link d-inline-flex align-items-center gap-2">
+          ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" class="icon-30 icon-pdf-red" alt="PDF">
+        </a>
+        <a href="#" id="printButton" class="intro-link d-inline-flex align-items-center">
+          <img src="{% static 'tools/images/print.png' %}" class="icon-30" alt="Print">
+        </a>
+        <a href="#" id="excelButton" class="intro-link d-inline-flex align-items-center">
+          <img src="{% static 'tools/images/Excel.png' %}" class="icon-30" alt="Excel">
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MAIN -->
+<section class="py-3" id="print_content">
+  <div class="container">
+    <form method="post" id="inputForm">
+      {% csrf_token %}
+
+      <!-- INPUT CARD -->
+      <div class="card card-input shadow-sm mb-3">
+        <div class="card-body">
+          <h4 class="h6 mb-3">Invoer</h4>
+
+          <div class="row g-4">
+            <!-- Column 1 -->
+            <div class="col-12 col-lg-4">
+              <div class="mb-3">
+                <label for="volume_room" class="form-label">Ruimte-inhoud (V)</label>
+                <div class="input-group">
+                  <input type="number" class="form-control" id="volume_room" name="volume_room" value="50" min="0" step="0.1">
+                  <span class="input-group-text">m<sup>3</sup></span>
                 </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="ventilation_pp" class="form-label">Ventilatiehoeveelheid (q<sub>v,pp</sub>)</label>
+                <div class="input-group">
+                  <input type="number" class="form-control" id="ventilation_pp" name="ventilation_pp" value="30" min="0" step="0.1">
+                  <span class="input-group-text">m<sup>3</sup>/h</span>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="production_pp" class="form-label">CO₂-productie per persoon (p<sub>pp</sub>)</label>
+                <div class="input-group">
+                  <select class="form-select" id="production_pp" name="production_pp">
+                    <option value="10.6">Slapen [10.6]</option>
+                    <option value="14.2" selected>Zitten (kantoorwerk) [14.2]</option>
+                    <option value="21.2">Staand werk [21.2]</option>
+                    <option value="29.5">Wandelen (3 km/h) [29.5]</option>
+                    <option value="35.4">Huishoudelijk werk [35.4]</option>
+                    <option value="41.3">Wandelen (5 km/h) [41.3]</option>
+                    <option value="47.2">Fietsen licht (100 W) [47.2]</option>
+                    <option value="82.6">Joggen (8 km/h) [82.6]</option>
+                    <option value="118.0">Intensief sporten [118]</option>
+                  </select>
+                  <span class="input-group-text">l/h</span>
+                </div>
+              </div>
             </div>
-        </form>
-    </div>
-</div>
-<!-- Charts met chart.js en ajax weergeven, wel gevaarlijk voor verdere development. -->
+
+            <!-- Column 2 -->
+            <div class="col-12 col-lg-4">
+              <div class="mb-3">
+                <label for="number_persons" class="form-label">Aantal personen (n)</label>
+                <div class="input-group">
+                  <input type="number" class="form-control" id="number_persons" name="number_persons" value="10" min="0">
+                  <span class="input-group-text">personen</span>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="bezetting" class="form-label">Bezetting (β)</label>
+                <div class="input-group">
+                  <input type="number" class="form-control" id="bezetting" name="bezetting" value="100" min="0" max="100">
+                  <span class="input-group-text">%</span>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="outsite_air_ppm" class="form-label">Kwaliteit buitenlucht (C<sub>ex</sub>)</label>
+                <div class="input-group">
+                  <input type="number" class="form-control" id="outsite_air_ppm" name="outsite_air_ppm" value="400" min="0">
+                  <span class="input-group-text">ppm</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Column 3 -->
+            <div class="col-12 col-lg-4">
+              <div class="mb-3">
+                <label for="start_ppm" class="form-label">Beginconcentratie (C<sub>0</sub>)</label>
+                <div class="input-group">
+                  <input type="number" class="form-control" id="start_ppm" name="start_ppm" value="400" min="0">
+                  <span class="input-group-text">ppm</span>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="time_hour" class="form-label">Tijd (t)</label>
+                <div class="input-group">
+                  <input type="number" class="form-control" id="time_hour" name="time_hour" value="1" min="0" max="100" step="0.1">
+                  <span class="input-group-text">h</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hidden submit (Bootstrap utility) -->
+          <button type="submit" id="CO2button" name="CO2button" class="visually-hidden">Submit</button>
+        </div>
+      </div>
+
+      <!-- OUTPUT: chart -->
+      <div class="card card-output shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title mb-3">CO₂-concentratie over de tijd</h5>
+          <div class="ratio ratio-21x9">
+            <canvas id="CO2_verloop"></canvas>
+          </div>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</section>
+
+<!-- libs -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.3/xlsx.full.min.js"></script>
 
-
 <script>
+  // Safe JSON parse
+  function safeParse(jsonStr, fb){ try { return JSON.parse(jsonStr); } catch(e){ console.error(e); return fb; } }
 
-// Define the x and y values
-const CO2_data = JSON.parse('{{ CO2_data|safe|escapejs }}');
-const x_values = CO2_data.x_values; //
-const C_t = CO2_data.C_t_curve; // 
-const C_t_o = CO2_data.C_t_o_curve;
+  // CO2 data from backend
+  const CO2_data = safeParse('{{ CO2_data|safe|escapejs }}', { x_values: [], C_t_curve: [], C_t_o_curve: [] });
+  const x_values = CO2_data.x_values || [];
+  const C_t      = CO2_data.C_t_curve || [];
+  const C_t_o    = CO2_data.C_t_o_curve || [];
 
-// Prepare the data in the required format
-const data_C_t = x_values.map((x, i) => ({ x: x, y: C_t[i] }));
-const data_C_t_o = x_values.map((x, i) => ({ x: x, y: C_t_o[i] }));
-// Create the line chart
-const ctx = document.getElementById('CO2_verloop').getContext('2d');
+  // Datasets as {x,y}
+  const data_C_t   = x_values.map((x,i) => ({ x, y: C_t[i] }));
+  const data_C_t_o = x_values.map((x,i) => ({ x, y: C_t_o[i] }));
 
-const linecurve = new Chart(ctx, {
-    type: 'line',
-    data: {
+  // Chart
+  (function initCO2Chart(){
+    const el = document.getElementById('CO2_verloop');
+    if (!el || !window.Chart) return;
+
+    const ctx = el.getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
         datasets: [
-        {
-            label: 'Momentane concentratie',  // A descriptive label for the first dataset
+          {
+            label: 'Momentane concentratie',
             data: data_C_t,
-            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-            borderColor: 'rgba(255, 99, 132, 1)',
+            borderColor: 'rgba(255,99,132,1)',
+            backgroundColor: 'rgba(255,99,132,0.2)',
             borderWidth: 1,
-            pointRadius: 1, // Removes the dots
-        }, 
-        {
-            label: 'Verhoging',  // A descriptive label for the second dataset
+            pointRadius: 0,
+            tension: 0.08,
+            fill: true
+          },
+          {
+            label: 'Verhoging',
             data: data_C_t_o,
-            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-            borderColor: 'rgba(54, 162, 235, 1)',
+            borderColor: 'rgba(54,162,235,1)',
+            backgroundColor: 'rgba(54,162,235,0.2)',
             borderWidth: 1,
-            pointRadius: 1, // Removes the dots
-        }]
-    },
-    options: {
+            pointRadius: 0,
+            tension: 0.08,
+            fill: true
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: { padding: { right: 10, left: 5, bottom: 5, top: 5 } },
         scales: {
-            x: {
-                type: 'linear',
-                position: 'bottom',
-                title: {
-                    display: true,
-                    text: 'Uren [h]' // X-axis label
-                }
-            },
-            y: {
-                beginAtZero: true,
-                title: {
-                    display: true,
-                    text: 'CO2-concentratie [ppm]' // Y-axis label
-                }
-            }
+          x: {
+            type: 'linear',
+            title: { display: true, text: 'Uren [h]' }
+          },
+          y: {
+            beginAtZero: true,
+            title: { display: true, text: 'CO₂-concentratie [ppm]' }
+          }
         },
-    }
-});
+        plugins: {
+          legend: { display: true, labels: { usePointStyle: true } },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => ` ${ctx.dataset.label}: ${ctx.raw.y?.toFixed?.(0) ?? ctx.raw.y} ppm`
+            }
+          }
+        }
+      }
+    });
+  })();
 
+  // Top actions
+  document.getElementById('printButton')?.addEventListener('click', (e) => { e.preventDefault(); window.print(); });
+  document.getElementById('excelButton')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (window.pdfUrlExcel) window.open(pdfUrlExcel, '_blank');
+  });
 </script>
 
-{% endblock %} 
+{% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'tools/scripts/script_tools_W4.js' %}"></script>
-<!-- This makes sure this JS is only be loaded when rendering this HTML page. Whilst the common JS Files included in de extra_js block of base.html will be loaded across all pages -->
-
-<script>pdfUrlExcel = "{% static 'tools/files/TOOL_W4_LuchtkwaliteitCO2.xlsx' %}"</script>
+  <script src="{% static 'tools/scripts/script_tools_W4.js' %}"></script>
+  <script>pdfUrlExcel = "{% static 'tools/files/TOOL_W4_LuchtkwaliteitCO2.xlsx' %}"</script>
 {% endblock %}

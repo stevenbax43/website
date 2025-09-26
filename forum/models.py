@@ -2,7 +2,17 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from ckeditor.fields import RichTextField
+
+class Topic(models.Model):
+    title = models.CharField(max_length=200, verbose_name='Titel')
+    content = models.TextField(default='', verbose_name='Bericht')   # ← plain TextField now
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    category = models.ForeignKey('Category', on_delete=models.CASCADE, null=True, blank=True, default=1, verbose_name='Categorie')
+    is_closed = models.BooleanField(default=False, null=True, blank=True)
+
+    def __str__(self):
+        return self.title
 
 class Category(models.Model):
     name = models.CharField(max_length=200,  verbose_name='Naam')
@@ -11,16 +21,6 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
-class Topic(models.Model):
-    title = models.CharField(max_length=200, verbose_name='Titel')
-    content = RichTextField(default='', verbose_name='Bericht')
-    created_at = models.DateTimeField(auto_now_add=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE,  null=True, blank=True, default=1, verbose_name='Categorie') 
-    is_closed = models.BooleanField(default=False,null=True, blank=True,) 
-
-    def __str__(self):
-        return self.title
 
 class Reply(models.Model):
     topic = models.ForeignKey(Topic, related_name='replies', null=True, blank=True, on_delete=models.CASCADE)

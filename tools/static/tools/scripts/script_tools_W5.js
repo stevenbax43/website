@@ -63,7 +63,7 @@
     if (shouldTrigger(e)) {
       requestAnimationFrame(() => setTimeout(triggerOncePerVisit, 0));
     } else {
-      console.log('[Buffer] skipped auto-trigger');
+      
     }
   }
 

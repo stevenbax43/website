@@ -1,226 +1,229 @@
 {% extends 'home/base.html'%}
-
-{% load static %} 
+{% load static %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'tools/styles/tools.css'%}">
-    <link rel="stylesheet" href="{% static 'tools/styles/tool_W_2.css'%}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-
+<link rel="stylesheet" href="{% static 'tools/styles/tools.css'%}">
+<link rel="stylesheet" href="{% static 'tools/styles/tool_W_2.css'%}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 {% endblock %}
 
+{% block content_wrapper_start %}{% endblock %}
+{% block content_wrapper_end %}{% endblock %}
+
 {% block content %}
-{% csrf_token %}
-
-<div class="top-banner"> 
-        <div class="top-banner-items">
-                <div> <h1> Tool W2: Inhoud Expansievat (Verwarmen)</h1>  </div>
-                <div>  <a href="{% url 'tools:tools' %}">  <img src="{% static 'tools/images/engineering.png' %}"> </a> </div>
-        </div> 
-</div>
-
-<div class="second-banner no-print"> 
-  <div class="second-banner-items">
-    <div class="second-alignment">
-      <div class="second-text">  
-        <p> Expansievaten worden toegepast om de bij temperatuurverandering optredende verschillen tussen volumeverandering 
-                van de installatie en de volumeverandeing van het warmtetransportmedium op te vangen.</p>    
+<header class="tools-hero">
+  <div class="container py-3">
+    <div class="row align-items-center g-3 flex-nowrap">
+      <div class="col">
+        <h1 class="display-6 mb-0 text-white">Tool W2: Inhoud Expansievat (Verwarmen)</h1>
       </div>
-      <div class="tools-icons">
-        <div>  <a href="{% url 'tools:tool-readme' 'W2' %}" target="_blank" rel="noopener">
-                        ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" alt="PDF">
-                    </a>  </div>
-        <div>  <a href="#" id="printButton" >  <img src="{% static 'tools/images/print.png' %}" alt="Print Button"> </a> </div>
-        <div>  <a href="#" id="excelButton">  <img src="{% static 'tools/images/Excel.png' %}" alt="Excel Button"> </a> </div>          
-      </div>      
-    </div>      
-  </div>      
-    
-</div>
+      <div class="col-auto">
+        <a href="{% url 'tools:tools' %}" class="d-inline-block">
+          <img src="{% static 'tools/images/engineering.png' %}" class="hero-icon flex-shrink-0" alt="Engineering">
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
 
-<div class="main-banner">
-  <div class="main-banner-items">
-      <form method="post" id="inputForm">
-          {% csrf_token %}
-          <div class="container mt-3 borderline">
-              <div class="row">
-                  <!-- Input Form -->
-                  <div class="col-md-4">
-                      <div class="border p-3 shadow">
-                          <h4>Systeemeigenschappen</h4>
-                          <!-- Input fields -->
-                          <div class="mb-3">
-                            <label for="temp_aanvoer" class="form-label">Aanvoertemperatuur (T<sub>aanv</sub>):</label>
-                            <div class="input-group">
-                              <input type="number" class="form-control" id="temp_aanvoer" name="temp_aanvoer" value="80" min="0" max="100" required>
-                              <span class="input-group-text">°C</span>
-                            </div>
-                          </div>
-                          <div class="mb-3">
-                            <label for="temp_retour" class="form-label">Retourtemperatuur (T<sub>ret</sub>):</label>
-                            <div class="input-group">
-                              <input type="number" class="form-control" id="temp_retour" name="temp_retour" value="60" min="0" max="100" required>
-                              <span class="input-group-text">°C</span>
-                            </div>
-                          </div>
-                          <div class="mb-3">
-                            <label for="sys_inhoud" class="form-label">Systeeminhoud (V<sub>sys</sub>):</label>
-                            <div class="input-group">
-                              <input type="number" class="form-control" id="sys_inhoud" name="sys_inhoud" value="1000" min="0" max="10000" required>
-                              <span class="input-group-text">L</span>
-                            </div>
-                          </div>
-                         
-                          <!-- Additional fields (initially hidden) -->
-                          <div class="mb-3">
-                            <label for="voordruk" class="form-label">Voordruk (P<sub>v</sub>):</label>
-                            <div class="input-group">
-                              <select id="voordruk" class="form-control" name="voordruk" required>
-                                <option value="0.5" selected>0.5</option>
-                                <option value="1.0">1.0</option>
-                                <option value="1.5">1.5</option>
-                                <option value="2.0">2.0</option>
-                                <option value="2.5">2.5</option>
-                              </select>
-                              <span class="input-group-text">bar</span>
-                            </div>
-                          </div>
-                          <div class="mb-3">
-                            <label for="einddruk" class="form-label">Einddruk (P<sub>e</sub>):</label>
-                            <div class="input-group">
-                              <input type="number" class="form-control" id="einddruk" name="einddruk" min="1" max="16" value="3" step=0.1 required>
-                              <span class="input-group-text">bar</span>
-                            </div>
-                          </div>
-                            
-                           
-                          <div class="mb-3 collapse" id="additional_fields">
-                            <div class="mb-3">
-                              <label for="st_height" class="form-label">Statische hoogte (H<sub>st</sub>):</label>
-                              <div class="input-group">
-                                <input type="number" class="form-control" id="st_height" name="st_height" value="0" min="0" max="100" step=0.1>
-                                <span class="input-group-text">m</span>
-                              </div>
-                            </div>
-                            <div class="mb-3">
-                              <label for="vermogen" class="form-label">Vermogen (P<sub></sub>):</label>
-                              <div class="input-group">
-                                <input type="number" class="form-control" id="vermogen" name="vermogen" value="0">
-                                <span class="input-group-text">kW</span>
-                              </div>
-                            </div>
-                           
-                        
-                            <div class="form-group">
-                              <label for="CVInstallatie">CV-afgifte:</label>
-                              <select name="CVInstallatie" class="form-control" id="CVInstallatie">
-                                <option value="0">Convectors en/of luchtverhitters</option>
-                                <option value="1">Inductie Units</option>
-                                <option value="2">Luchtbehandelingsinstallaties</option>
-                                <option value="3">Paneelradiatoren</option>
-                                <option value="4" selected>Utiliteit mix CV</option>
-                                <option value="5">Kolomradiatoren</option>
-                                <option value="6">Utiliteit mix GWK</option>
-                                <option value="7">Stralingspanelen en/of vloerverwarming</option>
-                                <option value="8">Wijkverwarming</option>
-                              </select>
-                            </div>
-                        
-                            <div class="form-group">
-                              <label for="locatieToggle">Circulatiepomp in de retour-/vertrekleiding:</label>
-                              <div class="custom-control custom-switch">
-                                <input type="checkbox" class="custom-control-input" id="locatieToggle" name="locatieToggle">
-                                <label class="custom-control-label" for="locatieToggle">retour/vertrek</label>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="buttons">
-                            <button type="button" class="btn btn-link" data-toggle="collapse" data-target="#additional_fields" aria-expanded="false" aria-controls="additional_fields" id="toggleButton">
-                                <i class="fas fa-chevron-down"></i> Uitbreiden
-                            </button>
-                          </div>
-                      </div>
-                  </div>
 
-                  <!-- Output Form -->
-                  <div class="col-md-4">
-                      <div class="border p-3 shadow">
-                          <h4>Advies Expansievat</h4>
-                          <h6>Bruto volume en voordruk</h6>
-                          <!-- Output fields -->
-                          <!-- Aangepaste afbeelding zonder link, groter en met overlay tekst -->
-                          <div class="grid-item">
-                            <div class="image-container">
-                              <img src="{% static 'tools/images/expansion.png' %}" alt="Inhoud buffervat">
-                              <div class="overlay o_1">{{ expansievat_output.3 }} L</div>
-                              <div class="overlay o_2">{{expansievat_output.4}} bar</div>
-                            </div>
-                          
-                          </div>
-                          <button type="submit" class="hidden" id="ExpansieButton" name="ExpansieButton"></button>
-
-                      </div>
-                      <div class="border p-3 shadow mt-3">
-                        <h4>Formules</h4>
-                        <p>Meer info zie "ReadMe" </p>
-                            <h4>
-                              \( 
-                                V_{br}[L] \;=\; 
-                                \frac{ V_{\exp} \cdot \beta}
-                                    {n_{e} }
-                              \)
-                            </h4>
-                      </div>
-                  </div>
-                  <div class="col-md-4">
-                    <div class="border p-3 shadow">
-                      <h4>Gegeven Waarden</h4>
-                      <!-- Output fields -->
-                      <div class="mb-3 center">
-                        <label for="liquids" class="form-label">Vloeistof</label>
-                        Water 
-                        <label for="temperatures" class="form-label">Temperaturen</label>
-                        T<sub>aanv</sub>={{ expansievat_output.9 }} °C<br>
-                        T<sub>ret</sub> = {{ expansievat_output.10 }}°C <br>
-                        T<sub>gem</sub> = {{ expansievat_output.0 }} °C<br>
-                        T<sub>min</sub> = 10 °C<br>
-
-                        <label for="pressures" class="form-label">Drukken</label>
-                        P<sub>v</sub> = {{ expansievat_output.4 }} bar <br>
-                        P<sub>e</sub> = {{ expansievat_output.11 }} bar <br>
-                        P<sub>max</sub> = 6 bar <br>
-                      
-                        <label for="volumes" class="form-label">Volumen</label>
-                        V<sub>sys</sub> = {{ expansievat_output.13 }} L <br>
-                        V<sub>br</sub> = {{ expansievat_output.2 }} L <br>
-                        V<sub>exp</sub> = {{ expansievat_output.8}} L <br>
-                        V<sub>norm.</sub> = {{ expansievat_output.15 }} L/kW <br>
-                        
-                        <label for="overige" class="form-label">Overig</label>
-                        n<sub>e</sub> = {{ expansievat_output.1 }}  <br>
-                        H<sub>st</sub> = {{ expansievat_output.14 }} m <br>
-                        η = {{ expansievat_output.7 }} % <br>
-                        β = 25 % <br>
-                      
-
-                    </div>
-                    </div>
-                  </div>
-              </div>
-          </div>
-      </form>
+<div class="bg-light py-3 no-print">
+  <div class="container">
+    <div class="row align-items-center g-3">
+      <div class="col-12 col-lg-8">
+        <p class="mb-0">
+          Expansievaten worden toegepast om de bij temperatuurverandering optredende verschillen tussen volumeverandering 
+          van de installatie en de volumeverandeing van het warmtetransportmedium op te vangen.
+        </p>
+      </div>
+      <div class="col-12 col-lg-4 d-flex justify-content-lg-end align-items-center gap-3 flex-wrap">
+        <a href="{% url 'tools:tool-readme' 'W2' %}" target="_blank" rel="noopener" class="intro-link d-inline-flex align-items-center gap-2">
+          ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" class="icon-30" alt="PDF">
+        </a>
+        <a href="#" id="printButton" class="intro-link d-inline-flex align-items-center">
+          <img src="{% static 'tools/images/print.png' %}" class="icon-30" alt="Print">
+        </a>
+        <a href="#" id="excelButton" class="intro-link d-inline-flex align-items-center">
+          <img src="{% static 'tools/images/Excel.png' %}" class="icon-30" alt="Excel">
+        </a>
+      </div>
+    </div>
   </div>
 </div>
 
-{% endblock content %} 
+<div class="container my-4">
+  <form method="post" id="inputForm">
+    {% csrf_token %}
+    <div class="row g-4">
+      
+      <!-- Input Card -->
+      <div class="col-12 col-lg-4">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h4 class="card-title">Systeemeigenschappen</h4>
+            
+            <!-- Aanvoer -->
+            <div class="mb-3">
+              <label for="temp_aanvoer" class="form-label">Aanvoertemperatuur (T<sub>aanv</sub>):</label>
+              <div class="input-group">
+                <input type="number" class="form-control" id="temp_aanvoer" name="temp_aanvoer" value="80" min="0" max="100" required>
+                <span class="input-group-text">°C</span>
+              </div>
+            </div>
+            
+            <!-- Retour -->
+            <div class="mb-3">
+              <label for="temp_retour" class="form-label">Retourtemperatuur (T<sub>ret</sub>):</label>
+              <div class="input-group">
+                <input type="number" class="form-control" id="temp_retour" name="temp_retour" value="60" min="0" max="100" required>
+                <span class="input-group-text">°C</span>
+              </div>
+            </div>
+            
+            <!-- Systeeminhoud -->
+            <div class="mb-3">
+              <label for="sys_inhoud" class="form-label">Systeeminhoud (V<sub>sys</sub>):</label>
+              <div class="input-group">
+                <input type="number" class="form-control" id="sys_inhoud" name="sys_inhoud" value="1000" min="0" max="10000" required>
+                <span class="input-group-text">L</span>
+              </div>
+            </div>
+
+            <!-- Voordruk -->
+            <div class="mb-3">
+              <label for="voordruk" class="form-label">Voordruk (P<sub>v</sub>):</label>
+              <div class="input-group">
+                <select id="voordruk" class="form-control" name="voordruk" required>
+                  <option value="0.5" selected>0.5</option>
+                  <option value="1.0">1.0</option>
+                  <option value="1.5">1.5</option>
+                  <option value="2.0">2.0</option>
+                  <option value="2.5">2.5</option>
+                </select>
+                <span class="input-group-text">bar</span>
+              </div>
+            </div>
+
+            <!-- Einddruk -->
+            <div class="mb-3">
+              <label for="einddruk" class="form-label">Einddruk (P<sub>e</sub>):</label>
+              <div class="input-group">
+                <input type="number" class="form-control" id="einddruk" name="einddruk" min="1" max="16" value="3" step="0.1" required>
+                <span class="input-group-text">bar</span>
+              </div>
+            </div>
+
+            <!-- Additional Fields -->
+            <div class="collapse" id="additional_fields">
+              <div class="mb-3">
+                <label for="st_height" class="form-label">Statische hoogte (H<sub>st</sub>):</label>
+                <div class="input-group">
+                  <input type="number" class="form-control" id="st_height" name="st_height" value="0" min="0" max="100" step="0.1">
+                  <span class="input-group-text">m</span>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="vermogen" class="form-label">Vermogen (P):</label>
+                <div class="input-group">
+                  <input type="number" class="form-control" id="vermogen" name="vermogen" value="0">
+                  <span class="input-group-text">kW</span>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="CVInstallatie" class="form-label">CV-afgifte:</label>
+                <select name="CVInstallatie" class="form-control" id="CVInstallatie">
+                  <option value="0">Convectors en/of luchtverhitters</option>
+                  <option value="1">Inductie Units</option>
+                  <option value="2">Luchtbehandelingsinstallaties</option>
+                  <option value="3">Paneelradiatoren</option>
+                  <option value="4" selected>Utiliteit mix CV</option>
+                  <option value="5">Kolomradiatoren</option>
+                  <option value="6">Utiliteit mix GWK</option>
+                  <option value="7">Stralingspanelen en/of vloerverwarming</option>
+                  <option value="8">Wijkverwarming</option>
+                </select>
+              </div>
+              <div class="form-check form-switch">
+                <input type="checkbox" class="form-check-input" id="locatieToggle" name="locatieToggle">
+                <label class="form-check-label" for="locatieToggle">Circulatiepomp in vertrek/retourleiding</label>
+              </div>
+            </div>
+
+            <!-- Toggle -->
+            <button type="button" class="btn btn-link p-0 mt-2" data-bs-toggle="collapse" data-bs-target="#additional_fields" aria-expanded="false">
+              <i class="fas fa-chevron-down"></i> Uitbreiden
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Output 1 -->
+      <div class="col-12 col-lg-4">
+        <div class="card shadow-sm">
+          <div class="card-body text-center">
+            <h4 class="card-title">Advies Expansievat</h4>
+            <h6>Bruto volume en voordruk</h6>
+            <div class="image-container">
+              <img src="{% static 'tools/images/expansion.png' %}" alt="Inhoud buffervat" class="img-fluid">
+              <div class="overlay o_1">{{ expansievat_output.3 }} L</div>
+              <div class="overlay o_2">{{ expansievat_output.4 }} bar</div>
+            </div>
+            <button type="submit" class="d-none" id="ExpansieButton" name="ExpansieButton"></button>
+          </div>
+        </div>
+        <div class="card shadow-sm mt-3">
+          <div class="card-body">
+            <h4 class="card-title">Formules</h4>
+            <p>Meer info zie "ReadMe"</p>
+            <h4>\( V_{br}[L] = \frac{ V_{\exp} \cdot \beta}{n_{e} } \)</h4>
+          </div>
+        </div>
+      </div>
+
+      <!-- Output 2 -->
+      <div class="col-12 col-lg-4">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h4 class="card-title">Gegeven Waarden</h4>
+            <div>
+              <strong>Vloeistof:</strong> Water <br>
+              <strong>Temperaturen:</strong><br>
+              T<sub>aanv</sub>={{ expansievat_output.9 }} °C<br>
+              T<sub>ret</sub> = {{ expansievat_output.10 }} °C<br>
+              T<sub>gem</sub> = {{ expansievat_output.0 }} °C<br>
+              T<sub>min</sub> = 10 °C<br><br>
+
+              <strong>Drukken:</strong><br>
+              P<sub>v</sub> = {{ expansievat_output.4 }} bar<br>
+              P<sub>e</sub> = {{ expansievat_output.11 }} bar<br>
+              P<sub>max</sub> = 6 bar<br><br>
+
+              <strong>Volumen:</strong><br>
+              V<sub>sys</sub> = {{ expansievat_output.13 }} L<br>
+              V<sub>br</sub> = {{ expansievat_output.2 }} L<br>
+              V<sub>exp</sub> = {{ expansievat_output.8 }} L<br>
+              V<sub>norm.</sub> = {{ expansievat_output.15 }} L/kW<br><br>
+
+              <strong>Overig:</strong><br>
+              n<sub>e</sub> = {{ expansievat_output.1 }}<br>
+              H<sub>st</sub> = {{ expansievat_output.14 }} m<br>
+              η = {{ expansievat_output.7 }} %<br>
+              β = 25 %<br>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+
 {% block extra_js %}
-<!-- This makes sure this JS is only be loaded when rendering this HTML page. Whilst the common JS Files included in de extra_js block of base.html will be loaded across all pages -->
 <script src="{% static 'tools/scripts/script_tools_W2.js' %}"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script> 
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
 <script>pdfUrlExcel = "{% static 'tools/files/TOOL_W2_Expansievat.xlsx' %}"</script>
 {% endblock %}

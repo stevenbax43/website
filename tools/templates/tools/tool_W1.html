@@ -9,1174 +9,1080 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 {% endblock %}
 
+{% block content_wrapper_start %}{% endblock %}
+{% block content_wrapper_end %}{% endblock %}
+
 {% block content %}
 
 {% csrf_token %}
 
-<div class="top-banner"> 
-    <div class="top-banner-items">
-        <div> <h1> Tool: Mollier Diagram</h1>  </div>
-        <div>  <a href="{% url 'tools:tools' %}">  <img src="{% static 'tools/images/engineering.png' %}"> </a> </div>
-    </div> 
-</div>
-
-<div class="second-banner">        
-    <div class="second-banner-items no-print">
-        <div class="second-alignment">
-            <div class="second-text no-print">  
-                <p> Het Mollier diagram, of H-x diagram, is een grafische voorstelling van de thermodynamische eigenschappen die van invloed zijn op vochtige lucht.</p>    
-            </div>
-            <div class="tools-icons no-print">
-                <div> <a href="{% url 'tools:tool-readme' 'W1' %}" target="_blank" rel="noopener">
-                        ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" alt="PDF">
-                    </a>  </div>
-                <div>  <a href="#" id="printButton" >  <img src="{% static 'tools/images/print.png' %}" alt="Print Button"> </a> </div>
-                <div>  <a href="#" id="excelButton">  <img src="{% static 'tools/images/Excel.png' %}" alt="Excel Button"> </a> </div>          
-            </div>      
-        </div>      
+<!-- ===== HERO (full-bleed gradient, standardized like other tools) ===== -->
+<header class="tools-hero">
+  <div class="container py-3">
+    <div class="row align-items-center g-3 flex-nowrap">
+      <div class="col">
+        <h1 class="display-6 mb-0 text-white ">Tool W1: Mollierdiagram</h1>
+      </div>
+      <div class="col-auto">
+        <a href="{% url 'tools:tools' %}" class="d-inline-block">
+          <img src="{% static 'tools/images/engineering.png' %}" class="hero-icon flex-shrink-0" alt="Engineering">
+        </a>
+      </div>
     </div>
-</div>
+  </div>
+</header>
 
-<div class="main-banner container-fluid">
-    <div class="main-banner-items container-fluid" >  <!-- Container-fluid maakt de hele pagina geschikt -->
-        <form method="post" id="inputForm">
-            {% csrf_token %}
-            <div class="row">
-                <!-- Graph canvas  -->
-                <div class="col-sm-12 col-md-12 col-lg-8">
-                    <div class="rounded border bg-light mt-4"> 
-                        <div class="border p-3 shadow">
-                                <div style="min-height: 600px; overflow: hidden;"> <!-- Adjusted min-height to 600px -->
-                                    <canvas id="myLinesRH" style="min-height: 600px; height:900px; width: 100%;"></canvas> 
-                                </div>
-                        </div>
-                    </div>
-                   
-                    <!-- PDF Save Button Section -->
-                    <div class="d-flex justify-content-start mt-3">
-                         <button id="SavePDFButton" name="SavePDFButton"
-                                type="button"
-                                data-pdf-url="{% url 'tools:generate_pdf' %}"
-                                class="text-decoration-none text-dark border rounded px-3 py-2 d-flex align-items-center gap-2"
-                                style="background-color: white;">
-                            <p class="mb-0">Save PDF</p>
-                            <img src="{% static 'tools/images/PDF-icon.png' %}" alt="Save PDF"
-                                class="img-fluid"
-                                style="width: 24px; height: 24px; filter: brightness(0) saturate(100%) invert(18%) sepia(100%) saturate(6500%) hue-rotate(0deg) brightness(90%) contrast(105%);">
-                        </button>
-                    
-                    <!-- PDF Save Button Section -->
-                    
-                        <button id="SaveInputsButton" name="SaveInputsButton" type="button"
-                                class="text-decoration-none text-dark ms-3 border rounded px-3 py-2 d-flex align-items-center gap-2"
-                                style="background-color: white;">
-                            <p class="mb-0">Save Inputs</p>
-                            <img src="{% static 'tools/images/save.png' %}" alt="Save Inputs Button"
-                                class="img-fluid"
-                                style="width: 24px; height: 24px; filter: brightness(0) saturate(100%) invert(18%) sepia(100%) saturate(6500%) hue-rotate(0deg) brightness(90%) contrast(105%);">
-                        </button>
+<!-- ===== INTRO ===== -->
+<section class="tools-intro no-print py-3">
+  <div class="container">
+    <div class="row g-3 align-items-center">
+      <div class="col-12 col-lg-8">
+        <p class="lead mb-0">
+          Het Mollier- (H–x) diagram visualiseert de thermodynamische eigenschappen van vochtige lucht. 
+          Voer startcondities en processtappen in; resultaten worden grafisch en in tabellen weergegeven.
+        </p>
+      </div>
+      <div class="col-12 col-lg-4">
+        <div class="d-flex justify-content-lg-end align-items-center gap-3 flex-wrap">
+          <a href="{% url 'tools:tool-readme' 'A3' %}" target="_blank" rel="noopener" class="intro-link d-inline-flex align-items-center gap-2">
+            ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" class="icon-30" alt="PDF">
+          </a>
+          <a href="#" id="printButton" class="intro-link d-inline-flex align-items-center">
+            <img src="{% static 'tools/images/print.png' %}" class="icon-30" alt="Print">
+          </a>
+          <a href="#" id="excelButton" class="intro-link d-inline-flex align-items-center">
+            <img src="{% static 'tools/images/Excel.png' %}" class="icon-30" alt="Excel">
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-                        <button id="LoadInputsButton" type="button"
-                                class="text-decoration-none text-dark ms-3 border rounded px-3 py-2 d-flex align-items-center gap-2"
-                                style="background-color: white;">
-                            <p class="mb-0">Load Project</p>
-                            <img src="{% static 'tools/images/load.png' %}" alt="Load Button"
-                                class="img-fluid"
-                                style="width: 24px; height: 24px;">
-                        </button>
-                        
-                    </div>
-                                    
+<!-- ===== MAIN ===== -->
+<section class="py-3">
+  <div class="container" id="print_content">
+    <form method="post" id="inputForm">
+      {% csrf_token %}
+
+      <div class="row g-3">
+        <!-- ===== LEFT: Diagram + Tables ===== -->
+        <div class="col-12 col-lg-8">
+            <!-- Diagram card (OUTPUT) -->
+            <div class="card card-output shadow-sm mt-2">
+                <div class="card-body">
+                <div class="ratio ratio-4x3" style="min-height: 700px;">
+                    <canvas id="myLinesRH"></canvas>
                 </div>
-                <div class="col-sm-6  col-md-6 col-lg-4 ">
-                    <div class="row">
-                        <div class="p-3 rounded border border-primary-subtle shadow bg-light mb-2 mt-4 position-relative">
-                        <span class=" col-5 position-absolute top-0 start-50  translate-middle"><div class="rounded bg-black text-white p-1 mb-1" >
-                            <h5 class="text-center">Lucht start conditie</h5>
-                        </div></span>
-                        <div class="row justify-content-around align-items-start border-bottom">
-                            <div class="p-2 col-6">
-                                <label for="Heigth_var">Hoogte (h):</label>
-                                <div class="input-group">
-                                    <input type="number" class="form-control" id="Height_var" name="Height_var" value="0" min="0" max="4000" step="1">
-                                    <span class="input-group-text">m</span>
-                                </div>
-                            </div>
-                            <div class="p-2 col-6">
-                                <label for="qv_var">Debiet (q<sub>v</sub>)</label>
-                                <div class="input-group">
-                                    <input type="number" class="form-control" id="qv_var" name="qv_var" value="10000" min="100" max="100000" step="10">
-                                    <span class="input-group-text"> m<sup>3</sup>/h</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row justify-content-around algn-items-start">
-                            <div class="p-2 col-6">
-                                    <select class="form-select mb-2" id="varStart1" name="varStart1" onchange=updateAirStartInput1()>
-                                    <option selected value="Tdb">Temp. (drogebol)</option>
-                                    <option value="Twb">Temp. (nattebol)</option>
-                                    <option value="RH">Rel. Vochtigheid</option>
-                                    <option value="AH">Abs. Vochtigheid</option>
-                                    <option value="h">Enthalpie</option>
-                                    
-                                </select>
-                                <div class="input-group">
-                                    <input type="number" id="StartInput1" name="StartInput1" class="form-control" value="25.0" min="-10" max="40" placeholder="waarde 1" step="0.1">  
-                                    <span class="input-group-text unit" id="Startunit1">°C</span>                             
-                                </div>
-                            </div>
-                            <div class="p-2 col-6">
-                                <select class="form-select mb-2" id="varStart2" name="varStart2" onchange=updateAirStartInput2()>  
-                                    <option value="Tdb">Temp. (drogebol).</option>
-                                    <option value="Twb">Temp. (nattebol).</option>
-                                    <option selected value="RH">Rel. Vochtigheid</option>
-                                    <option value="AH">Abs. Vochtigheid</option>
-                                    <option value="h">Enthalpie</option>
-                                    
-                                </select>
-                                <div class="input-group">
-                                    <input type="number" id="StartInput2" name="StartInput2" class="form-control" value="50" min="0" max="100" placeholder="waarde 2" step="0.1">
-                                    <span class="input-group-text unit" id="Startunit2">°C</span>
-                                </div>
-                            </div>
-                            {% if warning %}
-                                <div class="alert alert-warning">{{ warning|safe }}</div>
-                            {% endif %}
-                        </div>
-                        </div> 
-                    </div>
-                    
-                    {% for i in process_steps %}
-                    <div class="row" id="row-proces{{ i }}" {% if i > 1 %}style="display:none"{% endif %}>
-                    <div class="p-3 rounded shadow bg-light mb-2 mt-4 position-relative" id="proces{{ i }}_container">
-                        <span class="col-5 position-absolute top-0 start-50 translate-middle">
-                        <div class="rounded text-white p-1 mb-1" id="proces{{ i }}_title">
-                            <h5 class="text-center">Proces {{ i|add:"-1" }} -> {{ i }}</h5>
-                        </div>
-                        </span>
-                        
-                        <!-- Dropdowns -->
-                        <div class="row justify-content-around align-items-start border-bottom">
-                        <div class="p-2 col-6" id="proces{{ i }}_dropdown2_container">
-                            <input type="text" id="inputproces{{ i }}_name" name="inputproces{{ i }}_name" maxlength="13" class="form-control-sm bg-transparent mb-2 rounded-0  fst-italic text-muted p-0 m-0"  placeholder="Proces naam">
-                            <select class="form-select mb-2" id="proces{{ i }}" name="proces{{ i }}" onchange="showDropdownProces('{{ i }}'); updateLineColorChart('{{ i }}')">
-                            <option selected value="selectProces">Selecteer Proces</option>
-                            <option value="heat">Verwarmen</option>
-                            <option value="cool">Koelen</option>
-                            <option value="humid">Bevochtigen</option>
-                            <option value="mix">Mix</option>
-                            <option value="heat_rec">Warmte terugwinnen</option>
-                            <option value="cust_point">Specifiek punt</option>
-                            </select>
-                        </div>
-                        <div class="p-2 col-6" id="proces{{ i }}_func2_container" style="display: none;">
-                            <input type="text" class="form-control-sm bg-transparent mb-2 rounded-0 border-0 fst-italic text-muted p-0 m-0" style="visibility:hidden" maxlength="50" placeholder="Proces naam">
-                            <select class="form-select mb-2" id="proces{{ i }}_func2" name="proces{{ i }}_func2" onchange="showDropdownProces('{{ i }}')">
-                            <option selected value="AdiabaticX">Adiabatisch &Delta;X</option>
-                            <option value="AdiabaticRH">Adiabatisch %RH</option>
-                            <option value="IsoX">Isoltherm &Delta;X</option>
-                            <option value="IsoRH">Isotherm %RH</option>
-                            </select>
-                        </div>
-                        <div class="p-2 col-6" id="proces{{ i }}_func_container" style="visibility: hidden;">
-                            <input type="text" class="form-control-sm bg-transparent mb-2 rounded-0 border-0 fst-italic text-muted p-0 m-0" style="visibility:hidden" maxlength="50" placeholder="Proces naam">
-                            <select class="form-select mb-2" id="proces{{ i }}_func" name="proces{{ i }}_func" onchange="showDropdownProces('{{ i }}')">
-                            <option selected value="power">Vermogen</option>
-                            <option value="deltaT">&Delta;T</option>
-                            <option value="deltaH">&Delta;H</option>
-                            <option value="toTemp">Naar Temp.</option>
-                            </select>
-                        </div>
-                        
-                        </div>
-
-                        <!-- Input Fields Group -->
-                        <div class="row justify-content-around algn-items-start">
-                        <div class="p-2 col-6" id="Proces{{ i }}_value1_container">
-                            <label>Efficiëntie:</label>
-                            <div class="input-group" id="Proces{{ i }}_value1">
-                            <input type="number" class="form-control" id="Proces{{ i }}_value1_input" name="Proces{{ i }}_value1_input" value="80" step="any" max="100" min="0"  step="0.1">
-                            <span class="input-group-text unit" id="coil_eff{{ i }}" name="coil_eff{{ i }}">%</span>
-                            </div>
-                        </div>
-                        <div class="p-2 col-6" id="Proces{{ i }}_value2_container">
-                            <label>Waarde:</label>
-                            <div class="input-group" id="Proces{{ i }}_value2">
-                            <input type="number" class="form-control" id="Proces{{ i }}_value2_input" name="Proces{{ i }}_value2_input" value="10" step="0.1">
-                            <span class="input-group-text unit" id="powerHeatUnit{{ i }}" name="powerHeatUnit{{ i }}">kW</span>
-                            <span class="input-group-text unit" id="DeltaTUnit{{ i }}" name="DeltaTUnit{{ i }}">&Delta;°C</span>
-                            <span class="input-group-text unit" id="DeltaHUnit{{ i }}" name="DeltaHUnit{{ i }}">&Delta;kJ/kg</span>
-                            <span class="input-group-text unit" id="ToTUnit{{ i }}" name="ToTUnit{{ i }}">°C</span>
-                            <span class="input-group-text unit" id="AdXUnit{{ i }}" name="AdXUnit{{ i }}">&Delta;g/kg</span>
-                            <span class="input-group-text unit" id="AdRHUnit{{ i }}" name="AdRHUnit{{ i }}">%RH</span>
-                            </div>
-                        </div>
-                        <div class="p-2 col-6" id="Proces{{ i }}_value3_container">
-                            <label>Bestaande luchtdebiet:</label>
-                            <div class="input-group" id="Proces{{ i }}_value3">
-                            <input type="number" class="form-control" id="Proces{{ i }}_value3_input" name="Proces{{ i }}_value3_input" value="80"  max="100" min="0"  step="0.1">
-                            <span class="input-group-text unit" id="exis_air_flow{{ i }}" name="exis_air_flow{{ i }}">%</span>
-                            </div>
-                        </div>
-                        <div class="p-2 col-6" id="Proces{{ i }}_value8_container">
-                            <label>Thermische efficiëntie:</label>
-                            <div class="input-group" id="Proces{{ i }}_value8">
-                            <input type="number" class="form-control" id="Proces{{ i }}_value8_input" name="Proces{{ i }}_value8_input" value="80" max="100" min="0" step="0.1">
-                            <span class="input-group-text unit" id="therm_eff{{ i }}" name="therm_eff{{ i }}">%</span>
-                            </div>
-                        </div>
-                        <div class="p-2 col-6" id="Proces{{ i }}_value4_container">
-                            <label>Temperatuur:</label>
-                            <div class="input-group" id="Proces{{ i }}_value4">
-                            <input type="number" class="form-control" id="Proces{{ i }}_value4_input" name="Proces{{ i }}_value4_input" value="15"  max="100" min="-10" step="0.1">
-                            <span class="input-group-text unit" id="Temp_{{ i }}_4" name="Temp_{{ i }}_4">°C</span>
-                            </div>
-                        </div>
-                        </div>
-
-                        <!-- Input Fields Group B -->
-                        <div class="row justify-content-around align-items-start border-bottom">
-                        <div class="p-2 col-6" id="Proces{{ i }}_value5_container">
-                            <label>Extra luchtdebiet:</label>
-                            <div class="input-group" id="Proces{{ i }}_value5">
-                            <input type="number" class="form-control" id="Proces{{ i }}_value5_input" name="Proces{{ i }}_value5_input" value="5000" max="1000000" min="0"  step="0.1">
-                            <span class="input-group-text unit" id="extra_airflow{{ i }}" name="extra_airflow{{ i }}">m³/h</span>
-                            </div>
-                        </div>
-                        <div class="p-2 col-6" id="Proces{{ i }}_value7_container">
-                            <label>Vocht efficiëntie:</label>
-                            <div class="input-group" id="Proces{{ i }}_value7">
-                            <input type="number" class="form-control" id="Proces{{ i }}_value7_input" name="Proces{{ i }}_value7_input" value="80"  max="100" min="0" step="0.1">
-                            <span class="input-group-text unit" id="humid_eff{{ i }}" name="humid_eff{{ i }}">%</span>
-                            </div>
-                        </div>
-                        <div class="p-2 col-6" id="Proces{{ i }}_value9_container">
-                            <label>Temperatuur:</label>
-                            <div class="input-group" id="Proces{{ i }}_value9">
-                            <input type="number" class="form-control" id="Proces{{ i }}_value9_input" name="Proces{{ i }}_value9_input" value="10"  max="40" min="-10" step="0.1">
-                            <span class="input-group-text unit" id="Temp_{{ i }}_9" name="Temp_{{ i }}_9">°C</span>
-                            </div>
-                        </div>
-                        <div class="p-2 col-6" id="Proces{{ i }}_value6_container">
-                            <label>Vochtgehalte:</label>
-                            <div class="input-group" id="Proces{{ i }}_value6">
-                            <input type="number" class="form-control" id="Proces{{ i }}_value6_input" name="Proces{{ i }}_value6_input" value="50"  max="100" min="0" step="0.1">
-                            <span class="input-group-text unit" id="humidity{{ i }}" name="humidity{{ i }}">%RH</span>
-                            </div>
-                        </div>
-                        </div>
-                    </div>
-                    </div>
-                    {% endfor %}
-                    
-                    <div class="row align-items-center mb-3">
-                        <div class="col-auto">
-                            <button type="button" class="btn btn-outline-secondary" id="btn-minus"><b>-</b></button>
-                        </div>
-                        <div class="col text-center">
-                            <span id="procesCounterLabel" class="fw-bold">Toevoegen van proces 2</span>
-                        </div>
-                        <div class="col-auto">
-                            <button type="button" class="btn btn-outline-secondary" id="btn-plus"><b>+</b></button>
-                        </div>
-                    </div>
                 
                 </div>
-                <input type="hidden" name="currentProces" id="currentProces" value="1">
-                <button type="submit" class="btn btn-primary" style="display: none;" id="mollierButton" name="mollierButton"></button>
             </div>
-            <div class="row">
-                <div class="col-sm-12 col-md-12 col-lg-8">
-                    <div class="p-3 rounded border shadow bg-white mt-4">
-                    <div class="table-title mb-2" id="table_points" name="tabel_points">Berekende punt waarden</div>
-                        <table>
-                            <thead>
-                                <tr class="quantity-row">
-                                    <th>Punt</th>
-                                    <th>T<sub>db</sub></th>
-                                    <th>T<sub>nb</sub></th>
-                                    <th>T<sub>dauw</sub></th>
-                                    <th>X</th>
-                                    <th>H</th>
-                                    <th>RH</th>
-                                    <th>P<sub>w</sub></th>
-                                    <th>ρ</th>
-                                    <th>Q<sub>v</sub></th>
-                                </tr>
-                                <tr class="unit-row">
-                                    <th></th>
-                                    <th>[°C]</th>
-                                    <th>[°C]</th>
-                                    <th>[°C]</th>
-                                    <th>[g/kg]</th>
-                                    <th>[kJ/kg]</th>
-                                    <th>[%]</th>
-                                    <th>[Pa]</th>
-                                    <th>[kg/m³]</th>
-                                    <th>[m³/h]</th>
-                                </tr>
-                            </thead>
-                            
-                            <tbody>
-                                <tr>
-                                    <td>0</td>
-                                    <td>{{ calculated_values_start.9|comma:1}}</td>
-                                    <td>{{ calculated_values_start.8|comma:1 }}</td>
-                                    <td>{{ calculated_values_start.6 |comma:1}}</td>
-                                    <td>{{ calculated_values_start.0|comma:1}}</td>
-                                    <td>{{ calculated_values_start.2 |comma:1}}</td>
-                                    <td>{{ calculated_values_start.10 |comma:1}}</td>
-                                    <td>{{ calculated_values_start.5 |comma:0}}</td>
-                                    <td>{{ calculated_values_start.4 |comma:2}}</td>
-                                    <td>{{ calculated_values_start.11 |comma:0}}</td>
-                                </tr>
-                            {% for point in calculated_values %}
-                                {% if point.0 != None %}
-                                <tr>
-                                    <td>{{ forloop.counter }}</td>
-                                    <td>{{ point.9|default_if_none:''|comma:1  }}</td>
-                                    <td>{{ point.8|default_if_none:''|comma:1 }}</td>
-                                    <td>{{ point.6|default_if_none:''|comma:1 }}</td>
-                                    <td>{{ point.0|default_if_none:''|comma:1  }}</td>
-                                    <td>{{ point.2|default_if_none:''|comma:1  }}</td>
-                                    <td>{{ point.10|default_if_none:''|comma:1  }}</td>
-                                    <td>{{ point.5|default_if_none:''|comma:0 }}</td>
-                                    <td>{{ point.4|default_if_none:''|comma:2  }}</td>
-                                    <td>{{ point.11|default_if_none:''|comma:0  }}</td>
-                                </tr>
-                             
-                                {% endif %}
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="p-3 rounded border shadow bg-white mt-4 mb-4">
-                    <div class="table-title mb-2" id="table_proces" name="tabel_proces">Berekende proces verandering</div>
-                    <table>
-                        <thead>
-                            <tr class="quantity-row">
-                                <th>Procesnaam</th>
-                                <th>Actie 1</th>
-                                <th>Actie 2</th>
-                                <th>&Delta;T<sub>db</sub></th>
-                                <th>&Delta;X</th>
-                                <th>&Delta;H</th>
-                                <th>P<sub>totaal</sub></th>
-                                <th>P<sub>voelbaar</sub></th>
-                                <th>P<sub>latent</sub></th>
-                                <th>VWF</th>
-                            </tr>
-                            <tr class="unit-row">
-                                <th></th>
-                                <th>[verw./koel.]</th>
-                                <th>[bevocht./ontvocht.]</th>
-                                <th>[°C]</th>
-                                <th>[g/kg]</th>
-                                <th>[kJ/kg]</th>
-                                <th>[kW]</th>
-                                <th>[kW]</th>
-                                <th>[kW]</th>
-                                <th>[-]</th>
-                            </tr>
-                        </thead>
-                   
-                        <tbody>
-                            {% for proces in process_data %}
-                                {% if proces.values.0 != None %}
-                                    <tr>
-                                        <td>{{ proces.name }}</td>
-                                        <td id="proces_angle_temp_{{ proces.step }}"></td>
-                                        <td id="proces_angle_humid_{{ proces.step }}"></td>
-                                        <td>{{ proces.values.0|floatformat:1 }}</td>
-                                        <td>{{ proces.values.1|floatformat:1 }}</td>
-                                        <td>{{ proces.values.2|floatformat:1 }}</td>
-                                        <td>{{ proces.values.3|floatformat:1 }}</td>
-                                        <td>{{ proces.values.4|floatformat:1 }}</td>
-                                        <td>{{ proces.values.5|floatformat:1 }}</td>
-                                        <td>{{ proces.values.6|floatformat:2 }}</td>
-                                    </tr>
-                                {% endif %}
-                            {% endfor %}
-                        </tbody>
-                    </table>
+            <!-- Toolbar -->
+            <div class="d-flex flex-wrap gap-2 mt-3 no-print">
+                <button id="SavePDFButton" name="SavePDFButton" type="button"
+                        data-pdf-url="{% url 'tools:generate_pdf_W1' %}"
+                        class="btn border shadow btn-save d-inline-flex align-items-center gap-2 no-print">
+                    <span>Save PDF</span>
+                    <img src="{% static 'tools/images/PDF-icon.png' %}" alt="Save PDF" width="18" height="18" class="icon-pdf-red">
+                </button>
 
+                <button id="SaveInputsButton" name="SaveInputsButton" type="button"
+                        class="btn border shadow btn-save d-inline-flex align-items-center gap-2">
+                    <span>Save Inputs</span>
+                    <img src="{% static 'tools/images/save.png' %}" alt="Save Inputs" width="18" height="18" class="icon-save-blue ">
+                </button>
+
+                <button id="LoadInputsButton" type="button"
+                        class="btn border shadow btn-save d-inline-flex align-items-center gap-2"
+                        data-bs-toggle="modal" data-bs-target="#loadProjectModal">
+                    <span>Load Project</span>
+                    <img src="{% static 'tools/images/load.png' %}" alt="Load" width="18" height="18">
+                </button>
+            </div>
+          
+        </div>
+
+        <!-- ===== RIGHT: Inputs + Info ===== -->
+        <div class="col-12 col-lg-4 no-print">
+          <!-- Start conditions (INPUT) -->
+          <div class="card card-input shadow-sm mt-2 position-relative">
+            <span class="position-absolute top-0 start-50 translate-middle z-1">
+                <span class="badge rounded-pill bg-secondary px-3 py-2 shadow-sm">
+                   Start conditie
+                </span>
+            </span>
+            <div class="card-body mt-2">
+              <div class="row g-3 border-bottom pb-3">
+                <div class="col-12 col-sm-6">
+                  <label for="Height_var" class="form-label">Hoogte (h)</label>
+                  <div class="input-group">
+                    <input type="number" class="form-control" id="Height_var" name="Height_var" value="0" min="0" max="4000" step="1">
+                    <span class="input-group-text">m</span>
+                  </div>
+                </div>
+                <div class="col-12 col-sm-6">
+                  <label for="qv_var" class="form-label">Debiet (q<sub>v</sub>)</label>
+                  <div class="input-group">
+                    <input type="number" class="form-control" id="qv_var" name="qv_var" value="10000" min="100" max="100000" step="10">
+                    <span class="input-group-text">m<sup>3</sup>/h</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row g-3 pt-3">
+                <div class="col-12 col-sm-6">
+                  <select class="form-select mb-2" id="varStart1" name="varStart1" onchange="updateAirStartInput1()">
+                    <option selected value="Tdb">Temp. (drogebol)</option>
+                    <option value="Twb">Temp. (nattebol)</option>
+                    <option value="RH">Rel. Vochtigheid</option>
+                    <option value="AH">Abs. Vochtigheid</option>
+                    <option value="h">Enthalpie</option>
+                  </select>
+                  <div class="input-group">
+                    <input type="number" id="StartInput1" name="StartInput1" class="form-control" value="25.0" min="-10" max="40" placeholder="waarde 1" step="0.1">
+                    <span class="input-group-text unit" id="Startunit1">°C</span>
+                  </div>
+                </div>
+                <div class="col-12 col-sm-6">
+                  <select class="form-select mb-2" id="varStart2" name="varStart2" onchange="updateAirStartInput2()">
+                    <option value="Tdb">Temp. (drogebol).</option>
+                    <option value="Twb">Temp. (nattebol).</option>
+                    <option selected value="RH">Rel. Vochtigheid</option>
+                    <option value="AH">Abs. Vochtigheid</option>
+                    <option value="h">Enthalpie</option>
+                  </select>
+                  <div class="input-group">
+                    <input type="number" id="StartInput2" name="StartInput2" class="form-control" value="50" min="0" max="100" placeholder="waarde 2" step="0.1">
+                    <span class="input-group-text unit" id="Startunit2">°C</span>
+                  </div>
+                </div>
+              </div>
+
+              {% if warning %}
+                <div class="alert alert-warning mt-3">{{ warning|safe }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Process steps (INPUT) -->
+          {% for i in process_steps %}
+         <div class="card card-input shadow-sm mt-4" id="row-proces{{ i }}" {% if i > 1 %}style="display:none"{% endif %}>
+            
+
+                <!-- Centered floating badge (JS recolors via #proces{{ i }}_title) -->
+                <span class="position-absolute top-0 start-50 translate-middle z-1">
+                <span id="proces{{ i }}_title" class="badge rounded-pill bg-secondary px-3 py-2 shadow-sm">
+                    Proces {{ i|add:"-1" }} → {{ i }}
+                </span>
+                </span>
+
+                <!-- Colored inner border (JS targets #proces{{ i }}_container) -->
+                <div id="proces{{ i }}_container" class="rounded-3 border p-3">
+
+                <!-- Dropdowns -->
+                <div class="row g-3 border-bottom pb-3">
+                    <div class="col-12 col-sm-6" id="proces{{ i }}_dropdown2_container">
+                    <input type="text"
+                            id="inputproces{{ i }}_name"
+                            name="inputproces{{ i }}_name"
+                            maxlength="13"
+                            class="form-control bg-transparent mb-2 fst-italic text-muted"
+                            placeholder="Proces naam">
+                    <select class="form-select"
+                            id="proces{{ i }}"
+                            name="proces{{ i }}"
+                            onchange="showDropdownProces('{{ i }}'); updateLineColorChart('{{ i }}')">
+                        <option selected value="selectProces">Selecteer Proces</option>
+                        <option value="heat">Verwarmen</option>
+                        <option value="cool">Koelen</option>
+                        <option value="humid">Bevochtigen</option>
+                        <option value="mix">Mix</option>
+                        <option value="heat_rec">Warmte terugwinnen</option>
+                        <option value="cust_point">Specifiek punt</option>
+                    </select>
+                    </div>
+
+                    <div class="col-12 col-sm-6" id="proces{{ i }}_func2_container" style="display:none;">
+                    <input type="text" class="form-control bg-transparent mb-2 border-0 fst-italic text-muted" style="visibility:hidden" maxlength="50" placeholder="Proces naam">
+                    <select class="form-select" id="proces{{ i }}_func2" name="proces{{ i }}_func2" onchange="showDropdownProces('{{ i }}')">
+                        <option selected value="AdiabaticX">Adiabatisch &Delta;X</option>
+                        <option value="AdiabaticRH">Adiabatisch %RH</option>
+                        <option value="IsoX">Isoltherm &Delta;X</option>
+                        <option value="IsoRH">Isotherm %RH</option>
+                    </select>
+                    </div>
+
+                    <div class="col-12 col-sm-6" id="proces{{ i }}_func_container" style="visibility:hidden;">
+                    <input type="text" class="form-control bg-transparent mb-2 border-0 fst-italic text-muted" style="visibility:hidden" maxlength="50" placeholder="Proces naam">
+                    <select class="form-select" id="proces{{ i }}_func" name="proces{{ i }}_func" onchange="showDropdownProces('{{ i }}')">
+                        <option selected value="power">Vermogen</option>
+                        <option value="deltaT">&Delta;T</option>
+                        <option value="deltaH">&Delta;H</option>
+                        <option value="toTemp">Naar Temp.</option>
+                    </select>
                     </div>
                 </div>
-               
-                <div class = "col-sm-12 col-md-12 col-lg-4">
-                    <section class="p-3 border rounded shadow mt-4">
-                    <div class="content page-break">
-                        <h2>Informatie over de Processen</h2>
-                        <p>Alle processen worden berekend met de actuele dichtheden van de lucht. Hieronder vindt u de gebruikte parameters en hun uitleg.</p>
-                        <ul>
-                            <li><span class="term"><strong>T<sub>db</sub></strong></span><span class="value">: Drogeboltemperatuur</span></li>
-                            <li><span class="term"><strong>T<sub>nb</sub></strong></span><span class="value">: Natteboltemperatuur</span></li>
-                            <li><span class="term"><strong>T<sub>dauw</sub></strong></span><span class="value">: Dauwpuntstemperatuur</span></li>
-                            <li><span class="term"><strong>X</strong></span><span class="value">: Vochtgehalte</span></li>
-                            <li><span class="term"><strong>H</strong></span><span class="value">: Entalpie</span></li>
-                            <li><span class="term"><strong>RH</strong></span><span class="value">: Relatieve luchtvochtigheid</span></li>
-                            <li><span class="term"><strong>P<sub>w</sub></strong></span><span class="value">: Dampdruk</span></li>
-                            <li><span class="term"><strong>ρ</strong></span><span class="value">: Luchtdichtheid</span></li>
-                            <li><span class="term"><strong>Q<sub>v</sub></strong></span><span class="value">: Luchtdebiet</span></li>
-                            <li><span class="term"><strong>VWF</strong></span><span class="value">: Voelbare Warmte Factor</span></li>
-                        </ul>
-                        <h4 class="warning">Waarschuwing:</h4>
-                        <p class="warning">De berekende en gevisualiseerde resultaten kunnen afwijken van de ingevoerde waarden door onnauwkeurigheden, fysieke beperkingen of grafiekbeperkingen. De trajecten van de luchtprocessen worden als rechte lijnen naar de resulterende waarde weergegeven, maar kunnen in werkelijkheid gekromd zijn door condensatie.</p>
+
+                <!-- Input Fields Group A -->
+                <div class="row g-3 pt-3">
+                    <div class="col-12 col-sm-6" id="Proces{{ i }}_value1_container">
+                    <label class="form-label">Efficiëntie</label>
+                    <div class="input-group" id="Proces{{ i }}_value1">
+                        <input type="number" class="form-control" id="Proces{{ i }}_value1_input" name="Proces{{ i }}_value1_input" value="80" step="0.1" max="100" min="0">
+                        <span class="input-group-text unit" id="coil_eff{{ i }}" name="coil_eff{{ i }}">%</span>
                     </div>
-                    </section>
+                    </div>
+
+                    <div class="col-12 col-sm-6" id="Proces{{ i }}_value2_container">
+                    <label class="form-label">Waarde</label>
+                    <div class="input-group" id="Proces{{ i }}_value2">
+                        <input type="number" class="form-control" id="Proces{{ i }}_value2_input" name="Proces{{ i }}_value2_input" value="10" step="0.1">
+                        <span class="input-group-text unit" id="powerHeatUnit{{ i }}" name="powerHeatUnit{{ i }}">kW</span>
+                        <span class="input-group-text unit" id="DeltaTUnit{{ i }}" name="DeltaTUnit{{ i }}">&Delta;°C</span>
+                        <span class="input-group-text unit" id="DeltaHUnit{{ i }}" name="DeltaHUnit{{ i }}">&Delta;kJ/kg</span>
+                        <span class="input-group-text unit" id="ToTUnit{{ i }}" name="ToTUnit{{ i }}">°C</span>
+                        <span class="input-group-text unit" id="AdXUnit{{ i }}" name="AdXUnit{{ i }}">&Delta;g/kg</span>
+                        <span class="input-group-text unit" id="AdRHUnit{{ i }}" name="AdRHUnit{{ i }}">%RH</span>
+                    </div>
+                    </div>
+
+                    <div class="col-12 col-sm-6" id="Proces{{ i }}_value3_container">
+                    <label class="form-label">Bestaand luchtdebiet</label>
+                    <div class="input-group" id="Proces{{ i }}_value3">
+                        <input type="number" class="form-control" id="Proces{{ i }}_value3_input" name="Proces{{ i }}_value3_input" value="80" max="100" min="0" step="0.1">
+                        <span class="input-group-text unit" id="exis_air_flow{{ i }}" name="exis_air_flow{{ i }}">%</span>
+                    </div>
+                    </div>
+
+                    <div class="col-12 col-sm-6" id="Proces{{ i }}_value8_container">
+                    <label class="form-label">Thermische efficiëntie</label>
+                    <div class="input-group" id="Proces{{ i }}_value8">
+                        <input type="number" class="form-control" id="Proces{{ i }}_value8_input" name="Proces{{ i }}_value8_input" value="80" max="100" min="0" step="0.1">
+                        <span class="input-group-text unit" id="therm_eff{{ i }}" name="therm_eff{{ i }}">%</span>
+                    </div>
+                    </div>
+
+                    <div class="col-12 col-sm-6" id="Proces{{ i }}_value4_container">
+                    <label class="form-label">Temperatuur</label>
+                    <div class="input-group" id="Proces{{ i }}_value4">
+                        <input type="number" class="form-control" id="Proces{{ i }}_value4_input" name="Proces{{ i }}_value4_input" value="15" max="100" min="-10" step="0.1">
+                        <span class="input-group-text unit" id="Temp_{{ i }}_4" name="Temp_{{ i }}_4">°C</span>
+                    </div>
+                    </div>
                 </div>
-            </div>  
-            <input type="hidden" name="table_points_json" id="table_points_json">
-            <input type="hidden" name="table_process_json" id="table_process_json">
-            <input type="hidden" name="chart_image_base64" id="chart_image_base64">
-            <input type="hidden" name="project_title" id="project_title" value="Mollierdiagram">
-            <input type="hidden" name="username" id="username" value="{{ request.user.username|default:'Onbekend' }}">
-        </form>
-    </div>
-    
-</div>
-<div class="modal fade" id="loadProjectModal" tabindex="-1" role="dialog" aria-labelledby="loadProjectModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
+
+                <!-- Input Fields Group B -->
+                <div class="row g-3 pt-3">
+                    <div class="col-12 col-sm-6" id="Proces{{ i }}_value5_container">
+                    <label class="form-label">Extra luchtdebiet</label>
+                    <div class="input-group" id="Proces{{ i }}_value5">
+                        <input type="number" class="form-control" id="Proces{{ i }}_value5_input" name="Proces{{ i }}_value5_input" value="5000" max="1000000" min="0" step="0.1">
+                        <span class="input-group-text unit" id="extra_airflow{{ i }}" name="extra_airflow{{ i }}">m³/h</span>
+                    </div>
+                    </div>
+
+                    <div class="col-12 col-sm-6" id="Proces{{ i }}_value7_container">
+                    <label class="form-label">Vocht efficiëntie</label>
+                    <div class="input-group" id="Proces{{ i }}_value7">
+                        <input type="number" class="form-control" id="Proces{{ i }}_value7_input" name="Proces{{ i }}_value7_input" value="80" max="100" min="0" step="0.1">
+                        <span class="input-group-text unit" id="humid_eff{{ i }}" name="humid_eff{{ i }}">%</span>
+                    </div>
+                    </div>
+
+                    <div class="col-12 col-sm-6" id="Proces{{ i }}_value9_container">
+                    <label class="form-label">Temperatuur</label>
+                    <div class="input-group" id="Proces{{ i }}_value9">
+                        <input type="number" class="form-control" id="Proces{{ i }}_value9_input" name="Proces{{ i }}_value9_input" value="10" max="40" min="-10" step="0.1">
+                        <span class="input-group-text unit" id="Temp_{{ i }}_9" name="Temp_{{ i }}_9">°C</span>
+                    </div>
+                    </div>
+
+                    <div class="col-12 col-sm-6" id="Proces{{ i }}_value6_container">
+                    <label class="form-label">Vochtgehalte</label>
+                    <div class="input-group" id="Proces{{ i }}_value6">
+                        <input type="number" class="form-control" id="Proces{{ i }}_value6_input" name="Proces{{ i }}_value6_input" value="50" max="100" min="0" step="0.1">
+                        <span class="input-group-text unit" id="humidity{{ i }}" name="humidity{{ i }}">%RH</span>
+                    </div>
+                    </div>
+                </div>
+
+                </div><!-- /#proces{i}_container -->
+            
+        </div>
+
+          {% endfor %}
+
+          <!-- Add/remove process controls -->
+          <div class="d-flex align-items-center justify-content-between my-3">
+            <button type="button" class="btn btn-outline-secondary" id="btn-minus"><strong>−</strong></button>
+            <span id="procesCounterLabel" class="fw-bold">Toevoegen van proces 2</span>
+            <button type="button" class="btn btn-outline-secondary" id="btn-plus"><strong>+</strong></button>
+          </div>
+        </div>
+
+        
+      </div>
+
+      <!-- Hidden submit + state -->
+      <input type="hidden" name="currentProces" id="currentProces" value="1">
+      <button type="submit" class="btn btn-primary d-none" id="mollierButton" name="mollierButton"></button>
+
+      <div class="row g-3">
+        <div class="col-12 col-lg-8">
+            <!-- Points table (OUTPUT) -->
+            <div class="card card-output shadow-sm mt-3">
+                <div class="card-body">
+                <h5 class="card-title mb-3" id="table_points" name="tabel_points">Berekende puntwaarden</h5>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle">
+                    <thead>
+                        <tr class="quantity-row">
+                        <th>Punt</th>
+                        <th>T<sub>db</sub></th>
+                        <th>T<sub>nb</sub></th>
+                        <th>T<sub>dauw</sub></th>
+                        <th>X</th>
+                        <th>H</th>
+                        <th>RH</th>
+                        <th>P<sub>w</sub></th>
+                        <th>ρ</th>
+                        <th>Q<sub>v</sub></th>
+                        </tr>
+                        <tr class="unit-row text-muted">
+                        <th></th>
+                        <th>[°C]</th>
+                        <th>[°C]</th>
+                        <th>[°C]</th>
+                        <th>[g/kg]</th>
+                        <th>[kJ/kg]</th>
+                        <th>[%]</th>
+                        <th>[Pa]</th>
+                        <th>[kg/m³]</th>
+                        <th>[m³/h]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                        <td>0</td>
+                        <td>{{ calculated_values_start.9|comma:1}}</td>
+                        <td>{{ calculated_values_start.8|comma:1 }}</td>
+                        <td>{{ calculated_values_start.6 |comma:1}}</td>
+                        <td>{{ calculated_values_start.0|comma:1}}</td>
+                        <td>{{ calculated_values_start.2 |comma:1}}</td>
+                        <td>{{ calculated_values_start.10 |comma:1}}</td>
+                        <td>{{ calculated_values_start.5 |comma:0}}</td>
+                        <td>{{ calculated_values_start.4 |comma:3}}</td>
+                        <td>{{ calculated_values_start.11 |comma:0}}</td>
+                        </tr>
+                        {% for point in calculated_values %}
+                        {% if point.0 != None %}
+                            <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ point.9|default_if_none:''|comma:1 }}</td>
+                            <td>{{ point.8|default_if_none:''|comma:1 }}</td>
+                            <td>{{ point.6|default_if_none:''|comma:1 }}</td>
+                            <td>{{ point.0|default_if_none:''|comma:1 }}</td>
+                            <td>{{ point.2|default_if_none:''|comma:1 }}</td>
+                            <td>{{ point.10|default_if_none:''|comma:1 }}</td>
+                            <td>{{ point.5|default_if_none:''|comma:0 }}</td>
+                            <td>{{ point.4|default_if_none:''|comma:2 }}</td>
+                            <td>{{ point.11|default_if_none:''|comma:0 }}</td>
+                            </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                    </table>
+                </div>
+                </div>
+            </div>
+
+            <!-- Process table (OUTPUT) -->
+            <div class="card card-output shadow-sm mt-3 mb-4">
+                <div class="card-body">
+                <h5 class="card-title mb-3" id="table_proces" name="tabel_proces">Berekende procesveranderingen</h5>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle">
+                    <thead>
+                        <tr class="quantity-row">
+                        <th>Procesnaam</th>
+                        <th>Actie 1</th>
+                        <th>Actie 2</th>
+                        <th>&Delta;T<sub>db</sub></th>
+                        <th>&Delta;X</th>
+                        <th>&Delta;H</th>
+                        <th>P<sub>totaal</sub></th>
+                        <th>P<sub>voelbaar</sub></th>
+                        <th>P<sub>latent</sub></th>
+                        <th>VWF</th>
+                        </tr>
+                        <tr class="unit-row text-muted">
+                        <th></th>
+                        <th>[verw./koel.]</th>
+                        <th>[bevocht./ontvocht.]</th>
+                        <th>[°C]</th>
+                        <th>[g/kg]</th>
+                        <th>[kJ/kg]</th>
+                        <th>[kW]</th>
+                        <th>[kW]</th>
+                        <th>[kW]</th>
+                        <th>[-]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for proces in process_data %}
+                        {% if proces.values.0 != None %}
+                            <tr>
+                            <td>{{ proces.name }}</td>
+                            <td id="proces_angle_temp_{{ proces.step }}"></td>
+                            <td id="proces_angle_humid_{{ proces.step }}"></td>
+                            <td>{{ proces.values.0|floatformat:1 }}</td>
+                            <td>{{ proces.values.1|floatformat:1 }}</td>
+                            <td>{{ proces.values.2|floatformat:1 }}</td>
+                            <td>{{ proces.values.3|floatformat:1 }}</td>
+                            <td>{{ proces.values.4|floatformat:1 }}</td>
+                            <td>{{ proces.values.5|floatformat:1 }}</td>
+                            <td>{{ proces.values.6|floatformat:2 }}</td>
+                            </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                    </table>
+                </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-4">        
+            <!-- Explanatory info (OUTPUT / reference) -->
+            
+            <div class="card card-output shadow-sm mt-3">
+                <div class="card-body">
+                <h5 class="card-title mb-3">Informatie over de processen</h5>
+                <p>Alle processen worden berekend met actuele luchtdichtheden. Hieronder de gebruikte parameters:</p>
+                <ul class="mb-3">
+                    <li><strong>T<sub>db</sub></strong>: Drogeboltemperatuur</li>
+                    <li><strong>T<sub>nb</sub></strong>: Natteboltemperatuur</li>
+                    <li><strong>T<sub>dauw</sub></strong>: Dauwpuntstemperatuur</li>
+                    <li><strong>X</strong>: Vochtgehalte</li>
+                    <li><strong>H</strong>: Entalpie</li>
+                    <li><strong>RH</strong>: Relatieve luchtvochtigheid</li>
+                    <li><strong>P<sub>w</sub></strong>: Dampdruk</li>
+                    <li><strong>ρ</strong>: Luchtdichtheid</li>
+                    <li><strong>Q<sub>v</sub></strong>: Luchtdebiet</li>
+                    <li><strong>VWF</strong>: Voelbare Warmte Factor</li>
+                </ul>
+                <div class="alert alert-warning mb-0">
+                    <strong>Let op:</strong> De getoonde lijnen zijn idealisaties; bij condensatie kan het werkelijke traject afwijken.
+                </div>
+                </div>
+            </div>
+          
+        </div>
+      </div>
+
+      <!-- Hidden fields for export -->
+      <input type="hidden" name="table_points_json" id="table_points_json">
+      <input type="hidden" name="table_process_json" id="table_process_json">
+      <input type="hidden" name="chart_image_base64" id="chart_image_base64">
+      <input type="hidden" name="project_title" id="project_title" value="Mollierdiagram">
+      <input type="hidden" name="username" id="username" value="{{ request.user.username|default:'Onbekend' }}">
+    </form>
+  </div>
+</section>
+
+<!-- ===== Modal: Load Project (Bootstrap 5 markup) ===== -->
+<div class="modal fade" id="loadProjectModal" tabindex="-1" aria-labelledby="loadProjectModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Kies een opgeslagen project</h5>
-        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Sluiten">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <h5 class="modal-title" id="loadProjectModalLabel">Kies een opgeslagen project</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Sluiten"></button>
       </div>
       <div class="modal-body">
         {% if saved_projects %}
           <ul class="list-group">
-          {% for project in saved_projects %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
+            {% for project in saved_projects %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
                 <span>{{ project.projectname }}</span>
-                <div>
-                    <button type="button" class="btn btn-sm btn-outline-primary me-2" onclick="loadSavedProject('{{ project.id }}')">Load</button>
-                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteProject('{{ project.id }}')">Delete</button>
+                <div class="btn-group btn-group-sm" role="group">
+                  <button type="button" class="btn btn-outline-primary" onclick="loadSavedProject('{{ project.id }}')">Load</button>
+                  <button type="button" class="btn btn-outline-danger" onclick="deleteProject('{{ project.id }}')">Delete</button>
                 </div>
-            </li>
-        {% endfor %}
+              </li>
+            {% endfor %}
           </ul>
         {% else %}
-          <p>Je hebt nog geen projecten opgeslagen.</p>
+          <p class="mb-0">Je hebt nog geen projecten opgeslagen.</p>
         {% endif %}
       </div>
     </div>
   </div>
 </div>
-<!-- Inside <head> or right before </body> -->
-<!-- ✅ PLACE THIS FIRST -->
+
+<!-- Restore state to sessionStorage if provided -->
 {% if restored_sessionstorage %}
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            sessionStorage.setItem('skipScrollOnLoad', 'true'); 
-            try {
-                const restored = JSON.parse('{{ restored_sessionstorage|escapejs }}');
-                for (const [key, value] of Object.entries(restored)) {
-                    sessionStorage.setItem(key, value);
-                }
-
-                // Wait a bit longer to ensure DOM and dropdown logic is ready
-                setTimeout(() => {
-                    console.log("🔁 Triggering Mollier recalculation after restore");
-                    const button = document.getElementById('mollierButton');
-                    if (button) button.click();
-                    else console.warn("⚠️ mollierButton not found");
-                }, 300);
-            } catch (e) {
-                console.error("❌ Failed to restore session:", e);
-            }
-        });
-
-    </script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    sessionStorage.setItem('skipScrollOnLoad', 'true');
+    try {
+      const restored = JSON.parse('{{ restored_sessionstorage|escapejs }}');
+      for (const [key, value] of Object.entries(restored)) {
+        sessionStorage.setItem(key, value);
+      }
+      setTimeout(() => {
+        const button = document.getElementById('mollierButton');
+        if (button) button.click();
+      }, 300);
+    } catch (e) {
+      console.error('Failed to restore session:', e);
+    }
+  });
+</script>
 {% endif %}
+
 <!-- Charts met chart.js en ajax weergeven, wel gevaarlijk voor verdere development. -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.3/xlsx.full.min.js"></script>
 
-
-<script >
-
-// Define a JavaScript variable to hold the URL
+<script>
+// ====== URLs injected by Django ======
 const downloadExcelUrl = "{% url 'tools:download_excel' %}";
-const saveProjectUrl = "{% url 'tools:save_project' %}";
-const loadProjectUrl = "{% url 'tools:load_project' %}";
+const saveProjectUrl   = "{% url 'tools:save_project' %}";
+const loadProjectUrl   = "{% url 'tools:load_project' %}";
 const deleteProjectUrl = "{% url 'tools:delete_project' %}";
-// Define the x and y values
+
+// ====== Data from Django ======
 const lines_RH = JSON.parse('{{ lines_RH|escapejs }}');
-const TValues = lines_RH.x_values; //
+const TValues  = lines_RH.x_values;
+
 const rhKeys = [
-  'ten_percent', 'twenty_percent', 'thirty_percent', 'fourty_percent', 'fifty_percent',
-  'sixty_percent', 'seventy_percent', 'eighty_percent', 'ninety_percent', 'onehondered_percent'
+  'ten_percent','twenty_percent','thirty_percent','fourty_percent','fifty_percent',
+  'sixty_percent','seventy_percent','eighty_percent','ninety_percent','onehondered_percent'
 ];
 const RHPercentages = rhKeys.map((key, i) => ({
-    label: `${(i + 1) * 10}%`,
-    data: lines_RH[key].map((val, idx) => ({ x: val, y: TValues[idx] })),
-    color: 'black'
+  label: `${(i + 1) * 10}%`,
+  data: (lines_RH[key] || []).map((val, idx) => ({ x: val, y: TValues[idx] })),
+  color: 'black'
 }));
+
 const lines_H = JSON.parse('{{ lines_H|escapejs }}');
-const HLabels = ['-10','-5', '0', '5', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55', '60', '65', '70', '75', '80', '85', '90'];
+const HLabels = ['-10','-5','0','5','10','15','20','25','30','35','40','45','50','55','60','65','70','75','80','85','90'];
 const HData = HLabels.map((label, index) => ({
-    label: label,
-    data: [
-        {y: lines_H.x1[index ], x: 0}, // First point (x1, y1)
-        {y: lines_H.x2[index ], x: lines_H.y2[index]} // Second point (x2, y2)
-    ],
-    borderColor: 'rgb(0, 0, 0)',
-    borderWidth: 0.5,
-    pointRadius: 2, // Set point radius for visibility
-    pointBackgroundColor: 'rgb(0, 0, 0)',
-    
+  label,
+  data: [
+    { y: lines_H.x1[index], x: 0 },
+    { y: lines_H.x2[index], x: lines_H.y2[index] }
+  ],
+  borderColor: 'rgb(0,0,0)',
+  borderWidth: 0.5,
+  pointRadius: 2,
+  pointBackgroundColor: 'rgb(0,0,0)',
 }));
+
+// ====== Plugins (guarded / corrected) ======
 const RHLabelsPlugin = {
-    id: 'rhLabels',
-    afterDatasetsDraw (chart) {
-        const { ctx, scales, data } = chart;
+  id: 'rhLabels',
+  afterDatasetsDraw(chart) {
+    const { ctx, data } = chart;
 
-        const h45 = data.datasets.find(ds => ds.label === 'H=45');
-        const h50 = data.datasets.find(ds => ds.label === 'H=50');
-        if (!h45 || !h50) return;
+    // ✅ match your actual H dataset labels ('45' and '50')
+    const h45 = data.datasets.find(ds => ds.label === '45');
+    const h50 = data.datasets.find(ds => ds.label === '50');
+    if (!h45 || !h50) return;
 
-        const h45Meta = chart.getDatasetMeta(data.datasets.indexOf(h45));
-        const h50Meta = chart.getDatasetMeta(data.datasets.indexOf(h50));
-        if (h45Meta.hidden || h50Meta.hidden) return;
+    const h45Meta = chart.getDatasetMeta(data.datasets.indexOf(h45));
+    const h50Meta = chart.getDatasetMeta(data.datasets.indexOf(h50));
+    if (!h45Meta || !h50Meta || h45Meta.hidden || h50Meta.hidden) return;
 
-        const [h45start, h45end] = h45Meta.data;
-        const [h50start, h50end] = h50Meta.data;
+    const [h45start, h45end] = h45Meta.data;
+    const [h50start, h50end] = h50Meta.data;
+    if (!h45start || !h45end || !h50start || !h50end) return;
 
-        // Get slopes for linear interpolation (y = m * x)
-        const slopeH45 = (h45end.y - h45start.y) / (h45end.x - h45start.x);
-        const interceptH45 = h45start.y - slopeH45 * h45start.x;
+    const slopeH45 = (h45end.y - h45start.y) / (h45end.x - h45start.x);
+    const interceptH45 = h45start.y - slopeH45 * h45start.x;
 
-        const slopeH50 = (h50end.y - h50start.y) / (h50end.x - h50start.x);
-        const interceptH50 = h50start.y - slopeH50 * h50start.x;
+    const slopeH50 = (h50end.y - h50start.y) / (h50end.x - h50start.x);
+    const interceptH50 = h50start.y - slopeH50 * h50start.x;
 
-        chart.data.datasets.forEach((dataset, i) => {
-            if (!dataset.label.endsWith('%')) return;
+    chart.data.datasets.forEach((dataset, i) => {
+      if (!dataset.label.endsWith('%')) return;
+      const meta = chart.getDatasetMeta(i);
+      if (meta.hidden || meta.data.length < 2) return;
 
-            const meta = chart.getDatasetMeta(i);
-            if (meta.hidden || meta.data.length < 2) return;
+      for (let j = 1; j < meta.data.length; j++) {
+        const p1 = meta.data[j - 1];
+        const p2 = meta.data[j];
+        if (!p1 || !p2) continue;
 
-            // Find point on RH curve between H=45 and H=50 (based on Y comparison)
-            for (let j = 1; j < meta.data.length; j++) {
-                const p1 = meta.data[j - 1];
-                const p2 = meta.data[j];
-                if (!p1 || !p2) continue;
+        const midX = (p1.x + p2.x) / 2;
+        const midY = (p1.y + p2.y) / 2;
 
-                const midX = (p1.x + p2.x) / 2;
-                const midY = (p1.y + p2.y) / 2;
+        const yH45 = slopeH45 * midX + interceptH45;
+        const yH50 = slopeH50 * midX + interceptH50;
 
-                const yH45 = slopeH45 * midX + interceptH45;
-                const yH50 = slopeH50 * midX + interceptH50;
+        const yMin = Math.min(yH45, yH50);
+        const yMax = Math.max(yH45, yH50);
 
-                const yMin = Math.min(yH45, yH50);
-                const yMax = Math.max(yH45, yH50);
-
-                if (midY >= yMin && midY <= yMax) {
-                    // Angle of the RH curve
-                    const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
-
-                    ctx.save();
-                    ctx.translate(midX, midY);
-                    ctx.rotate(angle);
-                    ctx.fillStyle = 'grey';
-                    ctx.font = '12px sans-serif';
-                    ctx.textAlign = 'left';
-                    ctx.textBaseline = 'middle';
-                    if (dataset.label === '70%') {
-                        ctx.fillText(dataset.label, -12, -8); // custom position for 70%
-                    } else if (dataset.label === '80%') {
-                        ctx.fillText(dataset.label, 8, -6); // custom position for 80%
-                    } else {
-                        ctx.fillText(dataset.label, 4, -6); // default for all others
-                    }
-                    ctx.restore();
-
-                    break; // Only label once per RH line
-                }
-            }
-        });
-    }
+        if (midY >= yMin && midY <= yMax) {
+          const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+          ctx.save();
+          ctx.translate(midX, midY);
+          ctx.rotate(angle);
+          ctx.fillStyle = 'grey';
+          ctx.font = '12px sans-serif';
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'middle';
+          if (dataset.label === '70%')      ctx.fillText(dataset.label, -12, -8);
+          else if (dataset.label === '80%') ctx.fillText(dataset.label,   8, -6);
+          else                               ctx.fillText(dataset.label,   4, -6);
+          ctx.restore();
+          break;
+        }
+      }
+    });
+  }
 };
 
 const HLabelsPlugin = {
-    id: 'hLabels',
-    afterDatasetsDraw(chart) {
-        const { ctx } = chart;
+  id: 'hLabels',
+  afterDatasetsDraw(chart) {
+    const { ctx } = chart;
 
-        chart.data.datasets.forEach((dataset, i) => {
-            if (isNaN(Number(dataset.label))) return; // Only numeric labels
+    chart.data.datasets.forEach((dataset, i) => {
+      if (isNaN(Number(dataset.label))) return;
+      const meta = chart.getDatasetMeta(i);
+      if (meta.hidden || meta.data.length === 0) return;
 
-            const meta = chart.getDatasetMeta(i);
-            if (meta.hidden || meta.data.length === 0) return;
+      const lastPoint = meta.data[meta.data.length - 1];
+      if (!lastPoint) return;
 
-            const lastPoint = meta.data[meta.data.length - 1];
-            if (!lastPoint) return;
+      ctx.save();
+      ctx.fillStyle = 'gray';
+      ctx.font = '12px sans-serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(dataset.label, lastPoint.x + 6, lastPoint.y + 4);
+      ctx.restore();
+    });
 
-            ctx.save();
-            ctx.fillStyle = 'gray';
-            ctx.font = '12px sans-serif';
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(dataset.label, lastPoint.x + 6, lastPoint.y + 4);
-            ctx.restore();
-        });
+    const h0Dataset = chart.data.datasets.find(ds => ds.label === '0');
+    if (h0Dataset) {
+      const meta = chart.getDatasetMeta(chart.data.datasets.indexOf(h0Dataset));
+      if (!meta.hidden && meta.data.length >= 2) {
+        const point = meta.data[1];
+        if (!point) return;
 
-        const h0Dataset = chart.data.datasets.find(ds => ds.label === '0');
-        if (h0Dataset) {
-            const meta = chart.getDatasetMeta(chart.data.datasets.indexOf(h0Dataset));
-            if (!meta.hidden && meta.data.length >= 2) {
-                const point = meta.data[1]; // end of H=0 line
-                const x = point.x;
-                const y = point.y;
+        const x = point.x;
+        const y = point.y;
+        const angleRad = 50 * Math.PI / 180;
+        const text = 'Enthalpie h [kJ/kg]';
 
-                const angleRad = 50 * Math.PI / 180;
-                const text = 'Enthalpie h [kJ/kg]';
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(-angleRad);
+        ctx.font = 'bold 14px sans-serif';
+        ctx.fillStyle = 'black';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, -20, 40);
 
-                ctx.save();
-                ctx.translate(x, y);
-                ctx.rotate(-angleRad); // tilt 50° upward
+        const lineLength = 60, startY = 20;
+        ctx.beginPath(); ctx.moveTo(0, startY); ctx.lineTo(lineLength, startY);
+        ctx.strokeStyle = 'black'; ctx.lineWidth = 1.2; ctx.stroke();
 
-                // Text
-                ctx.font = 'bold 14px sans-serif';
-                ctx.fillStyle = 'black';
-                ctx.textAlign = 'left';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(text, -20, 40);
-
-                const lineLength = 60;
-                const startY = 20;
-
-                /// Line
-                ctx.beginPath();
-                ctx.moveTo(0, startY);
-                ctx.lineTo(lineLength, startY);
-                ctx.strokeStyle = 'black';
-                ctx.lineWidth = 1.2;
-                ctx.stroke();
-
-                // Arrowhead — based at (lineLength, startY)
-                const arrowSize = 8;
-                const arrowAngle = Math.PI / 6; // 30°
-
-                ctx.beginPath();
-                ctx.moveTo(lineLength, startY); // tip of arrow
-                ctx.lineTo(
-                    lineLength - arrowSize * Math.cos(arrowAngle),
-                    startY + arrowSize * Math.sin(arrowAngle)
-                );
-                ctx.lineTo(
-                    lineLength - arrowSize * Math.cos(arrowAngle),
-                    startY - arrowSize * Math.sin(arrowAngle)
-                );
-                ctx.closePath();
-                ctx.fillStyle = 'black';
-                ctx.fill();
-                ctx.restore();
-            }
-        }
+        const arrowSize = 8, arrowAngle = Math.PI / 6;
+        ctx.beginPath();
+        ctx.moveTo(lineLength, startY);
+        ctx.lineTo(lineLength - arrowSize * Math.cos(arrowAngle), startY + arrowSize * Math.sin(arrowAngle));
+        ctx.lineTo(lineLength - arrowSize * Math.cos(arrowAngle), startY - arrowSize * Math.sin(arrowAngle));
+        ctx.closePath(); ctx.fillStyle = 'black'; ctx.fill();
+        ctx.restore();
+      }
     }
+  }
 };
 
 const FillUnder100RHPlugin = {
-    id: 'fillUnder100RH',
-    beforeDatasetsDraw(chart) {
-        const ctx = chart.ctx;
-        const dataset = chart.data.datasets.find(ds => ds.label === '100%');
-        const meta = chart.getDatasetMeta(chart.data.datasets.indexOf(dataset));
+  id: 'fillUnder100RH',
+  beforeDatasetsDraw(chart) {
+    const dataset = chart.data.datasets.find(ds => ds.label === '100%');
+    if (!dataset) return;
+    const idx = chart.data.datasets.indexOf(dataset);
+    const meta = chart.getDatasetMeta(idx);
+    if (!meta || meta.hidden || meta.data.length === 0) return;
 
-        if (!dataset || meta.hidden || meta.data.length === 0) return;
+    const xMax = 20;
+    const xScale = chart.scales.x;
+    const yScale = chart.scales.y;
+    const yBottom = yScale.getPixelForValue(yScale.min);
 
-        const xMax = 20;
-        const xScale = chart.scales.x;
-        const yScale = chart.scales.y;
-        const yBottom = yScale.getPixelForValue(yScale.min);
+    const ctx = chart.ctx;
+    ctx.save(); ctx.beginPath();
 
-        ctx.save();
-        ctx.beginPath();
+    const firstPoint = meta.data[0];
+    ctx.moveTo(firstPoint.x, yBottom);
+    ctx.lineTo(firstPoint.x, firstPoint.y);
 
-        // Start at bottom of first point's x
-        const firstPoint = meta.data[0];
-        ctx.moveTo(firstPoint.x, yBottom);
-        ctx.lineTo(firstPoint.x, firstPoint.y);
-
-        // Draw RH curve points, but stop at x <= 20
-        for (let i = 1; i < meta.data.length; i++) {
-            const pt = meta.data[i];
-            const dataX = dataset.data[i].x;
-            if (dataX <= xMax) {
-                ctx.lineTo(pt.x, pt.y);
-            } else {
-                // Interpolate y at x = 20
-                const prevPt = dataset.data[i - 1];
-                const currPt = dataset.data[i];
-                const t = (xMax - prevPt.x) / (currPt.x - prevPt.x);
-                const interpolatedY = prevPt.y + t * (currPt.y - prevPt.y);
-                const pixelX = xScale.getPixelForValue(xMax);
-                const pixelY = yScale.getPixelForValue(interpolatedY);
-                ctx.lineTo(pixelX, pixelY);
-                ctx.lineTo(pixelX, yBottom); // down to bottom
-                break;
-            }
-        }
-
-        // Close the path and fill
-        ctx.closePath();
-        ctx.fillStyle = '#ffffff'; // bootstrap bg-light color
-        ctx.fill();
-        ctx.restore();
+    for (let i = 1; i < meta.data.length; i++) {
+      const pt = meta.data[i];
+      const dataX = dataset.data[i].x;
+      if (dataX <= xMax) {
+        ctx.lineTo(pt.x, pt.y);
+      } else {
+        const prevPt = dataset.data[i - 1];
+        const currPt = dataset.data[i];
+        const t = (xMax - prevPt.x) / (currPt.x - prevPt.x);
+        const interpolatedY = prevPt.y + t * (currPt.y - prevPt.y);
+        const pixelX = xScale.getPixelForValue(xMax);
+        const pixelY = yScale.getPixelForValue(interpolatedY);
+        ctx.lineTo(pixelX, pixelY);
+        ctx.lineTo(pixelX, yBottom);
+        break;
+      }
     }
+
+    ctx.closePath();
+    ctx.fillStyle = '#ffffff';
+    ctx.fill();
+    ctx.restore();
+  }
 };
+
 const whiteBackgroundPlugin = {
-    id: 'whiteBackground',
-    beforeDraw: (chart) => {
-        const { ctx, chartArea } = chart;
-
-        ctx.save();
-        ctx.globalCompositeOperation = 'destination-over';
-        ctx.fillStyle = '#ffffff'; // pure white
-
-        // ✅ Fill only the graph's chart area (not padding/axes)
-        ctx.fillRect(
-            chartArea.left,
-            chartArea.top,
-            chartArea.right - chartArea.left,
-            chartArea.bottom - chartArea.top
-        );
-
-        ctx.restore();
-    }
+  id: 'whiteBackground',
+  beforeDraw(chart) {
+    if (!chart.chartArea) return; // ✅ guard on first layout pass
+    const { ctx, chartArea } = chart;
+    ctx.save();
+    ctx.globalCompositeOperation = 'destination-over';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(chartArea.left, chartArea.top, chartArea.right - chartArea.left, chartArea.bottom - chartArea.top);
+    ctx.restore();
+  }
 };
-// ——— Pull your Python‑generated arrays into JS ———
+
+// ====== Process data (points/lines) ======
 const calculatedValuesStart = JSON.parse('{{ calculated_values_start_json|escapejs }}');
-const calculatedValuesList = JSON.parse('{{ calculated_values_json|escapejs }}');
+const calculatedValuesList  = JSON.parse('{{ calculated_values_json|escapejs }}');
 
 const x_start   = Number(calculatedValuesStart[0]);
 const Tdb_start = Number(calculatedValuesStart[9]);
 
 let prevX = x_start;
 let prevTdb = Tdb_start;
-let pointLabelCounter = 0; // 🔁 Start from 0
+let pointLabelCounter = 0;
 
 const processDatasets = [];
-const extensionLines = [];
-// Default values
-const defaultProcess = 'selectProces';
+const extensionLines  = [];
+
 const chartColorMap = {
-    'heat': 'rgb(220, 53, 69)',
-    'cool': 'rgb(0, 123, 255)',
-    'humid': 'rgb(40, 167, 69)',
-    'mix': 'rgb(255, 193, 7)',
-    'heat_rec': 'rgb(23, 162, 184)',
-    'cust_point': 'rgb(162, 0, 255)',
-    'selectProces': 'rgb(108, 117, 125)'
+  heat: 'rgb(220, 53, 69)',     // red
+  cool: 'rgb(0, 123, 255)',     // blue
+  humid:'rgb(40, 167, 69)',     // green
+  mix:  'rgb(255, 193, 7)',     // yellow
+  heat_rec:'rgb(23, 162, 184)', // teal
+  cust_point:'rgb(162, 0, 255)',// purple
+  selectProces:'rgb(108, 117, 125)' // gray
 };
-const startPointDataset = {
-    label: 'Startpunt',
+
+// Initial process lines (use saved color if available)
+calculatedValuesList.forEach((point, index) => {
+  const step = index + 1;
+  const label = `Proces ${step}`;
+  const x_end   = Number(point[0]);
+  const Tdb_end = Number(point[9]);
+  const x_100   = Number(point[13]);
+  const Tdb_100 = Number(point[12]);
+
+  if (isNaN(x_end) || isNaN(Tdb_end) || (x_end === 0 && Tdb_end === 0)) return;
+
+  const savedSel = sessionStorage.getItem(`selectedProces${step}`) || 'selectProces';
+  const stroke   = chartColorMap[savedSel] || chartColorMap.selectProces;
+
+  processDatasets.push({
+    label,
+    data: [
+      { x: prevX, y: prevTdb, label: index === 0 ? String(pointLabelCounter) : '' },
+      { x: x_end, y: Tdb_end, label: String(pointLabelCounter + 1) }
+    ],
     isProcess: true,
-    data: [{ x: x_start, y: Tdb_start, label: '0' }],
-    borderColor: 'black',
-    showLine: false,
-    borderWidth: 0,
+    borderColor: stroke,
+    borderWidth: 2,
+    tension: 0,
     pointRadius: [5, 5],
     pointStyle: ['circle', 'circle'],
     pointBackgroundColor: 'white',
     pointBorderColor: 'black',
-    pointBorderWidth: 1.5,
-    showLine: false,
-};
-calculatedValuesList.forEach((point, index) => {
-    const label = `Proces ${index + 1}`;
-    const x_end = Number(point[0]);
-    const Tdb_end = Number(point[9]);
-    const x_100 = Number(point[13]);
-    const Tdb_100 = Number(point[12]);
+    pointBorderWidth: 1.5
+  });
 
-    if (isNaN(x_end) || isNaN(Tdb_end) || (x_end === 0 && Tdb_end === 0)) {
-        return; // Skip pushing dataset when process is not yet selected
-    }
-    // Main solid line
-    processDatasets.push({
-        label: label,
-        data: [
-            { x: prevX, y: prevTdb, label: index === 0 ? String(pointLabelCounter) : '' },
-            { x: x_end,   y: Tdb_end, label: String(pointLabelCounter + 1) }
-        ],
-        isProcess: true,
-        borderColor: chartColorMap[`process${index + 1}`] || chartColorMap['selectProces'],
-        borderWidth: 2,
-        tension: 0,
-        pointRadius: [5, 5],
-        pointStyle: ['circle', 'circle'],
-        pointBackgroundColor: 'white',
-        pointBorderColor: 'black',
-        pointBorderWidth: 1.5
+  prevX = x_end; prevTdb = Tdb_end; pointLabelCounter++;
+
+  const hasExtension = !isNaN(x_100) && !isNaN(Tdb_100) && (x_100 !== 0 || Tdb_100 !== 0);
+  if (hasExtension) {
+    extensionLines.push({
+      label: '',
+      data: [
+        { x: x_end, y: Tdb_end, label: '1' },
+        { x: x_100, y: Tdb_100, label: '2' }
+      ],
+      isExtension: true,
+      sourceProcesStep: step,
+      borderColor: 'rgb(108, 117, 125)',
+      borderDash: [6, 4],
+      borderWidth: 2,
+      tension: 0,
+      pointRadius: [0, 3],
+      pointBackgroundColor: ['rgba(0,0,0,0)', 'rgb(108, 117, 125)'],
+      pointStyle: ['line', 'circle'],
+      spanGaps: true
     });
-    prevX = x_end;
-    prevTdb = Tdb_end;
-    pointLabelCounter++;
-    // Optional dashed extension
-    const hasExtensionPoint =
-        !isNaN(x_100) && !isNaN(Tdb_100) && (x_100 !== 0 || Tdb_100 !== 0);
-    
-    if (hasExtensionPoint) {
-        extensionLines.push({
-            label: '',
-            data: [
-                { x: x_end, y: Tdb_end, label: '1' },
-                { x: x_100, y: Tdb_100, label: '2' }
-            ],
-            isExtension: true, // Custom flag
-            sourceProcesStep: index+1, 
-            borderColor: 'rgb(108, 117, 125)',
-            borderDash: [6, 4],
-            borderWidth: 2,
-            tension: 0,
-            pointRadius: [0, 3],
-            pointBackgroundColor: ['rgba(0,0,0,0)', 'rgb(108, 117, 125)'],
-            pointStyle: ['line', 'circle'],
-            spanGaps: true
-        });
-    }
-    
+  }
 });
 
-function updateLineColorChart(index) {
-    index = Number(index);
-    const selectEl = document.getElementById(`proces${index}`);
-    if (!selectEl) return;
+// Start dot if no processes
+const startPointDataset = {
+  label: 'Startpunt',
+  isProcess: true,
+  data: [{ x: x_start, y: Tdb_start, label: '0' }],
+  borderColor: 'black',
+  borderWidth: 0,
+  pointRadius: [5, 5],
+  pointStyle: ['circle', 'circle'],
+  pointBackgroundColor: 'white',
+  pointBorderColor: 'black',
+  pointBorderWidth: 1.5,
+  showLine: false
+};
 
-    const selectedValue = selectEl.value;
-    sessionStorage.setItem(`selectedProces${index}`, selectedValue);
+// ====== Process direction text ======
+function updateProcessText(startX, startY, endX, endY, stepIndex) {
+  let angle = Math.atan2(endY - startY, endX - startX) * (180 / Math.PI);
+  if (angle < 0) angle += 360;
 
-    const newColor = chartColorMap[selectedValue] || chartColorMap['selectProces'];
+  const TOL = 0.1;
+  let humidityText = "";
+  if (Math.abs(angle - 90) > TOL && Math.abs(angle - 270) > TOL) {
+    humidityText = (angle >= 270 || angle <= 90) ? "Bevochtigen" : "Ontvochtigen";
+  }
+  let temperatureText = "";
+  if (Math.abs(angle - 0) > TOL && Math.abs(angle - 180) > TOL) {
+    temperatureText = (angle >= 0 && angle <= 180) ? "Koelen" : "Verwarmen";
+  }
 
-    const label = `Proces ${index}`;
-    const dataset = myLineChart.data.datasets.find(ds => ds.label === label);
-    if (dataset) {
-        dataset.borderColor = newColor;
-        myLineChart.update();
-    }
+  const humidEl = document.getElementById(`proces_angle_humid_${stepIndex}`);
+  const tempEl  = document.getElementById(`proces_angle_temp_${stepIndex}`);
+  if (humidEl) humidEl.textContent = humidityText;
+  if (tempEl)  tempEl.textContent  = temperatureText;
 }
-
-function updateProcessText(startX, startY, endX, endY, stepIndex) { 
-    let angle = Math.atan2(endY - startY, endX - startX) * (180 / Math.PI);
-    if (angle < 0) angle += 360;
-    
-    const TOLERANCE = 0.1; // degrees
-    let humidityText = "";
-    if (Math.abs(angle - 90) > TOLERANCE && Math.abs(angle - 270) > TOLERANCE) {
-        humidityText = (angle >= 270 || angle <= 90) ? "Bevochtigen" : "Ontvochtigen";
-    }
-
-    let temperatureText = "";
-    if (Math.abs(angle - 0) > TOLERANCE && Math.abs(angle - 180) > TOLERANCE) {
-        temperatureText = (angle >= 0 && angle <= 180) ? "Koelen" : "Verwarmen";
-    }
-
-    const humidEl = document.getElementById(`proces_angle_humid_${stepIndex}`);
-    const tempEl = document.getElementById(`proces_angle_temp_${stepIndex}`);
-
-    if (humidEl) humidEl.textContent = humidityText;
-    if (tempEl) tempEl.textContent = temperatureText;
-}
-// Function to get pixel positions and update text
 function updateTextBasedOnLine(chart) {
-    const { scales } = chart;
-
-    chart.data.datasets.forEach((ds, index) => {
-        // Only process datasets labeled "Proces X"
-        if (!ds.label?.startsWith('Proces')) return;
-        const data = ds.data;
-        if (data.length < 2) return; // Need two points for a line
-
-        const startX = scales.x.getPixelForValue(data[0].x);
-        const startY = scales.y.getPixelForValue(data[0].y);
-        const endX = scales.x.getPixelForValue(data[1].x);
-        const endY = scales.y.getPixelForValue(data[1].y);
-
-        const stepIndex = parseInt(ds.label.replace('Proces ', ''), 10); // Extract step number
-        updateProcessText(startX, startY, endX, endY, stepIndex);
-    });
+  const { scales } = chart;
+  chart.data.datasets.forEach((ds) => {
+    if (!ds.label?.startsWith('Proces')) return;
+    if (ds.data.length < 2) return;
+    const startX = scales.x.getPixelForValue(ds.data[0].x);
+    const startY = scales.y.getPixelForValue(ds.data[0].y);
+    const endX   = scales.x.getPixelForValue(ds.data[1].x);
+    const endY   = scales.y.getPixelForValue(ds.data[1].y);
+    const stepIndex = parseInt(ds.label.replace('Proces ', ''), 10);
+    updateProcessText(startX, startY, endX, endY, stepIndex);
+  });
 }
+
 const ProcessPointLabelPlugin = {
-    id: 'processPointLabels',
-    afterDatasetsDraw(chart) {
-        const { ctx } = chart;
-        let lastX = null;
-        let lastY = null;
-        const TOLERANCE = 0.5; // pixel tolerance to consider points identical
+  id: 'processPointLabels',
+  afterDatasetsDraw(chart) {
+    const { ctx } = chart;
+    let lastX = null, lastY = null;
+    const TOL = 0.5;
 
-        chart.data.datasets.forEach((dataset, dsIndex) => {
-            if (!dataset.label?.startsWith('Proces')) return;
+    chart.data.datasets.forEach((dataset, dsIndex) => {
+      if (!dataset.label?.startsWith('Proces')) return;
+      const meta = chart.getDatasetMeta(dsIndex);
+      if (meta.hidden) return;
 
-            const meta = chart.getDatasetMeta(dsIndex);
-            if (meta.hidden) return;
+      ctx.save();
+      ctx.font = '16px sans-serif';
+      ctx.fillStyle = 'black';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
 
-            ctx.save();
-            ctx.font = '16px sans-serif';
-            ctx.fillStyle = 'black';
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'middle';
-
-            dataset.data.forEach((point, index) => {
-                const model = meta.data[index];
-                if (!model) return;
-
-                const label = point.label || `#${index}`;
-                const x = model.x + 8;
-                const y = model.y;
-
-                // Skip drawing if too close to the previous label
-                if (
-                    lastX !== null &&
-                    Math.abs(x - lastX) < TOLERANCE &&
-                    Math.abs(y - lastY) < TOLERANCE
-                ) {
-                    return;
-                }
-
-                ctx.fillText(label, x, y);
-
-                // Update last drawn position
-                lastX = x;
-                lastY = y;
-            });
-
-            ctx.restore();
-        });
-    }
+      dataset.data.forEach((point, i) => {
+        const model = meta.data[i];
+        if (!model) return;
+        const text = point.label || `#${i}`;
+        const x = model.x + 8, y = model.y;
+        if (lastX !== null && Math.abs(x - lastX) < TOL && Math.abs(y - lastY) < TOL) return;
+        ctx.fillText(text, x, y);
+        lastX = x; lastY = y;
+      });
+      ctx.restore();
+    });
+  }
 };
 
-// Plugin to rotate arrowhead and hide it when dataset is hidden
 const arrowPlugin = {
-    id: 'arrow',
-    afterDatasetsDraw (chart) {
-        const { ctx, scales } = chart;
+  id: 'arrow',
+  afterDatasetsDraw(chart) {
+    const { ctx, scales } = chart;
+    chart.data.datasets.forEach((dataset, i) => {
+      if (!dataset.label?.startsWith('Proces')) return;
+      const meta = chart.getDatasetMeta(i);
+      if (meta.hidden || dataset.data.length < 2) return;
 
-        chart.data.datasets.forEach((dataset, i) => {
-            if (!dataset.label?.startsWith('Proces')) return;
+      const [start, end] = dataset.data;
+      const startX = scales.x.getPixelForValue(start.x);
+      const startY = scales.y.getPixelForValue(start.y);
+      const endX   = scales.x.getPixelForValue(end.x);
+      const endY   = scales.y.getPixelForValue(end.y);
 
-            const meta = chart.getDatasetMeta(i);
-            if (meta.hidden || dataset.data.length < 2) return;
+      const midX = (startX + endX) / 2;
+      const midY = (startY + endY) / 2;
+      const angle = Math.atan2(endY - startY, endX - startX);
+      const arrowSize = 12, arrowAngle = Math.PI / 6;
 
-            const [start, end] = dataset.data;
-            const startX = scales.x.getPixelForValue(start.x);
-            const startY = scales.y.getPixelForValue(start.y);
-            const endX = scales.x.getPixelForValue(end.x);
-            const endY = scales.y.getPixelForValue(end.y);
+      const ax1 = midX - arrowSize * Math.cos(angle - arrowAngle);
+      const ay1 = midY - arrowSize * Math.sin(angle - arrowAngle);
+      const ax2 = midX - arrowSize * Math.cos(angle + arrowAngle);
+      const ay2 = midY - arrowSize * Math.sin(angle + arrowAngle);
 
-            // Midpoint
-            const midX = (startX + endX) / 2;
-            const midY = (startY + endY) / 2;
-
-            // Arrowhead direction
-            const angle = Math.atan2(endY - startY, endX - startX);
-            const arrowSize = 12;
-            const arrowAngle = Math.PI / 6;
-
-            const arrowX1 = midX - arrowSize * Math.cos(angle - arrowAngle);
-            const arrowY1 = midY - arrowSize * Math.sin(angle - arrowAngle);
-            const arrowX2 = midX - arrowSize * Math.cos(angle + arrowAngle);
-            const arrowY2 = midY - arrowSize * Math.sin(angle + arrowAngle);
-
-            ctx.save();
-            ctx.strokeStyle = dataset.borderColor || 'red';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(midX, midY);
-            ctx.lineTo(arrowX1, arrowY1);
-            ctx.moveTo(midX, midY);
-            ctx.lineTo(arrowX2, arrowY2);
-            ctx.stroke();
-            ctx.restore();
-        });
-    }
+      ctx.save();
+      ctx.strokeStyle = dataset.borderColor || 'red';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(midX, midY);
+      ctx.lineTo(ax1, ay1);
+      ctx.moveTo(midX, midY);
+      ctx.lineTo(ax2, ay2);
+      ctx.stroke();
+      ctx.restore();
+    });
+  }
 };
 
-// Create the line chart
-const labels2 = Array.from({length: 111}, (_, i) => i - 10);
+// ====== Build chart ======
+(function initMollierChart(){
+  if (!window.Chart) { console.error('Chart.js not loaded'); return; }
 
-const ctx3 = document.getElementById('myLinesRH').getContext('2d');
-const floatingLegendPlugin = {
-    //currently not used, but can be used to create a floating legend
-    id: 'floatingLegend',
-    afterDatasetsDraw (chart) {
-        const legend = chart.legend;
-        if (!legend) return;
+  const canvas = document.getElementById('myLinesRH');
+  if (!canvas) return;
 
-        const { chartArea } = chart;
-        const offsetX = 10;  // Horizontal space from right
-        const offsetY = 10;  // Vertical space from bottom
+  const hasProces = processDatasets.length > 0;
 
-        const legendWidth = legend.width;
-        const legendHeight = legend.height;
-
-        // Bottom-right position
-        const x = chartArea.right - legendWidth - offsetX;
-        const y = chartArea.bottom - legendHeight - offsetY;
-
-        // Set legend bounds
-        legend.left = x;
-        legend.top = y;
-        legend.right = x + legendWidth;
-        legend.bottom = y + legendHeight;
-
-        // Update hitboxes for interactivity
-        legend.legendHitBoxes = legend.legendHitBoxes.map(box => ({
-            left: x + (box.left - legend.left),
-            top: y + (box.top - legend.top),
-            width: box.width,
-            height: box.height,
-        }));
-    },
-    afterDraw(chart) {
-        const legend = chart.legend;
-        const ctx = chart.ctx;
-        if (!legend) return;
-
-        // Draw soft white background
-        ctx.save();
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-        ctx.fillRect(
-            legend.left - 8,
-            legend.top - 8,
-            legend.width + 16,
-            legend.height + 16
-        );
-        ctx.restore();
-
-        // Draw legend on top of background
-        legend.draw();
-    }
-};
-const hasProces = processDatasets.length > 0;
-const myLineChart = new Chart(ctx3, {
+  window.myLineChart = new Chart(canvas.getContext('2d'), {
     type: 'line',
     data: {
-        labels: labels2, 
-        datasets: [
-             ...(hasProces ? [] : [startPointDataset]),
-            ...processDatasets,
-            ...extensionLines,
-            ...RHPercentages.map(({ label, data, color }) => ({
-                label: label,
-                data: data,
-                borderColor: color,
-                borderWidth: 0.5,
-                tension: 0.1,
-                pointRadius: 0, //remove dot's
-                pointBackgroundColor: color,
-            })),
-            
-            ...HData,
-            
-        ]
+      labels: Array.from({length:111}, (_, i) => i - 10),
+      datasets: [
+        ...(hasProces ? [] : [startPointDataset]),
+        ...processDatasets,
+        ...extensionLines,
+        ...RHPercentages.map(({ label, data, color }) => ({
+          label, data,
+          borderColor: color, borderWidth: 0.5, tension: 0.1,
+          pointRadius: 0, pointBackgroundColor: color
+        })),
+        ...HData
+      ]
     },
     options: {
-        layout: {
-            padding: {
-                right: 50,
-                bottom: 30
-            }
+      responsive: true,
+      maintainAspectRatio: false, // ✅ fill the Bootstrap card / container
+      layout: { padding: { right: 50, bottom: 30 } },
+      scales: {
+        x: {
+          type: 'linear', position: 'top', max: 20, clip: false,
+          title: { display: true, text: 'Vochtgehalte x [g/kg]', font: { size: 14, weight: 'bold' } }
         },
-        scales: {
-            x: {
-                type: 'linear',
-                 position: 'top', // ← This moves the axis to the top
-                max: 20,
-                title: {
-                    display: true,
-                    text: 'Vochtgehalte x [g/kg]',
-                    font: {
-                        size: 14, // Adjust size if needed
-                        weight: 'bold', // Make the title bold
-                    }
-                },
-                clip: false // Prevent points from being clipped
-            },
-            y: {
-                min: -15,
-                max: 40,
-                display: true,
-                title: {
-                    display: true,
-                    text: 'Temperatuur T [°C]',
-                    font: {
-                        size: 14, // Adjust size if needed
-                        weight: 'bold', // Make the title bold
-                    }
-                }
-            },
-        },
-        responsive: true,
-        plugins: {
-            tooltip: {
-                enabled: true,
-                displayColors: false, 
-                callbacks: {
-                    title: function() {
-                        return ''; // remove default x-axis label
-                    },
-                    label: function(ctx) {
-                        const dataset = ctx.dataset;
-
-                        // Only show tooltips for process datasets
-                        if (!dataset.isProcess) {
-                            return [];
-                        }
-
-                        const pointLabel = ctx.raw.label || '';
-                        if (!pointLabel) return ''; // skip blank labels
-                        const x = ctx.raw.x.toFixed(1);
-                        const y = ctx.raw.y.toFixed(1);
-                        let label = [ `Point: ${pointLabel}:`,`T: ${y} °C`, `X: ${x} g/kg`];
-
-                        const datasetLabel = ctx.dataset.label;
-                        if (datasetLabel === 'Startpunt') {
-                            const h = parseFloat(Number(calculatedValuesStart[2]).toFixed(1));
-                            const rv = Math.round(Number(calculatedValuesStart[10]));
-                            label.push(`H: ${h} kJ/kg`, `RV: ${rv} %`);
-                        }else if (datasetLabel?.startsWith('Proces')) {
-                            const stepIndex = parseInt(datasetLabel.split(' ')[1], 10) - 1;
-
-                            // Show for points labeled '0', '1', '2', '3', '4'
-                            if (['0', '1', '2', '3', '4'].includes(pointLabel)) {
-                                const h = parseFloat(Number(pointLabel === '0' ? calculatedValuesStart[2] : calculatedValuesList[stepIndex][2]).toFixed(1));
-                                const rv = Math.round(Number(pointLabel === '0' ? calculatedValuesStart[10] : calculatedValuesList[stepIndex][10]));
-                                label.push(`H: ${h} kJ/kg`, `RV: ${rv} %`);
-                            }
-                        }
-                        return label;
-                    }
-                }
-            },
-            legend: {
-                display: false,
-
-            }
+        y: {
+          min: -15, max: 40,
+          title: { display: true, text: 'Temperatuur T [°C]', font: { size: 14, weight: 'bold' } }
         }
-    },
-    plugins: [whiteBackgroundPlugin,FillUnder100RHPlugin, arrowPlugin, RHLabelsPlugin, HLabelsPlugin,ProcessPointLabelPlugin]
-});
-window.onload = function () {
-    updateTextBasedOnLine(myLineChart);
-};
-window.currentUsername = "{{ username|escapejs }}";
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          enabled: true, displayColors: false,
+          callbacks: {
+            title: () => '',
+            label: (ctx) => {
+              const ds = ctx.dataset;
+              if (!ds.isProcess) return [];
+              const pointLabel = ctx.raw.label || '';
+              if (!pointLabel) return '';
+              const x = ctx.raw.x.toFixed(1);
+              const y = ctx.raw.y.toFixed(1);
+              const label = [`Point: ${pointLabel}:`, `T: ${y} °C`, `X: ${x} g/kg`];
 
-</script>    
+              const datasetLabel = ds.label;
+              if (datasetLabel === 'Startpunt') {
+                const h  = parseFloat(Number(calculatedValuesStart[2]).toFixed(1));
+                const rv = Math.round(Number(calculatedValuesStart[10]));
+                label.push(`H: ${h} kJ/kg`, `RV: ${rv} %`);
+              } else if (datasetLabel?.startsWith('Proces')) {
+                const stepIndex = parseInt(datasetLabel.split(' ')[1], 10) - 1;
+                if (['0','1','2','3','4'].includes(pointLabel)) {
+                  const h  = parseFloat(Number(pointLabel === '0' ? calculatedValuesStart[2] : calculatedValuesList[stepIndex][2]).toFixed(1));
+                  const rv = Math.round(Number(pointLabel === '0' ? calculatedValuesStart[10] : calculatedValuesList[stepIndex][10]));
+                  label.push(`H: ${h} kJ/kg`, `RV: ${rv} %`);
+                }
+              }
+              return label;
+            }
+          }
+        },
+        animation: {
+          onComplete: () => updateTextBasedOnLine(window.myLineChart)
+        }
+      }
+    },
+    plugins: [whiteBackgroundPlugin, FillUnder100RHPlugin, arrowPlugin, RHLabelsPlugin, HLabelsPlugin, ProcessPointLabelPlugin]
+  });
+
+  // Resize guard if container changes from CSS/layout
+  if ('ResizeObserver' in window) {
+    const ro = new ResizeObserver(() => window.myLineChart?.resize());
+    ro.observe(canvas.parentElement || canvas);
+  }
+})();
+
+// ====== Expose recolor helper used by dropdowns (safe if called early) ======
+function updateLineColorChart(index) {
+  const chart = window.myLineChart;
+  if (!chart?.data?.datasets) return;
+
+  if (typeof index === 'number') {
+    const sel = sessionStorage.getItem(`selectedProces${index}`) || document.getElementById(`proces${index}`)?.value || 'selectProces';
+    const color = chartColorMap[sel] || chartColorMap.selectProces;
+    const ds = chart.data.datasets.find(d => d.label === `Proces ${index}`);
+    if (ds) { ds.borderColor = color; chart.update(); }
+  } else {
+    // recolor all visible process datasets
+    chart.data.datasets.forEach(ds => {
+      if (!ds.label?.startsWith('Proces')) return;
+      const step = parseInt(ds.label.split(' ')[1], 10);
+      const sel = sessionStorage.getItem(`selectedProces${step}`) || document.getElementById(`proces${step}`)?.value || 'selectProces';
+      ds.borderColor = chartColorMap[sel] || chartColorMap.selectProces;
+    });
+    chart.update();
+  }
+}
+
+window.currentUsername = "{{ username|escapejs }}";
+</script>
+
 
 {% endblock content%} 
 
 {% block extra_js %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.legacy.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
-
-
-<!-- This makes sure this JS is only be loaded when rendering this HTML page. Whilst the common JS Files included in de extra_js block of base.html will be loaded across all pages -->
-<script src="{% static 'tools/scripts/script_tools_W1.js' %}"></script>
-<script>pdfUrlReadMe = "{% static 'tools/files/TOOLW1-README.pdf' %}"</script>
-<script>pdfUrlExcel = "{% static 'tools/files/TOOL_W1_Mollierdiagram.xlsx' %}"</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.legacy.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+  <!-- Page-specific script -->
+  <script src="{% static 'tools/scripts/script_tools_W1.js' %}"></script>
+  <script>pdfUrlReadMe = "{% static 'tools/files/TOOLW1-README.pdf' %}"</script>
+  <script>pdfUrlExcel = "{% static 'tools/files/TOOL_W1_Mollierdiagram.xlsx' %}"</script>
 {% endblock %}
+
+

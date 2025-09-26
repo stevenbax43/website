@@ -1,74 +1,95 @@
 {% extends 'home/base.html'%}
-
-
-{% load static %} 
+{% load static %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'news/styles/news.css'%}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-
+  <link rel="stylesheet" href="{% static 'news/styles/news.css'%}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 {% endblock %}
+
+{% block content_wrapper_start %}{% endblock %}
+{% block content_wrapper_end %}{% endblock %}
 
 {% block content %}
 {% csrf_token %}
 
-<div class="top-banner"> 
-    <div class="top-banner-items">
-        <div>            <h1>Nieuws</h1>          </div>
-        <div> <a href="{% url 'news:news' %}">   <img src="{% static 'news/images/speaker.png' %}">  </a>  </div>
-    </div>  
-</div>
-
-<div class="second-banner"> 
-    <div class="second-banner-items">
-        <div>     <p> Het laatste nieuws betreffende <strong>Klimaat & Energie</strong> met betrekking tot de gebouwde omgeving.
-           Nieuws is afkomstig van <u>www.weii.nl/nieuws/</u> & <u>www.installatie.nl/nieuws.</u> & <u>www.ew-installatietechniek.nl/nieuws</u>  </p>  
-        </div>
-        
-        <div class="maintoola2">
-            <form method = "post" action="{% url 'news:news' %}">   
-                {% csrf_token %}          
-                    <button id="refreshButton">Updaten</button>
-                
-            </form>   
-            {% if user.is_authenticated and user.is_superuser %}
-            <form method = "post" action="{% url 'news:delete_all_news' %}">   
-                {% csrf_token %} 
-                    <button id="deleteDbButton">Verwijder alle artikelen</button>
-                    
-            </form>
-            
-            {% endif %}    
-        </div>
-        
-               
+<!-- HERO -->
+<header class="tools-hero">
+  <div class="container py-3">
+    <div class="row align-items-center g-3 flex-nowrap">
+      <div class="col">
+        <h1 class="display-6 mb-0 text-white">Nieuws</h1>
+      </div>
+      <div class="col-auto">
+        <a href="{% url 'news:news' %}" class="d-inline-block">
+          <img src="{% static 'news/images/speaker.png' %}" class="hero-icon flex-shrink-0" alt="Nieuws">
+        </a>
+      </div>
     </div>
-</div>
+  </div>
+</header>
 
-<div class="main-banner">
-    <div class="main-banner-items">    
-        <div >
-            <ul class="listView-items"> 
-                {% for article in articles %}
-                <li>
-                    <article class="entry-news">
-                        <a href="{{article.url}}" title="Titel" target="_blank" rel="noopener">
-                            <figure class="entry-image">
-                                <img src="{{article.thumb.url}}">
-                            </figure> 
-                            <header class = "header-news">
-                                <p class="entry-publishedOn"> {{article.date_published_text}}</p> 
-                                <h6 class="entry-title" >{{article.title}}</h6>
-                            </header> 
-                        </a> 
-                    </article>
-                </li>
-                {% endfor %}
-            </ul>
+<!-- INTRO + ACTIONS -->
+ <!-- INTRO -->
+<section class="bg-light py-3 no-print">
+  <div class="container">
+    <div class="row align-items-center g-3">
+        <div class="col-12 col-lg-8">
+            <p class="mb-0">
+            Het laatste nieuws betreffende <strong>Klimaat & Energie</strong> in de gebouwde omgeving.
+                Nieuws is afkomstig van <u>www.weii.nl/nieuws/</u>, <u>www.installatie.nl/nieuws</u> en
+                <u>www.ew-installatietechniek.nl/nieuws</u>.
+            </p>
+        </div>
+        <div class="col-12 col-lg-4 newsupdate">
+        <form method="post" action="{% url 'news:news' %}">
+            {% csrf_token %}
+            <button id="refreshButton" type="submit">Updaten</button>
+        </form>
+
+        {% if user.is_authenticated and user.is_superuser %}
+        <form method="post" action="{% url 'news:delete_all_news' %}">
+            {% csrf_token %}
+            <button id="deleteDbButton" type="submit">Verwijder alle artikelen</button>
+        </form>
+        {% endif %}
         </div>
     </div>
+  </div>
+</section>
+<section class="second-banner">
+  <div class="second-banner-items">
+    <p class="mb-0">
+      
+    </p>
+
+    
+  </div>
+</section>
+
+{# … keep your articles list below … #}
+
+
+<div class="container my-4">
+  <ul class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 list-unstyled m-0">
+    {% for article in articles %}
+      <li class="col">
+        <article class="card news-card h-100 shadow-sm position-relative">
+            <div class="ratio ratio-16x9">
+            <img src="{{ article.thumb.url }}" alt="{{ article.title|default:'Nieuwsafbeelding' }}"
+                class="w-100 h-100 object-fit-cover">
+            </div>
+            <div class="card-body">
+            <p class="entry-publishedOn text-muted small mb-1">{{ article.date_published_text }}</p>
+            <h6 class="card-title news-title mb-0">{{ article.title }}</h6>
+            <a href="{{ article.url }}" target="_blank" rel="noopener" class="stretched-link"
+                aria-label="Open artikel: {{ article.title }}"></a>
+            </div>
+        </article>
+       </li>
+    {% endfor %}
+  </ul>
 </div>
 
-<!-- <script src="{% static 'news/scripts/slugify.js' %}"></script> -->
+
 
 {% endblock %} 

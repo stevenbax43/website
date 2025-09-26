@@ -1,189 +1,199 @@
-/* Textarea Styling */
-textarea {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 10px;
-    border: 1px solid #ffffff;
-    border-radius: 5px;
-    resize: vertical; /* Allow vertical resizing */
+/* ===== Full-bleed hero (same pattern as tools pages) ===== */
+.tools-hero{
+  position:relative; left:50%; right:50%;
+  margin-left:-50vw; margin-right:-50vw; width:100vw;
+  background: linear-gradient(to right, rgba(92,216,35,.75), rgba(10,92,3,.75));
 }
-.topic-content{
-    background-color: #f1f1f1;
+.tools-hero .display-6{ color:#fff; }
+.hero-icon{ width:64px; height:auto; }
+@media (max-width:575.98px){ .hero-icon{ width:48px; } }
+/* --- Intro (light) --- */
+.tools-intro {
+  background: #f5f6f7;
+}
+.intro-link {
+  text-decoration: none;
+  color: #333;
+  font-weight: 600;
+  font-size: 16px;
+}
+.intro-link:hover { color: #00c000; }
+.icon-30 { width: 30px; height: auto; vertical-align: middle; }
+
+/* ===== Topic cards ===== */
+.topic-card{
+  border:1px solid #e9ecef;
+  border-radius:.75rem;
+  transition: box-shadow .2s ease, transform .2s ease, background-color .2s ease;
+  background:#fff;
+}
+.topic-card:hover{
+  box-shadow:0 8px 24px rgba(0,0,0,.12);
+  transform: translateY(-2px);
+}
+.topic-card .card-title{
+  color:#212529; font-weight:700; line-height:1.25;
+  transition: color .2s ease;
+}
+.topic-card:hover .card-title{ color:#0a7a20; }
+
+/* Closed state */
+.topic-card.is-closed{
+  background:#f8f9fa;
+  opacity:.85;
+}
+.topic-card.is-closed .card-title{
+  text-decoration:line-through;
+  color:#6c757d;
 }
 
-/* Reply Content Styling */
-.reply-content {
-    display: flex; /* Flexbox for alignment */
-    align-items: center; /* Center items vertically */
-    width: 100%; /* Full width */
-    border: 1px solid #ffffff; 
-    padding: 10px;
-    height: auto; /* Auto height */
-    overflow-y: auto; /* Enable vertical scroll */
-    border-radius: 4px;
-    white-space: normal; /* Wrap text */
-    max-height: 630px; /* Maximum height */
-    scroll-behavior: smooth; /* Smooth scrolling */
-    scrollbar-width: thin; 
-    scrollbar-color: #56f009 #f1f1f1; /* Custom scrollbar colors */
+/* Clamp long titles to 2 lines */
+.line-clamp-2{
+  display:-webkit-box;  -webkit-box-orient:vertical; overflow:hidden;
 }
 
-/* Reply Text Styling */
-.reply-text {
-    flex: 1; /* Take up available space */
+/* ===== Detail page / replies ===== */
+.topic-content{ background:#f8f9fa; border-radius:.5rem; }
+
+/* Container for a single reply row */
+.reply-container{
+  display:flex; gap:.75rem; align-items:flex-start;
+  padding:10px; border:1px solid #e9ecef; border-radius:.5rem; background:#fff;
 }
 
-/* Reply Container Styling */
+/* The scrollable area that holds reply text (when needed) */
+.reply-content{
+  flex:1; max-height:630px; overflow-y:auto;
+  padding:10px; border:1px solid #eef0f2; border-radius:.5rem;
+  background:#fafafa; scrollbar-width:thin; scrollbar-color:#56f009 #f1f1f1;
+}
+.reply-text{ white-space:normal; word-wrap:break-word; }
+
+/* Nested replies */
+.nested-replies{ list-style:none; margin:0 0 0 20px; padding:0; }
+.child-reply{
+  background:#fff; padding:8px 12px; margin-bottom:10px; border-radius:6px;
+  border-left:3px solid #0d6efd; box-shadow:0 1px 2px rgba(0,0,0,.05);
+  max-width:100%;
+}
+
+/* ===== Forms / inputs ===== */
+textarea.form-control, textarea{
+  width:100%; resize:vertical;
+  border:1px solid #dee2e6; border-radius:.5rem; padding:.5rem .75rem;
+}
+.form-control{ border-radius: .5rem; }
+.form-group{ transition: box-shadow .3s ease; }
+
+/* ===== Buttons ===== */
+.btn-green{ background-color:#28a745 !important; border-color:#28a745 !important; color:#fff !important; }
+.btn-green:hover{ background-color:#218838 !important; border-color:#1e7e34 !important; }
+
+/* Keep your white icon helper */
+.img-white{ filter: brightness(0) invert(1); }
+
+/* ===== List-group fallback (if used elsewhere) ===== */
+.list-group-item{
+  border:1px solid #26ff00; margin-bottom:15px;
+  transition: transform .2s ease-in-out;
+}
+.list-group-item:hover{ transform: translateY(-1px); }
+
+/* ===== Switch (only if you still use the custom one) ===== */
+.switch{ position:relative; display:inline-block; width:50px; height:28px; }
+.switch input{ opacity:0; width:0; height:0; }
+.slider{ position:absolute; cursor:pointer; inset:0; background:#ccc; transition:.4s; }
+.slider:before{
+  content:""; position:absolute; height:22px; width:22px; left:4px; bottom:3px;
+  background:#fff; transition:.4s; border-radius:50%;
+}
+input:checked + .slider{ background:#28a745; }
+input:checked + .slider:before{ transform: translateX(21px); }
+.slider.round{ border-radius:32px; }
+
+/* If using Bootstrap 5 form-switch (recommended), make it compact on small screens */
+@media (max-width:576px){
+  .form-switch .form-check-input{ width:2.25rem; height:1.125rem; }
+  .form-switch .form-check-input:checked{ background-color:#28a745; border-color:#28a745; }
+}
+
+/* Utility */
+.user_chat{ word-wrap:break-word; }
+.image-container{ margin-top:10px; }
+.img-fluid{ max-width:100%; height:auto; }
+
+/* --- Category header divider (thin line below the name) --- */
+.category-strip {
+  border-bottom: 1px solid #e9ecef;
+}
+
+/* Topic body styling to separate from background */
+.topic-content {
+  background: #f8f9fa;
+  border: 1px solid #eef1f4;
+  border-radius: .5rem;
+  padding: 1rem;
+}
+
+/* Reply list items */
 .reply-container {
-    border: 1px solid #ffffff;
-    display: flex;
-    justify-content: space-between; /* Space between items */
-    align-items: flex-start; /* Align items at the start */
-    padding: 10px; /* Padding inside container */
-    border: 1px solid #ddd;
+  border-color: #e9ecef;
 }
 
-/* Header Styling */
-.display-4 {
-    color: #343a40; /* Dark color */
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); /* Text shadow */
+/* Avatar/initials circle */
+.circle_user.first-letters {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #198754;      /* matches .btn-success hue */
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: .8rem;
+  text-transform: uppercase;
 }
 
-/* List Group Item Styling */
-.list-group-item {
-    border: 1px solid #ffffff;
-    transition: transform 0.2s ease-in-out; /* Smooth transform transition */
-    border-color: #26ff00; /* Green border color */
-    margin-bottom: 15px;
-}
-
-/* Nested Replies Styling */
+/* Nested replies: subtle indent + guide line */
 .nested-replies {
-    display: flex; /* Flexbox for alignment */
-    flex-direction: column; /* Vertical alignment */
-    margin: 0; /* Remove default list margins */
-    padding: 0; /* Remove default padding */
-    list-style-type: none; /* Remove bullet points */
-    margin-left: 20px; /* Indentation for nested replies */
+  margin: .25rem 0 0 2.5rem;     /* indent under parent */
+  padding-left: 1rem;
+  border-left: 2px solid #e9ecef;
+  gap: .5rem;
+}
+.nested-replies .list-group-item.child-reply {
+  background: #fff;
+  border: 1px solid #eef1f4;
+  border-left: 3px solid #0d6efd; /* blue accent */
+  border-radius: .5rem;
 }
 
-/* Child Reply Styling */
-.child-reply {
-    max-width: 100%; /* Full width of parent */
-    background-color: #fff; /* White background */
-    padding: 8px 12px;
-    margin-bottom: 10px;
-    border-radius: 6px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* Subtle shadow */
-    border-left: 3px solid #007bff; /* Blue accent color */
-}
-
-/* Primary Button Styling */
-.btn-primary {
-    background-color: #00a41e; /* Green background */
-    border: none;
-    font-size: 0.875rem; /* Smaller font size */
-    padding: 0.5rem 1rem; /* Adjusted padding */
-    border-radius: 0.25rem; /* Subtle rounding */
-}
-
-/* Alert Warning Styling */
-.alert-warning {
-    border-radius: 5px; /* Rounded corners */
-}
-
-/* Form Group Styling */
-.form-group {
-    transition: box-shadow 0.3s ease; /* Smooth shadow transition */
-}
-.user_chat {
-    /* Ensure content wraps properly */
-    word-wrap: break-word;
-}
-.form-control {
-    border-radius: 20px;
-}
-.image-container {
-    /* Container styling for the image */
-    margin-top: 10px;
-}
-.img-fluid {
-    /* Ensure the image is responsive */
-    max-width: 100%;
-    height: auto;
-}
+/* Buttons */
 .btn-green {
-    background-color: #28a745 !important; /* Groene kleur */
-    border-color: #28a745 !important; /* Groene randkleur */
-    color: white !important; /* Witte tekstkleur */
+  background-color: #28a745 !important;
+  border-color: #28a745 !important;
+  color: #fff !important;
+}
+.btn-green:hover {
+  background-color: #218838 !important;
+  border-color: #1e7e34 !important;
 }
 
-.btn-green:hover {
-    background-color: #218838; /* Iets donkerder groen bij hover */
-    border-color: #1e7e34; /* Iets donkerder randkleur bij hover */
+/* Hero / Intro (full-bleed like tools pages) */
+.tools-hero,
+.tools-intro {
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  width: 100vw;
 }
-.img-white {
-    filter: brightness(0) invert(1);  /* Turns the image white */
+.tools-hero {
+  background: linear-gradient(to right, rgba(92,216,35,.75), rgba(10,92,3,.75));
 }
-/* The switch - the box around the slider */
-.switch {
-    position: relative;
-    display: inline-block;
-    width: 50px;
-    height: 28px;
-  }
-  
-  /* Hide default HTML checkbox */
-  .switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-  
-  /* The slider */
-  .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    -webkit-transition: .4s;
-    transition: .4s;
-  }
-  
-  .slider:before {
-    position: absolute;
-    content: "";
-    height: 22px;
-    width: 22px;
-    left: 4px;
-    bottom: 3.5px;
-    background-color: white;
-    -webkit-transition: .4s;
-    transition: .4s;
-  }
-  
-  input:checked + .slider {
-    background-color: #28a745;
-  }
-  
-  input:focus + .slider {
-    box-shadow: 0 0 1px #28a745;
-  }
-  
-  input:checked + .slider:before {
-    -webkit-transform: translateX(21px);
-    -ms-transform: translateX(21px);
-    transform: translateX(21px);
-  }
-  
-  /* Rounded sliders */
-  .slider.round {
-    border-radius: 32px;
-  }
-  
-  .slider.round:before {
-    border-radius: 50%;
-  }
+.hero-icon { width: 64px; height: auto; }
+@media (max-width: 575.98px){ .hero-icon { width: 48px; } }
+
+.tools-intro { background: #f5f6f7; }

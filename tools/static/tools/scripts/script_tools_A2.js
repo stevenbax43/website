@@ -9,86 +9,113 @@ var conversion_table = {
     Energie: { joules: 1, kilojoules: 0.001, kilowattuur: 0.0000002778, wattuur: 0.0002778, wattseconde: 1, britischthermalunits: 0.0009478, calorie: 0.2388, kilocalorie: 0.0002388},
     
 };
+// ---- Helpers ----
+function getActiveBlock() {
+  const blocks = document.querySelectorAll('.maintoola2');
+  for (const b of blocks) {
+    if (getComputedStyle(b).display !== 'none') return b;
+  }
+  // Fallback: first block or #drukcontainer
+  return document.getElementById('drukcontainer') || blocks[0] || null;
+}
 
+function formatNumber(n) {
+  // Reasonable default: up to 10 significant digits, avoid scientific unless needed
+  try {
+    return Number(n).toLocaleString('en-US', { maximumSignificantDigits: 10 });
+  } catch {
+    return String(n);
+  }
+}
+// ---- Core convert ----
 function convert() {
-    var targetDiv = document.querySelector(".maintoola2[style='display: flex;']");
+  const targetDiv = getActiveBlock();
+  if (!targetDiv) return;
 
-    if (!targetDiv) {
-        alert("No category selected!");
-        return;
-    }
+  const valueEl     = targetDiv.querySelector('#value');
+  const fromEl      = targetDiv.querySelector('#from');
+  const toEl        = targetDiv.querySelector('#to');
+  const magnitudeEl = targetDiv.querySelector('#magnitude');
+  const outEl       = targetDiv.querySelector('#result, #output, .output');
 
-    var value = parseFloat(targetDiv.querySelector("#value").value);
-    var fromUnit = targetDiv.querySelector("#from").value;
-    var toUnit = targetDiv.querySelector("#to").value;
-    var magnitude = targetDiv.querySelector("#magnitude").innerHTML;
-    
-    // Check if conversion is possible
-    if (!conversion_table.hasOwnProperty(magnitude)) {
-        alert("Invalid category: " + magnitude);
-        return;
-    }
+  if (!valueEl || !fromEl || !toEl || !magnitudeEl || !outEl) return;
 
-    if (!conversion_table[magnitude].hasOwnProperty(fromUnit) || !conversion_table[magnitude].hasOwnProperty(toUnit)) {
-        alert("Conversion from " + fromUnit + " to " + toUnit + " is not supported in category " + magnitude);
-        return;
-    }
+  const raw = parseFloat(valueEl.value);
+  if (isNaN(raw)) { outEl.textContent = ''; return; }
 
-    // Perform conversion
-    var fromUnitToBase = conversion_table[magnitude][fromUnit];
-    var toUnitToBase = conversion_table[magnitude][toUnit];
-    var conversionFactor = toUnitToBase / fromUnitToBase;
-    var result = (value * conversionFactor);
+  const magnitude = magnitudeEl.textContent.trim();
+  const fromUnit  = fromEl.value;
+  const toUnit    = toEl.value;
 
-    // Display result in the corresponding output container
-    var outputContainer = targetDiv.querySelector(".output-container output");
-    if (outputContainer) {
-        outputContainer.innerHTML = result;
-    } else {
-        alert("Output container not found!");
-    }
+  const table = conversion_table[magnitude];
+  if (!table || table[fromUnit] == null || table[toUnit] == null) {
+    console.error('Unsupported conversion:', magnitude, fromUnit, '→', toUnit);
+    return;
+  }
+
+  const fromToBase = table[fromUnit];
+  const toToBase   = table[toUnit];
+  const factor     = toToBase / fromToBase;
+  const result     = raw * factor;
+
+  // <output> supports .value; textContent also fine
+  if ('value' in outEl) outEl.value = formatNumber(result);
+  else outEl.textContent = formatNumber(result);
 }
 
 
-// Add event listener for click event
-document.getElementById("categoryList").addEventListener("click", function(event) {
-  // Check if the clicked element is an li
-  if (event.target.tagName === "LI") {
-    var targetDivId = event.target.getAttribute("data-target");
+// ---- Category (pills) click handling ----
+const categoryList = document.getElementById('categoryList');
+if (categoryList) {
+  categoryList.addEventListener('click', (event) => {
+    const li = event.target.closest('.a2-pill');
+    if (!li) return;
 
-    // Hide all divs with class "maintoola2"
-    var allDivs = document.querySelectorAll(".maintoola2");
-    allDivs.forEach(function(div) {
-      div.style.display = "none";
-    });
+    const targetDivId = li.getAttribute('data-target');
+    const blocks = document.querySelectorAll('.maintoola2');
+    blocks.forEach(div => { div.style.display = 'none'; });
 
-    // Show the corresponding div
-    var targetDiv = document.getElementById(targetDivId);
+    const targetDiv = document.getElementById(targetDivId);
     if (targetDiv) {
-      targetDiv.style.display = "flex";
-      //convert();
+      targetDiv.style.display = 'block'; // not flex; bootstrap rows handle layout
+      // optional: set active pill styling
+      categoryList.querySelectorAll('.a2-pill').forEach(p => p.classList.remove('active'));
+      li.classList.add('active');
+      convert();
     }
+  });
+}
+// ---- Attach input/change listeners inside each block ----
+document.querySelectorAll('.maintoola2').forEach((div) => {
+  const val = div.querySelector('#value');
+  const f   = div.querySelector('#from');
+  const t   = div.querySelector('#to');
+  if (val) val.addEventListener('input',  convert);
+  if (f)   f.addEventListener('change', convert);
+  if (t)   t.addEventListener('change', convert);
+});
+
+
+// ---- Other buttons + initial compute ----
+document.addEventListener('DOMContentLoaded', () => {
+  const printBtn = document.getElementById('printButton');
+  if (printBtn) printBtn.addEventListener('click', () => window.print());
+
+  const excelBtn = document.getElementById('excelButton');
+  if (excelBtn) excelBtn.addEventListener('click', () => window.open(pdfUrlExcel, '_blank'));
+
+  // Ensure one block is visible on load (your HTML currently shows #drukcontainer by default)
+  const active = getActiveBlock();
+  if (!active && document.getElementById('drukcontainer')) {
+    document.getElementById('drukcontainer').style.display = 'block';
   }
-});
 
+  // Optional: mark the corresponding pill active on load
+  const visibleId = getActiveBlock()?.id;
+  if (visibleId) {
+    const pill = categoryList?.querySelector(`.a2-pill[data-target="${visibleId}"]`);
+    if (pill) pill.classList.add('active');
+  }
 
-// Attach event listeners to input field and select elements within the maintoola2 divs
-var maintoola2Divs = document.querySelectorAll('.maintoola2');
-maintoola2Divs.forEach(function(div) {
-    div.querySelector('#value').addEventListener('input', convert);
-    div.querySelector('#from').addEventListener('change', convert);
-    div.querySelector('#to').addEventListener('change', convert);
+  convert();
 });
-// Event listener for DOMContentLoaded event
-document.addEventListener('DOMContentLoaded', function() {
-  // Event listener for print button
- 
-  document.getElementById('printButton').addEventListener('click', function() {
-      window.print();
-  });
-  // Event listener for excel button
-  document.getElementById('excelButton').addEventListener('click', function() {
-      // Make a GET request to the Django view that generates the Excel file
-      window.open(pdfUrlExcel, '_blank');
-  });
-})

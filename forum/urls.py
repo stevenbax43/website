@@ -1,5 +1,5 @@
 from . import views
-from django.urls import path
+from django.urls import path, include
 
 
 #better safe than sorry to reference to explicit this file

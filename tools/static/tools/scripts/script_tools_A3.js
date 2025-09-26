@@ -35,6 +35,8 @@
     if (LimitHeatMin && LimitHeatMax)    LimitHeatMin.max = LimitHeatMax.value;
     if (LimitCoolMin && LimitCoolMax)    LimitCoolMin.max = LimitCoolMax.value;
   }
+  // If your HTML still has inline oninput="updateMaxValue()", expose it:
+  window.updateMaxValue = updateMaxValue;
 
   function validateTemperature() {
     const startTempInput = document.getElementById('starttemp');
@@ -44,7 +46,9 @@
 
     const startTemp = parseFloat(startTempInput.value);
     const eindTemp  = parseFloat(eindTempInput.value);
-    tempMessage.style.display = (isFinite(startTemp) && isFinite(eindTemp) && eindTemp <= startTemp) ? 'block' : 'none';
+    const show = (isFinite(startTemp) && isFinite(eindTemp) && eindTemp <= startTemp);
+    // Toggle Bootstrap d-none instead of style.display
+    tempMessage.classList.toggle('d-none', !show);
   }
 
   function validateTime() {
@@ -55,12 +59,139 @@
 
     const startUur = parseInt(startUurInput.value, 10);
     const eindUur  = parseInt(eindUurInput.value, 10);
-    timeMessage.style.display = (isFinite(startUur) && isFinite(eindUur) && startUur >= eindUur) ? 'block' : 'none';
+    const show = (isFinite(startUur) && isFinite(eindUur) && startUur >= eindUur);
+    timeMessage.classList.toggle('d-none', !show);
+  }
+
+  // ================== Helpers for Save PDF ==================
+  function getCsrfToken() {
+    // Prefer the hidden input in the form
+    const input = document.querySelector('form#inputForm input[name="csrfmiddlewaretoken"]');
+    if (input) return input.value;
+    // Fallback to cookie
+    const m = document.cookie.match(/csrftoken=([^;]+)/);
+    return m ? m[1] : '';
+  }
+
+  function canvasToPNG(id) {
+    const el = document.getElementById(id);
+    if (!el || el.tagName.toLowerCase() !== 'canvas') return null;
+    try {
+      return el.toDataURL('image/png'); // data:image/png;base64,....
+    } catch (e) {
+      console.error('Canvas export failed for', id, e);
+      return null;
+    }
+  }
+
+  function selectedText(selectId) {
+    const el = document.getElementById(selectId);
+    if (!el) return '';
+    const opt = el.selectedOptions && el.selectedOptions[0];
+    return opt ? opt.text : el.value || '';
+  }
+
+  function valueOf(id) {
+    const el = document.getElementById(id);
+    if (!el) return '';
+    // support <output> and normal inputs
+    if (el.tagName.toLowerCase() === 'output') return el.textContent.trim();
+    return el.value ?? '';
+  }
+
+  async function postForPdf(btn) {
+    const url = btn?.dataset?.pdfUrl;
+    if (!url) throw new Error('PDF URL ontbreekt (data-pdf-url).');
+
+    const fd  = new FormData();
+
+    // Important: to pass the guard in the Django view
+    fd.append('SavePDFButton', '1');
+
+    // meta
+    const pageTitle = document.querySelector('.tools-hero h1')?.textContent?.trim() || 'Tool A3: Klimaatjaar';
+    fd.append('project_title', pageTitle);
+
+    // bedrijfsuren & method (send both value and label text)
+    fd.append('method', valueOf('method'));
+    fd.append('method_text', selectedText('method'));
+
+    fd.append('startdag', valueOf('startdag'));
+    fd.append('startdag_text', selectedText('startdag'));
+    fd.append('startuur', valueOf('startuur'));
+
+    fd.append('einddag', valueOf('einddag'));
+    fd.append('einddag_text', selectedText('einddag'));
+    fd.append('einduur', valueOf('einduur'));
+
+    // buiten temp grens
+    fd.append('starttemp', valueOf('starttemp'));
+    fd.append('eindtemp', valueOf('eindtemp'));
+
+    // verwarming
+    fd.append('HeatBuildingMax', valueOf('HeatBuildingMax'));
+    fd.append('HeatBuildingMin', valueOf('HeatBuildingMin'));
+    fd.append('maxTempHeat', valueOf('maxTempHeat'));
+    fd.append('designTempheat', valueOf('designTempheat'));
+
+    // koeling
+    fd.append('CoolBuildingMax', valueOf('CoolBuildingMax'));
+    fd.append('CoolBuildingMin', valueOf('CoolBuildingMin'));
+    fd.append('maxTempCool', valueOf('maxTempCool'));
+    fd.append('designTempcool', valueOf('designTempcool'));
+
+    // grenzen & factors
+    fd.append('LimitHeatMax', valueOf('LimitHeatMax'));
+    fd.append('LimitHeatMin', valueOf('LimitHeatMin'));
+    fd.append('LimitCoolMax', valueOf('LimitCoolMax'));
+    fd.append('LimitCoolMin', valueOf('LimitCoolMin'));
+
+    fd.append('B_factor_heat', valueOf('B_factor_heat'));
+    fd.append('E_factor_heat', valueOf('E_factor_heat'));
+    fd.append('B_factor_cool', valueOf('B_factor_cool'));
+    fd.append('E_factor_cool', valueOf('E_factor_cool'));
+
+    fd.append('on_hours', valueOf('on_hours'));
+    fd.append('off_hours', valueOf('off_hours'));
+    fd.append('username', valueOf('username'));
+  
+    // canvases -> data URLs
+    const chartMap = {
+      'myDoughnutChart':     'chart_myDoughnutChart',
+      'myOnOffChart':        'chart_myOnOffChart',
+      'myLineChart':         'chart_myLineChart',
+      'myBarChart_heat':     'chart_myBarChart_heat',
+      'myBarChart_cool':     'chart_myBarChart_cool',
+      'belastingduurcurve':  'chart_belastingduurcurve'
+    };
+    Object.entries(chartMap).forEach(([domId, field]) => {
+      const png = canvasToPNG(domId);
+      if (png) fd.append(field, png);
+    });
+
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCsrfToken() },
+      body: fd
+    });
+    if (!resp.ok) {
+      const t = await resp.text();
+      throw new Error(t || 'PDF genereren mislukt');
+    }
+    const blob = await resp.blob();
+    const a = document.createElement('a');
+    const href = URL.createObjectURL(blob);
+    a.href = href;
+    a.download = 'tool_A3_klimaatjaar.pdf';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(href);
   }
 
   // ================== Auto-trigger control (no reload loops) ==================
   const HREF = location.href.split('#')[0];
-  const KEY_ARM   = `Klimaat:armed:${location.pathname}`;
+  const KEY_ARM    = `Klimaat:armed:${location.pathname}`;
   const KEY_SCROLL = `scrollPosition:${location.pathname}`;
   let leavingToDifferent = false;
 
@@ -97,13 +228,12 @@
     if (shouldTrigger(e)) {
       requestAnimationFrame(() => setTimeout(triggerOncePerVisit, 0));
     } else {
-      console.log('[Klimaat] skipped auto-trigger');
+      // no-op
     }
   }
 
   // Fire on initial load and BFCache restores
   window.addEventListener('pageshow', onPageShow);
-  // Fallback if script loaded after pageshow
   if (document.readyState === 'complete') {
     setTimeout(() => onPageShow({ persisted: false }), 0);
   } else {
@@ -126,11 +256,10 @@
     if (e.persisted || leavingToDifferent) {
       sessionStorage.removeItem(KEY_ARM);
     }
-    // persist final scroll on exit too
     sessionStorage.setItem(KEY_SCROLL, String(window.scrollY));
   });
 
-  // ================== DOMContentLoaded: wire UI (no auto-trigger here) ==================
+  // ================== DOMContentLoaded: wire UI ==================
   document.addEventListener('DOMContentLoaded', function () {
     // Load inputs + derived UI
     loadInputValues();
@@ -138,16 +267,17 @@
     validateTemperature();
     validateTime();
 
-    // Save & submit on change
-    const idsAffectingMax = new Set(['HeatBuildingMax','CoolBuildingMax','LimitHeatMax','LimitCoolMax']);
+    // Save & submit on change, and update maxima live while typing
+    const idsAffectingMax = new Set(['HeatBuildingMax','CoolBuildingMax','LimitHeatMax','LimitCoolMax','LimitHeatMin','LimitCoolMin']);
+
     document.querySelectorAll('input, select').forEach(field => {
-      field.addEventListener('change', function () {
+      field.addEventListener('input', () => {
+        if (idsAffectingMax.has(field.id)) updateMaxValue();
+      });
+      field.addEventListener('change', () => {
         saveInputValues();
         if (idsAffectingMax.has(field.id)) updateMaxValue();
-        const form = document.getElementById('inputForm');
-        if (form?.requestSubmit) form.requestSubmit();
-        else if (form) form.submit();
-        else document.getElementById('bedrijfsurenknop')?.click();
+        submitNow();
       });
     });
 
@@ -165,28 +295,49 @@
     });
 
     // Buttons
-    
+    document.getElementById('printButton')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.print();
+    });
 
-    document.getElementById('printButton')?.addEventListener('click', () => window.print());
-    document.getElementById('excelButton')?.addEventListener('click', () => {
-      fetch(downloadExcelUrl)
+    document.getElementById('excelButton')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      const url = (typeof downloadExcelUrl !== 'undefined' && downloadExcelUrl)
+        ? downloadExcelUrl
+        : e.currentTarget.dataset.url; // fallback if you add data-url on the link
+      if (!url) return;
+      fetch(url)
         .then(r => r.blob())
         .then(blob => {
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = 'Klimaatjaar_2018.xlsx';
-          link.click();
-          window.URL.revokeObjectURL(url);
+          const href = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = href;
+          a.download = 'Klimaatjaar_2018.xlsx';
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(href);
         });
     });
+
+    // SAVE PDF (server-side via ReportLab)
+    const savePdfBtn = document.getElementById('SavePDFButton');
+    if (savePdfBtn) {
+      savePdfBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        postForPdf(savePdfBtn).catch(err => {
+          console.error(err);
+          alert('Kon PDF niet genereren:\n' + (err?.message || err));
+        });
+      });
+    }
 
     // Optional: buttons that intentionally reload
     document.querySelectorAll('.save-and-reload').forEach(button => {
       button.addEventListener('click', (event) => {
         event.preventDefault();
         saveInputValues();
-        location.reload(); // note: reloads do NOT auto-trigger (by design)
+        location.reload(); // reloads do NOT auto-trigger (by design)
       });
     });
   });

@@ -1,6 +1,17 @@
 import pandas as pd 
 import numpy as np
 from datetime import datetime
+import math, json, base64
+from io import BytesIO
+from django.http import HttpResponse
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.pdfgen import canvas
+from reportlab.platypus import Table, TableStyle, Paragraph
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet,ParagraphStyle
+from reportlab.lib.units import mm
+from reportlab.lib.utils import ImageReader
+from reportlab.platypus import Table, TableStyle, Paragraph, Frame, Spacer
 
 def klimaatjaar(request):
     
@@ -269,3 +280,658 @@ def cumulative_graph(df_Temp, Limit_Heat_max,Limit_Heat_min,Limit_Cool_Max,Limit
 
     
     return df_cum, limit_values, energy_values
+
+
+# def generate_pdf_climate(request):
+#     """
+#     Builds a PDF for Tool A3: Klimaatjaar using posted canvas images + form inputs.
+#     Expects a POST with 'SavePDFButton' and chart images posted as base64 strings.
+#     """
+#     if request.method != "POST" or 'SavePDFButton' not in request.POST:
+#         return HttpResponse("Invalid request", status=400)
+
+#     # --- helpers ---
+#     def get(name, default=""):
+#         return request.POST.get(name, default)
+
+#     def decode_data_url(data_url):
+#         if not data_url:
+#             return None
+#         try:
+#             b64 = data_url.split(",", 1)[1] if "," in data_url else data_url
+#             return base64.b64decode(b64)
+#         except Exception:
+#             return None
+
+#     def fmt(v):
+#         s = str(v)
+#         return s.replace('.', ',') if (any(c.isdigit() for c in s) and '.' in s) else s
+
+#     def safe_draw_image(cnv, img, x, y, width, height):
+#         """Draw image if it exists; skip silently otherwise."""
+#         if not img:
+#             return
+#         try:
+#             cnv.drawImage(img, x, y, width=width, height=height,
+#                           preserveAspectRatio=True, anchor='sw')
+#         except Exception:
+#             # If the image is corrupt or too big, just skip drawing it
+#             pass
+
+#     # --- gather meta ---
+#     title = get("project_title", "Tool A3: Klimaatjaar")
+#     user = get("username", "Onbekend")
+#     stamp = datetime.now().strftime('%d %B %Y %H:%M')
+
+#     # --- gather form values (as displayed on the page) ---
+#     inputs_page1 = {
+#         "Methode": get("method_text", get("method", "")),
+#         "Startdag": get("startdag_text", get("startdag", "")),
+#         "Startuur": get("startuur", ""),
+#         "Einddag": get("einddag_text", get("einddag", "")),
+#         "Einduur": get("einduur", ""),
+#         "T begin [°C]": get("starttemp", ""),
+#         "T eind [°C]": get("eindtemp", ""),
+#         "Draaiuren [h]": get("on_hours", ""),
+#         "Buiten bedrijf [h]": get("off_hours", ""),
+#     }
+#     inputs_page2 = {
+#         "Pmax heat [kW]": get("HeatBuildingMax", ""),
+#         "Pmin heat [kW]": get("HeatBuildingMin", ""),
+#         "Tmax heat [°C]": get("maxTempHeat", ""),
+#         "Tmin heat [°C]": get("designTempheat", ""),
+#         "Pmax cool [kW]": get("CoolBuildingMax", ""),
+#         "Pmin cool [kW]": get("CoolBuildingMin", ""),
+#         "Tmax cool [°C]": get("maxTempCool", ""),
+#         "Tmin cool [°C]": get("designTempcool", ""),
+#     }
+#     inputs_page3 = {
+#         "Limit heat max [kW]": get("LimitHeatMax", ""),
+#         "Limit heat min [kW]": get("LimitHeatMin", ""),
+#         "B_f heat [%]": get("B_factor_heat", ""),
+#         "E_f heat [%]": get("E_factor_heat", ""),
+#         "Limit cool max [kW]": get("LimitCoolMax", ""),
+#         "Limit cool min [kW]": get("LimitCoolMin", ""),
+#         "B_f cool [%]": get("B_factor_cool", ""),
+#         "E_f cool [%]": get("E_factor_cool", ""),
+#     }
+
+#     # --- canvases we expect from the page ---
+#     chart_ids = [
+#         ("Draaiuren (Donut)", "chart_myDoughnutChart"),  # stacked horizontal bar
+#         ("Draaiuren vs Temp", "chart_myOnOffChart"),
+#         ("Vermogen–Temperatuur", "chart_myLineChart"),
+#         ("Warmtevraag (stacked)", "chart_myBarChart_heat"),
+#         ("Koudevraag (stacked)", "chart_myBarChart_cool"),
+#         ("Belastingduurkromme", "chart_belastingduurcurve"),
+#     ]
+
+#     charts = []
+#     for entry in chart_ids:
+#         if not isinstance(entry, (list, tuple)) or len(entry) < 2:
+#             continue
+#         label, field = entry[0], entry[1]
+#         data = decode_data_url(get(field, ""))
+#         if data:
+#             charts.append((label, ImageReader(BytesIO(data))))
+
+#     chart_map = dict(charts)
+
+#     # --- setup PDF canvas ---
+#     buffer = BytesIO()
+#     c = canvas.Canvas(buffer)
+
+#     styles = getSampleStyleSheet()
+#     normal = styles["Normal"]
+#     key_style = ParagraphStyle('key', parent=normal, fontName='Helvetica-Bold', fontSize=9, leading=11)
+#     val_style = ParagraphStyle('val', parent=normal, fontName='Helvetica', fontSize=9, leading=11)
+
+#     # --- shared table builder (consistent styling everywhere) ---
+#     TABLE_GREEN = colors.HexColor("#2E7D32")  # Material-ish green
+#     LIGHT_GRID = colors.HexColor("#D0D7DE")
+
+#     def build_inputs_container(data_dict, page_width, left_margin=30, right_margin=30, header_title="Invoer"):
+#         """
+#         Returns a single Flowable (container Table) with two tables side-by-side,
+#         consistent styling: green header, white body, alternating rows, light grid.
+#         """
+#         # rows for one table
+#         rows = [[Paragraph(fmt(k), key_style), Paragraph(fmt(v), val_style)]
+#                 for k, v in data_dict.items()]
+
+#         # header row
+#         header = [Paragraph(header_title, key_style), Paragraph("Waarde", key_style)]
+#         # split evenly (header duplicated on both halves)
+#         mid = (len(rows) + 1) // 2
+#         left_rows = [header] + rows[:mid]
+#         right_rows = [header] + rows[mid:]
+
+#         # compute inner widths
+#         inner_w = page_width - left_margin - right_margin
+#         gap = 20
+#         half_w = (inner_w - gap) / 2.0
+#         key_col = 150
+#         val_col = max(100, half_w - key_col)  # prevent negative
+
+#         def style_table(t):
+#             t.setStyle(TableStyle([
+#                 # header
+#                 ('BACKGROUND', (0, 0), (-1, 0), TABLE_GREEN),
+#                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.HexColor("#FFFFFF")),
+#                 ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+#                 ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+#                 # grid + paddings
+#                 ('GRID', (0, 0), (-1, -1), 0.25, LIGHT_GRID),
+#                 ('LEFTPADDING', (0, 0), (-1, -1), 5),
+#                 ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+#                 ('TOPPADDING', (0, 0), (-1, -1), 2),
+#                 ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
+#                 ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+#                 # body backgrounds
+#                 ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+#                 ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.whitesmoke]),
+#             ]))
+
+#         left_table = Table(left_rows, colWidths=[key_col, val_col], repeatRows=1, hAlign='LEFT')
+#         right_table = Table(right_rows, colWidths=[key_col, val_col], repeatRows=1, hAlign='LEFT')
+#         style_table(left_table)
+#         style_table(right_table)
+
+#         container = Table([[left_table, right_table]], colWidths=[half_w, half_w])
+#         container.setStyle(TableStyle([
+#             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+#             ('LEFTPADDING', (0, 0), (-1, -1), 0),
+#             ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+#             ('TOPPADDING', (0, 0), (-1, -1), 0),
+#             ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+#         ]))
+#         return container
+
+#     # ---------- PAGE 1 (Portrait) ----------
+#     c.setPageSize(A4)
+#     w, h = A4
+
+#     c.setFont('Helvetica-Bold', 18)
+#     c.drawCentredString(w/2, h-40, title)
+
+#     stackedbar = chart_map.get("Draaiuren (Donut)")          # horizontal stacked bar image
+#     line_img   = chart_map.get("Draaiuren vs Temp")
+#     power_img  = chart_map.get("Vermogen–Temperatuur")
+
+#     left_margin = 40
+#     right_margin = 40
+#     top_gap = 14
+#     block_gap = 24
+#     footer_min_y = 70
+
+#     usable_w = w - left_margin - right_margin
+#     y_cursor = h - 60  # start below title
+
+#     # Charts are kept modest so a table fits
+#     if stackedbar:
+#         bar_h = h * 0.22
+#         safe_draw_image(c, stackedbar, left_margin, y_cursor - bar_h, usable_w, bar_h)
+#         y_cursor -= (bar_h + block_gap)
+
+#     if line_img and y_cursor - (h * 0.22) > footer_min_y + 140:  # ensure room for table
+#         line_h = h * 0.22
+#         safe_draw_image(c, line_img, left_margin, y_cursor - line_h, usable_w, line_h)
+#         y_cursor -= (line_h + block_gap)
+
+#     if power_img and y_cursor - (h * 0.22) > footer_min_y + 140:
+#         pow_h = h * 0.22
+#         safe_draw_image(c, power_img, left_margin, y_cursor - pow_h, usable_w, pow_h)
+#         y_cursor -= (pow_h + block_gap)
+
+#     # Bottom: inputs_page1 table (consistent styling)
+#     container1 = build_inputs_container(inputs_page1, w, left_margin, right_margin, header_title="Invoer")
+#     frame_y = footer_min_y + 10
+#     frame_h = max(120, (y_cursor - 10) - frame_y)  # at least some height
+#     frame = Frame(left_margin, frame_y, usable_w, frame_h, showBoundary=0)
+#     frame.addFromList([container1], c)
+
+#     # Footer
+#     c.setFont('Helvetica', 8)
+#     c.setFillColor(colors.grey)
+#     c.drawRightString(w-20, 20, "Pagina 1")
+#     c.drawString(20, 20, stamp)
+#     c.drawString(w/2, 20, f"Gebruiker: {user}")
+#     c.showPage()
+
+#     # ---------- PAGE 2 (Landscape) ----------
+#     c.setPageSize(landscape(A4))
+#     w, h = landscape(A4)
+
+#     c.setFont('Helvetica-Bold', 16)
+#     c.drawString(30, h-40, "Resultaten")
+
+#     bel_img = chart_map.get("Belastingduurkromme")
+
+#     left = 40
+#     right = 40
+#     top = 70
+#     bottom = 70
+#     gap_v = 28
+
+#     inner_w = w - left - right
+#     inner_h = h - top - bottom
+
+#     chart_h = inner_h * 0.52  # leave room for table
+#     if bel_img:
+#         safe_draw_image(c, bel_img, left, bottom + (inner_h - chart_h), inner_w, chart_h)
+
+#     # Table for page 2
+#     container2 = build_inputs_container(inputs_page2, w, left, right, header_title="Invoer")
+#     frame_y2 = bottom
+#     frame_h2 = inner_h - chart_h - gap_v
+#     frame2 = Frame(left, frame_y2, inner_w, max(120, frame_h2), showBoundary=0)
+#     frame2.addFromList([container2], c)
+
+#     # Footer
+#     c.setFont('Helvetica', 8)
+#     c.setFillColor(colors.grey)
+#     c.drawRightString(w-20, 20, "Pagina 2")
+#     c.drawString(20, 20, stamp)
+#     c.drawString(w/2, 20, f"Gebruiker: {user}")
+#     c.showPage()
+
+#     # ---------- PAGE 3 (Landscape) ----------
+#     c.setPageSize(landscape(A4))
+#     w, h = landscape(A4)
+
+#     # Top: charts side by side
+#     heat_img = chart_map.get("Warmtevraag (stacked)")
+#     cool_img = chart_map.get("Koudevraag (stacked)")
+
+#     left = 40
+#     right = 40
+#     top = 50
+#     bottom = 70
+#     gap_h = 24
+#     gap_cols = 24
+
+#     inner_w = w - left - right
+#     inner_h = h - top - bottom
+
+#     col_w = (inner_w - gap_cols) / 2.0
+#     chart_h = inner_h * 0.48   # top half ~48%
+#     y_top = h - top - chart_h
+
+#     if heat_img:
+#         safe_draw_image(c, heat_img, left, y_top, col_w, chart_h)
+#     if cool_img:
+#         safe_draw_image(c, cool_img, left + col_w + gap_cols, y_top, col_w, chart_h)
+
+#     # Bottom: inputs_page3 table
+#     c.setFont('Helvetica-Bold', 14)
+#     # (Optional title for bottom area)
+#     # c.drawString(left, y_top - 16, "Invoer") 
+
+#     container3 = build_inputs_container(inputs_page3, w, left, right, header_title="Invoer")
+#     frame_y3 = bottom
+#     frame_h3 = (y_top - gap_h) - frame_y3 if (locals().get('frame_y3') is not None) else (y_top - gap_h) - bottom
+#     # fix variable if not defined earlier:
+#     frame_y3 = bottom
+#     frame_h3 = y_top - gap_h - frame_y3
+#     frame3 = Frame(left, frame_y3, inner_w, max(120, frame_h3), showBoundary=0)
+#     frame3.addFromList([container3], c)
+
+#     # Footer
+#     c.setFont('Helvetica', 8)
+#     c.setFillColor(colors.grey)
+#     c.drawRightString(w-20, 20, "Pagina 3")
+#     c.drawString(20, 20, stamp)
+#     c.drawString(w/2, 20, f"Gebruiker: {user}")
+#     c.showPage()
+
+#     # --- finish ---
+#     c.save()
+#     buffer.seek(0)
+#     resp = HttpResponse(buffer, content_type='application/pdf')
+#     resp['Content-Disposition'] = 'attachment; filename="tool_A3_klimaatjaar.pdf"'
+#     return resp
+def generate_pdf_climate(request):
+    """
+    Builds a PDF for Tool A3: Klimaatjaar using posted canvas images + form inputs.
+    Expects a POST with 'SavePDFButton' and chart images posted as base64 strings.
+    """
+    if request.method != "POST" or 'SavePDFButton' not in request.POST:
+        return HttpResponse("Invalid request", status=400)
+
+    # --- helpers ---
+    def get(name, default=""):
+        return request.POST.get(name, default)
+
+    def decode_data_url(data_url):
+        if not data_url:
+            return None
+        try:
+            b64 = data_url.split(",", 1)[1] if "," in data_url else data_url
+            return base64.b64decode(b64)
+        except Exception:
+            return None
+
+    def fmt(v):
+        s = str(v)
+        return s.replace('.', ',') if (any(c.isdigit() for c in s) and '.' in s) else s
+
+    def safe_draw_image(cnv, img, x, y, width, height):
+        """Draw image if it exists; skip silently otherwise."""
+        if not img:
+            return
+        try:
+            cnv.drawImage(img, x, y, width=width, height=height,
+                          preserveAspectRatio=True, anchor='sw')
+        except Exception:
+            pass  # Skip corrupt/oversized images gracefully
+
+    # --- gather meta ---
+    title = get("project_title", "Tool A3: Klimaatjaar")
+    user = get("username", "Onbekend")
+    stamp = datetime.now().strftime('%d %B %Y %H:%M')
+
+    # --- inputs per page ---
+    inputs_page1 = {
+        "Methode": get("method_text", get("method", "")),
+        "Startdag": get("startdag_text", get("startdag", "")),
+        "Startuur": get("startuur", ""),
+        "Einddag": get("einddag_text", get("einddag", "")),
+        "Einduur": get("einduur", ""),
+        "T begin [°C]": get("starttemp", ""),
+        "T eind [°C]": get("eindtemp", ""),
+        
+    }
+    inputs_page1_1 = {
+        "Draaiuren [h]": get("on_hours", ""),
+        "Buiten bedrijf [h]": get("off_hours", ""),
+    }
+    inputs_page2 = {
+        "Pmax heat [kW]": get("HeatBuildingMax", ""),
+        "Pmin heat [kW]": get("HeatBuildingMin", ""),
+        "Tmax heat [°C]": get("maxTempHeat", ""),
+        "Tmin heat [°C]": get("designTempheat", ""),
+        "Pmax cool [kW]": get("CoolBuildingMax", ""),
+        "Pmin cool [kW]": get("CoolBuildingMin", ""),
+        "Tmax cool [°C]": get("maxTempCool", ""),
+        "Tmin cool [°C]": get("designTempcool", ""),
+    }
+    inputs_page3 = {
+        "Limit heat max [kW]": get("LimitHeatMax", ""),
+        "Limit heat min [kW]": get("LimitHeatMin", ""),
+        "B_f heat [%]": get("B_factor_heat", ""),
+        "E_f heat [%]": get("E_factor_heat", ""),
+        "Limit cool max [kW]": get("LimitCoolMax", ""),
+        "Limit cool min [kW]": get("LimitCoolMin", ""),
+        "B_f cool [%]": get("B_factor_cool", ""),
+        "E_f cool [%]": get("E_factor_cool", ""),
+    }
+
+    # --- canvases we expect from the page ---
+    chart_ids = [
+        ("Draaiuren (Donut)", "chart_myDoughnutChart"),     # horizontal stacked bar
+        ("Draaiuren vs Temp", "chart_myOnOffChart"),
+        ("Vermogen–Temperatuur", "chart_myLineChart"),
+        ("Warmtevraag (stacked)", "chart_myBarChart_heat"),
+        ("Koudevraag (stacked)", "chart_myBarChart_cool"),
+        ("Belastingduurkromme", "chart_belastingduurcurve"),
+    ]
+
+    charts = []
+    for entry in chart_ids:
+        if not isinstance(entry, (list, tuple)) or len(entry) < 2:
+            continue
+        label, field = entry[0], entry[1]
+        data = decode_data_url(get(field, ""))
+        if data:
+            charts.append((label, ImageReader(BytesIO(data))))
+    chart_map = dict(charts)
+
+    # --- setup PDF canvas ---
+    buffer = BytesIO()
+    c = canvas.Canvas(buffer)
+
+    styles = getSampleStyleSheet()
+    normal = styles["Normal"]
+    key_style = ParagraphStyle('key', parent=normal, fontName='Helvetica-Bold', fontSize=9, leading=11)
+    val_style = ParagraphStyle('val', parent=normal, fontName='Helvetica', fontSize=9, leading=11)
+    header_style = ParagraphStyle('thead', parent=normal, fontName='Helvetica-Bold',
+                                  fontSize=9, leading=11, textColor=colors.white)
+
+    # --- shared table builder (consistent styling everywhere, half width, LEFT aligned) ---
+    TABLE_GREEN = colors.HexColor("#2E7D32")
+    LIGHT_GRID = colors.HexColor("#D0D7DE")
+
+    def build_inputs_container(data_dict, page_width, left_margin=30, right_margin=30,
+                               header_title="Invoer", width_ratio=0.5):
+        """
+        Two-column (side-by-side) key/value tables inside a container that spans
+        `width_ratio` of the usable width (default 50%), LEFT-aligned.
+        """
+        rows = [[Paragraph(fmt(k), key_style), Paragraph(fmt(v), val_style)]
+                for k, v in data_dict.items()]
+
+       
+        # header duplicated for both halves; force white text
+        header = [Paragraph(header_title, header_style), Paragraph("Waarde", header_style)]
+
+        mid = (len(rows) + 1) // 2
+        if data_dict == inputs_page1 or data_dict == inputs_page1_1:
+            width_ratio = 1.0
+            mid = (len(rows) ) // 2
+        left_rows = [header] + rows[:mid]
+        right_rows = [header] + rows[mid:]
+
+        usable = page_width - left_margin - right_margin
+        container_w = max(280, usable * width_ratio)
+        gap = 16
+        half_w = (container_w - gap) / 2.0
+        key_col = 140
+        val_col = max(90, half_w - key_col)
+
+        def style_table(t):
+            t.setStyle(TableStyle([
+                # header
+                ('BACKGROUND', (0, 0), (-1, 0), TABLE_GREEN),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+                # grid + paddings
+                ('GRID', (0, 0), (-1, -1), 0.25, LIGHT_GRID),
+                ('LEFTPADDING', (0, 0), (-1, -1), 5),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+                ('TOPPADDING', (0, 0), (-1, -1), 2),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                # body backgrounds
+                ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.whitesmoke]),
+            ]))
+
+        left_table = Table(left_rows, colWidths=[key_col, val_col], repeatRows=1, hAlign='LEFT')
+        right_table = Table(right_rows, colWidths=[key_col, val_col], repeatRows=1, hAlign='LEFT')
+        style_table(left_table)
+        style_table(right_table)
+        column_gap = 12
+        container = Table([[left_table, right_table]], colWidths=[half_w, column_gap, half_w], hAlign='LEFT')
+        container.setStyle(TableStyle([
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 0),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+            ('TOPPADDING', (0, 0), (-1, -1), 0),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+        ]))
+        return container, container_w
+
+    # Convenience for footers
+    def footer(page_num, w):
+        c.setFont('Helvetica', 8)
+        c.setFillColor(colors.grey)
+        c.drawRightString(w-20, 20, f"Pagina {page_num}")
+        c.drawString(20, 20, stamp)
+        c.drawString(w/2, 20, f"Gebruiker: {user}")
+
+    # ---------- PAGE 1 (Portrait) ----------
+    c.setPageSize(A4)
+    w, h = A4
+
+    c.setFont('Helvetica-Bold', 18)
+    c.drawCentredString(w/2, h-36, title)
+
+    stackedbar = chart_map.get("Draaiuren (Donut)")
+    line_img   = chart_map.get("Draaiuren vs Temp")
+
+    left_margin = 40
+    right_margin = 40
+    block_gap = 18
+    footer_min_y = 70
+    min_table_h = 80 # ensure enough space for the main table
+
+    usable_w = w - left_margin - right_margin
+    y_cursor = h - 50  # start a bit closer to title
+    # Main inputs table (portrait page: full usable width, LEFT-aligned)
+    container_main, cont_w_main = build_inputs_container(
+        inputs_page1, w, left_margin, right_margin,
+        header_title="Invoer", width_ratio=1.0  # full usable width on page 1
+    )
+    frame_y_main = footer_min_y + 10
+    frame_h_main = max(min_table_h, (y_cursor - 10) - frame_y_main)
+    frame_main = Frame(left_margin, frame_y_main, cont_w_main, frame_h_main, showBoundary=0)
+    frame_main.addFromList([container_main], c)
+    # Chart 2 (only if enough space remains above the main table area)
+    if line_img:
+        line_h = h * 0.40
+        if (y_cursor - line_h) - (footer_min_y + min_table_h) >= 0:
+            safe_draw_image(c, line_img, left_margin, y_cursor - line_h, usable_w, line_h)
+            y_cursor -= (line_h + block_gap)
+    
+    # One-row info (rendered like other tables) right under Chart 1
+    # inputs_page1_1 = {"Draaiuren [h]": ..., "Buiten bedrijf [h]": ...}
+    container_small, cont_w_small = build_inputs_container(
+        inputs_page1_1, w, left_margin, right_margin,
+        header_title="Invoer", width_ratio=0.5  # half width, LEFT-aligned
+    )
+    small_table_h = 70  # header + 1 row fits comfortably
+    frame_small = Frame(left_margin, y_cursor - small_table_h, cont_w_small, small_table_h, showBoundary=0)
+    frame_small.addFromList([container_small], c)
+    y_cursor = y_cursor  - block_gap  # gap after small table
+    # Chart 1
+    if stackedbar:
+        bar_h = h * 0.14
+        bar_y = y_cursor - bar_h
+        safe_draw_image(c, stackedbar, left_margin, bar_y, usable_w, bar_h)
+        y_cursor = bar_y - block_gap  # move below chart 1
+
+    footer(1, w)
+    c.showPage()
+
+
+    # ---------- PAGE 2 (Landscape) ----------
+    c.setPageSize(landscape(A4))
+    w, h = landscape(A4)
+
+    c.setFont('Helvetica-Bold', 16)
+    c.drawString(30, h-40, "Vermogen–Temperatuur")
+
+    power_img  = chart_map.get("Vermogen–Temperatuur")      # will be drawn on Page 2
+ 
+    
+    left = 40
+    right = 40
+    top = 70
+    bottom = 70
+    gap_v = 24
+
+    inner_w = w - left - right
+    inner_h = h - top - bottom
+
+    # Draw Vermogen–Temperatuur chart here
+    chart_h2 = inner_h * 0.56  # a bit taller, but leave room for table
+    if power_img:
+        safe_draw_image(c, power_img, left, bottom + (inner_h - chart_h2), inner_w, chart_h2)
+
+    # Left-aligned half-width table for page 2
+    container2, cont_w2 = build_inputs_container(
+        inputs_page2, w, left, right, header_title="Invoer", width_ratio=0.5
+    )
+    frame_x2 = left  # LEFT aligned
+    frame_y2 = bottom
+    frame_h2 = max(120, inner_h - chart_h2 - gap_v)
+    frame2 = Frame(frame_x2, frame_y2, cont_w2, frame_h2, showBoundary=0)
+    frame2.addFromList([container2], c)
+
+    footer(2, w)
+    c.showPage()
+
+    # ---------- PAGE 3 (Landscape) ----------
+    c.setPageSize(landscape(A4))
+    w, h = landscape(A4)
+
+    c.setFont('Helvetica-Bold', 16)
+    c.drawString(30, h-40, "Thermische Energie")
+
+    heat_img = chart_map.get("Warmtevraag (stacked)")
+    cool_img = chart_map.get("Koudevraag (stacked)")
+
+    left = 40
+    right = 40
+    top = 50
+    bottom = 70
+    gap_h = 22
+    gap_cols = 22
+
+    inner_w = w - left - right
+    inner_h = h - top - bottom
+
+    col_w = (inner_w - gap_cols) / 2.0
+    chart_h3 = inner_h * 0.48
+    y_top = h - top - chart_h3
+
+    if heat_img:
+        safe_draw_image(c, heat_img, left, y_top, col_w, chart_h3)
+    if cool_img:
+        safe_draw_image(c, cool_img, left + col_w + gap_cols, y_top, col_w, chart_h3)
+
+    # Left-aligned half-width table for page 3
+    container3, cont_w3 = build_inputs_container(
+        inputs_page3, w, left, right, header_title="Invoer", width_ratio=0.5
+    )
+    frame_x3 = left  # LEFT aligned
+    frame_y3 = bottom
+    frame_h3 = max(120, y_top - gap_h - frame_y3 if 'frame_y3' in locals() else y_top - gap_h - bottom)
+    # normalize vars (no self-reference)
+    frame_y3 = bottom
+    frame_h3 = max(120, y_top - gap_h - frame_y3)
+    frame3 = Frame(frame_x3, frame_y3, cont_w3, frame_h3, showBoundary=0)
+    frame3.addFromList([container3], c)
+
+    footer(3, w)
+    c.showPage()
+
+    # ---------- PAGE 4 (Landscape) — Belastingduurkromme ONLY ----------
+    c.setPageSize(landscape(A4))
+    w, h = landscape(A4)
+
+    c.setFont('Helvetica-Bold', 16)
+    c.drawString(30, h-40, "Belastingduurkromme")
+    bel_img    = chart_map.get("Belastingduurkromme")        # will be drawn on Page 4
+    
+    left = 40
+    right = 40
+    top = 60
+    bottom = 60
+    inner_w = w - left - right
+    inner_h = h - top - bottom
+
+    if bel_img:
+        safe_draw_image(c, bel_img, left, bottom, inner_w, inner_h)
+
+    footer(4, w)
+    c.showPage()
+
+    # --- finish ---
+    c.save()
+    buffer.seek(0)
+    resp = HttpResponse(buffer, content_type='application/pdf')
+    resp['Content-Disposition'] = 'attachment; filename="tool_A3_klimaatjaar.pdf"'
+    return resp
+

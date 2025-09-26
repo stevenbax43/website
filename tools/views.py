@@ -7,8 +7,8 @@ from django.contrib import messages
 from django.templatetags.static import static
 
 from .Tool_A1_Gebouwdata import gebouwgegevens
-from .Tool_A3_klimaatjaar import klimaatjaar
-from .Tool_W1_MollierDiagram import MollierView, generate_pdf_file
+from .Tool_A3_klimaatjaar import klimaatjaar, generate_pdf_climate
+from .Tool_W1_MollierDiagram import MollierView, generate_pdf_mollier
 from .Tool_W2_expansievat import expansievat
 from .Tool_W4_CO2verloop import CO2verloop
 from .Tool_W5_buffervat import buffervat
@@ -74,7 +74,8 @@ def load_project(request):
 @method_decorator(csrf_exempt, name='dispatch')
 @login_required(login_url='accounts:login')
 def delete_project(request):
-    print("test")
+    
+
     # pull from request.POST instead of request.body/JSON
     project_id = request.POST.get('project_id')
     print(project_id)
@@ -97,7 +98,9 @@ def tool_A2(request):
 # Klimaatjaar pagina 
 @login_required(login_url='accounts:login')
 def tool_A3(request):
+    
     klimaatjaar_output = klimaatjaar(request)
+   
     return render(request, 'tools/tool_A3.html', {
         'OnOffHours': klimaatjaar_output[0],
         'HeatCoolEnergy': klimaatjaar_output[1],
@@ -106,6 +109,7 @@ def tool_A3(request):
         'cumulative_data' : json.dumps(klimaatjaar_output[4]),
         'Limit_values': klimaatjaar_output[5],
         'energy_values':  klimaatjaar_output[6],
+        'username': [request.user.first_name, request.user.last_name,request.user.username],
     })
 
 #Mollier diagram pagina 
@@ -114,7 +118,7 @@ def tool_W1(request):
     mollierView_output = MollierView(request)
     # Get saved projects for the current user
     saved_projects = ProjectMollier.objects.filter(user=request.user).order_by('-created_at')
-
+   
     # Check if we are restoring a session project
     restored_sessionstorage = request.session.pop('restored_sessionstorage', None)
 
@@ -198,8 +202,11 @@ def download_excel(request):
         return HttpResponse(status=405)
 
 @login_required(login_url='accounts:login')
-def generate_pdf(request):
-    return generate_pdf_file(request)
+def generate_pdf_W1(request):
+    return generate_pdf_mollier(request)
+@login_required(login_url='accounts:login')
+def generate_pdf_A3(request):
+    return generate_pdf_climate(request)
 
 # Whitelist allowed tools; add more as needed for the ReadME!
 ALLOWED = {"INDEX","A1","A2","A3", "E1","W1","W2", "W3", "W4", "W5", "W6"}

@@ -1,342 +1,172 @@
+/* =========================================
+   TOOL W1 — Mollier Diagram (page-specific)
+   Works with Bootstrap 5.3+
+   ========================================= */
 
-.second-banner-items a {
-    text-decoration: none;
-    color: #333;
-    font-weight: bold;
-    font-size: 16px;
-    transition: color 0.3s ease;
-}
-.second-banner-items a:hover {
-    color: #00ff00;
-}
-
-.second-banner-items img {
-	width: 30px;
-	max-height: auto;
-}
-.tools-icons {
-    display: flex;
-    justify-content: flex-end; /* align items on the right
-    align-items: right; /* Align items horizontally */
-    gap: 10px; /* Optional: add some space between the icons */
-	margin: 10px
-}
-
-.tools-icons div {
-    display: flex;
-    align-items: right	; /* Ensure each div inside .tools-icons aligns its content centrally */
-}
-.tools-icons a:hover img,
-.top-banner-items a:hover img {
-    opacity: 0.8; /* Optional: Add a hover effect to indicate clickability */
-}
-.icons-container {
-    margin-bottom: 20px;
-    display: flex;
-    justify-content: center; /* Center items horizontally */
-    flex-direction: column; /* Change to column direction */
-    align-items: center; /* Center the content vertically */
-}
-.icon:hover p {
-    color: white;
-}
-.hidden {
-    display: none;
-    opacity: 0;
-    transition: opacity 0.5s ease-in-out; /* Add a transition effect */
-}
-
-.visible {
-    opacity: 1;
-    transition: opacity 0.5s ease-in-out; /* Add a transition effect */
-}
-
-.button-container {
-    margin-top: 10px;
-    text-align: right;
-}
-
-.button-container button {
-    margin-left: 10px;
-    padding: 5px 10px;
-    background-color: #01e21f;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.button-container button:hover {
-    background-color: #24b300;
-}
-.buttons {
-    display: block;
-    margin-top: 100px;
-}
-.buttons button {
-    display: block;
-    margin-bottom: 10px;
-}
-.questions-container{
-    position: relative;
-    opacity: 0;
-    transition: opacity 0.5s ease-in-out;
-}
-.questions-container.show {
-    opacity: 1;
-}
-.questions {
-    display: flex;
-    justify-content: center; /* Center items horizontally */
-    flex-direction: column; /* Change to column direction */
-    align-items: center; /* Center the content vertically */
-
-}
-
-.question {
-    display: none;
-    border: 1px solid #ccc;
-    padding: 10px;
-    margin-bottom: 10px;
-    
-}
-.question label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 5px;
-}
-
-table {
-    border-collapse: collapse;
-    width: 100%;
-}
-th, td {
-    border: 1px solid black;
-    padding: 8px;
-    text-align: left;
-}
-th {
-    background-color: #3fa500;
-    color: #fff;
-}
-
-.question {
-    margin-top: 10px;
-    margin-bottom: 0px;
-    max-width: 400px;
-}
+/* ====== HERO (shared style lives in tools.css) ====== */
+.tools-hero{ background: linear-gradient(to right, rgba(92,216,35,.75), rgba(10,92,3,.75)); }
 
 
+/* ====== INTRO / ACTION LINKS ====== */
+.icon-30{ width:30px; height:30px; }
 
-.radio-options input[type="radio"] {
-display: none;
+.tools-intro .intro-link{
+  text-decoration:none;
+  color:#333;
+  font-weight:600;
+  font-size:16px;
+  display:inline-flex;
+  align-items:center;
+  gap:.5rem;
+  transition:color .2s ease, opacity .2s ease;
 }
+.tools-intro .intro-link:hover{ color:#00b341; opacity:.85; }
 
-.radio-options label {
-margin-right: 10px;
-cursor: pointer;
+/* Legacy icons block aligned to Bootstrap */
+.tools-icons{
+  display:flex; justify-content:flex-end; align-items:center; gap:.5rem; margin: 10px 0;
 }
+.tools-icons img{ width:30px; height:30px; }
+.tools-icons a{ text-decoration:none; color:#333; font-weight:600; }
+.tools-icons a:hover{ color:#00b341; }
+.tools-icons a:hover img{ opacity:.85; }
 
-.radio-options label::before {
-content: '';
-display: inline-block;
-width: 15px;
-height: 15px;
-border: 1px solid #000000;
-border-radius: 50%;
-margin-right: 5px;
-vertical-align: middle;
-}
-
-.radio-options input[type="radio"]:checked + label::before {
-background-color: #4dff00;
-}
-
-#calculateButton {
-    background: linear-gradient(to right,rgba(92, 216, 35, 0.75), rgba(10, 92, 3, 0.75));
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s ease;
-    margin-top: 20px;
-}
-
-#calculateButton:hover {
-    background-color: #2980b9;
-}
-
-#resetButton {
-    background: linear-gradient(to right,rgba(255, 25, 0, 0.75), rgba(255, 255, 255, 0.75));
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s ease;
-    margin-top: 20px;
-}
-#resetButton:hover {
-    background-color: #ff7b00;
-}
-
-#temp_aanvoer:invalid,
-#temp_retour:invalid,
-#systeem-inhoud:invalid,
-#einddruk:invalid {
-    border: 1px solid red; /* Change border color to red */
-}
-/* Style for the tooltip */
-.tooltip {
-    position: relative;
-    display: inline-block;
-}
-
-.tooltip .tooltiptext {
-    visibility: hidden;
-    width: auto; /* Set width to auto to accommodate longer text */
-    background-color: #333;
-    color: #fff;
-    text-align: left; /* Align text to the left */
-    border-radius: 6px;
-    padding: 10px;
-    position: absolute;
-    z-index: 1;
-    bottom: 125%; /* Adjust position above the tooltip trigger element */
-    left: 50%;
-    margin-left: -60px;
-    opacity: 0;
-    transition: opacity 0.3s;
-    white-space: pre-line; /* Ensure line breaks work */
-}
-
-/* Show the tooltip text when hovering */
-.tooltip:hover .tooltiptext {
-    visibility: visible;
-    opacity: 1;
-}
-/* Style for the Chart.js tooltip */
-.chart-tooltip {
-    position: absolute;
-    background-color: #333;
-    color: #fff;
-    text-align: left;  /* Align text to the left */
-    border-radius: 6px;
-    padding: 10px;
-    white-space: pre-line;  /* Ensures line breaks are respected */
-    pointer-events: none;
-}
-
-/* Customize tooltip appearance further if needed */
-.chart-tooltip .tooltip-body {
-    font-size: 14px;
-}
+/* ====== CARDS ====== */
+.card{ border-radius:.75rem; }
+.card.shadow-sm{ box-shadow:0 .25rem .75rem rgba(0,0,0,.08); }
 
 
-.table-title {
-    background-color: #ffffff;
-    color: rgb(0, 0, 0);
-    font-size: 26px;
-    font-weight: bold;
-
-    text-align: left;
-    border-radius: 5px 5px 0 0;
-}
-.quantity-row th:first-child {
-    border-radius: 10px 0 0 10px; /* Rounded top-left corner */
+/* Output fields look like read-only inputs */
+output.form-control.output{
+  background-color:#f8f9fa;
+  border:1px solid #13f539;
+  border-radius:.5rem;
 }
 
-.quantity-row th:last-child {
-    border-radius: 0 10px 10px 0; /* Rounded top-right corner */
-}
-.my-custom-row {
-    background-color: #ffa2a2; /* Light grey background for the row */
-    height: 140px; /* Set a fixed height for the row */
+/* ====== CHARTS (Canvas inside .ratio) ====== */
+canvas{ display:block; }
+.ratio{ min-height:260px; }
+.ratio > canvas{ width:100% !important; height:100% !important; }
+
+/* ====== TABLES (preserve your green header) ====== */
+.table-title{ font-size:1.25rem; font-weight:700; margin-bottom:.5rem; }
+table{ width:100%; border-collapse:collapse; }
+th, td{ border:1px solid #dee2e6; padding:.5rem .65rem; text-align:left; }
+th{ background:#3fa500; color:#fff; }
+.unit-row th{ background:#fff; color:#6c757d; font-weight:400; font-size:.85rem; }
+.quantity-row th:first-child{ border-radius:.5rem 0 0 .5rem; }
+.quantity-row th:last-child{ border-radius:0 .5rem .5rem 0; }
+
+/* Small helpers */
+.highlight{ color:#dc3545; font-weight:700; }
+.term{ font-weight:700; display:inline-block; width:200px; }
+.value{ display:inline-block; padding-left:30px; }
+.warning{ color:#d9534f; font-weight:700; }
+
+/* ====== CUSTOM TOOLTIPS (optional) ====== */
+.chart-tooltip{
+  position:absolute; background:#b48080; color:#fff; border-radius:6px;
+  padding:10px; white-space:pre-line; pointer-events:none; font-size:14px;
 }
 
-.unit-row th {
-    font-size: 12px;
-    color: grey;
-    background-color: #ffffff;
-    font-weight: normal;
+/* ====== ICON BUTTONS under chart ====== */
+
+/* Save = blue on hover */
+.btn.btn-save {
+  background-color: #fff;
+  border-color: #000000;
+  color: #474747;
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease, filter .2s ease;
+}
+.btn.btn-save:hover,
+.btn.btn-save:focus {
+  background-color: #adadad !important;
+  border-color: #c2c2c2 !important;
+  color: #fff !important;
 }
 
-.highlight {
-    color: red;
-    font-weight: bold;
-}
-.term {
-    font-weight: bold;
-    display: inline-block;
-    width: 200px; /* Fixed width to align the terms */
-}
-.value {
-    display: inline-block;
-    padding-left: 30px; /* Adjusting padding to create spacing after the colon */
-}
-.warning {
-    color: #d9534f;
-    font-weight: bold;
-}
+/* ====== PRINT RULES ====== */
+/* ====== PRINT PAGE-BREAK CONTROL ====== */
 @media print {
-    
-    @page {
-        size: A4 landscape;
-        margin: 0;
-    }
-    
-    /* General Debugging */
-    body {
-        font-size: 12pt;
-        color: #000;
-        background: none;
-        visibility: visible !important; /* Ensure body is visible */
-    }
-    
-    .no-print {
-        display: none !important;
-    }
-    /* Handle page breaks for content */
-    .page-break {
-        page-break-before: always !important;
-    }
-    .second-text {
-        width: 100% !important;
-        font-size: 10pt !important; /* Adjust font size for better fit */
-        margin-bottom: 15px; /* Reduce space at the bottom */
-    }
-    .container-fluid {
-        visibility: visible !important;
-        width: 100% !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
+  /* Repeat table headers on each printed page */
+  thead { display: table-header-group; }
+  tfoot { display: table-footer-group; }
 
-    .main-banner-items {
-        visibility: visible !important; /* Ensure this section is visible */
-    }
+  /* Never split these elements across pages — they'll jump to next page if needed */
+  .card,
+  .card > .card-body,
+  .table,
+  .table-responsive,
+  .ratio,
+  canvas,
+  .row,
+  .row > [class*="col-"] {
+    break-inside: avoid;
+    page-break-inside: avoid;     /* legacy */
+  }
 
-    /* Debugging table visibility */
-    table {
-        visibility: visible !important;
-        width: 100% !important;
-        border-collapse: collapse !important;
-    }
+  /* Keep individual table rows together */
+  tr, th, td {
+    break-inside: avoid;
+    page-break-inside: avoid;     /* legacy */
+  }
 
-    /* Remove display none temporarily for debugging */
-    .no-print {
-        display: block !important; /* Allow visibility of hidden elements */
-    }
+  /* Better paragraph flow */
+  p { orphans: 3; widows: 3; }
 
-    /* Debugging for canvas */
-    canvas {
-        visibility: visible !important;
-        width: 100% !important;  /* Make canvas width 100% of its container */
-        height: auto !important; /* Maintain aspect ratio */
-        max-height: 400px !important;  /* Set a max height if needed */
-        display: block !important;  /* Ensure it is displayed as a block element */
-    }
+  /* Utilities for manual control (use on any element if needed) */
+  .print-avoid-break { break-inside: avoid; page-break-inside: avoid; }
+  .print-break-before { break-before: page; page-break-before: always; } /* force new page before */
+  .print-break-after  { break-after: page;  page-break-after: always; }  /* force new page after */
+
+  /* Ensure nothing gets clipped by overflow */
+  html, body, #print_content { overflow: visible !important; }
+}
+
+/* ====== Neutralize old non-Bootstrap banners on this page ====== */
+.top-banner, .second-banner{ display:none; }
+/* Make ReadMe PDF icon red */
+.icon-pdf-red { filter: brightness(0) saturate(100%) invert(18%) sepia(100%) saturate(6500%) hue-rotate(0deg) brightness(90%) contrast(105%); }
+
+.intro-link:hover .icon-pdf-red { filter: brightness(0) saturate(100%) invert(18%) sepia(100%) saturate(7500%) hue-rotate(0deg) brightness(100%) contrast(105%); }
+
+.icon-save-blue{
+  filter: brightness(0) saturate(100%)
+          invert(33%) sepia(98%) saturate(2400%)
+          hue-rotate(198deg) brightness(100%) contrast(104%);
+}
+
+/* Optional: a touch brighter on hover */
+.icon-save-blue:hover{
+  filter: brightness(0) saturate(100%)
+          invert(33%) sepia(98%) saturate(2400%)
+          hue-rotate(198deg) brightness(110%) contrast(106%);
+}
+/* Make the first header row green */
+.card-output table thead .quantity-row th{
+  background-color: #3fa500 !important; /* green */
+  color: #fff !important;
+  border-color: #2f7f00 !important;
+}
+.text-purple { color:#6f42c1 !important; }
+/* Keep your rounded corners on the first header row */
+.card-output table thead .quantity-row th:first-child{
+  border-top-left-radius: .5rem;
+}
+.card-output table thead .quantity-row th:last-child{
+  border-top-right-radius: .5rem;
+}
+
+/* Make the units row italic + light */
+.card-output table thead .unit-row th{
+  font-style: italic;
+  font-weight: 400;
+  color: #6c757d !important;   /* muted grey */
+  background-color: #fff !important; /* white, not table-light */
+  border-top: none;             /* tighter join with row above */
+}
+
+/* (Optional) give OUTPUT cards a faint green background as well */
+.card-output{
+  background: rgba(19,245,57,.03);
 }

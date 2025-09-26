@@ -1,52 +1,115 @@
 {% extends 'home/base.html'%}
-
-{% load static %} 
+{% load static %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'forum/styles/forum.css'%}">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  {# Base already includes Bootstrap; keep your forum styles #}
+  <link rel="stylesheet" href="{% static 'forum/styles/forum.css'%}">
 {% endblock %}
 
+{% block content_wrapper_start %}{% endblock %}
+{% block content_wrapper_end %}{% endblock %}
 
 {% block content %}
-{% csrf_token %}
 
-<div class="top-banner"> 
-        <div class="top-banner-items">
-                <div> <h1> Forum </h1>  </div>
-                <div>  <a href="{% url 'forum:topic_list' %}">  <img src="{% static 'forum/images/forum.png' %}"> </a> </div>
-        </div> 
-</div>
-
-<div class="second-banner"> 
-        <div class="second-banner-items">
-            <p>Dit is een forum platform waar gediscusieerd kan worden over bepaalde zaken op deze website. 
-                Suggesties, op- en aanmerkingen zijn welkom en je kan op elkaar reageren.</p>                 
-              
-        </div>
-</div>
-
-
-<div class="main-banner bg-light py-5">
-    <div class="main-banner-items">
-        <h2>Wijzig Categorie: {{ category.name }}</h2>
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary">Opslaan</button>
-        </form>
+<!-- HERO -->
+<header class="tools-hero">
+  <div class="container py-3">
+    <div class="row align-items-center g-3 flex-nowrap">
+      <div class="col">
+        <h1 class="display-6 mb-0 text-white">Forum</h1>
+      </div>
+      <div class="col-auto">
+        <a href="{% url 'forum:topic_list' %}" class="d-inline-block">
+          <img src="{% static 'forum/images/forum.png' %}" class="hero-icon" alt="Forum">
+        </a>
+      </div>
     </div>
-</div>
+  </div>
+</header>
 
-    
-   
+<!-- INTRO -->
+<section class="tools-intro no-print">
+  <div class="container py-3">
+    <div class="row align-items-center g-3">
+      <div class="col-12 col-lg-8">
+        <p class="lead mb-0">
+          Wijzig de forumcategorie. Pas de naam aan en (optioneel) de afbeelding.
+        </p>
+      </div>
+      <div class="col-12 col-lg-4 d-flex justify-content-lg-end">
+        <a href="{% url 'forum:topic_list' %}" class="btn btn-outline-secondary btn-sm">Terug naar topics</a>
+      </div>
+    </div>
+  </div>
+</section>
 
-{% endblock content %}
+<!-- MAIN -->
+<section class="py-3">
+  <div class="container">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white">
+        <h2 class="h5 mb-0">
+          Wijzig categorie: <span class="fw-semibold">{{ category.name }}</span>
+        </h2>
+      </div>
+
+      <div class="card-body">
+        {# Global (non-field) errors #}
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger" role="alert">
+            {{ form.non_field_errors }}
+          </div>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+          {% csrf_token %}
+
+          <!-- Naam -->
+          <div class="mb-3">
+            <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }}</label>
+            {{ form.name }}
+            {% if form.name.help_text %}<div class="form-text">{{ form.name.help_text }}</div>{% endif %}
+            {% for error in form.name.errors %}
+              <div class="invalid-feedback d-block">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <!-- Afbeelding -->
+          <div class="mb-3">
+            <label for="{{ form.image.id_for_label }}" class="form-label">{{ form.image.label }}</label>
+            {{ form.image.as_widget(attrs={'accept': 'image/*'}) }}
+            {% if form.image.help_text %}<div class="form-text">{{ form.image.help_text }}</div>{% endif %}
+            {% for error in form.image.errors %}
+              <div class="invalid-feedback d-block">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          {# Preview huidige afbeelding (indien aanwezig) #}
+          {% if category.image %}
+            <div class="mb-3">
+              <label class="form-label d-block">Huidige afbeelding</label>
+              <img src="{{ category.image.url }}" alt="{{ category.name }}" class="img-thumbnail" style="max-height: 140px;">
+            </div>
+          {% endif %}
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-green">Opslaan</button>
+            <a href="{% url 'forum:topic_list' %}" class="btn btn-outline-secondary">Annuleren</a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <p class="text-muted small mt-2 mb-0">
+      Tip: kies korte, herkenbare namen (bijv. “Verwarming”, “Koeling”, “Regeltechniek”).
+    </p>
+  </div>
+</section>
+
+{% endblock %}
+
 {% block extra_js %}
-<!-- This makes sure this JS is only be loaded when rendering this HTML page. Whilst the common JS Files included in de extra_js block of base.html will be loaded across all pages -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-<script src="{% static 'forum/scripts/forum.js' %}"></script>
-{% endblock %}  
+  {# If Bootstrap JS isn’t loaded in base.html, uncomment next line #}
+  {# <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script> #}
+  <script src="{% static 'forum/scripts/forum.js' %}"></script>
+{% endblock %}

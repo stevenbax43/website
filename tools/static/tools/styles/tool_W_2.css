@@ -1,279 +1,81 @@
-.maintoolw2 {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    
+
+/* ===== Input & Output Cards ===== */
+.card-input {
+  border-left: 4px solid #267800;
+}
+.card-output {
+  border-left: 4px solid #0d6efd;
+}
+.card-title {
+  font-weight: 600;
 }
 
-.icons-container {
-    margin-bottom: 20px;
-    display: flex;
-    justify-content: center; /* Center items horizontally */
-    flex-direction: column; /* Change to column direction */
-    align-items: center; /* Center the content vertically */
+/* ===== Table Styling (match A1/A2/A3) ===== */
+.table th {
+  background-color: #3fa500;
+  color: #fff;
+  vertical-align: middle;
 }
-.icon:hover p {
-    color: white;
-}
-.hidden {
-    display: none;
-    opacity: 0;
-    transition: opacity 0.5s ease-in-out; /* Add a transition effect */
+.table thead.unit-row {
+  font-style: italic;
+  font-size: 0.875rem;
+  background-color: #e9ecef;
 }
 
-.visible {
-    opacity: 1;
-    transition: opacity 0.5s ease-in-out; /* Add a transition effect */
+/* ===== Buttons ===== */
+.btn-outline-secondary {
+  font-size: 0.875rem;
 }
-.icon {
-    margin: 20px;
-    cursor: pointer;
-    background-color: #c9c9c9;
-    width: 200px;
-    height: 200px;
-    border-radius: 10px;
-    display: flex; /* Add this line to make the icon a flex container */
-    justify-content: center; /* Center the content horizontally */
-    align-items: center; /* Center the content vertically */
-    flex-direction: column; /* Change to column direction */
-}
-
-.icon img {
-    max-width: 100%;
-    max-height: 100%;
-    width: 40%;
-    height: auto;
-}
-.button-container {
-    margin-top: 10px;
-    text-align: right;
-}
-
-.button-container button {
-    margin-left: 10px;
-    padding: 5px 10px;
-    background-color: #01e21f;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.button-container button:hover {
-    background-color: #24b300;
-}
-.buttons {
-    display: block;
-}
-.buttons button {
-    display: block;
-    margin-bottom: 10px;
-}
-.questions-container{
-    position: relative;
-    opacity: 0;
-    transition: opacity 0.5s ease-in-out;
-}
-.questions-container.show {
-    opacity: 1;
-}
-.questions {
-    display: flex;
-    justify-content: center; /* Center items horizontally */
-    flex-direction: column; /* Change to column direction */
-    align-items: center; /* Center the content vertically */
-
-}
-
-.question {
-    display: none;
-    border: 1px solid #ccc;
-    padding: 10px;
-    margin-bottom: 10px;
-    
-}
-.question label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 5px;
-}
-
-table {
-    border-collapse: collapse;
-    width: 100%;
-}
-th, td {
-    border: 1px solid black;
-    padding: 8px;
-    text-align: left;
-}
-th {
-    background-color: #3fa500;
-    color: #fff;
-}
-
-.question {
-    margin-top: 10px;
-    margin-bottom: 0px;
-    max-width: 400px;
-}
-
-
-
-.radio-options input[type="radio"] {
-display: none;
-}
-
-.radio-options label {
-margin-right: 10px;
-cursor: pointer;
-}
-
-.radio-options label::before {
-content: '';
-display: inline-block;
-width: 15px;
-height: 15px;
-border: 1px solid #000000;
-border-radius: 50%;
-margin-right: 5px;
-vertical-align: middle;
-}
-
-.radio-options input[type="radio"]:checked + label::before {
-background-color: #4dff00;
-}
-
 #calculateButton {
-    background: linear-gradient(to right,rgba(92, 216, 35, 0.75), rgba(10, 92, 3, 0.75));
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s ease;
-    margin-top: 20px;
+  background: linear-gradient(to right, rgba(92, 216, 35, 0.75), rgba(10, 92, 3, 0.75));
+  color: #fff;
+  border: none;
 }
-
 #calculateButton:hover {
-    background-color: #2980b9;
+  background-color: #2980b9;
 }
-
 #resetButton {
-    background: linear-gradient(to right,rgba(255, 25, 0, 0.75), rgba(255, 255, 255, 0.75));
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s ease;
-    margin-top: 20px;
+  background: linear-gradient(to right, rgba(255, 25, 0, 0.75), rgba(255, 255, 255, 0.75));
+  color: #fff;
+  border: none;
 }
 #resetButton:hover {
-    background-color: #ff7b00;
+  background-color: #ff7b00;
 }
 
-#temp_aanvoer:invalid,
-#temp_retour:invalid,
-#systeem-inhoud:invalid,
-#einddruk:invalid {
-    border: 1px solid red; /* Change border color to red */
-}
-/* Style for the tooltip */
-.tooltip {
-    position: relative;
-    display: inline-block;
-}
-
-.tooltip .tooltiptext {
-    visibility: hidden;
-    width: 120px;
-    background-color: #333;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 5px;
-    position: absolute;
-    z-index: 1;
-    bottom: 125%;
-    left: 50%;
-    margin-left: -60px;
-    opacity: 0;
-    transition: opacity 0.3s;
-}
-
-.tooltip:hover .tooltiptext {
-    visibility: visible;
-    opacity: 1;
-}
-.second-banner-items img {
-	width: 30px;
-	max-height: auto;
-}
-
-.tools-icons a:hover img,
-.top-banner-items a:hover img {
-    opacity: 0.8; /* Optional: Add a hover effect to indicate clickability */
-}
-
-.mb-3 {
-    margin-bottom: 1rem;
-}
-
-.form-label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: bold;
-}
-
-.input-group {
-    display: flex;
-    align-items: center;
-}
-
-.form-control {
-    flex: 1;
-    padding: 0.5rem;
-    border: 1px solid #ced4da;
-    /* border-radius: 0.25rem; */
-}
-
-.input-group-text {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.5rem;
-    background-color: #e9ecef;
-    border: 1px solid #ced4da;
-    border-left: none;
-    min-width: 50px;
-   
-    /* border-radius: 0 0.25rem 0.25rem 0; */
-}
-/* Vergroot de buffervat-afbeelding en positioneer overlay */
+/* ===== Expansion Vessel Image & Overlay ===== */
 .image-container {
-    position: relative;
-    display: inline-block;
+  position: relative;
+  display: inline-block;
 }
 .image-container img {
-    width: 1000px; /* pas aan naar gewenste grootte */
-    max-width: 100%;
+  width: 100%;
+  max-width: 320px;
 }
 .image-container .overlay {
-    position: absolute;
-    font-size: 1.1rem;
-    font-weight: bold;
-    color: #000;
+  position: absolute;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #000;
 }
-.image-container .o_1{
-    top: 36%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+.image-container .o_1 {
+  top: 36%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
-.image-container .o_2{
-    top: 63%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+.image-container .o_2 {
+  top: 63%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* ===== Print Rules ===== */
+@media print {
+  @page { size: A4 landscape; margin: 0; }
+  .no-print, .d-print-none { display: none !important; }
+  .shadow-sm { box-shadow: none !important; }
+  .card { border: 1px solid #000 !important; }
+  .card-input, .card-output { border-left: 4px solid #000; background: #fff; }
+  .ratio { height: auto !important; min-height: auto !important; }
+  canvas { width: 100% !important; height: auto !important; max-height: 400px !important; }
 }

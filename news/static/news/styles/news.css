@@ -1,136 +1,123 @@
-.listView-items {
-    display: grid;
-    padding: 10px;
-    grid-gap: 10px; /* Adjust the gap between items */
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    align-items: stretch; /* Make items stretch to match the height of the tallest item */
+/* ====== Full-bleed sections (consistent with your tools pages) ====== */
+.tools-hero,
+.tools-intro{
+  position:relative;
+  left:50%;
+  right:50%;
+  margin-left:-50vw;
+  margin-right:-50vw;
+  width:100vw;
 }
 
-.listView-items li {
-    padding: 10px;
+/* Hero (gradient) */
+.tools-hero{
+  background:linear-gradient(to right, rgba(92,216,35,.75), rgba(10,92,3,.75));
+}
+.tools-hero .display-6{ color:#fff; }
+.hero-icon{ width:64px; height:auto; }
+@media (max-width:575.98px){ .hero-icon{ width:48px; } }
+
+/* Optional intro band (if used on this page) */
+.tools-intro{ background:#f5f6f7; }
+.intro-link{ text-decoration:none; color:#333; font-weight:600; font-size:16px; }
+.intro-link:hover{ color:#00c000; }
+.icon-30{ width:30px; height:auto; vertical-align:middle; }
+
+/* ====== News list (Bootstrap grid) ====== */
+.listView-items{
+  list-style:none;
+  margin:0;
+  padding:0;
+}
+.listView-items > li{ padding:0; } /* spacing handled by Bootstrap .g-* */
+
+/* News card */
+.news-card{
+  background:#fff;
+  border:1px solid #e9ecef;
+  border-radius:.75rem;
+  overflow:hidden;
+  transition: box-shadow .2s ease, transform .2s ease;
+}
+.news-card:hover{
+  box-shadow:0 8px 24px rgba(0,0,0,.12);
+  transform:translateY(-2px);
 }
 
-.entry-news {
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-    height: 100%; /* Set your desired height */
+/* Thumbnail: start grey → color on hover */
+.news-card .ratio{ background:#f8f9fa; }
+.news-card .ratio img,
+.news-card .card-img-top{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  filter:grayscale(100%);
+  transition: filter .35s ease, transform .2s ease;
 }
-.entry-news a {
-    margin-top: auto; /* Align the <a> element at the bottom */
-}
-
-.entry-news a:link,
-.entry-news a:visited {
-    color: #000000;
-    text-decoration: none;
-}
-.entry-image {
-    position: relative;
-    flex: 1;
-    overflow: hidden;
+.news-card:hover .ratio img,
+.news-card:hover .card-img-top{
+  filter:grayscale(0%);
+  transform:scale(1.01);
 }
 
-.entry-image img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* This will make the image cover the entire container */
-    filter: grayscale(100%); /* Start with the image in grayscale */
-    transition: filter 0.4s;
-    border-radius: 10px;
+/* Text in the card */
+.news-card .card-body{ padding: .75rem .9rem; }
+.news-card .entry-publishedOn{
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  font-size:.75rem;
+  color:#6c757d;
+  margin-bottom:.25rem;
 }
-.entry-image:hover img{
-    filter: grayscale(0%)
+.news-card .card-title{
+  margin:0;
+  color:#212529;
+  font-weight:700;
+  line-height:1.25;
+  transition: color .2s ease;
 }
-.entry-publishedOn {
-    text-transform: uppercase;
-    font-weight: 400;
-    letter-spacing: 1px;
-    font-size: 12px;
+.news-card:hover .card-title{ color:#0a7a20; }
+
+
+/* Links look like a single clickable card */
+.news-card a{
+  color:inherit;
+  text-decoration:none;
+  display:block;
+}
+.news-card a:focus{ outline:0; }
+.news-card a:focus-visible{
+  outline:2px solid #198754; outline-offset:3px;
 }
 
-.published {
-    color: #002f73;
-    display: block;
-    margin-bottom: 10px;
+/* ====== Keep your newsupdate buttons ====== */
+.newsupdate{
+  display:flex;
+  justify-content:space-between;
+  gap:.5rem;
+  flex-wrap:wrap;
+  margin-bottom:.5rem;
+}
+.newsupdate button{
+  padding:10px 20px;
+  border-radius:10px;
+  background-color:#4CAF50;
+  color:#fff;
+  border:none;
+  text-align:center;
+  font-size:14px;
+  cursor:pointer;
+  margin:4px 2px 10px 2px;
+}
+.newsupdate button:hover{ filter:brightness(0.95); }
 
-}
-.header-news {
-    background-color: #ffffff;
-}
-.entry-title {
-    margin-top: 0;
-    color: #5250bd;
-    height: 46px ;
-}
-.value-title {
-    
-    color: #000000;
-    
-}
-.maintoola2{
-    display: flex;
-    justify-content: space-between;
-}
-.maintoola2 button{
-    padding: 10px 20px;
-    border-radius: 10px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 14px;
-    margin: 4px 2px;
-    cursor: pointer;
-    margin-bottom: 10px;
-}
+/* ====== Small helper: remove old legacy styles that no longer apply ======
+   If these selectors exist in older files, keep them there.
+   On this page we don’t use .entry-news/.entry-image anymore.
+*/
+/*
+.entry-news, .entry-image, .entry-image img { all: unset; }
+*/
 
-@media (max-width: 599px) {
-	/* Voeg hier stijlen toe voor kleine schermen */
-    .listView-items {
-        grid-template-columns: 100%; /* Create 4 columns */
-    }
-    .entry-image {
-        max-width: 150px;
-    }
-}
-
-/* Gemiddelde schermen */
-@media (min-width: 600px) and (max-width: 767px) {
-	/* Voeg hier stijlen toe voor gemiddelde schermen */
-    .listView-items {
-        grid-template-columns: 100%; /* Create 4 columns */
-    }
-    .entry-image {
-        max-width: 200px;
-    }
-}
-
-/* Grote schermen */
-@media (min-width: 768px) and (max-width: 991px) {
-	/* Voeg hier stijlen toe voor grote schermen */
-
-    .listView-items {
-        grid-template-columns: 50% 50%; /* Create 4 columns */
-    }
-    .entry-image {
-        max-width: 300px;
-    }
-}
-
-/* Styles for larger screens (default) */
-@media (min-width: 991px) {
-	/* Voeg hier stijlen toe voor laptop schermen */
-    .listView-items {
-        grid-template-columns: 33% 33% 33%; /* Create 4 columns */
-    }
-    .entry-image {
-        max-width: 400px;
-    }
-
-}
+/* No custom media queries needed—the Bootstrap row/cols handle responsiveness */

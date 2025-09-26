@@ -223,19 +223,24 @@ def calculate_mollier(Tdb_var, RH_var, qv_prev, df_enthalpy, pressure=101325, C_
     formatted_pBar = f"{pressure / 1000:.3f}"
     pws = calculate_saturated_vapor_pressure(Tdb_var, C_values)
     pv = RH_var/100 * pws
+    
     x = calculate_humidity_ratio(pv, pressure) #g/kg is de abs. vochtigheid op basis van invoer
     
-    Td = calculate_dew_point(pv,Tdb_var, C_values)
+    Td_frost = frost_point_from_pv(pv)
+    Td_dew = dew_point_over_water_from_pv(pv)
+    Td = Td_frost if Td_dew < 0.0 else Td_dew # dauwpunt temperatuur op basis van invoer als Td onder 0 graden is, dan frostpoint anders dewpoint
+    
     H = calculate_enthalpy(Tdb_var,x)#(1006*Tdb_var+x*(2500.77+Tdb_var*1.82))/1000 # kJ/kG enthalpy op basis van invoer
-    V = calculate_specific_volume(Tdb_var,x,pressure) # 0.2871* (Tdb_var+273.15)*(1+1.6078*x/1000)/(pBar/1000) #specific Volume (rho) op basis van invoer
-    rho = 1/V # density (rho) op basis van invoer
+    V = specific_volume_m3_per_kg_dry(Tdb_var,x,pressure) # 0.2871* (Tdb_var+273.15)*(1+1.6078*x/1000)/(pBar/1000) #specific Volume (rho) op basis van invoer
+    rho_moist = (1/V)*(1+(x/1000)) # density (rho) op basis van invoer vochtige lucht. 1/V is rho _dry 
+    
     if qv_meng is not None: #als er een mengproces is, dan is qv_meng de nieuwe qv
         qv_proces = qv_meng
     else:
-        qv_proces = qv_prev if rho_prev is None else (qv_prev * rho_prev) / rho
+        qv_proces = qv_prev if rho_prev is None else (qv_prev * rho_prev) / rho_moist
 
     T_nb = np.interp(H, df_enthalpy['H_range'], df_enthalpy['T_100']) #calculate nattebol temperatuur
-    calculated_values = [x, pws, H, V, rho, pv, Td, formatted_pBar, T_nb,
+    calculated_values = [x, pws, H, V, rho_moist, pv, Td, formatted_pBar, T_nb,
                          Tdb_var,RH_var, qv_proces,Tdb_100,x_100] # hier niet afronden!! round() anders ga je verder rekenen met afgeronde getallen.
 
     return calculated_values
@@ -272,9 +277,28 @@ def calculate_humidity_ratio_from_enthalpy(h, Tdb):
     return x * 1000  # Convert to g/kg
 def calculate_relative_humidity(pv, pws):
     return max(0, min((pv / pws) * 100, 100))
-def calculate_specific_volume(Tdb, x, pBar):
-    return 0.2871 * (Tdb + 273.15) * (1 + 1.6078 * x / 1000) / (pBar / 1000)
-def calculate_dew_point(pv, Tdb, C):
+def specific_volume_m3_per_kg_dry(Tdb_C, x_g_per_kg, p_Pa):
+    # w meegegeven in g/kg(droge lucht); converteer naar kg/kg
+    x = x_g_per_kg / 1000.0
+    TK = Tdb_C + 273.15
+    Rd = 0.287055  # m^3·kPa/(kg·K)
+    p_kPa = p_Pa / 1000.0
+    return Rd * TK * (1 + 1.607858 * x) / p_kPa  # m^3/kg dry air
+def density_moist_air(Tdb_C, x_g_per_kg, p_Pa):
+    v = specific_volume_m3_per_kg_dry(Tdb_C, x_g_per_kg, p_Pa)
+    x = x_g_per_kg / 1000.0
+    return (1.0 + x) / v  # kg moist air / m^3
+
+def dew_point_over_water_from_pv(pv_Pa):
+    if pv_Pa <= 0: return float('-inf')
+    ln = math.log(pv_Pa / 611.2)
+    return (243.12 * ln) / (17.62 - ln)
+
+def frost_point_from_pv(pv_Pa):
+    if pv_Pa <= 0: return float('-inf')
+    ln = math.log(pv_Pa / 611.15)
+    return (272.62 * ln) / (22.46 - ln)
+def calculate_dew_point(pv, Tdb, C): #fout misschien iets met Td<0 graden ofzo? 
     if not pv or pv <= 0:
         return float('-inf')  # or return 0.0 or raise a ValueError
 
@@ -283,9 +307,9 @@ def calculate_dew_point(pv, Tdb, C):
     log_pv2 = log_pv ** 2
 
     if Tdb < 0:
-        return 6.09 + 12.608 * log_pv + 0.4959 * log_pv2
+        return 6.09 + 12.608 * log_pv + 0.4959 * log_pv2 #goed 
     else:
-        log_pv3 = log_pv * log_pv2
+        log_pv3 = log_pv * log_pv2 #fout 
         return (
             C[14]
             + C[15] * log_pv
@@ -293,6 +317,7 @@ def calculate_dew_point(pv, Tdb, C):
             + C[17] * log_pv3
             + C[18] * (pv_kPa ** 0.1984)
         )
+        
 def calculate_Tdb_from_enthalpy(h, x):
     """Calculate Tdb given enthalpy and humidity ratio (x in g/kg)."""
     x = x / 1000  #(x in kg/kg).
@@ -719,7 +744,7 @@ def safe_exp(x, default=float('inf'), max_input=700):
         return default
 
 
-def generate_pdf_file(request):
+def generate_pdf_mollier(request):
     if request.method != "POST" or 'SavePDFButton' not in request.POST:
         return HttpResponse("Invalid request", status=400)
 

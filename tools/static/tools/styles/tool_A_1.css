@@ -1,73 +1,46 @@
+/* ================================
+   Tool A1 – page-specific styles
+   Works with tools.css + Bootstrap
+   ================================ */
 
-.border img{
-	width: 150px;
-	align-self: center;
+/* Hero row: keep icon next to title as long as possible */
+.tools-hero .row.flex-nowrap { overflow: hidden; }
+.hero-icon { flex-shrink: 0; }
+
+/* Card visuals echo your previous “border + shadow” feel */
+.card { border: 1; border-radius: .75rem; }
+.card.shadow-sm { box-shadow: 0 .25rem .75rem rgba(0,0,0,.08); }
+.card-body h4 { margin-bottom: .75rem; }
+
+/* Output fields look like read-only inputs */
+output.form-control.output {
+  background-color: #f8f9fa;
+  border: 1px solid #13f539;
+  border-radius: .5rem;
 }
 
-
-
-
-
-/* default CSS independent of screen size */
-.main-banner-items-1,
-.main-banner-items-2,
-.main-banner-items-3,
-.main-banner-items-4 {
-	
-	margin-top: 30px;
-	border-bottom: 4px solid #00ff00;
-	display: flex;
-	align-items: left;
-}
-.main-banner-items-4 {
-	border-bottom: none;
-	margin-bottom: 50px;
-}
-.main-content {
-	flex: 8;
-}
-.main-image {
-	flex: 2;
-	display: flex;
-	align-items: center; /* center vertically */	
-	justify-content: space-between; /*center horizontally */
+/* Input groups with units */
+.input-group .input-group-text {
+  border-top-right-radius: .5rem;
+  border-bottom-right-radius: .5rem;
 }
 
+/* Logos under panels (links) */
+.panel-logo {
+  width: clamp(96px, 35%, 150px);
+  height: auto;
+  display: block;
+  margin: .5rem auto 0;
+  transition: opacity .2s ease;
+}
+.panel-logo:hover { opacity: .85; }
 
-#PDF {
-	width: 30%;
-	height: auto;
-}
-
-/* Print styles */
-.location-output {
-	margin-bottom: 30px; /* Stacking elements below each other on smaller screens */
-	margin-top: 10px
-}
-#EPlabel {
-	margin-left: -200px; /* To overlay the waiting sign */
-}
-#WEii_output {
-	margin-left: 200px;
-}
-.form-group {
-display: flex;
-flex-direction: column;
-margin-bottom: 10px; /*add a margin for better spacing */
-margin-right: 5px;
+/* Tighter spacing on small screens */
+@media (max-width: 575.98px) {
+  .card-body { padding: 1rem; }
 }
 
-.form-group label {
-font-weight: bold;
-}
-
-.form-group input,
-.form-group output {
-border: 1px solid #13f539;
-border-radius: 10px;
-max-width: 200px;
-min-height: 20px;
-font-size: 14px;
-font-family: inherit;
-padding: 7px;
+/* Print */
+@media print {
+  .no-print { display: none !important; }
 }
