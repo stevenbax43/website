@@ -83,7 +83,7 @@ def MollierValues(request):
         # Parse general inputs
         height_start = safe_float(request.POST.get('Height_var'), 0)
         qv_start = safe_float(request.POST.get('qv_var'), 10000)
-        pressure = 101325 + (1 - 2.25577e-5 * height_start) ** 5.256
+        pressure = 101325 * (1 - 2.25577e-5 * height_start) ** 5.256
         lines_RH, lines_H, df_enthalpy, C_values = mollier_graph(pressure)
               
 
@@ -102,12 +102,11 @@ def MollierValues(request):
             Tdb_start, RH_start = result
         
         calc_start_point = calculate_mollier(Tdb_start, RH_start, qv_start, df_enthalpy, pressure, C_values, rho_prev=None, Tdb_100=None, x_100=None, qv_meng=None)
-        
+       
         # Helper function for each process step
         def handle_process(proces_name, calc_input_point, idx,func1, func2):
             if proces_name != 'selectProces':
                 inputs = [safe_float(request.POST.get(f'Proces{idx}_value{i}_input', '')) for i in range(1, 10)]
-                
                 result = infer_Tdb_RH_from_proces(
                     calc_input_point, proces_name, func1, func2,
                     *inputs, pressure, C_values, lines_RH
@@ -242,7 +241,7 @@ def calculate_mollier(Tdb_var, RH_var, qv_prev, df_enthalpy, pressure=101325, C_
     T_nb = np.interp(H, df_enthalpy['H_range'], df_enthalpy['T_100']) #calculate nattebol temperatuur
     calculated_values = [x, pws, H, V, rho_moist, pv, Td, formatted_pBar, T_nb,
                          Tdb_var,RH_var, qv_proces,Tdb_100,x_100] # hier niet afronden!! round() anders ga je verder rekenen met afgeronde getallen.
-
+  
     return calculated_values
 
 def calculate_saturated_vapor_pressure(Tdb, C):
@@ -288,12 +287,10 @@ def density_moist_air(Tdb_C, x_g_per_kg, p_Pa):
     v = specific_volume_m3_per_kg_dry(Tdb_C, x_g_per_kg, p_Pa)
     x = x_g_per_kg / 1000.0
     return (1.0 + x) / v  # kg moist air / m^3
-
 def dew_point_over_water_from_pv(pv_Pa):
     if pv_Pa <= 0: return float('-inf')
     ln = math.log(pv_Pa / 611.2)
     return (243.12 * ln) / (17.62 - ln)
-
 def frost_point_from_pv(pv_Pa):
     if pv_Pa <= 0: return float('-inf')
     ln = math.log(pv_Pa / 611.15)
@@ -316,8 +313,7 @@ def calculate_dew_point(pv, Tdb, C): #fout misschien iets met Td<0 graden ofzo?
             + C[16] * log_pv2
             + C[17] * log_pv3
             + C[18] * (pv_kPa ** 0.1984)
-        )
-        
+        )       
 def calculate_Tdb_from_enthalpy(h, x):
     """Calculate Tdb given enthalpy and humidity ratio (x in g/kg)."""
     x = x / 1000  #(x in kg/kg).
@@ -481,7 +477,6 @@ def infer_Tdb_RH_from_any_two(var1, val1, var2, val2, pressure=101325, C_values=
 
     else:
         raise ValueError(f"Unsupported variable pair: {var_pair}")
-    
 def infer_Tdb_RH_from_proces(calc_prev_values,proces,function1,function2,Input1,Input2,Input3,Input4,Input5,
                                                       Input6, Input7,Input8,Input9, pressure, C_values,lines_RH):
     if proces == 'heat' and function1 == 'power':
@@ -516,7 +511,6 @@ def infer_Tdb_RH_from_proces(calc_prev_values,proces,function1,function2,Input1,
         return cust_point(Input9,Input6)
     else:
         return 0,0
-
 def heat_power(h1, qv_prev, Q, x, rho_prev, pressure=101325, C_values=None):
     """Calculate the Tdb and RH based on heating process with given power input."""
     qm = qv_prev * rho_prev / 3600  # m³/h to kg/s
@@ -549,16 +543,19 @@ def heat_ToT(ToT ,pv,C_values=None):
     return Tdb, rh
 def cool_power(h_prev, Ef, Q, Tdb_first, x_prev, qv_prev, rho_prev,Td_prev, pressure=101325,C_values=None, lines_RH=None):
     """ Calculate the Tdb and RH based on heating proces and given Power"""
+   
     qm = qv_prev * rho_prev / 3600  # Convert volumetric flow (m3/h) to mass flow (kg/s)
     h_100 = h_prev - ((Q) / qm ) # Calculate the enthalpy at the end of the process
     hd_start  = calculate_enthalpy(Td_prev,x_prev) # #enthalpy at dewpoint of previous point
     Tdb_100 = None
     x_100 = None
+    #check if h_100 is above or below the enthalpy at the dewpoint of the previous point(if below, then drying takes place)
     if h_100 > hd_start:
         Tdb = calculate_Tdb_from_enthalpy(h_100, x_prev) #this is Tdb without drying
         pv = calculate_partial_vapor_pressure(x_prev, pressure)
         pws = calculate_saturated_vapor_pressure(Tdb, C_values)
         rh = calculate_relative_humidity(pv, pws)
+    #here is latent heat removal (drying)
     elif h_100 < hd_start:
         Tdb_lines = lines_RH['x_values']
         x_values = lines_RH['onehondered_percent']
@@ -580,7 +577,7 @@ def cool_DeltaT(Ef, DeltaT, Td_prev, x_prev ,Tdb_prev,pressure,C_value, lines_RH
 def cool_DeltaH(h_prev, Ef, DeltaH, Tdb_first, x_prev, qv_prev, rho_prev,Td_prev, pressure,C_values, lines_RH):
     qm = qv_prev * rho_prev / 3600
     Q = qm * (DeltaH)
-    Tdb, rh ,Tdb_100, x_100 = cool_power(h_prev, qv_prev, Ef, Q, Tdb_first, x_prev, rho_prev,Td_prev, pressure,C_values, lines_RH)
+    Tdb, rh ,Tdb_100, x_100 = cool_power(h_prev, Ef, Q, Tdb_first, x_prev, qv_prev, rho_prev,Td_prev, pressure,C_values, lines_RH) 
     return Tdb, rh ,Tdb_100, x_100
 def cool_ToT(Ef, ToT, Td_prev, x_prev ,Tdb_prev,pressure=101325,C_values=None, lines_RH=None):
     Tdb_100 = None
@@ -603,6 +600,7 @@ def cool_ToT(Ef, ToT, Td_prev, x_prev ,Tdb_prev,pressure=101325,C_values=None, l
         pv = calculate_partial_vapor_pressure(x2, pressure)
         rh = calculate_relative_humidity(pv, pws) 
     return Tdb, rh, Tdb_100, x_100
+
 def humid_adiabaticX(DeltaX, h_prev,x_prev, Tnb_prev ,C_values=None, pressure=101325):
 
     """ Calculate the Tdb and RH based on adiabatic humidification process and given DeltaX"""
@@ -668,7 +666,6 @@ def heat_rec(RV_out,eta_x,eta_th,Tdb_out,Tdb_start,x_start,C_values,pressure):
     return T_rec, rh_rec, Tdb_out, x_out
 def cust_point(Tdb_cust,RH_cust):
     return Tdb_cust,RH_cust
-
 def calculate_proces_values(prev, current):
     TOLERANCE = 0.01  # g/kg precision for Delta x
 
@@ -697,7 +694,6 @@ def calculate_proces_values(prev, current):
 
     proces_values = [delta_Tdb, delta_x, delta_H, P_total, P_voelbaar, P_latent, VWF]
     return proces_values
-
 def interpolate_Tdb_and_x(h_100, Tdb_lines, x_values, h_values):
     for i in range(len(h_values) - 1):
         h1, h2 = h_values[i], h_values[i + 1]
@@ -711,7 +707,6 @@ def interpolate_Tdb_and_x(h_100, Tdb_lines, x_values, h_values):
             return Tdb_interp, x_interp
 
     raise ValueError("h_100 is out of bounds of the h_values range.")
-
 def safe_float(value, default=0.0):
     try:
         return float(value)
@@ -742,8 +737,6 @@ def safe_exp(x, default=float('inf'), max_input=700):
         return math.exp(x)
     except (ValueError, TypeError, OverflowError):
         return default
-
-
 def generate_pdf_mollier(request):
     if request.method != "POST" or 'SavePDFButton' not in request.POST:
         return HttpResponse("Invalid request", status=400)

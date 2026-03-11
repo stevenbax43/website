@@ -22,21 +22,33 @@
   }
 
   // ================== Page-specific helpers ==================
-  function updateMaxValue() {
-    const HeatBuildingMax = document.getElementById("HeatBuildingMax");
-    const LimitHeatMax    = document.getElementById("LimitHeatMax");
-    const CoolBuildingMax = document.getElementById("CoolBuildingMax");
-    const LimitCoolMax    = document.getElementById("LimitCoolMax");
-    const LimitHeatMin    = document.getElementById("LimitHeatMin");
-    const LimitCoolMin    = document.getElementById("LimitCoolMin");
+function updateMaxValue(changedId = null) {
+  const HeatBuildingMax = document.getElementById("HeatBuildingMax");
+  const LimitHeatMax    = document.getElementById("LimitHeatMax");
+  const CoolBuildingMax = document.getElementById("CoolBuildingMax");
+  const LimitCoolMax    = document.getElementById("LimitCoolMax");
+  const LimitHeatMin    = document.getElementById("LimitHeatMin");
+  const LimitCoolMin    = document.getElementById("LimitCoolMin");
 
-    if (HeatBuildingMax && LimitHeatMax) LimitHeatMax.max = HeatBuildingMax.value;
-    if (CoolBuildingMax && LimitCoolMax) LimitCoolMax.max = CoolBuildingMax.value;
-    if (LimitHeatMin && LimitHeatMax)    LimitHeatMin.max = LimitHeatMax.value;
-    if (LimitCoolMin && LimitCoolMax)    LimitCoolMin.max = LimitCoolMax.value;
+  // === keep existing max boundaries ===
+  if (HeatBuildingMax && LimitHeatMax) LimitHeatMax.max = HeatBuildingMax.value;
+  if (CoolBuildingMax && LimitCoolMax) LimitCoolMax.max = CoolBuildingMax.value;
+  if (LimitHeatMin && LimitHeatMax)    LimitHeatMin.max = LimitHeatMax.value;
+  if (LimitCoolMin && LimitCoolMax)    LimitCoolMin.max = LimitCoolMax.value;
+
+  // === only auto-update when corresponding Pmax changes ===
+  if (changedId === "CoolBuildingMax" && CoolBuildingMax && LimitCoolMax) {
+    const Pmax = parseFloat(CoolBuildingMax.value) || 0;
+    LimitCoolMax.value = Math.round(Pmax * 0.3);
   }
-  // If your HTML still has inline oninput="updateMaxValue()", expose it:
-  window.updateMaxValue = updateMaxValue;
+
+  if (changedId === "HeatBuildingMax" && HeatBuildingMax && LimitHeatMax) {
+    const PmaxHeat = parseFloat(HeatBuildingMax.value) || 0;
+    LimitHeatMax.value = Math.round(PmaxHeat * 0.3);
+  }
+}
+// Expose function for inline oninput="updateMaxValue()"
+window.updateMaxValue = updateMaxValue;
 
   function validateTemperature() {
     const startTempInput = document.getElementById('starttemp');
@@ -272,11 +284,11 @@
 
     document.querySelectorAll('input, select').forEach(field => {
       field.addEventListener('input', () => {
-        if (idsAffectingMax.has(field.id)) updateMaxValue();
+        if (idsAffectingMax.has(field.id)) updateMaxValue(field.id);
       });
       field.addEventListener('change', () => {
         saveInputValues();
-        if (idsAffectingMax.has(field.id)) updateMaxValue();
+        if (idsAffectingMax.has(field.id)) updateMaxValue(field.id);
         submitNow();
       });
     });

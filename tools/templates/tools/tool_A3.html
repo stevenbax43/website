@@ -287,7 +287,7 @@
                   <div class="mb-3">
                     <label for="LimitHeatMin" class="form-label">Ondergrens (P<sub>m-b</sub>)</label>
                     <div class="input-group">
-                      <input type="number" class="form-control" id="LimitHeatMin" name="LimitHeatMin" value="10" min="0" oninput="updateMaxValue()">
+                      <input type="number" class="form-control" id="LimitHeatMin" name="LimitHeatMin" value="0" min="0" oninput="updateMaxValue()">
                       <span class="input-group-text">kW</span>
                     </div>
                   </div>
@@ -337,7 +337,7 @@
                 <div class="mb-3">
                   <label for="LimitCoolMin" class="form-label">Ondergrens (P<sub>m-b</sub>)</label>
                   <div class="input-group">
-                    <input type="number" class="form-control" id="LimitCoolMin" name="LimitCoolMin" value="10" min="0" oninput="updateMaxValue()">
+                    <input type="number" class="form-control" id="LimitCoolMin" name="LimitCoolMin" value="0" min="0" oninput="updateMaxValue()">
                     <span class="input-group-text">kW</span>
                   </div>
                 </div>
@@ -424,6 +424,8 @@
                 {% endif %}
       </div>
       <input type="hidden" name="username" id="username" value="{{ request.user.username|default:'Onbekend' }}">
+      <input type="hidden" name="on_hours" id="on_hours"  value="{{ OnOffHours.0 }}">
+      <input type="hidden" name="off_hours" id="off_hours"  value="{{ OnOffHours.1 }}">
     </form>
   </div>
   

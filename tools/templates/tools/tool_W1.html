@@ -44,7 +44,7 @@
       </div>
       <div class="col-12 col-lg-4">
         <div class="d-flex justify-content-lg-end align-items-center gap-3 flex-wrap">
-          <a href="{% url 'tools:tool-readme' 'A3' %}" target="_blank" rel="noopener" class="intro-link d-inline-flex align-items-center gap-2">
+          <a href="{% url 'tools:tool-readme' 'W1' %}" target="_blank" rel="noopener" class="intro-link d-inline-flex align-items-center gap-2">
             ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" class="icon-30" alt="PDF">
           </a>
           <a href="#" id="printButton" class="intro-link d-inline-flex align-items-center">
@@ -219,6 +219,7 @@
                         <option value="deltaT">&Delta;T</option>
                         <option value="deltaH">&Delta;H</option>
                         <option value="toTemp">Naar Temp.</option>
+                        <option value="toTemp">Medium Temp.</option>
                     </select>
                     </div>
                 </div>
@@ -246,12 +247,13 @@
                     </div>
                     </div>
 
+
                     <div class="col-12 col-sm-6" id="Proces{{ i }}_value3_container">
-                    <label class="form-label">Bestaand luchtdebiet</label>
-                    <div class="input-group" id="Proces{{ i }}_value3">
-                        <input type="number" class="form-control" id="Proces{{ i }}_value3_input" name="Proces{{ i }}_value3_input" value="80" max="100" min="0" step="0.1">
-                        <span class="input-group-text unit" id="exis_air_flow{{ i }}" name="exis_air_flow{{ i }}">%</span>
-                    </div>
+                      <label class="form-label">Bestaand luchtdebiet</label>
+                      <div class="input-group" id="Proces{{ i }}_value3">
+                          <input type="number" class="form-control" id="Proces{{ i }}_value3_input" name="Proces{{ i }}_value3_input" value="80" max="100" min="0" step="0.1">
+                          <span class="input-group-text unit" id="exis_air_flow{{ i }}" name="exis_air_flow{{ i }}">%</span>
+                      </div>
                     </div>
 
                     <div class="col-12 col-sm-6" id="Proces{{ i }}_value8_container">
@@ -395,7 +397,7 @@
                 </div>
                 </div>
             </div>
-
+           
             <!-- Process table (OUTPUT) -->
             <div class="card card-output shadow-sm mt-3 mb-4">
                 <div class="card-body">
@@ -432,7 +434,7 @@
                         {% for proces in process_data %}
                         {% if proces.values.0 != None %}
                             <tr>
-                            <td>{{ proces.name }}</td>
+                            <td>{{ proces.name }}</td> 
                             <td id="proces_angle_temp_{{ proces.step }}"></td>
                             <td id="proces_angle_humid_{{ proces.step }}"></td>
                             <td>{{ proces.values.0|floatformat:1 }}</td>
@@ -573,9 +575,9 @@ const HData = HLabels.map((label, index) => ({
     { y: lines_H.x1[index], x: 0 },
     { y: lines_H.x2[index], x: lines_H.y2[index] }
   ],
-  borderColor: 'rgb(0,0,0)',
+  borderColor: 'rgb(0,0,0,0.4)',
   borderWidth: 0.5,
-  pointRadius: 2,
+  pointRadius: 0,
   pointBackgroundColor: 'rgb(0,0,0)',
 }));
 
@@ -646,25 +648,32 @@ const RHLabelsPlugin = {
 const HLabelsPlugin = {
   id: 'hLabels',
   afterDatasetsDraw(chart) {
-    const { ctx } = chart;
+    const { ctx, chartArea } = chart;
 
     chart.data.datasets.forEach((dataset, i) => {
-      if (isNaN(Number(dataset.label))) return;
+      if (isNaN(Number(dataset.label))) return; // only H-lines
       const meta = chart.getDatasetMeta(i);
       if (meta.hidden || meta.data.length === 0) return;
 
       const lastPoint = meta.data[meta.data.length - 1];
       if (!lastPoint) return;
 
+      const x = lastPoint.x + 2;
+      const y = lastPoint.y + 7;
+
+      // ✅ Only draw label if inside visible chart area
+      if (x < chartArea.left || x > chartArea.right || y < chartArea.top || y > chartArea.bottom) return;
+
       ctx.save();
       ctx.fillStyle = 'gray';
       ctx.font = '12px sans-serif';
       ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
-      ctx.fillText(dataset.label, lastPoint.x + 6, lastPoint.y + 4);
+      ctx.fillText(dataset.label, x, y);
       ctx.restore();
     });
 
+    // keep the “Enthalpie h [kJ/kg]” axis label & arrow
     const h0Dataset = chart.data.datasets.find(ds => ds.label === '0');
     if (h0Dataset) {
       const meta = chart.getDatasetMeta(chart.data.datasets.indexOf(h0Dataset));
@@ -701,7 +710,6 @@ const HLabelsPlugin = {
     }
   }
 };
-
 const FillUnder100RHPlugin = {
   id: 'fillUnder100RH',
   beforeDatasetsDraw(chart) {
@@ -767,6 +775,7 @@ const calculatedValuesList  = JSON.parse('{{ calculated_values_json|escapejs }}'
 
 const x_start   = Number(calculatedValuesStart[0]);
 const Tdb_start = Number(calculatedValuesStart[9]);
+const Pressure = Number(calculatedValuesStart[7]);
 
 let prevX = x_start;
 let prevTdb = Tdb_start;
@@ -857,6 +866,7 @@ const startPointDataset = {
 
 // ====== Process direction text ======
 function updateProcessText(startX, startY, endX, endY, stepIndex) {
+
   let angle = Math.atan2(endY - startY, endX - startX) * (180 / Math.PI);
   if (angle < 0) angle += 360;
 
@@ -865,26 +875,34 @@ function updateProcessText(startX, startY, endX, endY, stepIndex) {
   if (Math.abs(angle - 90) > TOL && Math.abs(angle - 270) > TOL) {
     humidityText = (angle >= 270 || angle <= 90) ? "Bevochtigen" : "Ontvochtigen";
   }
+
   let temperatureText = "";
   if (Math.abs(angle - 0) > TOL && Math.abs(angle - 180) > TOL) {
     temperatureText = (angle >= 0 && angle <= 180) ? "Koelen" : "Verwarmen";
   }
 
-  const humidEl = document.getElementById(`proces_angle_humid_${stepIndex}`);
-  const tempEl  = document.getElementById(`proces_angle_temp_${stepIndex}`);
+  const humidId = `proces_angle_humid_${stepIndex}`;
+  const tempId  = `proces_angle_temp_${stepIndex}`;
+  const humidEl = document.getElementById(humidId);
+  const tempEl  = document.getElementById(tempId);
+
   if (humidEl) humidEl.textContent = humidityText;
   if (tempEl)  tempEl.textContent  = temperatureText;
 }
 function updateTextBasedOnLine(chart) {
+ 
   const { scales } = chart;
+
   chart.data.datasets.forEach((ds) => {
     if (!ds.label?.startsWith('Proces')) return;
     if (ds.data.length < 2) return;
+
+    const stepIndex = parseInt(ds.label.replace('Proces ', ''), 10);
     const startX = scales.x.getPixelForValue(ds.data[0].x);
     const startY = scales.y.getPixelForValue(ds.data[0].y);
     const endX   = scales.x.getPixelForValue(ds.data[1].x);
     const endY   = scales.y.getPixelForValue(ds.data[1].y);
-    const stepIndex = parseInt(ds.label.replace('Proces ', ''), 10);
+
     updateProcessText(startX, startY, endX, endY, stepIndex);
   });
 }
@@ -960,6 +978,30 @@ const arrowPlugin = {
   }
 };
 
+const pressurePlugin = {
+  id: 'pressureDisplay',
+  afterDraw(chart) {
+    const { ctx, chartArea } = chart;
+    const pressureValue = Pressure; // gebruikt je bestaande variabele
+    if (!pressureValue || isNaN(pressureValue)) return;
+
+    const text1 = 'SI-stelsel'; // 👈 bovenste regel
+    const text2 = `${pressureValue} Pa`; // 👈 onderste regel
+    const x = chartArea.right - 10;
+    const y = chartArea.bottom - 10;
+
+    ctx.save();
+    ctx.font = '14px sans-serif';
+    ctx.fillStyle = 'black';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'bottom';
+
+    // Tekst onder elkaar (regelafstand ±18px)
+    ctx.fillText(text1, x, y - 18);
+    ctx.fillText(text2, x, y);
+    ctx.restore();
+  }
+};
 // ====== Build chart ======
 (function initMollierChart(){
   if (!window.Chart) { console.error('Chart.js not loaded'); return; }
@@ -979,7 +1021,7 @@ const arrowPlugin = {
         ...extensionLines,
         ...RHPercentages.map(({ label, data, color }) => ({
           label, data,
-          borderColor: color, borderWidth: 0.5, tension: 0.1,
+          borderColor: 'rgba(0, 0, 0, 0.4)', borderWidth: 0.5, tension: 0.1,
           pointRadius: 0, pointBackgroundColor: color
         })),
         ...HData
@@ -995,9 +1037,17 @@ const arrowPlugin = {
           title: { display: true, text: 'Vochtgehalte x [g/kg]', font: { size: 14, weight: 'bold' } }
         },
         y: {
-          min: -15, max: 40,
-          title: { display: true, text: 'Temperatuur T [°C]', font: { size: 14, weight: 'bold' } }
-        }
+            min: -15,
+            max: 40,
+            title: {
+              display: true,
+              text: 'Temperatuur T [°C]',
+              font: { size: 14, weight: 'bold' }
+            },
+            ticks: {
+              stepSize: 5  // 👈 interval of 5°C
+            }
+          }
       },
       plugins: {
         legend: { display: false },
@@ -1036,8 +1086,10 @@ const arrowPlugin = {
         }
       }
     },
-    plugins: [whiteBackgroundPlugin, FillUnder100RHPlugin, arrowPlugin, RHLabelsPlugin, HLabelsPlugin, ProcessPointLabelPlugin]
+    plugins: [whiteBackgroundPlugin, FillUnder100RHPlugin, arrowPlugin, RHLabelsPlugin, HLabelsPlugin, ProcessPointLabelPlugin,pressurePlugin]
   });
+  
+  updateTextBasedOnLine(window.myLineChart);
 
   // Resize guard if container changes from CSS/layout
   if ('ResizeObserver' in window) {

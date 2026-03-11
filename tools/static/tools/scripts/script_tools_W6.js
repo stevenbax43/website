@@ -17,9 +17,12 @@
   };
 
   const debietConfigs = {
-    literpersecond:     { min: 0,   max: 20,     step: 0.1  },
-    kuubperhour:        { min: 0,   max: 100000, step: 1    },
-    kilogrampersecond:  { min: 0,   max: 2,      step: 0.01 },
+    literpersecond:     { min: 0,   max: 20,      step: 0.1  },
+    kuubperhour:        { min: 0,   max: 100000,  step: 1    },
+    kuubpersecond:      { min: 0,   max: 30,      step: 1    },
+    kilogrampersecond:  { min: 0,   max: 10,       step: 0.01 },
+    literperminute:     { min: 0,   max: 1200,    step: 0.1  },
+    literperhour:       { min: 0,   max: 70000,      step: 0.1  },
   };
 
   const timeConfigs = {
@@ -47,9 +50,11 @@
     switch (unit) {
       case 'literpersecond':      volM3s = raw * 1e-3;       break;
       case 'kuubperhour':         volM3s = raw / 3600;       break;
-      case 'kilogrampersecond':   return raw;
-      // (optional) literperminute support:
+      case 'kuubpersecond':       volM3s = raw ;          break; //calculate with m3/s directly and later times rho
+      case 'kilogrampersecond':   return raw;               // already in kg/s so return directly
       case 'literperminute':      volM3s = (raw / 1000) / 60; break;
+      case 'literperhour':        volM3s = (raw / 1000) / 3600; break;
+      
       default:                    volM3s = raw * 1e-3;
     }
     return volM3s * rho;
