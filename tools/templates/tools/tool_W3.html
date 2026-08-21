@@ -5,193 +5,315 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="{% static 'tools/styles/tools.css'%}">
 <link rel="stylesheet" href="{% static 'tools/styles/tool_W_3.css'%}">
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
 {% endblock %}
+
 {% block content_wrapper_start %}{% endblock %}
 {% block content_wrapper_end %}{% endblock %}
 
 {% block content %}
 {% csrf_token %}
 
-<!-- Top Banner -->
+<!-- ========================= -->
+<!-- HERO -->
+<!-- ========================= -->
 <header class="tools-hero">
   <div class="container py-3">
     <div class="row align-items-center g-3 flex-nowrap">
+      
       <div class="col">
-        <h1 class="display-6 mb-0 text-white ">Tool W3: Leidingverliezen</h1>
+        <h1 class="display-6 mb-0 text-white">
+          Tool W3: Dimensionering leidingen & kanalen
+        </h1>
       </div>
+
       <div class="col-auto">
-        <a href="{% url 'tools:tools' %}" class="d-inline-block">
-          <img src="{% static 'tools/images/engineering.png' %}" class="hero-icon flex-shrink-0" alt="Engineering">
+        <a href="{% url 'tools:tools' %}">
+          <img src="{% static 'tools/images/engineering.png' %}" class="hero-icon" alt="Engineering">
         </a>
       </div>
+
     </div>
   </div>
 </header>
- 
 
-
-
-<!-- Second Banner -->
- <div class="bg-light py-3 no-print">
+<!-- ========================= -->
+<!-- INFO BAR -->
+<!-- ========================= -->
+<div class="bg-light py-3 no-print">
   <div class="container">
     <div class="row align-items-center g-3">
+
       <div class="col-12 col-lg-8">
         <p class="mb-0">
-          Leidingverlies berekening van water door een stalen pijp. Door de stroomsnelheid en leidingdiameter te wijzigen, kan het drukverschil verkregen worden.
+          Dimensioneer leidingen (water) of luchtkanalen op basis van debiet, snelheid en drukverlies.
         </p>
       </div>
+
       <div class="col-12 col-lg-4 d-flex justify-content-lg-end align-items-center gap-3 flex-wrap">
-        <a href="{% url 'tools:tool-readme' 'W3' %}" target="_blank" rel="noopener" class="intro-link d-inline-flex align-items-center gap-2">
-          ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" class="icon-30" alt="PDF">
+        
+        <a href="{% url 'tools:tool-readme' 'W3' %}" target="_blank" class="intro-link d-flex align-items-center gap-2">
+          ReadMe 
+          <img src="{% static 'tools/images/PDF-icon.png' %}" class="icon-30">
         </a>
-        <a href="#" id="printButton" class="intro-link d-inline-flex align-items-center">
-          <img src="{% static 'tools/images/print.png' %}" class="icon-30" alt="Print">
+
+        <a href="#" id="printButton" class="intro-link">
+          <img src="{% static 'tools/images/print.png' %}" class="icon-30">
         </a>
-        <a href="#" id="excelButton" class="intro-link d-inline-flex align-items-center">
-          <img src="{% static 'tools/images/Excel.png' %}" class="icon-30" alt="Excel">
+
+        <a href="#" id="excelButton" class="intro-link">
+          <img src="{% static 'tools/images/Excel.png' %}" class="icon-30">
         </a>
+
       </div>
+
     </div>
   </div>
 </div>
 
-
-<!-- Main Content -->
+<!-- ========================= -->
+<!-- MAIN -->
+<!-- ========================= -->
 <div class="container my-4">
 
-  <!-- First Row: Diameter + Snelheid / Debiet -->
-  <div class="row g-4">
-    <div class="col-lg-8">
-      <div class="p-3 border rounded shadow-sm bg-white">
-        <div class="mb-4">
-          <label class="form-label">Binnen Diameter [mm]</label>
-          <div class="row g-2 align-items-center">
-            <div class="col-4 col-sm-3">
-              <input type="number" id="slider-value1" class="form-control" value="1">
-            </div>
-            <div class="col">
-              <input type="range" id="di_value" name="di_value" min="0" max="500" value="21.7" step="0.1" class="form-range">
-            </div>
-          </div>
-        </div>
-        <div>
-          <label class="form-label">Medium Snelheid [m/s]</label>
-          <div class="row g-2 align-items-center">
-            <div class="col-4 col-sm-3">
-              <input type="number" id="slider-value2" class="form-control" value="1">
-            </div>
-            <div class="col">
-              <input type="range" id="velocity" name="velocity" min="0" max="5" value="1.5" step="0.01" class="form-range">
-            </div>
-          </div>
-        </div>
+  <!-- ========================= -->
+  <!-- INPUT -->
+  <!-- ========================= -->
+  <div class="p-3 border rounded shadow-sm bg-white mb-4">
+
+    <!-- SYSTEM SELECT -->
+    <div class="mb-3">
+      <label class="form-label">Systeem</label>
+      <select id="systemType" class="form-select w-auto">
+        <option value="water">💧 Water (leidingen)</option>
+        <option value="air">🌬️ Lucht (kanalen)</option>
+      </select>
+    </div>
+
+    <!-- FLOW -->
+    <div class="d-flex align-items-center gap-2 mb-2">
+      <label class="form-label mb-0">Debiet</label>
+
+      <select id="unitSelect" class="form-select w-auto">
+        <option value="ls">L/s</option>
+        <option value="m3h">m³/h</option>
+      </select>
+    </div>
+
+    <div class="row g-2 align-items-center">
+      <div class="col-4 col-sm-3">
+        <input type="number" id="flowInput" class="form-control" value="1">
+      </div>
+      <div class="col">
+        <input type="range" id="flowSlider" min="0" max="100" step="0.1" value="1" class="form-range">
       </div>
     </div>
 
-    <!-- Debiet -->
-    <div class="col-lg-4">
-      <div class="p-3 border rounded shadow-sm bg-white">
-        <h6 class="fw-bold">Debiet</h6>
-        <div class="d-flex justify-content-between">
-          <span>m<sup>3</sup>/h</span>
-          <span id="flowM3H"></span>
-        </div>
-        <div class="d-flex justify-content-between">
-          <span>l/min</span>
-          <span id="flowLMin"></span>
-        </div>
-        <div class="d-flex justify-content-between">
-          <span>l/s</span>
-          <span id="flowLS"></span>
-        </div>
-      </div>
-    </div>
-  </div>
+    <hr>
 
-  <!-- Second Row: Lengte / Drukverlies -->
-  <div class="row g-4 mt-1">
-    <div class="col-lg-8">
-      <div class="p-3 border rounded shadow-sm bg-white">
-        <label class="form-label">Leiding Lengte [m]</label>
+    <!-- DESIGN SETTINGS -->
+    <button class="btn btn-sm btn-outline-secondary mb-2" data-bs-toggle="collapse" data-bs-target="#limits">
+      Ontwerp criteria
+    </button>
+
+    <div id="limits" class="collapse">
+
+      <div class="mb-2">
+        <strong class="d-block mb-2">Design limits</strong>
+
         <div class="row g-2 align-items-center">
-          <div class="col-4 col-sm-3">
-            <input type="number" id="slider-value3" class="form-control" value="1">
+
+          <div class="col-6 col-md-4">
+            <label class="form-label mb-1">Max velocity [m/s]</label>
+            <input type="number" id="velLimit" value="1.5" step="0.1" class="form-control">
           </div>
-          <div class="col">
-            <input type="range" id="length" name="length" min="0" max="500" value="1" step="0.5" class="form-range">
+
+          <div class="col-6 col-md-4">
+            <label class="form-label mb-1">Max dp [Pa/m]</label>
+            <input type="number" id="dpLimit" value="150" step="10" class="form-control">
           </div>
+
         </div>
+
+        <small class="text-muted">
+          Aanpasbare ontwerpcriteria voor selectie.
+        </small>
+
       </div>
+
     </div>
 
-    <!-- Drukval -->
-    <div class="col-lg-4">
-      <div class="p-3 border rounded shadow-sm bg-white">
-        <h6 class="fw-bold">Drukval</h6>
-        <div class="d-flex justify-content-between">
-          <span>bar</span>
-          <span id="pressureLossBar"></span>
-        </div>
-        <div class="d-flex justify-content-between">
-          <span>Pa</span>
-          <span id="pressureLosskPa"></span>
-        </div>
-        <div class="d-flex justify-content-between">
-          <span>Pa/m</span>
-          <span id="pressureLossPam"></span>
-        </div>
-      </div>
-    </div>
   </div>
-</div>
-<!-- Pipe Dimensions Table -->
-<div class="container my-5">
+
+  <!-- ========================= -->
+  <!-- RESULTS -->
+  <!-- ========================= -->
   <div class="p-3 border rounded shadow-sm bg-white">
-    <h6 class="fw-bold mb-3">Stalen Dunwandige Pijpen - EN10305-3 & EN10220/10217-1 (>DN50) </h6>
+
+    <h6 class="fw-bold mb-3">
+      Geselecteerde diameter
+    </h6>
+
     <div class="table-responsive">
-      <table class="table table-bordered table-striped align-middle text-center">
+      <table class="table table-bordered text-center align-middle">
+
         <thead class="table-success">
           <tr>
-            <th>DN size</th>
-            <th>D<sub>inwendig</sub></th>
-            <th>δbuis</th>
-            <th>D<sub>uitwendig</sub></th>
-          </tr>
-          <tr>
-            <th>DN</th>
-            <th>[mm]</th>
-            <th>[mm]</th>
-            <th>[mm]</th>
+            <th>DN / Ø</th>
+            <th>Di [mm]</th>
+            <th>δ [mm]</th>
+            <th>Du [mm]</th>
+            <th>Snelheid [m/s]</th>
+            <th>Pa/m</th>
           </tr>
         </thead>
-        <tbody>
-          <tr><td>15</td><td>12,6</td><td>1,2</td><td>15,0</td></tr>
-          <tr><td>20</td><td>29,0</td><td>1,5</td><td>22,0</td></tr>
-          <tr><td>25</td><td>25,0</td><td>1,5</td><td>28,0</td></tr>
-          <tr><td>32</td><td>32,0</td><td>1,5</td><td>35,0</td></tr>
-          <tr><td>40</td><td>39,0</td><td>1,5</td><td>42,0</td></tr>
-          <tr><td>50</td><td>51,0</td><td>1,5</td><td>54,0</td></tr>
-          <tr style="border-top: 3px solid black;"><td>65</td><td>70,9</td><td>2,6</td><td>76,1</td></tr>
-          <tr><td>80</td><td>83,1</td><td>2,9</td><td>88,9</td></tr>
-          <tr><td>100</td><td>107,1</td><td>3,6</td><td>114,3</td></tr>
-          <tr><td>125</td><td>131,7</td><td>4,0</td><td>139,7</td></tr>
-          <tr><td>150</td><td>160,3</td><td>4,0</td><td>168,3</td></tr>
-          <tr><td>200</td><td>207,9</td><td>5,6</td><td>219,1</td></tr>
-        </tbody>
+
+        <tbody id="resultTable"></tbody>
+
       </table>
+    </div>
+
+  </div>
+
+  <!-- ========================= -->
+  <!-- CHART -->
+  <!-- ========================= -->
+  <div class="mt-4">
+    <canvas id="dnChart" height="100"></canvas>
+  </div>
+  <div class="mt-4 p-4 border rounded bg-light">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h6 class="fw-bold mb-0">📐 Formules & ontwerp richtlijnen</h6>
+    <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#formulaBlock">
+      Toon / verberg
+    </button>
+  </div>
+
+  <div id="formulaBlock" class="collapse show">
+
+    <!-- FORMULES -->
+    <div class="row mb-4">
+
+      <div class="col-md-6 mb-3">
+        <div class="formula-card">
+          <div class="formula-title">Darcy–Weisbach</div>
+
+          \[
+          \Delta p = \lambda \cdot \frac{L}{D} \cdot \frac{\rho v^2}{2}
+          \]
+
+          <div class="formula-desc">
+            Drukverlies door wrijving in leidingen of kanalen
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <div class="formula-card">
+          <div class="formula-title">Swamee–Jain</div>
+
+          \[
+          \lambda = \frac{1}{\left[-2 \log_{10} \left( \frac{\varepsilon}{3.72D} + \frac{5.74}{Re^{0.9}} \right)\right]^2}
+          \]
+
+          <div class="formula-desc">
+            Benadering van de Darcy wrijvingsfactor
+          </div>
+        </div>
+      </div>
 
     </div>
+
+    <!-- RICHTWAARDEN -->
+    <div class="row">
+
+      <!-- LUCHT -->
+      <div class="col-md-6 mb-3">
+        <div class="design-card air-card">
+
+          <div class="design-title">🌬️ Luchtkanalen</div>
+
+          <table class="table table-sm mb-2">
+            <tr>
+              <td>Hoofdkanaal</td>
+              <td><strong>5 – 8 m/s</strong></td>
+            </tr>
+            <tr>
+              <td>Aftakking</td>
+              <td><strong>3 – 5 m/s</strong></td>
+            </tr>
+            <tr>
+              <td>Drukverlies</td>
+              <td><strong>0.5 – 1.5 Pa/m</strong></td>
+            </tr>
+          </table>
+
+          <small class="text-muted">
+            Lager = stiller, hoger = compacter systeem
+          </small>
+
+        </div>
+      </div>
+
+      <!-- WATER -->
+      <div class="col-md-6 mb-3">
+        <div class="design-card water-card">
+
+          <div class="design-title">💧 Waterleidingen</div>
+
+          <table class="table table-sm mb-2">
+            <tr>
+              <td>Distributie</td>
+              <td><strong>0.5 – 1.5 m/s</strong></td>
+            </tr>
+            <tr>
+              <td>Aansluiting</td>
+              <td><strong>0.3 – 1.0 m/s</strong></td>
+            </tr>
+            <tr>
+              <td>Drukverlies</td>
+              <td><strong>50 – 300 Pa/m</strong></td>
+            </tr>
+          </table>
+
+          <small class="text-muted">
+            Hogere snelheid = meer geluid en slijtage
+          </small>
+
+        </div>
+      </div>
+
+    </div>
+
   </div>
 </div>
+</div>
 
-{% endblock content %}
+{% endblock %}
 
 {% block extra_js %}
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['\\(', '\\)']],
+      displayMath: [['\\[', '\\]']]
+    }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1"></script>
 <script src="{% static 'tools/scripts/script_tools_W3.js' %}"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>pdfUrlExcel = "{% static 'tools/files/TOOL_W3_Leidingverliezen.xlsx'%}"</script>
+
+<script>
+  pdfUrlExcel = "{% static 'tools/files/TOOL_W3_Leidingverliezen.xlsx'%}"
+
+  document.getElementById('printButton').addEventListener('click', () => window.print());
+  document.getElementById('excelButton').addEventListener('click', () => window.open(pdfUrlExcel, '_blank'));
+</script>
+
 {% endblock %}

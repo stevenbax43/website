@@ -13,7 +13,7 @@ from reportlab.lib.styles import getSampleStyleSheet,ParagraphStyle
 from reportlab.lib.units import mm
 from reportlab.lib.utils import ImageReader
 from reportlab.platypus import Table, TableStyle, Paragraph, Frame, Spacer
-
+from scipy.ndimage import gaussian_filter
 
 def MollierView(request): 
     # Defaults
@@ -26,6 +26,13 @@ def MollierView(request):
     process_data = []
     active_steps = [1, 2, 3, 4]  # Handle process steps count (from POST)
     warning_message =  None
+    heatmap, comfort_stats = None, None # Initialize heatmap variable
+    comfort_polygons = {
+        "A": [],
+        "B": [],
+        "C": []
+    }
+    eta_th, eta_x  = 80, 80  # Default values for thermal and latent efficiency
     #handle POST
     if request.method == 'POST':
          # Read active steps
@@ -71,8 +78,28 @@ def MollierView(request):
                     'values': process_values[index]
                 })
             warning_message = mollier_render_output.get("warning", None)
+            heatmap, df = heatmapNEN5060()
+            eta_th = safe_float(request.POST.get("wtw_thermal"))
+            eta_x = safe_float(request.POST.get("wtw_latent"))  
+            qv_start = safe_float(request.POST.get('qv_var'), 10000)                     
+            comfort_stats = {
+
+                "A": calculate_comfort_statistics(df, "A",eta_th,eta_x,qv_start),
+
+                "B": calculate_comfort_statistics(df, "B",eta_th,eta_x,qv_start),
+
+                "C": calculate_comfort_statistics(df, "C",eta_th,eta_x,qv_start),
+            }
+            
+            comfort_polygons = {
+                "A": comfort_stats["A"]["comfort_polygon"],
+                "B": comfort_stats["B"]["comfort_polygon"],
+                "C": comfort_stats["C"]["comfort_polygon"],
+            }
+            
+           
     #outside the POST request:            
-    mollierView_output = [lines_RH,lines_H,calc_start_point,calc_points,process_data,warning_message]
+    mollierView_output = [lines_RH,lines_H,calc_start_point,calc_points,process_data,warning_message,heatmap,comfort_stats,comfort_polygons]
     return mollierView_output
 
 def MollierValues(request):
@@ -939,3 +966,363 @@ def generate_pdf_mollier(request):
     resp = HttpResponse(buffer, content_type='application/pdf')
     resp['Content-Disposition'] = 'attachment; filename="mollierdiagram.pdf"'
     return resp
+
+
+
+def heatmapNEN5060():
+
+
+    df = pd.read_csv(
+        'tools/static/tools/files/KlimaatjaarNEN5060Energie2018.csv',
+        sep=';'
+    )
+    
+    # datum
+    df['YYYYMMDD'] = pd.to_datetime(
+        df['YYYYMMDD'],
+        format='%Y%m%d'
+    )
+
+    # correctie NEN5060 (waarden zijn x10 opgeslagen)
+    df['T'] = df['T'] / 10
+    df['x'] = df['x'] / 10
+
+    # bins van 1°C en 1 g/kg
+    
+    BIN_X = 0.2
+    BIN_T = 0.5
+
+    df['T_bin'] = (np.floor(df['T'] / BIN_T) * BIN_T).round(1)
+    df['x_bin'] = (np.floor(df['x'] / BIN_X) * BIN_X).round(1)
+
+    # tel aantal uren per vakje
+    grouped = (
+        df.groupby(['T_bin', 'x_bin'])
+        .size()
+        .reset_index(name='hours')
+    )
+    
+    
+    x_values = np.sort(grouped['x_bin'].unique())
+    t_values = np.sort(grouped['T_bin'].unique())
+
+    density = np.zeros((len(t_values), len(x_values)))
+
+    x_index = {v: i for i, v in enumerate(x_values)}
+    t_index = {v: i for i, v in enumerate(t_values)}
+
+    for _, row in grouped.iterrows():
+
+        row_idx = t_index[row['T_bin']]
+        col_idx = x_index[row['x_bin']]
+
+        density[row_idx, col_idx] = row['hours']
+
+    
+    density = gaussian_filter(
+        density,
+        sigma=1.2
+    )
+
+    # naar JSON-vriendelijk formaat
+    heatmap_json = []
+
+        
+    for row_idx, t in enumerate(t_values):
+        for col_idx, x in enumerate(x_values):
+
+            hours = float(density[row_idx, col_idx])
+
+            if hours < 0.5:
+                continue
+
+            heatmap_json.append({
+                "x": float(x),
+                "y": float(t),
+                "hours": hours
+            })
+
+    return heatmap_json, df
+
+
+def calculate_comfort_statistics(
+    df,
+    comfort_class,
+    eta_th=80,
+    eta_x=80,
+    qv=10000
+):
+
+    COMFORT_CLASSES = {
+
+        "C": {
+            "T_MIN": 19,
+            "T_MAX": 27,
+            "RH_MIN": 20,
+            "RH_MAX": 70,
+        },
+
+        "B": {
+            "T_MIN": 20,
+            "T_MAX": 26,
+            "RH_MIN": 30,
+            "RH_MAX": 70,
+        },
+
+        "A": {
+            "T_MIN": 21,
+            "T_MAX": 25,
+            "RH_MIN": 40,
+            "RH_MAX": 60,
+        },
+    }
+
+    limits = COMFORT_CLASSES[comfort_class]
+
+    T_MIN = limits["T_MIN"]
+    T_MAX = limits["T_MAX"]
+    RH_MIN = limits["RH_MIN"]
+    RH_MAX = limits["RH_MAX"]
+
+    total_hours = len(df)
+
+    comfort_hours = 0
+    heating_hours = 0
+    cooling_hours = 0
+    humidification_hours = 0
+    dehumidification_hours = 0
+    heating_and_hum_hours = 0
+
+    heat_energy_kwh = 0
+    cool_energy_kwh = 0
+    humidification_kg = 0
+    dehumidification_kg = 0
+
+    pressure = 101325
+
+    _, _, _, C_values = mollier_graph(pressure)
+
+    # referentie retourlucht voor WTW
+    T_return = 22
+    RH_return = 50
+
+    pws_return = calculate_saturated_vapor_pressure(
+        T_return,
+        C_values
+    )
+
+    pv_return = RH_return / 100 * pws_return
+
+    x_return = calculate_humidity_ratio(
+        pv_return,
+        pressure
+    )
+
+    for _, row in df.iterrows():
+
+        T_out = row["T"]
+        x_out = row["x"]
+
+        # WTW
+        T = T_out + eta_th / 100 * (T_return - T_out)
+        x = x_out + eta_x / 100 * (x_return - x_out)
+
+        rho = density_moist_air(
+            T,
+            x,
+            pressure
+        )
+
+        qm = qv * rho / 3600
+
+        pv = calculate_partial_vapor_pressure(
+            x,
+            pressure
+        )
+
+        pws = calculate_saturated_vapor_pressure(
+            T,
+            C_values
+        )
+
+        RH = calculate_relative_humidity(
+            pv,
+            pws
+        )
+
+        in_comfort = (
+            T_MIN <= T <= T_MAX
+            and
+            RH_MIN <= RH <= RH_MAX
+        )
+
+        if in_comfort:
+            comfort_hours += 1
+
+        # verwarmen
+        if T < T_MIN:
+
+            heating_hours += 1
+
+            Q_heat = (
+                qm
+                * 1.006
+                * (T_MIN - T)
+            )
+
+            heat_energy_kwh += Q_heat
+
+        # koelen
+        if T > T_MAX:
+
+            cooling_hours += 1
+
+            Q_cool = (
+                qm
+                * 1.006
+                * (T - T_MAX)
+            )
+
+            cool_energy_kwh += Q_cool
+
+        # bevochtigen
+        if RH < RH_MIN:
+
+            humidification_hours += 1
+
+            pws_target = calculate_saturated_vapor_pressure(
+                max(T, T_MIN),
+                C_values
+            )
+
+            pv_target = (
+                RH_MIN / 100
+            ) * pws_target
+
+            x_target = calculate_humidity_ratio(
+                pv_target,
+                pressure
+            )
+
+            delta_x = max(
+                0,
+                x_target - x
+            )
+
+            humidification_kg += (
+                qm
+                * delta_x / 1000
+                * 3600
+            )
+
+        # ontvochtigen
+        if RH > RH_MAX:
+
+            dehumidification_hours += 1
+
+            pv_target = (
+                RH_MAX / 100
+            ) * pws
+
+            x_target = calculate_humidity_ratio(
+                pv_target,
+                pressure
+            )
+
+            delta_x = max(
+                0,
+                x - x_target
+            )
+
+            dehumidification_kg += (
+                qm
+                * delta_x / 1000
+                * 3600
+            )
+
+        if T < T_MIN and RH < RH_MIN:
+            heating_and_hum_hours += 1
+
+    outside_hours = (
+        total_hours - comfort_hours
+    )
+
+    comfort_factor = (
+        100 * comfort_hours / total_hours
+        if total_hours > 0 else 0
+    )
+
+    # comfortpolygon
+    corners = []
+
+    for T, RH in [
+
+        (T_MIN, RH_MIN),
+        (T_MAX, RH_MIN),
+        (T_MAX, RH_MAX),
+        (T_MIN, RH_MAX),
+        (T_MIN, RH_MIN),
+
+    ]:
+
+        pws = calculate_saturated_vapor_pressure(
+            T,
+            C_values
+        )
+
+        pv = RH / 100 * pws
+
+        x = calculate_humidity_ratio(
+            pv,
+            pressure
+        )
+
+        corners.append({
+            "x": round(x, 2),
+            "y": T
+        })
+
+    return {
+
+        "comfort_class": comfort_class,
+
+        "total_hours": int(total_hours),
+        "comfort_hours": int(comfort_hours),
+        "outside_hours": int(outside_hours),
+
+        "heating_hours": int(heating_hours),
+        "cooling_hours": int(cooling_hours),
+        "humidification_hours": int(humidification_hours),
+        "dehumidification_hours": int(dehumidification_hours),
+
+        "heating_and_hum_hours": int(
+            heating_and_hum_hours
+        ),
+
+        "heat_energy_kwh": round(
+            heat_energy_kwh,
+            0
+        ),
+
+        "cool_energy_kwh": round(
+            cool_energy_kwh,
+            0
+        ),
+
+        "humidification_kg": round(
+            humidification_kg,
+            0
+        ),
+
+        "dehumidification_kg": round(
+            dehumidification_kg,
+            0
+        ),
+
+        "comfort_factor": round(
+            comfort_factor,
+            1
+        ),
+
+        "comfort_polygon": corners,
+    }

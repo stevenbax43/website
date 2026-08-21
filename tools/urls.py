@@ -1,7 +1,6 @@
 from . import views
 from django.urls import path
 
-
 app_name = 'tools'
 
 urlpatterns = [
@@ -9,6 +8,10 @@ urlpatterns = [
     path('gebouwgegevens', views.tool_A1, name='gebouwgegevens'),
     path('eenhedenconversie', views.tool_A2, name='eenhedenconversie'),
     path('klimaatjaar', views.tool_A3, name='klimaatjaar'),
+    path('conceptdenken/', views.tool_A4, name='conceptdenken'),
+    path('nl-sfb/', views.tool_A5, name='NL-sfB'),
+    path('nl-sfb/nlsfb/children/<str:code>/', views.nlsfb_children_view, name='nlsfb_children'),
+    path("api/sfb-search/", views.sfb_search, name="sfb_search"),
     path('generate-pdf-a3/', views.generate_pdf_A3, name='generate_pdf_A3'),
     path('mollierdiagram', views.tool_W1, name ='mollier'),
     path('save-project/', views.save_project, name='save_project'),

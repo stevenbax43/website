@@ -1,0 +1,388 @@
+{% extends 'home/base.html'%}
+{% load static %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'tools/styles/tools.css' %}">
+  <link rel="stylesheet" href="{% static 'tools/styles/tool_A_4.css' %}">
+  <style>
+    /* ensure canvases fill their Bootstrap ratio wrappers */
+    .ratio > canvas { width: 100% !important; height: 100% !important; }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+{% endblock %}
+
+{% block content_wrapper_start %}{% endblock %}
+{% block content_wrapper_end %}{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+
+<!-- ===== HERO (full-bleed gradient, standardized) ===== -->
+<header class="tools-hero">
+  <div class="container py-3">
+    <div class="row align-items-center g-3 flex-nowrap">
+      <div class="col">
+        <h1 class="display-6 mb-0 text-white">Tool A4: Conceptdenken</h1>
+      </div>
+      <div class="col-auto">
+        <a href="{% url 'tools:tools' %}" class="d-inline-block">
+          <img src="{% static 'tools/images/engineering.png' %}" class="hero-icon flex-shrink-0" alt="Engineering">
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- INTRO -->
+<section class="tools-intro no-print py-3">
+  <div class="container">
+    <div class="row g-3 align-items-center">
+      <div class="col-12 col-lg-8">
+        <p class="lead mb-0">
+        
+      </div>
+      <div class="col-12 col-lg-4">
+        <div class="d-flex justify-content-lg-end align-items-center gap-3 flex-wrap">
+          <a href="{% url 'tools:tool-readme' 'A3' %}" target="_blank" rel="noopener" class="intro-link d-inline-flex align-items-center gap-2">
+            ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" class="icon-30" alt="PDF">
+          </a>
+          <a href="#" id="printButton" class="intro-link d-inline-flex align-items-center">
+            <img src="{% static 'tools/images/print.png' %}" class="icon-30" alt="Print">
+          </a>
+          <a href="#" id="excelButton" class="intro-link d-inline-flex align-items-center">
+            <img src="{% static 'tools/images/Excel.png' %}" class="icon-30" alt="Excel">
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- MAIN -->
+<section class="py-5 bg-light">
+
+    <div class="container" id="print_content">
+
+        <div class="card shadow-sm border-0">
+
+            <div class="card-body p-4">
+
+                {% if is_result %}
+
+                <!-- RESULTAAT -->
+
+                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+
+                    <div>
+                        <h2 class="text-success fw-bold mb-1">
+                            HVAC Conceptresultaat
+                        </h2>
+
+                        <small class="text-muted">
+                            HVAC Concept Engine
+                        </small>
+                    </div>
+
+                    <div class="d-flex gap-2">
+
+                        <button onclick="window.print()"
+                                class="btn btn-outline-secondary">
+                            🖨️ Afdrukken
+                        </button>
+                        <a href="{% url 'tools:conceptdenken' %}?reset=true" class="btn btn-outline-secondary">
+                            🔄 Nieuwe analyse
+                        </a>
+
+                    </div>
+
+                </div>
+
+                <!-- Hoofdconcept -->
+
+                <div class="card card-output mb-4">
+
+                    <div class="card-body">
+
+                        <h5 class="text-success fw-bold mb-2">
+                            Voorkeursconcept
+                        </h5>
+
+                        <div class="fs-3 fw-bold">
+                            {{ result.primary_concept }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Samenvatting -->
+
+                {% if result.explanations %}
+                <div class="alert alert-success">
+                    {{ result.explanations.0 }}
+                </div>
+                {% endif %}
+
+                <!-- HVAC FLOW -->
+
+                <h4 class="fw-bold mb-3">
+                    Systeemarchitectuur
+                </h4>
+
+                <div class="hvac-flow mb-5">
+
+                    <div class="hvac-box">
+
+                        <span>🔥 Opwekking</span>
+
+                        {% for item in result.systems.opwekking %}
+                            <div class="hvac-item">{{ item }}</div>
+                        {% empty %}
+                            <div class="text-muted">Geen keuze</div>
+                        {% endfor %}
+
+                    </div>
+
+                    <div class="hvac-line">➜</div>
+
+                    <div class="hvac-box">
+
+                        <span>🚰 Distributie</span>
+
+                        {% for item in result.systems.distributie %}
+                            <div class="hvac-item">{{ item }}</div>
+                        {% empty %}
+                            <div class="text-muted">Geen keuze</div>
+                        {% endfor %}
+
+                    </div>
+
+                    <div class="hvac-line">➜</div>
+
+                    <div class="hvac-box">
+
+                        <span>🌡️ Afgifte</span>
+
+                        {% for item in result.systems.afgifte %}
+                            <div class="hvac-item">{{ item }}</div>
+                        {% empty %}
+                            <div class="text-muted">Geen keuze</div>
+                        {% endfor %}
+
+                    </div>
+
+                    <div class="hvac-line">➜</div>
+
+                    <div class="hvac-box">
+
+                        <span>🎛️ Regeling</span>
+
+                        {% for item in result.systems.regeling %}
+                            <div class="hvac-item">{{ item }}</div>
+                        {% empty %}
+                            <div class="text-muted">Geen keuze</div>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+                <div class="row g-4">
+
+                    <div class="col-lg-6">
+
+                        <div class="card h-100">
+
+                            <div class="card-header fw-bold">
+                                Waarom dit concept?
+                            </div>
+
+                            <div class="card-body">
+
+                                <ul class="mb-0">
+
+                                    {% for item in result.explanations|slice:"1:" %}
+                                    <li>{{ item }}</li>
+                                    {% endfor %}
+
+                                </ul>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-lg-6">
+
+                        <div class="card h-100">
+
+                            <div class="card-header fw-bold text-danger">
+                                Aandachtspunten
+                            </div>
+
+                            <div class="card-body">
+
+                                <ul class="mb-0">
+
+                                    {% for item in result.warnings %}
+                                    <li class="text-danger">
+                                        {{ item }}
+                                    </li>
+                                    {% empty %}
+                                    <li class="text-muted">
+                                        Geen aandachtspunten
+                                    </li>
+                                    {% endfor %}
+
+                                </ul>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                {% if result.alternatives %}
+
+                <div class="mt-5">
+
+                    <h5 class="fw-bold mb-3">
+                        Alternatieve concepten
+                    </h5>
+
+                    {% for alternative in result.alternatives %}
+                        <span class="badge bg-secondary me-2 mb-2">
+                            {{ alternative }}
+                        </span>
+                    {% endfor %}
+
+                </div>
+
+                {% endif %}
+
+                <div class="mt-5">
+
+                    <h5 class="fw-bold mb-3">
+                        Conceptscores
+                    </h5>
+
+                    {% for item in result.score_data %}
+
+                    <div class="mb-3">
+
+                        <div class="d-flex justify-content-between mb-1">
+
+                            <span>{{ item.concept }}</span>
+                            <strong>{{ item.score }}</strong>
+
+
+                        </div>
+
+                        
+                        
+                        
+                        <div class="progress mb-4" style="height:20px;">
+
+                            <div class="progress-bar bg-success"
+                                role="progressbar"
+                                style="--progress-width: {{ item.percentage }}%;"
+                                aria-valuenow="{{ item.percentage }}"
+                                aria-valuemin="0"
+                                aria-valuemax="100">
+
+                                {{ item.percentage }}%
+
+                            </div>
+
+                        </div>
+
+
+
+
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+
+                {% else %}
+
+                <!-- VRAGEN -->
+
+                <div class="card card-input fade-in">
+
+                    <div class="card-body">
+
+                        <h5 class="text-primary fw-bold mb-3">
+                            Stap {{ step|add:1 }} van {{ total_steps }}
+                        </h5>
+
+                        <div class="progress mb-4">
+
+                            <div class="progress-bar bg-success"
+                                 role="progressbar"
+                                 aria-valuenow="{{ progress }}"
+                                 aria-valuemin="0"
+                                 aria-valuemax="100"
+                                 style="--bs-progress-bar-width: {{ progress }}%;">
+                            </div>
+
+                        </div>
+
+                        <form method="post" id="question-form">
+
+                            {% csrf_token %}
+
+                            <input type="hidden"
+                                   name="question_id"
+                                   value="{{ question_id }}">
+
+                            <input type="hidden"
+                                   name="answer"
+                                   id="answer-input">
+
+                            <h4 class="fw-semibold mb-4">
+                                {{ question.text }}
+                            </h4>
+
+                            <div class="options">
+
+                                {% for option in question.options %}
+
+                                <label class="option-card"
+                                       data-value="{{ option.value }}">
+
+                                    {{ option.label }}
+
+                                </label>
+
+                                {% endfor %}
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+  <!-- Page-specific behaviour (autosave/submit/print/excel) -->
+  <script src="{% static 'tools/scripts/script_tools_A4.js' %}"></script>
+{% endblock %}

@@ -30,21 +30,33 @@ STATICFILES_DIRS = [
 # Media files
 MEDIA_URL = '/media/'
 
+
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'debug.log'),
+    "version": 1,
+    "disable_existing_loggers": False,
+
+    "handlers": {
+        "file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": os.path.join(BASE_DIR, "debug.log"),
+            "encoding": "utf-8",   # ✅ CRUCIAAL
         },
     },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
-            'propagate': True,
+
+    "loggers": {
+        "django": {
+            "handlers": ["file"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
+
+        # ✅ Optioneel maar sterk aanbevolen:
+        # voorkom extreem veel SQL-logging
+        "django.db.backends": {
+            "handlers": ["file"],
+            "level": "WARNING",
+            "propagate": False,
         },
     },
 }

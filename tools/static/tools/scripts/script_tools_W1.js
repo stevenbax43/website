@@ -8,22 +8,32 @@ const on = (el, evt, fn) => el && el.addEventListener(evt, fn);
 // Persist inputs
 // -------------------------
 function saveInputValues() {
-  const fields = document.querySelectorAll('input[type="number"],input[type="text"], select');
+  const fields = document.querySelectorAll('input[type="number"],input[type="text"],input[type="checkbox"], select');
   fields.forEach(field => {
     const { id, type, name, value } = field;
     if (id && type !== 'hidden' && name !== 'csrfmiddlewaretoken') {
-      sessionStorage.setItem(id, value);
+      if (type === 'checkbox') {
+            sessionStorage.setItem(id, field.checked);
+        } else {
+            sessionStorage.setItem(id, value);
+      }
     }
   });
 }
 
 function loadInputValues() {
-  const fields = document.querySelectorAll('input[type="number"],input[type="text"], select');
+  const fields = document.querySelectorAll('input[type="number"],input[type="text"],input[type="checkbox"], select');
   fields.forEach(field => {
     const { id, type, name } = field;
     if (id && type !== 'hidden' && name !== 'csrfmiddlewaretoken') {
       const savedValue = sessionStorage.getItem(id);
-      if (savedValue !== null) field.value = savedValue;
+      if (savedValue !== null) {
+        if (type === 'checkbox') {
+          field.checked = savedValue === 'true';
+        } else {
+          field.value = savedValue;
+        }
+      }
     }
   });
 }
@@ -143,7 +153,7 @@ function showDropdownProces(idx) {
     if (func_2 === 'AdiabaticRH' || func_2 === 'IsoRH') showUnit('AdRHUnit');
   }
 }
-
+ 
 // -------------------------
 // Visual container color
 // -------------------------
@@ -447,6 +457,20 @@ function restoreSessionData() {
   // recolor all visible process lines (shim keeps the old name usable)
   updateLineColorChart();
   setAllProcessNameColors();  
+  
+  const climateToggle =
+      byId('toggleClimateHeatmap');
+
+  const climateCard =
+      byId('climateAnalysisCard');
+
+  if (climateToggle && climateCard) {
+
+      climateCard.style.display =
+          climateToggle.checked
+              ? ''
+              : 'none';
+  } 
 
 }
 
@@ -509,7 +533,7 @@ function initEventListeners() {
       const inputIds = [prefix, `${prefix}_func`, `${prefix}_func2`];
       for (let j = 1; j <= 9; j++) inputIds.push(`Proces${stepToRemove}_value${j}`);
       inputIds.forEach(id => sessionStorage.removeItem(id));
-
+      
       // Remove dataset and its extension from the chart (if present)
       if (window.myLineChart?.data?.datasets) {
         const labelToRemove = `Proces ${stepToRemove}`;
@@ -524,7 +548,51 @@ function initEventListeners() {
       setAllProcessNameColors();
     }
   });
+  
+  on(
+      byId('comfortClass'),
+      'change',
+      function () {
 
+          comfortPolygon =
+              comfortPolygons[
+                  this.value
+              ];
+
+          window.myLineChart.update();
+      }
+  );
+
+  const climateToggle =
+    byId('toggleClimateHeatmap');
+
+  on(climateToggle, 'change', function () {
+
+      sessionStorage.setItem(
+          'toggleClimateHeatmap',
+          this.checked
+      );
+
+      const climateCard =
+          byId('climateAnalysisCard');
+
+      if (climateCard) {
+
+          climateCard.style.display =
+              this.checked ? '' : 'none';
+      }
+
+      if (window.myLineChart) {
+
+          window.myLineChart
+              .options
+              .plugins
+              .climateHeatmap
+              .enabled = this.checked;
+
+          window.myLineChart.update();
+      }
+  });
   // Top intro buttons (guards keep things safe if HTML changes)
   on(byId('printButton'), 'click', () => window.print());
   on(byId('excelButton'), 'click', () => { if (window.pdfUrlExcel) window.open(pdfUrlExcel, '_blank'); });

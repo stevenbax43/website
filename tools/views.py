@@ -5,21 +5,22 @@ from django.utils.decorators import method_decorator
 from django.http import HttpResponse, JsonResponse, Http404
 from django.contrib import messages
 from django.templatetags.static import static
+from tools.models import ProjectMollier, SfbClass
+from django.db.models import Q 
+from tools.services.sfb_scoring import analyse_search_term
 
 from .Tool_A1_Gebouwdata import gebouwgegevens
 from .Tool_A3_klimaatjaar import klimaatjaar, generate_pdf_climate
+from .Tool_A4_conceptlogic import handle_tool_request
+from .Tool_A5_NLsfB import get_children
 from .Tool_W1_MollierDiagram import MollierView, generate_pdf_mollier
 from .Tool_W2_expansievat import expansievat
 from .Tool_W4_CO2verloop import CO2verloop
 from .Tool_W5_buffervat import buffervat
-from .models import ProjectMollier
+
 
 import json, io
 import pandas as pd
-
-
-
-
 
 # inhoudsopgave pagina 
 @login_required(login_url='accounts:login')
@@ -78,7 +79,7 @@ def delete_project(request):
 
     # pull from request.POST instead of request.body/JSON
     project_id = request.POST.get('project_id')
-    print(project_id)
+    
     project = get_object_or_404(ProjectMollier, id=project_id, user=request.user)
 
     project.delete()
@@ -112,6 +113,28 @@ def tool_A3(request):
         'username': [request.user.first_name, request.user.last_name,request.user.username],
     })
 
+
+
+@login_required(login_url='accounts:login')
+def tool_A4(request):
+    if request.GET.get("reset") == "true":
+        request.session.pop("answers", None)
+        request.session.pop("current_question", None)
+        
+        return redirect("tools:conceptdenken")
+
+    context = handle_tool_request(request)
+
+    return render(request, "tools/tool_A4.html", context)
+
+#NL-sfB pagina
+
+@login_required(login_url='accounts:login')
+def tool_A5(request):
+    root_classes = SfbClass.objects.filter(parent__isnull=True)
+    return render(request, "tools/tool_A5.html", {"classes": root_classes})
+
+
 #Mollier diagram pagina 
 @login_required(login_url='accounts:login')
 def tool_W1(request):
@@ -121,7 +144,8 @@ def tool_W1(request):
    
     # Check if we are restoring a session project
     restored_sessionstorage = request.session.pop('restored_sessionstorage', None)
-
+    comfort_stats = mollierView_output[7] or {}
+    comfort_polygons = mollierView_output[8] or {}
     # Final render
     return render(request, 'tools/tool_W1.html', {
         'lines_RH': json.dumps(mollierView_output[0]),
@@ -132,6 +156,10 @@ def tool_W1(request):
         'calculated_values': mollierView_output[3],
         'process_data': mollierView_output[4],
         'warning': mollierView_output[5],  # Used for template iteration
+        'climate_heatmap': json.dumps(mollierView_output[6]),  # Used for heatmap climateyearNEN5060
+        'comfort_stats_json': json.dumps(comfort_stats),  # Used for comfort stats
+        'comfort_stats': comfort_stats, 
+        'comfort_polygons': json.dumps(comfort_polygons),
         'process_steps': list(range(1, 5)),  # Used for template iteration
         'username': [request.user.first_name, request.user.last_name,request.user.username],
         'saved_projects': saved_projects,  # Pass projects to template
@@ -171,7 +199,7 @@ def tool_W6(request):
 def tool_E1(request):
     return render(request, 'tools/tool_E1.html')
 
-
+#------------------------------------------------------------------------------------------------------------------------------
 @login_required(login_url='accounts:login')
 def download_excel(request):
     if request.method == 'GET':
@@ -233,3 +261,36 @@ def tool_readme(request, tool):
             </body>
             </html>"""
     return HttpResponse(html)   
+
+
+@login_required(login_url='accounts:login')
+def sfb_search(request):
+    query = request.GET.get("q", "").strip()
+
+    if len(query) < 2:
+        return JsonResponse({
+            "query": query,
+            "routes": {}
+        })
+
+    # ✅ Nieuwe logica: automatische inschatting
+    routes = analyse_search_term(query)
+
+    return JsonResponse({
+        "query": query,
+        "routes": routes,
+    })
+
+
+@login_required(login_url='accounts:login')
+
+
+
+def nlsfb_children_view(request, code):
+    children = get_children(code)
+
+    data = [
+        {"code": c.code, "omschrijving": c.omschrijving}
+        for c in children
+    ]
+    return JsonResponse(data, safe=False)

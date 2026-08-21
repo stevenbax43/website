@@ -40,3 +40,121 @@ class ProjectMollier(models.Model):
 
     def __str__(self):
         return f"{self.id}: {self.projectname} ({self.user.username})"
+    
+
+# voor Tool_A5_NLsfB.py: 
+# models.py
+
+class Question(models.Model):
+    text = models.TextField()
+    phase = models.IntegerField()
+
+class Choice(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE,related_name="choices")
+    text = models.CharField(max_length=255)
+    value = models.CharField(max_length=50)  # interne key
+
+class Answer(models.Model):
+    session_id = models.CharField(max_length=100)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE,related_name="answers")
+    choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
+    motivation = models.TextField(blank=True, null=True)
+
+class InstallatieConcept(models.Model):
+    naam = models.CharField(max_length=100, unique=True)
+    synoniemen = models.TextField(
+        blank=True,
+        help_text="Komma-gescheiden zoektermen, bv: brandklep, fire damper"
+    )
+    toelichting = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.naam
+
+
+class SfbClass(models.Model):
+
+    classificatie = models.CharField(max_length=20)
+    taal = models.CharField(max_length=10)
+    tabel = models.CharField(max_length=20)
+
+    code = models.CharField(
+        max_length=20,
+        unique=True,
+        db_index=True,
+    )
+
+    code_tekst = models.CharField(
+        max_length=30,
+        blank=True
+    )
+
+    omschrijving = models.TextField()
+
+    parent = models.ForeignKey(
+        "self",
+        null=True,
+        blank=True,
+        related_name="children",
+        on_delete=models.CASCADE,
+        db_index=True,
+    )
+
+    class Meta:
+        ordering = ["code"]
+
+    def __str__(self):
+        return f"{self.code} – {self.omschrijving}"
+
+
+class ConceptSfbLink(models.Model):
+
+    ROLE_CHOICES = [
+        ("werktuigbouwkundig", "Werktuigbouwkundig"),
+        ("bouwkundig", "Bouwkundig"),
+        ("besturing", "Besturing / signalering"),
+        ("beheer", "Beheer / onderhoud"),
+    ]
+
+    concept = models.ForeignKey(
+        InstallatieConcept,
+        on_delete=models.CASCADE,
+        related_name="sfb_links"
+    )
+    sfb = models.ForeignKey(
+        SfbClass,
+        on_delete=models.CASCADE
+    )
+    rol = models.CharField(max_length=30, choices=ROLE_CHOICES)
+    toelichting = models.TextField(blank=True)
+    
+    class Meta:
+        unique_together = (
+            "concept",
+            "sfb",
+            "rol"
+        )
+
+    def __str__(self):
+        return f"{self.concept} → {self.sfb.code} ({self.rol})"
+
+
+class Ontwerppost(models.Model):
+    sfb_class = models.ForeignKey(SfbClass, on_delete=models.CASCADE)
+
+    naam = models.CharField(max_length=255)
+    categorie = models.CharField(max_length=100)
+    eenheid = models.CharField(max_length=20)
+
+    kengetal = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        help_text="€ per eenheid"
+    )
+
+    toelichting = models.TextField(blank=True)
+    
+    class Meta:
+        ordering = ["naam"]
+
+

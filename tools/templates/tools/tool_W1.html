@@ -71,11 +71,26 @@
             <!-- Diagram card (OUTPUT) -->
             <div class="card card-output shadow-sm mt-2">
                 <div class="card-body">
+                  <div class="form-check mb-2">
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="toggleClimateHeatmap"
+                        checked
+                    >
+                    <label class="form-check-label" for="toggleClimateHeatmap">
+                        Klimaatjaaranalyse
+                    </label>
+                </div>
                 <div class="ratio ratio-4x3" style="min-height: 700px;">
                     <canvas id="myLinesRH"></canvas>
+                    
+
                 </div>
                 
                 </div>
+                
+                
             </div>
             <!-- Toolbar -->
             <div class="d-flex flex-wrap gap-2 mt-3 no-print">
@@ -114,17 +129,17 @@
             <div class="card-body mt-2">
               <div class="row g-3 border-bottom pb-3">
                 <div class="col-12 col-sm-6">
-                  <label for="Height_var" class="form-label">Hoogte (h)</label>
-                  <div class="input-group">
-                    <input type="number" class="form-control" id="Height_var" name="Height_var" value="0" min="0" max="4000" step="1">
-                    <span class="input-group-text">m</span>
-                  </div>
-                </div>
-                <div class="col-12 col-sm-6">
                   <label for="qv_var" class="form-label">Debiet (q<sub>v</sub>)</label>
                   <div class="input-group">
                     <input type="number" class="form-control" id="qv_var" name="qv_var" value="10000" min="100" max="100000" step="10">
                     <span class="input-group-text">m<sup>3</sup>/h</span>
+                  </div>
+                </div>
+                <div class="col-12 col-sm-6">
+                  <label for="Height_var" class="form-label">Hoogte (h)</label>
+                  <div class="input-group">
+                    <input type="number" class="form-control" id="Height_var" name="Height_var" value="0" min="0" max="4000" step="1">
+                    <span class="input-group-text">m</span>
                   </div>
                 </div>
               </div>
@@ -397,7 +412,7 @@
                 </div>
                 </div>
             </div>
-           
+
             <!-- Process table (OUTPUT) -->
             <div class="card card-output shadow-sm mt-3 mb-4">
                 <div class="card-body">
@@ -452,6 +467,8 @@
                 </div>
                 </div>
             </div>
+
+             
         </div>
 
         <div class="col-12 col-lg-4">        
@@ -580,6 +597,78 @@ const HData = HLabels.map((label, index) => ({
   pointRadius: 0,
   pointBackgroundColor: 'rgb(0,0,0)',
 }));
+
+
+const climateHeatmap = JSON.parse('{{ climate_heatmap|escapejs }}');
+
+
+const comfortPolygons = JSON.parse('{{ comfort_polygons|escapejs }}');
+let comfortPolygon =
+    comfortPolygons.A;
+
+
+
+const heatmapEnabled =
+    sessionStorage.getItem('toggleClimateHeatmap') !== 'false';
+
+const climateHeatmapPlugin = {
+
+    id: 'climateHeatmap',
+
+    beforeDatasetsDraw(chart, args, options) {
+
+        if (!options.enabled) return;
+
+        if (!climateHeatmap?.length) return;
+
+        const ctx = chart.ctx;
+        const xScale = chart.scales.x;
+        const yScale = chart.scales.y;
+        const BIN_X = 0.2;
+        const BIN_T = 0.5
+        const maxHours = Math.max(
+            ...climateHeatmap.map(c => c.hours)
+        );
+        
+        climateHeatmap.forEach(cell => {
+
+            const alpha =
+                Math.log(cell.hours + 1) /
+                Math.log(maxHours + 1);
+
+            const x1 = xScale.getPixelForValue(cell.x);
+            const x2 = xScale.getPixelForValue(cell.x + BIN_X);
+
+            const y1 = yScale.getPixelForValue(cell.y);
+            const y2 = yScale.getPixelForValue(cell.y + BIN_T);
+            const color = getHeatmapColor(alpha);
+            ctx.save();
+            ctx.globalAlpha = 0.7;
+            ctx.fillStyle = color
+
+            ctx.fillRect(
+                x1,
+                y2,
+                x2 - x1,
+                y1 - y2
+            );
+            
+            ctx.restore();
+        });
+    }
+};
+
+function getHeatmapColor(value) {
+
+    if (value < 0.05) return '#f7fbff';
+    if (value < 0.10) return '#c6dbef';
+    if (value < 0.20) return '#6baed6';
+    if (value < 0.40) return '#31a354';
+    if (value < 0.60) return '#fdcc08';
+    if (value < 0.80) return '#fd8d3c';
+
+    return '#e31a1c';
+}
 
 // ====== Plugins (guarded / corrected) ======
 const RHLabelsPlugin = {
@@ -977,7 +1066,51 @@ const arrowPlugin = {
     });
   }
 };
+const comfortZonePlugin = {
 
+    id: 'comfortZone',
+
+    beforeDatasetsDraw(chart) {
+        
+        if (
+            !chart.options.plugins.climateHeatmap.enabled
+        ) return;
+
+        const ctx = chart.ctx;
+        const xScale = chart.scales.x;
+        const yScale = chart.scales.y;
+
+        if (!comfortPolygon?.length) return;
+
+        ctx.save();
+
+        ctx.beginPath();
+
+        comfortPolygon.forEach((point, index) => {
+
+            const x = xScale.getPixelForValue(point.x);
+            const y = yScale.getPixelForValue(point.y);
+
+            if (index === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+
+        });
+
+        ctx.closePath();
+
+        ctx.fillStyle = 'rgba(40,167,69,0.3)';
+        ctx.fill();
+
+        ctx.strokeStyle = 'rgba(40,167,69,1)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.restore();
+    }
+};
 const pressurePlugin = {
   id: 'pressureDisplay',
   afterDraw(chart) {
@@ -1050,6 +1183,7 @@ const pressurePlugin = {
           }
       },
       plugins: {
+        climateHeatmap: {enabled: heatmapEnabled},
         legend: { display: false },
         tooltip: {
           enabled: true, displayColors: false,
@@ -1086,9 +1220,20 @@ const pressurePlugin = {
         }
       }
     },
-    plugins: [whiteBackgroundPlugin, FillUnder100RHPlugin, arrowPlugin, RHLabelsPlugin, HLabelsPlugin, ProcessPointLabelPlugin,pressurePlugin]
+    plugins: [
+      whiteBackgroundPlugin, 
+      climateHeatmapPlugin, 
+      comfortZonePlugin,
+      FillUnder100RHPlugin, 
+      arrowPlugin, 
+      RHLabelsPlugin, 
+      HLabelsPlugin, 
+      ProcessPointLabelPlugin,
+      pressurePlugin
+    ]
   });
   
+
   updateTextBasedOnLine(window.myLineChart);
 
   // Resize guard if container changes from CSS/layout
