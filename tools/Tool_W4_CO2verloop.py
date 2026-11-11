@@ -467,7 +467,8 @@ def generate_pdf_CO2(request):
     # =====================================================
     # RESULTATEN TITEL
     # =====================================================
-
+   
+    c.setFillColor(colors.black)
     c.setFont("Helvetica-Bold", 12)
 
     c.drawString(
@@ -590,6 +591,7 @@ def generate_pdf_CO2(request):
     # RESULTATEN TITEL
     # =====================================================
    
+    c.setFillColor(colors.black)
     c.setFont("Helvetica-Bold", 12)
 
     c.drawString(
