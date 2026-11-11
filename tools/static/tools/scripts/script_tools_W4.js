@@ -204,24 +204,6 @@
           updateVentilationUI();
 
           saveInputValues();
-
-          const form =
-              document.getElementById(
-                  "inputForm"
-              );
-
-          if (
-              form &&
-              typeof form.requestSubmit ===
-              "function"
-          ) {
-
-              form.requestSubmit();
-
-          } else if (form) {
-
-              form.submit();
-          }
       }
   );
 
@@ -375,6 +357,14 @@
       });
     });
 
+    document.getElementById('production_pp')?.addEventListener('change', function () {
+      console.log('[CO2] change -> save+submit: production_pp');
+      saveInputValues();
+      const form = document.getElementById('inputForm');
+      if (form && typeof form.requestSubmit === 'function') form.requestSubmit();
+      else if (form) form.submit();
+    });
+
     // Remember and restore scroll position (per path)
     const scrollPosition = sessionStorage.getItem(KEY_SCROLL);
     if (scrollPosition) window.scrollTo(0, parseInt(scrollPosition, 10));
@@ -391,4 +381,3 @@
     });
   });
 })();
-
