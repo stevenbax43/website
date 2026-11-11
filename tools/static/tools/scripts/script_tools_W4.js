@@ -266,7 +266,7 @@
           } else {
 
               ventilationResult.innerHTML =
-                  `${ventilatiePP.toFixed(1)} m³/h.p`;
+                  `${ventilatiePP.toFixed(1)} m³/h p.p.`;
 
               ventilationLabel.innerHTML =
                   "Ventilatie per persoon";

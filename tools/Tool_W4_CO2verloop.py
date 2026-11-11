@@ -74,7 +74,7 @@ def CO2verloop(request):
                 else 0
             )
             resultaat_ventilatie = (
-                f"{round(ventilatie_pp,1)} m³/h.p"
+                f"{round(ventilatie_pp,1)} m³/h p.p."
             )
 
             resultaat_ventilatie_naam = (
