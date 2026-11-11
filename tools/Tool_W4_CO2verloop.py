@@ -321,42 +321,55 @@ def generate_pdf_CO2(request):
 
     c.setFillColor(colors.black)
 
-    def draw_metadata(x, y, label, value, width):
-        c.setFont("Helvetica-Bold", 8)
-        c.drawString(x, y, f"{label}:")
-        value_x = x + stringWidth(f"{label}: ", "Helvetica-Bold", 8)
-        available_width = width - (value_x - x)
-        c.setFont("Helvetica", 8)
-        displayed_value = value
-        while displayed_value and stringWidth(displayed_value, "Helvetica", 8) > available_width:
+    def draw_metadata(y, label, value):
+        prefix = f"{label}:"
+        c.setFont("Helvetica-Bold", 9)
+        c.drawString(margin, y, prefix)
+        value_x = margin + stringWidth(f"{prefix} ", "Helvetica-Bold", 9)
+        available_width = page_width - margin - value_x
+        c.setFont("Helvetica", 12)
+        displayed_value = value or "-"
+        original_value = displayed_value
+        while displayed_value and stringWidth(displayed_value, "Helvetica", 12) > available_width:
             displayed_value = displayed_value[:-1]
-        if displayed_value != value:
-            while displayed_value and stringWidth(f"{displayed_value}...", "Helvetica", 8) > available_width:
+        if displayed_value != original_value:
+            while displayed_value and stringWidth(f"{displayed_value}...", "Helvetica", 12) > available_width:
                 displayed_value = displayed_value[:-1]
             displayed_value += "..."
-        c.drawString(value_x, y, displayed_value)
+        c.drawString(value_x, y - 1, displayed_value)
 
-    metadata_y = page_height - 62
-    metadata_width = (page_width - 2 * margin) / 4
     for index, (label, value) in enumerate((
         ("Projectnaam", project_name),
         ("Projectnummer", project_number),
         ("Ruimtenaam", room_name),
         ("Ruimtenummer", room_number),
     )):
-        draw_metadata(
-            margin + index * metadata_width,
-            metadata_y,
-            label,
-            value,
-            metadata_width - 8,
-        )
+        draw_metadata(page_height - 62 - index * 18, label, value)
+    # =====================================================
+    # Input TITEL
+    # =====================================================
 
+    c.setFont("Helvetica-Bold", 12)
+
+    c.drawString(
+        25,
+        page_height - 265,
+        "Input"
+    )
+
+    c.setStrokeColor(colors.HexColor("#E0E0E0"))
+
+    c.line(
+        110,
+        page_height - 262,
+        page_width - 25,
+        page_height - 262
+    )
     # =====================================================
     # INPUT CARDS
     # =====================================================
 
-    card_y = page_height - 190
+    card_y = page_height - 240
     card_h = 110
     card_w = 165
 
@@ -460,7 +473,7 @@ def generate_pdf_CO2(request):
 
     c.drawString(
         25,
-        page_height - 215,
+        page_height - 265,
         "Resultaten"
     )
 
@@ -468,17 +481,18 @@ def generate_pdf_CO2(request):
 
     c.line(
         110,
-        page_height - 212,
+        page_height - 262,
         page_width - 25,
-        page_height - 212
+        page_height - 262
     )
     # =====================================================
     # KPI CARDS
     # =====================================================
 
-    result_y = page_height - 320
+    result_y = page_height - 390
     result_h = 70
-    result_w = 165
+    result_gap = 10
+    result_w = (page_width - 2 * margin - 3 * result_gap) / 4
 
     def draw_result_card(
             x,
@@ -501,7 +515,11 @@ def generate_pdf_CO2(request):
 
         c.setFillColor(textcolor)
 
-        c.setFont("Helvetica-Bold", 16)
+        value_font_size = 14
+        value_width = stringWidth(value, "Helvetica-Bold", value_font_size)
+        if value_width > result_w - 12:
+            value_font_size *= (result_w - 12) / value_width
+        c.setFont("Helvetica-Bold", value_font_size)
 
         c.drawCentredString(
             x + result_w / 2,
@@ -518,7 +536,7 @@ def generate_pdf_CO2(request):
         )
 
     draw_result_card(
-        25,
+        margin,
         f"{max_concentration} ppm",
         "Maximale concentratie",
         colors.HexColor("#FFE8ED"),
@@ -526,7 +544,7 @@ def generate_pdf_CO2(request):
     )
 
     draw_result_card(
-        215,
+        margin + result_w + result_gap,
         f"+{max_increase} ppm",
         "Maximale verhoging",
         colors.HexColor("#E8F4FF"),
@@ -534,25 +552,62 @@ def generate_pdf_CO2(request):
     )
 
     draw_result_card(
-        405,
+        margin + 2 * (result_w + result_gap),
         time_to_max,
         "Tijd tot maximum",
         colors.HexColor("#E8F8EB"),
         colors.HexColor("#3DAB39")
     )
 
+    ventilation_value_number = float(ventilation_value or 0)
+    number_persons_value = float(number_persons or 0)
+    if ventilation_mode == "pp":
+        ventilation_result_label = "Ventilatiedebiet totaal"
+        ventilation_result_value = (
+            f"{ventilation_value_number * number_persons_value:.0f} m³/h"
+        )
+    else:
+        ventilation_result_label = "Ventilatie per persoon"
+        ventilation_per_person = (
+            ventilation_value_number / number_persons_value
+            if number_persons_value > 0
+            else 0
+        )
+        ventilation_result_value = f"{ventilation_per_person:.1f} m³/h.p"
+
+    draw_result_card(
+        margin + 3 * (result_w + result_gap),
+        ventilation_result_value,
+        ventilation_result_label,
+        colors.HexColor("#E0F7FA"),
+        colors.HexColor("#26A69A")
+    )
+
     # =====================================================
     # GRAFIEK
+    # =====================================================
+
+    # =====================================================
+    # RESULTATEN TITEL
     # =====================================================
 
     c.setFont("Helvetica-Bold", 12)
 
     c.drawString(
         25,
-        page_height - 300,
-        "CO2-concentratie over de tijd"
+        page_height - 265,
+        "Grafiek CO2-concentratie over de tijd"
     )
 
+    c.setStrokeColor(colors.HexColor("#E0E0E0"))
+
+    c.line(
+        110,
+        page_height - 262,
+        page_width - 25,
+        page_height - 262
+    )
+   
     if chart_b64:
 
         try:
