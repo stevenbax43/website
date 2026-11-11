@@ -21,6 +21,9 @@
   /* PDF icon red */
   .icon-30{ width:30px; height:30px; }
   .icon-pdf-red { filter: brightness(0) saturate(100%) invert(18%) sepia(100%) saturate(6500%) hue-rotate(0deg) brightness(90%) contrast(105%); }
+  .btn-save-pdf-w4 { color:#dc3545; border-color:#dc3545 !important; }
+  .btn-save-pdf-w4:hover,
+  .btn-save-pdf-w4:focus-visible { color:#b02a37; border-color:#b02a37 !important; }
 
   /* Print */
   @media print{

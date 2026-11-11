@@ -457,12 +457,14 @@
           data-bs-toggle="modal"
           data-bs-target="#pdfDetailsModal"
           data-pdf-url="{% url 'tools:generate_pdf_W4' %}"
-          class="btn border shadow btn-save">
+          class="btn border shadow btn-save btn-save-pdf-w4">
 
           Save PDF
 
           <img
               src="{% static 'tools/images/PDF-icon.png' %}"
+              class="icon-pdf-red"
+              alt="PDF"
               width="18">
       </button>
     </form>
