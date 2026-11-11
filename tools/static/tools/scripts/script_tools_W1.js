@@ -498,6 +498,17 @@ function cloneAndConvertTableHeaders(originalTable) {
 }
 
 function initEventListeners() {
+  const comfortZoneSettingsButton =
+    document.querySelector('.comfort-zone-toggle[aria-controls="comfortZoneSettings"]');
+  const comfortZoneSettings = byId('comfortZoneSettings');
+  if (comfortZoneSettingsButton && comfortZoneSettings) {
+    on(comfortZoneSettingsButton, 'click', () => {
+      const isExpanded = comfortZoneSettingsButton.getAttribute('aria-expanded') === 'true';
+      comfortZoneSettings.hidden = isExpanded;
+      comfortZoneSettingsButton.setAttribute('aria-expanded', String(!isExpanded));
+    });
+  }
+
   // Inputs → recalc + keep UI visibility logic
   document.querySelectorAll('input[type="number"]').forEach(field => {
     on(field, 'change', () => {
@@ -648,7 +659,7 @@ function initEventListeners() {
     const exportCtx = exportCanvas.getContext("2d");
     exportCtx.fillStyle = "#FFFFFF"; exportCtx.fillRect(0,0,exportCanvas.width,exportCanvas.height);
     exportCtx.scale(scale, scale); exportCtx.drawImage(canvas, 0, 0);
- 
+
     const base64 = exportCanvas.toDataURL("image/png").split(',')[1];
 
     byId("table_points_json").value  = JSON.stringify(tableDataPoints);
