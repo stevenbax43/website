@@ -388,7 +388,7 @@ def generate_pdf_CO2(request):
     c.setFont("Helvetica", 9)
 
     c.drawString(35, card_y + 60, "Ruimte-inhoud")
-    c.drawRightString(180, card_y + 60, f"{volume_room} m3")
+    c.drawRightString(180, card_y + 60, f"{volume_room} m³")
 
     c.drawString(35, card_y + 35, "Beginconcentratie")
     c.drawRightString(180, card_y + 35, f"{start_ppm} ppm")
@@ -405,7 +405,7 @@ def generate_pdf_CO2(request):
         "Bezetting",
         colors.HexColor("#DFF3E3")
     )
-
+    c.setFont("Helvetica", 9)
     c.drawString(225, card_y + 60, "Aantal personen")
     c.drawRightString(370, card_y + 60, str(number_persons))
 
@@ -419,7 +419,7 @@ def generate_pdf_CO2(request):
     c.drawRightString(
         370,
         card_y + 10,
-        activiteit
+        f"{activiteit}l/h"
     )
 
     # -----------------------------------------------------
@@ -434,11 +434,11 @@ def generate_pdf_CO2(request):
         "Ventilatie",
         colors.HexColor("#DDF6FF")
     )
-
+    c.setFont("Helvetica", 9)
     if ventilation_mode == "pp":
 
         label = "Debiet per persoon"
-        value = f"{ventilation_value} m³/h.p"
+        value = f"{ventilation_value} m³/h p.p."
 
     else:
 
@@ -572,7 +572,7 @@ def generate_pdf_CO2(request):
             if number_persons_value > 0
             else 0
         )
-        ventilation_result_value = f"{ventilation_per_person:.1f} m³/h.p"
+        ventilation_result_value = f"{ventilation_per_person:.1f} m³/h p.p."
 
     draw_result_card(
         margin + 3 * (result_w + result_gap),
