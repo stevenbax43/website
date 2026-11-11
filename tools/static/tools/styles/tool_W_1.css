@@ -53,6 +53,9 @@
 .comfort-zone-toggle[aria-expanded="true"] .comfort-zone-chevron{
   transform:rotate(180deg);
 }
+.climate-year-select{
+  max-width:18rem;
+}
 
 /* Output fields look like read-only inputs */
 output.form-control.output{
