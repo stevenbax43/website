@@ -1,0 +1,187 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'tools/styles/tools.css' %}">
+{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+
+<!-- ===== HERO (full-bleed gradient) ===== -->
+<header class="tools-hero">
+  <div class="container py-3">
+    <div class="row align-items-center g-3 flex-nowrap">
+        <div class="col">
+            <h1 class="display-6 mb-0 text-white">Tools</h1>
+        </div>
+        <div class="col-auto">
+            <a href="/tools/" class="d-inline-block">
+            <img src="/static/tools/images/engineering.png" class="hero-icon" alt="Engineering">
+            </a>
+        </div>
+    </div>
+  </div>
+</header>
+
+<!-- ===== INTRO / CONTROLS (full-bleed light) ===== -->
+<section class="tools-intro no-print">
+  <div class="container py-4">
+    <div class="row align-items-center g-3">
+      <div class="col-12 col-lg-8">
+        <p class="lead mb-0">
+          
+          Welkom <strong>{{ user.first_name }} {{ user.last_name }}</strong>! Hierbij een overzicht van de verschillende tools. Lees vóór het eerste gebruik van een tool eerst het
+          <strong>ReadMe</strong>-bestand. Het Excel-bestand onder het Excel-pictogram is het basisbestand voor de tool.
+        </p>
+      </div>
+      <div class="col-12 col-lg-4">
+        <div class="d-flex justify-content-lg-end align-items-center gap-3 flex-wrap">
+          <a href="{% url 'tools:tool-readme' 'INDEX' %}" target="_blank" rel="noopener" class="intro-link">
+            ReadMe
+            <img src="{% static 'tools/images/PDF-icon.png' %}" class="icon-30" alt="PDF">
+          </a>
+          <a href="#" id="printButton" class="intro-link">
+            <img src="{% static 'tools/images/print.png' %}" class="icon-30" alt="Print">
+          </a>
+          <a href="#" id="excelButton" class="intro-link">
+            <img src="{% static 'tools/images/Excel.png' %}" class="icon-30" alt="Excel">
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CONTENTS ===== -->
+<section class="py-4">
+  <div class="container">
+
+    <h1 class="h3 mb-3">Inhoudsopgave tools</h1>
+
+    <!-- Algemeen -->
+    <h2 class="h4 mt-4 mb-3">Algemeen</h2>
+    <div class="tool-section tool-section--algemeen rounded-4 p-3 p-md-4 mb-4">
+      <div class="row row-cols-2 row-cols-sm-3 row-cols-lg-4 g-3 g-lg-4">
+        <div class="col">
+          <a href="{% url 'tools:gebouwgegevens' %}" class="tool-card card h-100 text-center">
+            <div class="card-body">
+              <img src="{% static 'tools/images/location.png' %}" class="tool-icon" alt="Gebouwgegevens" loading="lazy">
+              <h3 class="h6 mt-3 mb-0">Gebouwgegevens</h3>
+            </div>
+          </a>
+        </div>
+        <div class="col">
+          <a href="{% url 'tools:eenhedenconversie' %}" class="tool-card card h-100 text-center">
+            <div class="card-body">
+              <img src="{% static 'tools/images/convert-icon.png' %}" class="tool-icon" alt="Eenheden conversie" loading="lazy">
+              <h3 class="h6 mt-3 mb-0">Eenheden conversie</h3>
+            </div>
+          </a>
+        </div>
+        <div class="col">
+          <a href="{% url 'tools:klimaatjaar' %}" class="tool-card card h-100 text-center">
+            <div class="card-body">
+              <img src="{% static 'tools/images/weather.png' %}" class="tool-icon" alt="Klimaatjaar" loading="lazy">
+              <h3 class="h6 mt-3 mb-0">Klimaatjaar</h3>
+            </div>
+          </a>
+        </div>
+        <div class="col">
+          <a href="{% url 'tools:conceptdenken' %}" class="tool-card card h-100 text-center">
+            <div class="card-body">
+              <img src="{% static 'tools/images/conceptdenken.svg' %}" class="tool-icon" alt="Klimaatjaar" loading="lazy">
+              <h3 class="h6 mt-3 mb-0">Conceptdenken</h3>
+            </div>
+          </a>
+        </div>
+        <div class="col">
+          <a href="{% url 'tools:NL-sfB' %}" class="tool-card card h-100 text-center">
+            <div class="card-body">
+              <img src="{% static 'tools/images/nl-sfb.png' %}" class="tool-icon" alt="NL-sfb" loading="lazy">
+              <h3 class="h6 mt-3 mb-0">NL-sfB</h3>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- HVAC-tools -->
+    <h2 class="h4 mt-4 mb-3">HVAC-tools</h2>
+    <div class="tool-section tool-section--hvac rounded-4 p-3 p-md-4 mb-4">
+      <div class="row row-cols-2 row-cols-sm-3 row-cols-lg-4 g-3 g-lg-4">
+        <div class="col">
+          <a href="{% url 'tools:mollier' %}" class="tool-card card h-100 text-center">
+            <div class="card-body">
+              <img src="{% static 'tools/images/humidity.png' %}" class="tool-icon" alt="Mollier Diagram" loading="lazy">
+              <h3 class="h6 mt-3 mb-0">Mollier Diagram</h3>
+            </div>
+          </a>
+        </div>
+        <div class="col">
+          <a href="{% url 'tools:expansievat' %}" class="tool-card card h-100 text-center">
+            <div class="card-body">
+              <img src="{% static 'tools/images/expansion.png' %}" class="tool-icon" alt="Inhoud expansievat" loading="lazy">
+              <h3 class="h6 mt-3 mb-0">Inhoud expansievat</h3>
+            </div>
+          </a>
+        </div>
+        <div class="col">
+          <a href="{% url 'tools:drukverlies' %}" class="tool-card card h-100 text-center">
+            <div class="card-body">
+              <img src="{% static 'tools/images/drukverlies.png' %}" class="tool-icon" alt="Leidingverliezen" loading="lazy">
+              <h3 class="h6 mt-3 mb-0">Dimensionering Leidingen en Kanalen</h3>
+            </div>
+          </a>
+        </div>
+        <div class="col">
+          <a href="{% url 'tools:CO2verloop' %}" class="tool-card card h-100 text-center">
+            <div class="card-body">
+              <img src="{% static 'tools/images/CO2.png' %}" class="tool-icon" alt="CO2-verloop ruimte" loading="lazy">
+              <h3 class="h6 mt-3 mb-0">CO<sub>2</sub>-verloop Ruimte</h3>
+            </div>
+          </a>
+        </div>
+        <div class="col">
+          <a href="{% url 'tools:buffervat' %}" class="tool-card card h-100 text-center">
+            <div class="card-body">
+              <img src="{% static 'tools/images/buffervat.png' %}" class="tool-icon" alt="Inhoud buffervat" loading="lazy">
+              <h3 class="h6 mt-3 mb-0">Inhoud buffervat</h3>
+            </div>
+          </a>
+        </div>
+        <div class="col">
+          <a href="{% url 'tools:thermisch_vermogen' %}" class="tool-card card h-100 text-center">
+            <div class="card-body">
+              <img src="{% static 'tools/images/thermal-power.png' %}" class="tool-icon" alt="Thermisch Vermogen & Energie" loading="lazy">
+              <h3 class="h6 mt-3 mb-0">Thermisch Vermogen &amp; Energie</h3>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- E-tools -->
+    <h2 class="h4 mt-4 mb-3">E-tools</h2>
+    <div class="tool-section tool-section--elektra rounded-4 p-3 p-md-4 mb-4">
+      <div class="row row-cols-2 row-cols-sm-3 row-cols-lg-4 g-3 g-lg-4">
+        <div class="col">
+          <a href="{% url 'tools:driefase_vermogen' %}" class="tool-card card h-100 text-center">
+            <div class="card-body">
+              <img src="{% static 'tools/images/cosine.png' %}" class="tool-icon" alt="Actief- & Schijnbaarvermogen" loading="lazy">
+              <h3 class="h6 mt-3 mb-0">Actief- &amp; schijnbaarvermogen</h3>
+            </div>
+          </a>
+        </div>
+        {# Add more tools as needed #}
+      </div>
+    </div>
+
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'tools/scripts/script_tools_index.js' %}"></script>
+  <script> pdfUrlExcel = "{% static 'tools/files/TOOLS_INDEX.xlsx' %}"; </script>
+{% endblock %}

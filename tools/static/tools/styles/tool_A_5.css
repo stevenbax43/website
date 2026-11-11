@@ -1,0 +1,24 @@
+
+.nlsfb-table tr.table-active {
+  background-color: rgba(25, 135, 84, 0.15);
+}
+
+.nlsfb-children {
+  background-color: #f8f9fa;
+}
+.nlsfb-children .nlsfb-table tr.table-active {
+  background-color: rgba(25, 135, 84, 0.15);
+}
+
+
+/* Highlight geselecteerde NL-SfB code */
+.nlsfb-highlight {
+  background-color: rgba(25, 135, 84, 0.25) !important;
+  outline: 2px solid #198754;
+  border-radius: 4px;
+}
+
+/* Zachte focus-scroll */
+.nlsfb-highlight {
+  scroll-margin-top: 100px;
+}

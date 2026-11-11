@@ -1,0 +1,172 @@
+/* =========================================
+   TOOL W1 — Mollier Diagram (page-specific)
+   Works with Bootstrap 5.3+
+   ========================================= */
+
+/* ====== HERO (shared style lives in tools.css) ====== */
+.tools-hero{ background: linear-gradient(to right, rgba(92,216,35,.75), rgba(10,92,3,.75)); }
+
+
+/* ====== INTRO / ACTION LINKS ====== */
+.icon-30{ width:30px; height:30px; }
+
+.tools-intro .intro-link{
+  text-decoration:none;
+  color:#333;
+  font-weight:600;
+  font-size:16px;
+  display:inline-flex;
+  align-items:center;
+  gap:.5rem;
+  transition:color .2s ease, opacity .2s ease;
+}
+.tools-intro .intro-link:hover{ color:#00b341; opacity:.85; }
+
+/* Legacy icons block aligned to Bootstrap */
+.tools-icons{
+  display:flex; justify-content:flex-end; align-items:center; gap:.5rem; margin: 10px 0;
+}
+.tools-icons img{ width:30px; height:30px; }
+.tools-icons a{ text-decoration:none; color:#333; font-weight:600; }
+.tools-icons a:hover{ color:#00b341; }
+.tools-icons a:hover img{ opacity:.85; }
+
+/* ====== CARDS ====== */
+.card{ border-radius:.75rem; }
+.card.shadow-sm{ box-shadow:0 .25rem .75rem rgba(0,0,0,.08); }
+
+
+/* Output fields look like read-only inputs */
+output.form-control.output{
+  background-color:#f8f9fa;
+  border:1px solid #13f539;
+  border-radius:.5rem;
+}
+
+/* ====== CHARTS (Canvas inside .ratio) ====== */
+canvas{ display:block; }
+.ratio{ min-height:260px; }
+.ratio > canvas{ width:100% !important; height:100% !important; }
+
+/* ====== TABLES (preserve your green header) ====== */
+.table-title{ font-size:1.25rem; font-weight:700; margin-bottom:.5rem; }
+table{ width:100%; border-collapse:collapse; }
+th, td{ border:1px solid #dee2e6; padding:.5rem .65rem; text-align:left; }
+th{ background:#3fa500; color:#fff; }
+.unit-row th{ background:#fff; color:#6c757d; font-weight:400; font-size:.85rem; }
+.quantity-row th:first-child{ border-radius:.5rem 0 0 .5rem; }
+.quantity-row th:last-child{ border-radius:0 .5rem .5rem 0; }
+
+/* Small helpers */
+.highlight{ color:#dc3545; font-weight:700; }
+.term{ font-weight:700; display:inline-block; width:200px; }
+.value{ display:inline-block; padding-left:30px; }
+.warning{ color:#d9534f; font-weight:700; }
+
+/* ====== CUSTOM TOOLTIPS (optional) ====== */
+.chart-tooltip{
+  position:absolute; background:#b48080; color:#fff; border-radius:6px;
+  padding:10px; white-space:pre-line; pointer-events:none; font-size:14px;
+}
+
+/* ====== ICON BUTTONS under chart ====== */
+
+/* Save = blue on hover */
+.btn.btn-save {
+  background-color: #fff;
+  border-color: #000000;
+  color: #474747;
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease, filter .2s ease;
+}
+.btn.btn-save:hover,
+.btn.btn-save:focus {
+  background-color: #adadad !important;
+  border-color: #c2c2c2 !important;
+  color: #fff !important;
+}
+
+/* ====== PRINT RULES ====== */
+/* ====== PRINT PAGE-BREAK CONTROL ====== */
+@media print {
+  /* Repeat table headers on each printed page */
+  thead { display: table-header-group; }
+  tfoot { display: table-footer-group; }
+
+  /* Never split these elements across pages — they'll jump to next page if needed */
+  .card,
+  .card > .card-body,
+  .table,
+  .table-responsive,
+  .ratio,
+  canvas,
+  .row,
+  .row > [class*="col-"] {
+    break-inside: avoid;
+    page-break-inside: avoid;     /* legacy */
+  }
+
+  /* Keep individual table rows together */
+  tr, th, td {
+    break-inside: avoid;
+    page-break-inside: avoid;     /* legacy */
+  }
+
+  /* Better paragraph flow */
+  p { orphans: 3; widows: 3; }
+
+  /* Utilities for manual control (use on any element if needed) */
+  .print-avoid-break { break-inside: avoid; page-break-inside: avoid; }
+  .print-break-before { break-before: page; page-break-before: always; } /* force new page before */
+  .print-break-after  { break-after: page;  page-break-after: always; }  /* force new page after */
+
+  /* Ensure nothing gets clipped by overflow */
+  html, body, #print_content { overflow: visible !important; }
+}
+
+/* ====== Neutralize old non-Bootstrap banners on this page ====== */
+.top-banner, .second-banner{ display:none; }
+/* Make ReadMe PDF icon red */
+.icon-pdf-red { filter: brightness(0) saturate(100%) invert(18%) sepia(100%) saturate(6500%) hue-rotate(0deg) brightness(90%) contrast(105%); }
+
+.intro-link:hover .icon-pdf-red { filter: brightness(0) saturate(100%) invert(18%) sepia(100%) saturate(7500%) hue-rotate(0deg) brightness(100%) contrast(105%); }
+
+.icon-save-blue{
+  filter: brightness(0) saturate(100%)
+          invert(33%) sepia(98%) saturate(2400%)
+          hue-rotate(198deg) brightness(100%) contrast(104%);
+}
+
+/* Optional: a touch brighter on hover */
+.icon-save-blue:hover{
+  filter: brightness(0) saturate(100%)
+          invert(33%) sepia(98%) saturate(2400%)
+          hue-rotate(198deg) brightness(110%) contrast(106%);
+}
+/* Make the first header row green */
+.card-output table thead .quantity-row th{
+  background-color: #3fa500 !important; /* green */
+  color: #fff !important;
+  border-color: #2f7f00 !important;
+}
+.text-purple { color:#6f42c1 !important; }
+/* Keep your rounded corners on the first header row */
+.card-output table thead .quantity-row th:first-child{
+  border-top-left-radius: .5rem;
+}
+.card-output table thead .quantity-row th:last-child{
+  border-top-right-radius: .5rem;
+}
+
+/* Make the units row italic + light */
+.card-output table thead .unit-row th{
+  font-style: italic;
+  font-weight: 400;
+  color: #6c757d !important;   /* muted grey */
+  background-color: #fff !important; /* white, not table-light */
+  border-top: none;             /* tighter join with row above */
+}
+
+/* (Optional) give OUTPUT cards a faint green background as well */
+.card-output{
+  background: rgba(19,245,57,.03);
+}

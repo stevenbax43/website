@@ -1,0 +1,96 @@
+/* Intro links */
+.icon-30{ width:30px; height:30px; }
+
+/* Cards */
+.card{ border-radius:.75rem; }
+.card.shadow-sm{ box-shadow:0 .25rem .75rem rgba(0,0,0,.08); }
+
+/* Chart containers via Bootstrap .ratio — no fixed inline sizes needed */
+canvas{ display:block; }
+.ratio { min-height: 220px; } /* guarantees visible height */
+
+
+/* Print helpers */
+@media print{
+  .no-print, .d-print-none{ display:none !important; }
+  .shadow-sm{ box-shadow:none !important; }
+  .card{ border:1px solid #000 !important; }
+  .ratio{ height:auto !important; }
+  canvas{ width:100% !important; height:auto !important; max-height:400px; }
+}
+
+/* ensure canvases fill their Bootstrap ratio wrappers */
+.ratio > canvas { width: 100% !important; height: 100% !important; }
+
+/* INPUT vs OUTPUT visual cues on cards */
+.card-input  { border-left: 6px solid #0d6efd; background: rgba(13,110,253,.03); position: relative; }
+.card-output { border-left: 6px solid #13f539; position: relative; }
+
+/* Little “chips” without extra markup */
+.card-input::after {
+content: "Input";
+position: absolute; top: .5rem; right: .5rem;
+font-size: .75rem; padding: .25rem .5rem; border-radius: 999px;
+border: 1px solid rgba(13,110,253,.25);
+background: rgba(13,110,253,.10);
+color: #0a58ca;
+}
+.card-output::after {
+content: "Output";
+position: absolute; top: .5rem; right: .5rem;
+font-size: .75rem; padding: .25rem .5rem; border-radius: 999px;
+border: 1px solid rgba(19,245,57,.25);
+background: rgba(19,245,57,.12);
+color: #146c43;
+}
+
+/* Output fields look like read-only inputs */
+output.form-control.output {
+background-color: #f8f9fa;
+border: 1px solid #13f539;
+border-radius: .5rem;
+}
+
+/* ====== CUSTOM TOOLTIPS (optional) ====== */
+.chart-tooltip{
+  position:absolute; background:#b48080; color:#fff; border-radius:6px;
+  padding:10px; white-space:pre-line; pointer-events:none; font-size:14px;
+}
+
+/* ====== ICON BUTTONS under chart ====== */
+/* Save = blue on hover */
+.btn.btn-save {
+  background-color: #fff;
+  border-color: #000000;
+  color: #474747;
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease, filter .2s ease;
+}
+.btn.btn-save:hover,
+.btn.btn-save:focus {
+  background-color: #adadad !important;
+  border-color: #c2c2c2 !important;
+  color: #fff !important;
+}
+
+/* Make ReadMe PDF icon red */
+.icon-pdf-red { filter: brightness(0) saturate(100%) invert(18%) sepia(100%) saturate(6500%) hue-rotate(0deg) brightness(90%) contrast(105%); }
+
+.intro-link:hover .icon-pdf-red { filter: brightness(0) saturate(100%) invert(18%) sepia(100%) saturate(7500%) hue-rotate(0deg) brightness(100%) contrast(105%); }
+
+.icon-save-blue{
+  filter: brightness(0) saturate(100%)
+          invert(33%) sepia(98%) saturate(2400%)
+          hue-rotate(198deg) brightness(100%) contrast(104%);
+}
+
+/* Optional: a touch brighter on hover */
+.icon-save-blue:hover{
+  filter: brightness(0) saturate(100%)
+          invert(33%) sepia(98%) saturate(2400%)
+          hue-rotate(198deg) brightness(110%) contrast(106%);
+}
+
+@media print{
+.card-input::after, .card-output::after { display:none; }
+.card-input, .card-output { border-left: 4px solid #000; background:#fff; }
+}

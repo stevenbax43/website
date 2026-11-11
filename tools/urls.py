@@ -1,0 +1,30 @@
+from . import views
+from django.urls import path
+
+app_name = 'tools'
+
+urlpatterns = [
+    path('', views.tools, name='tools'),
+    path('gebouwgegevens', views.tool_A1, name='gebouwgegevens'),
+    path('eenhedenconversie', views.tool_A2, name='eenhedenconversie'),
+    path('klimaatjaar', views.tool_A3, name='klimaatjaar'),
+    path('conceptdenken/', views.tool_A4, name='conceptdenken'),
+    path('nl-sfb/', views.tool_A5, name='NL-sfB'),
+    path('nl-sfb/nlsfb/children/<str:code>/', views.nlsfb_children_view, name='nlsfb_children'),
+    path("api/sfb-search/", views.sfb_search, name="sfb_search"),
+    path('generate-pdf-a3/', views.generate_pdf_A3, name='generate_pdf_A3'),
+    path('mollierdiagram', views.tool_W1, name ='mollier'),
+    path('save-project/', views.save_project, name='save_project'),
+    path('load-project/', views.load_project, name='load_project'),
+    path('generate-pdf-w1/', views.generate_pdf_W1, name='generate_pdf_W1'),
+    path('generate-pdf-w4/', views.generate_pdf_W4, name='generate_pdf_W4'),
+    path('delete-project/', views.delete_project, name='delete_project'),
+    path('expansievat', views.tool_W2, name='expansievat'),
+    path('leidingverliezen', views.tool_W3, name='drukverlies'),
+    path('CO2verloop', views.tool_W4, name='CO2verloop'),
+    path('buffervat', views.tool_W5, name='buffervat'),
+    path('thermisch-vermogen', views.tool_W6, name='thermisch_vermogen'),
+    path('driefase-vermogen', views.tool_E1, name='driefase_vermogen'),
+    path('download-excel/', views.download_excel, name='download_excel'),
+    path("readme/<slug:tool>/", views.tool_readme, name="tool-readme"),
+]
