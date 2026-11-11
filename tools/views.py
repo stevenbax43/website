@@ -146,6 +146,12 @@ def tool_W1(request):
     restored_sessionstorage = request.session.pop('restored_sessionstorage', None)
     comfort_stats = mollierView_output[7] or {}
     comfort_polygons = mollierView_output[8] or {}
+    comfort_zone_values = {
+        'temp_min': request.POST.get('comfort_temp_min') or '20',
+        'temp_max': request.POST.get('comfort_temp_max') or '24',
+        'rh_min': request.POST.get('comfort_rh_min') or '30',
+        'rh_max': request.POST.get('comfort_rh_max') or '70',
+    }
     # Final render
     return render(request, 'tools/tool_W1.html', {
         'lines_RH': json.dumps(mollierView_output[0]),
@@ -160,6 +166,8 @@ def tool_W1(request):
         'comfort_stats_json': json.dumps(comfort_stats),  # Used for comfort stats
         'comfort_stats': comfort_stats, 
         'comfort_polygons': json.dumps(comfort_polygons),
+        'comfort_zone_polygon': json.dumps(mollierView_output[9]),
+        'comfort_zone_values': comfort_zone_values,
         'process_steps': list(range(1, 5)),  # Used for template iteration
         'username': [request.user.first_name, request.user.last_name,request.user.username],
         'saved_projects': saved_projects,  # Pass projects to template

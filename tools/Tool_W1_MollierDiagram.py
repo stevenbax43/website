@@ -32,11 +32,12 @@ def MollierView(request):
         "B": [],
         "C": []
     }
+    comfort_zone_polygon = []
     eta_th, eta_x  = 80, 80  # Default values for thermal and latent efficiency
     #handle POST
     if request.method == 'POST':
          # Read active steps
-        current_proces_raw = request.POST.get('currentProces', '')
+        current_proces_raw = request.POST.get('currentProces', '') 
         active_steps = [
             int(p) for p in current_proces_raw.split(',') if p.strip().isdigit()
         ]
@@ -53,6 +54,7 @@ def MollierView(request):
             lines_RH = mollier_render_output.get("lines_RH", [])
             lines_H = mollier_render_output.get("lines_H", [])
             calc_start_point = mollier_render_output.get("calc_start_point", {})
+            comfort_zone_polygon = mollier_render_output.get("comfort_zone_polygon", [])
 
             # Points per process step
             all_points = [
@@ -99,7 +101,7 @@ def MollierView(request):
             
            
     #outside the POST request:            
-    mollierView_output = [lines_RH,lines_H,calc_start_point,calc_points,process_data,warning_message,heatmap,comfort_stats,comfort_polygons]
+    mollierView_output = [lines_RH,lines_H,calc_start_point,calc_points,process_data,warning_message,heatmap,comfort_stats,comfort_polygons,comfort_zone_polygon]
     return mollierView_output
 
 def MollierValues(request):
@@ -112,6 +114,25 @@ def MollierValues(request):
         qv_start = safe_float(request.POST.get('qv_var'), 10000)
         pressure = 101325 * (1 - 2.25577e-5 * height_start) ** 5.256
         lines_RH, lines_H, df_enthalpy, C_values = mollier_graph(pressure)
+
+        comfort_zone_polygon = []
+        comfort_temp_min = safe_float(request.POST.get('comfort_temp_min'), 20)
+        comfort_temp_max = safe_float(request.POST.get('comfort_temp_max'), 24)
+        comfort_rh_min = safe_float(request.POST.get('comfort_rh_min'), 30)
+        comfort_rh_max = safe_float(request.POST.get('comfort_rh_max'), 70)
+        try:
+            comfort_zone_polygon = build_comfort_zone_polygon(
+                comfort_temp_min,
+                comfort_temp_max,
+                comfort_rh_min,
+                comfort_rh_max,
+                pressure,
+                C_values,
+            )
+        except ValueError as error:
+            warning_message = (
+                f"{warning_message}<br>" if warning_message else ""
+            ) + f"<strong>Comfortzone:</strong> {error}"
               
 
         # Get start point variables and values
@@ -183,6 +204,7 @@ def MollierValues(request):
             "calc_point_four": calc_point_four,
             "process_values": [proces_values_one, proces_values_two, proces_values_three, proces_values_four],
             "warning": warning_message,
+            "comfort_zone_polygon": comfort_zone_polygon,
         }
 
     return mollier_render_output
@@ -295,6 +317,60 @@ def calculate_humidity_ratio(pv, pressure):
     # Inputs: pv in Pa  Output: x in g/kg
     x = (0.62198 * pv) / (pressure - pv)
     return x * 1000  # Convert to g/kg
+
+
+def build_comfort_zone_polygon(
+    temperature_min,
+    temperature_max,
+    humidity_min,
+    humidity_max,
+    pressure,
+    C_values,
+):
+    values = (
+        temperature_min,
+        temperature_max,
+        humidity_min,
+        humidity_max,
+        pressure,
+    )
+    if not all(math.isfinite(value) for value in values):
+        raise ValueError("Vul geldige numerieke grenzen in.")
+    if not -15 <= temperature_min < temperature_max <= 40:
+        raise ValueError("De temperatuurgrenzen moeten binnen -15 tot 40 °C vallen.")
+    if not 1 <= humidity_min < humidity_max <= 100:
+        raise ValueError("De RV-grenzen moeten oplopen en binnen 1 tot 100% vallen.")
+    if pressure <= 0:
+        raise ValueError("De luchtdruk moet groter zijn dan nul.")
+
+    temperature_steps = max(
+        1,
+        math.ceil((temperature_max - temperature_min) / 0.25),
+    )
+    temperatures = [
+        temperature_min
+        + (temperature_max - temperature_min) * index / temperature_steps
+        for index in range(temperature_steps + 1)
+    ]
+    boundary = (
+        [(temperature, humidity_min) for temperature in temperatures]
+        + [(temperature, humidity_max) for temperature in reversed(temperatures)]
+    )
+
+    polygon = []
+    for temperature, humidity in boundary:
+        vapor_pressure = (
+            humidity
+            / 100
+            * calculate_saturated_vapor_pressure(temperature, C_values)
+        )
+        if vapor_pressure >= pressure:
+            raise ValueError("Deze comfortzone valt buiten het geldige drukbereik.")
+        polygon.append({
+            "x": calculate_humidity_ratio(vapor_pressure, pressure),
+            "y": temperature,
+        })
+    return polygon
 def calculate_enthalpy(Tdb, x):
     x = x / 1000  # x in g/kg to kg/kg
     return (1.006 * Tdb) + (x * (2501 + 1.86 * Tdb))

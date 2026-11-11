@@ -549,19 +549,19 @@ function initEventListeners() {
     }
   });
   
-  on(
-      byId('comfortClass'),
-      'change',
-      function () {
+  const comfortZoneToggle = byId('toggleComfortZone');
+  if (comfortZoneToggle) {
+    comfortZoneToggle.checked =
+      sessionStorage.getItem('comfortZoneEnabled') !== 'false';
 
-          comfortPolygon =
-              comfortPolygons[
-                  this.value
-              ];
-
-          window.myLineChart.update();
+    on(comfortZoneToggle, 'change', function () {
+      sessionStorage.setItem('comfortZoneEnabled', String(this.checked));
+      if (window.myLineChart) {
+        window.myLineChart.options.plugins.comfortZone.enabled = this.checked;
+        window.myLineChart.update();
       }
-  );
+    });
+  }
 
   const climateToggle =
     byId('toggleClimateHeatmap');
@@ -636,7 +636,7 @@ function initEventListeners() {
     const exportCtx = exportCanvas.getContext("2d");
     exportCtx.fillStyle = "#FFFFFF"; exportCtx.fillRect(0,0,exportCanvas.width,exportCanvas.height);
     exportCtx.scale(scale, scale); exportCtx.drawImage(canvas, 0, 0);
-
+ 
     const base64 = exportCanvas.toDataURL("image/png").split(',')[1];
 
     byId("table_points_json").value  = JSON.stringify(tableDataPoints);
@@ -735,4 +735,3 @@ function deleteProject(projectId) {
   .then(data => { if (data.status === 'deleted') location.reload(); else alert('❌ ' + (data.message || 'Fout bij verwijderen')); })
   .catch(err => { console.error(err); alert('⚠️ Verbindings- of serverfout bij verwijderen'); });
 }
-
