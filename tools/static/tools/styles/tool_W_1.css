@@ -35,6 +35,24 @@
 .card{ border-radius:.75rem; }
 .card.shadow-sm{ box-shadow:0 .25rem .75rem rgba(0,0,0,.08); }
 
+.comfort-zone-toggle{
+  display:inline-flex;
+  align-items:center;
+  text-decoration:none;
+}
+.comfort-zone-chevron{
+  width:1rem;
+  height:1rem;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  transition:transform .2s ease;
+}
+.comfort-zone-toggle[aria-expanded="true"] .comfort-zone-chevron{
+  transform:rotate(180deg);
+}
 
 /* Output fields look like read-only inputs */
 output.form-control.output{
