@@ -447,9 +447,15 @@
       <input type="hidden" id="max_concentration" name="max_concentration">
       <input type="hidden" id="max_increase" name="max_increase">
       <input type="hidden" id="time_to_max" name="time_to_max">
+      <input type="hidden" id="project_name" name="project_name">
+      <input type="hidden" id="project_number" name="project_number">
+      <input type="hidden" id="room_name" name="room_name">
+      <input type="hidden" id="room_number" name="room_number">
       <button
           id="SavePDFButton"
           type="button"
+          data-bs-toggle="modal"
+          data-bs-target="#pdfDetailsModal"
           data-pdf-url="{% url 'tools:generate_pdf_W4' %}"
           class="btn border shadow btn-save">
 
@@ -460,6 +466,39 @@
               width="18">
       </button>
     </form>
+
+    <div class="modal fade" id="pdfDetailsModal" tabindex="-1" aria-labelledby="pdfDetailsModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <form class="modal-content" id="pdfDetailsForm">
+      <div class="modal-header">
+        <h5 class="modal-title" id="pdfDetailsModalLabel">Projectgegevens voor de PDF</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Sluiten"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="pdf_project_name" class="form-label">Projectnaam</label>
+          <input type="text" class="form-control" id="pdf_project_name" maxlength="80" required>
+        </div>
+        <div class="mb-3">
+          <label for="pdf_project_number" class="form-label">Projectnummer</label>
+          <input type="text" class="form-control" id="pdf_project_number" maxlength="40" required>
+        </div>
+        <div class="mb-3">
+          <label for="pdf_room_name" class="form-label">Ruimtenaam</label>
+          <input type="text" class="form-control" id="pdf_room_name" maxlength="80" required>
+        </div>
+        <div>
+          <label for="pdf_room_number" class="form-label">Ruimtenummer</label>
+          <input type="text" class="form-control" id="pdf_room_number" maxlength="40" required>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuleren</button>
+        <button type="submit" class="btn btn-primary">Download PDF</button>
+      </div>
+        </form>
+      </div>
+    </div>
   </div>
 </section>
 

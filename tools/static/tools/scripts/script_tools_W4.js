@@ -6,7 +6,7 @@
   // ====== Save/Load (as you had) ==================================================
   function saveInputValues() {
  
-    const fields = document.querySelectorAll('input[type="number"],input[type="text"], select');
+    const fields = document.querySelectorAll('#inputForm input[type="number"], #inputForm input[type="text"], #inputForm select');
     fields.forEach(field => {
       const { id, type, name, value } = field;
       if (id && type !== 'hidden' && name !== 'csrfmiddlewaretoken') {
@@ -17,7 +17,7 @@
 
   function loadInputValues() {
     console.log("LOAD");
-    const fields = document.querySelectorAll('input[type="number"],input[type="text"], select');
+    const fields = document.querySelectorAll('#inputForm input[type="number"], #inputForm input[type="text"], #inputForm select');
     fields.forEach(field => {
       const { id, type, name } = field;
       if (id && type !== 'hidden' && name !== 'csrfmiddlewaretoken') {
@@ -275,12 +275,25 @@
 
   });
   document
-  .getElementById("SavePDFButton")
-  .addEventListener("click", function () {
+  .getElementById("pdfDetailsForm")
+  .addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      document.getElementById("project_name").value =
+          document.getElementById("pdf_project_name").value.trim();
+      document.getElementById("project_number").value =
+          document.getElementById("pdf_project_number").value.trim();
+      document.getElementById("room_name").value =
+          document.getElementById("pdf_room_name").value.trim();
+      document.getElementById("room_number").value =
+          document.getElementById("pdf_room_number").value.trim();
 
       const canvas = document.getElementById("CO2_verloop");
 
-      if (!canvas) return;
+      if (!canvas) {
+        console.error("[CO2] Cannot generate PDF: chart canvas not found");
+        return;
+      }
 
       const scale = 4;
 
@@ -320,7 +333,7 @@
 
       const form = document.getElementById("inputForm");
 
-      form.action = this.dataset.pdfUrl;
+      form.action = document.getElementById("SavePDFButton").dataset.pdfUrl;
       form.method = "post";
 
       form.submit();
@@ -347,7 +360,7 @@
     loadInputValues();
     updateVentilationUI();
     // Save & submit on change
-    document.querySelectorAll('input').forEach(field => {
+    document.querySelectorAll('#inputForm input').forEach(field => {
       field.addEventListener('change', function () {
         console.log(`[CO2] change -> save+submit: ${field.id}`);
         saveInputValues();

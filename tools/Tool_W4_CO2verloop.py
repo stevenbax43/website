@@ -12,6 +12,7 @@ from django.http import HttpResponse
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.utils import ImageReader
+from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.pdfgen import canvas
 def CO2verloop(request):
 
@@ -213,6 +214,10 @@ def generate_pdf_CO2(request):
     max_concentration = request.POST.get("max_concentration", "")
     max_increase = request.POST.get("max_increase", "")
     time_to_max = request.POST.get("time_to_max", "")
+    project_name = request.POST.get("project_name", "").strip()[:80]
+    project_number = request.POST.get("project_number", "").strip()[:40]
+    room_name = request.POST.get("room_name", "").strip()[:80]
+    room_number = request.POST.get("room_number", "").strip()[:40]
 
     stamp = datetime.now().strftime("%d-%m-%Y %H:%M")
 
@@ -315,6 +320,37 @@ def generate_pdf_CO2(request):
     )
 
     c.setFillColor(colors.black)
+
+    def draw_metadata(x, y, label, value, width):
+        c.setFont("Helvetica-Bold", 8)
+        c.drawString(x, y, f"{label}:")
+        value_x = x + stringWidth(f"{label}: ", "Helvetica-Bold", 8)
+        available_width = width - (value_x - x)
+        c.setFont("Helvetica", 8)
+        displayed_value = value
+        while displayed_value and stringWidth(displayed_value, "Helvetica", 8) > available_width:
+            displayed_value = displayed_value[:-1]
+        if displayed_value != value:
+            while displayed_value and stringWidth(f"{displayed_value}...", "Helvetica", 8) > available_width:
+                displayed_value = displayed_value[:-1]
+            displayed_value += "..."
+        c.drawString(value_x, y, displayed_value)
+
+    metadata_y = page_height - 62
+    metadata_width = (page_width - 2 * margin) / 4
+    for index, (label, value) in enumerate((
+        ("Projectnaam", project_name),
+        ("Projectnummer", project_number),
+        ("Ruimtenaam", room_name),
+        ("Ruimtenummer", room_number),
+    )):
+        draw_metadata(
+            margin + index * metadata_width,
+            metadata_y,
+            label,
+            value,
+            metadata_width - 8,
+        )
 
     # =====================================================
     # INPUT CARDS
