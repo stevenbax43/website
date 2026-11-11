@@ -322,10 +322,9 @@ def generate_pdf_CO2(request):
     c.setFillColor(colors.black)
 
     def draw_metadata(y, label, value):
-        prefix = f"{label}:"
-        c.setFont("Helvetica-Bold", 9)
-        c.drawString(margin, y, prefix)
-        value_x = margin + stringWidth(f"{prefix} ", "Helvetica-Bold", 9)
+        value_x = margin + 145
+        c.setFont("Helvetica", 12)
+        c.drawString(margin, y, f"{label}:")
         available_width = page_width - margin - value_x
         c.setFont("Helvetica", 12)
         displayed_value = value or "-"
@@ -344,7 +343,7 @@ def generate_pdf_CO2(request):
         ("Ruimtenaam", room_name),
         ("Ruimtenummer", room_number),
     )):
-        draw_metadata(page_height - 62 - index * 18, label, value)
+        draw_metadata(page_height - 62 - index * 17, label, value)
     # =====================================================
     # Input TITEL
     # =====================================================
@@ -353,7 +352,7 @@ def generate_pdf_CO2(request):
 
     c.drawString(
         25,
-        page_height - 265,
+        page_height - 142,
         "Input"
     )
 
@@ -361,15 +360,15 @@ def generate_pdf_CO2(request):
 
     c.line(
         110,
-        page_height - 262,
+        page_height - 139,
         page_width - 25,
-        page_height - 262
+        page_height - 139
     )
     # =====================================================
     # INPUT CARDS
     # =====================================================
 
-    card_y = page_height - 240
+    card_y = page_height - 280
     card_h = 110
     card_w = 165
 
@@ -473,7 +472,7 @@ def generate_pdf_CO2(request):
 
     c.drawString(
         25,
-        page_height - 265,
+        page_height - 325,
         "Resultaten"
     )
 
@@ -481,15 +480,15 @@ def generate_pdf_CO2(request):
 
     c.line(
         110,
-        page_height - 262,
+        page_height - 322,
         page_width - 25,
-        page_height - 262
+        page_height - 322
     )
     # =====================================================
     # KPI CARDS
     # =====================================================
 
-    result_y = page_height - 390
+    result_y = page_height - 415
     result_h = 70
     result_gap = 10
     result_w = (page_width - 2 * margin - 3 * result_gap) / 4
@@ -595,17 +594,17 @@ def generate_pdf_CO2(request):
 
     c.drawString(
         25,
-        page_height - 265,
+        page_height - 455,
         "Grafiek CO2-concentratie over de tijd"
     )
 
     c.setStrokeColor(colors.HexColor("#E0E0E0"))
 
     c.line(
-        110,
-        page_height - 262,
+        260,
+        page_height - 452,
         page_width - 25,
-        page_height - 262
+        page_height - 452
     )
    
     if chart_b64:
@@ -620,9 +619,9 @@ def generate_pdf_CO2(request):
 
             c.roundRect(
                 20,
-                40,
+                42,
                 page_width - 40,
-                300,
+                330,
                 8,
                 fill=0,
                 stroke=1
@@ -631,9 +630,9 @@ def generate_pdf_CO2(request):
             c.drawImage(
                 img,
                 25,
-                45,
+                47,
                 width=page_width - 50,
-                height=290,
+                height=320,
                 preserveAspectRatio=True,
                 mask='auto'
             )
