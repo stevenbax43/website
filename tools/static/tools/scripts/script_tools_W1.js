@@ -553,13 +553,25 @@ function initEventListeners() {
   if (comfortZoneToggle) {
     comfortZoneToggle.checked =
       sessionStorage.getItem('comfortZoneEnabled') !== 'false';
+    sessionStorage.setItem(
+      comfortZoneToggle.id,
+      String(comfortZoneToggle.checked)
+    );
 
     on(comfortZoneToggle, 'change', function () {
-      sessionStorage.setItem('comfortZoneEnabled', String(this.checked));
-      if (window.myLineChart) {
-        window.myLineChart.options.plugins.comfortZone.enabled = this.checked;
-        window.myLineChart.update();
+      const isVisible = this.checked;
+      sessionStorage.setItem('comfortZoneEnabled', String(isVisible));
+      sessionStorage.setItem(this.id, String(isVisible));
+
+      const chart = window.myLineChart;
+      const comfortZoneOptions = chart?.options?.plugins?.comfortZone;
+      if (!comfortZoneOptions) {
+        console.error('[W1] Comfortzone-instelling ontbreekt in de grafiek.');
+        return;
       }
+
+      comfortZoneOptions.enabled = isVisible;
+      chart.update('none');
     });
   }
 
