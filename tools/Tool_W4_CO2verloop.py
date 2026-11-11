@@ -589,13 +589,14 @@ def generate_pdf_CO2(request):
     # =====================================================
     # RESULTATEN TITEL
     # =====================================================
-
+   
     c.setFont("Helvetica-Bold", 12)
 
     c.drawString(
         25,
         page_height - 455,
-        "Grafiek CO2-concentratie over de tijd"
+        "Grafiek CO2-concentratie over de tijd",
+        
     )
 
     c.setStrokeColor(colors.HexColor("#E0E0E0"))
