@@ -71,17 +71,6 @@
             <!-- Diagram card (OUTPUT) -->
             <div class="card card-output shadow-sm mt-2">
                 <div class="card-body">
-                  <div class="form-check mb-2">
-                    <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="toggleClimateHeatmap"
-                        checked
-                    >
-                    <label class="form-check-label" for="toggleClimateHeatmap">
-                        Klimaatjaaranalyse
-                    </label>
-                </div>
                 <div class="ratio ratio-4x3" style="min-height: 700px;">
                     <canvas id="myLinesRH"></canvas>
                     
@@ -138,6 +127,21 @@
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+            <div class="card card-input shadow-sm mt-3 no-print climate-year-controls">
+              <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                  <h5 class="card-title mb-0">Klimaatjaar</h5>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="toggleClimateHeatmap" checked>
+                    <label class="form-check-label" for="toggleClimateHeatmap">Toon klimaatjaaranalyse</label>
+                  </div>
+                </div>
+                <label for="climateYearSelect" class="form-label">Selecteer klimaatjaar</label>
+                <select class="form-select" id="climateYearSelect" name="climate_year">
+                  <option value="nen5060-energie-2018">NEN5060 (Excel)</option>
+                </select>
               </div>
             </div>
             <!-- Toolbar -->

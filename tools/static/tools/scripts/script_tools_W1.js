@@ -589,6 +589,20 @@ function initEventListeners() {
   const climateToggle =
     byId('toggleClimateHeatmap');
 
+  const climateYearSelect = byId('climateYearSelect');
+  if (climateYearSelect) {
+    const savedClimateYear = sessionStorage.getItem(climateYearSelect.id);
+    const hasSavedOption = Array.from(climateYearSelect.options)
+      .some(option => option.value === savedClimateYear);
+    if (hasSavedOption) {
+      climateYearSelect.value = savedClimateYear;
+    }
+
+    on(climateYearSelect, 'change', function () {
+      sessionStorage.setItem(climateYearSelect.id, this.value);
+    });
+  }
+
   on(climateToggle, 'change', function () {
 
       sessionStorage.setItem(
