@@ -509,6 +509,17 @@ function initEventListeners() {
     });
   }
 
+  const climateYearSettingsButton =
+    document.querySelector('.comfort-zone-toggle[aria-controls="climateYearSettings"]');
+  const climateYearSettings = byId('climateYearSettings');
+  if (climateYearSettingsButton && climateYearSettings) {
+    on(climateYearSettingsButton, 'click', () => {
+      const isExpanded = climateYearSettingsButton.getAttribute('aria-expanded') === 'true';
+      climateYearSettings.hidden = isExpanded;
+      climateYearSettingsButton.setAttribute('aria-expanded', String(!isExpanded));
+    });
+  }
+
   // Inputs → recalc + keep UI visibility logic
   document.querySelectorAll('input[type="number"]').forEach(field => {
     on(field, 'change', () => {
