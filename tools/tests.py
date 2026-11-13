@@ -238,10 +238,13 @@ class MollierProjectPersistenceTests(TestCase):
         )
 
         self.assertEqual(save_response.status_code, 200)
+        self.assertEqual(save_response.json()["status"], "success")
         project = ProjectMollier.objects.get(
             user=self.user,
             projectname="Zomersituatie",
         )
+        self.assertEqual(save_response.json()["project_id"], project.pk)
+        self.assertEqual(save_response.json()["projectname"], project.projectname)
         self.assertEqual(project.sessionstorage, state)
 
         load_response = self.client.post(

@@ -703,8 +703,9 @@ function initEventListeners() {
     sessionStorage.setItem('currentProces', String(currentProces));
     submitButton.disabled = true;
     try {
-      await sendSessionStorageToDjango(projectName);
-      status.textContent = 'De invoer is opgeslagen.';
+      const savedProject = await sendSessionStorageToDjango(projectName);
+      updateSavedProjectList(savedProject);
+      status.textContent = 'Project opgeslagen. Je kunt het ophalen via de knop Load Project.';
       status.classList.add('alert-success');
     } catch (error) {
       console.error('[W1] Opslaan van de invoer is mislukt:', error);
@@ -810,6 +811,56 @@ function sendSessionStorageToDjango(projectName) {
     if (data.status !== 'success') throw new Error(data.message || 'Opslaan mislukt');
     return data;
   });
+}
+
+function updateSavedProjectList(project) {
+  const list = byId('savedProjectsList');
+  const emptyMessage = byId('noSavedProjectsMessage');
+  if (!list || !emptyMessage || !project?.project_id) {
+    throw new Error('De lijst met opgeslagen projecten ontbreekt.');
+  }
+
+  const projectId = String(project.project_id);
+  let item = list.querySelector(`[data-project-id="${projectId}"]`);
+  if (!item) {
+    item = document.createElement('li');
+    item.className = 'list-group-item d-flex justify-content-between align-items-center';
+    item.dataset.projectId = projectId;
+
+    const name = document.createElement('span');
+    name.className = 'saved-project-name';
+    item.appendChild(name);
+
+    const buttons = document.createElement('div');
+    buttons.className = 'btn-group btn-group-sm';
+    buttons.setAttribute('role', 'group');
+
+    const loadButton = document.createElement('button');
+    loadButton.type = 'button';
+    loadButton.className = 'btn btn-outline-primary';
+    loadButton.textContent = 'Load';
+    loadButton.addEventListener('click', () => loadSavedProject(projectId));
+    buttons.appendChild(loadButton);
+
+    const deleteButton = document.createElement('button');
+    deleteButton.type = 'button';
+    deleteButton.className = 'btn btn-outline-danger';
+    deleteButton.textContent = 'Delete';
+    deleteButton.addEventListener('click', () => deleteProject(projectId));
+    buttons.appendChild(deleteButton);
+    item.appendChild(buttons);
+
+    list.prepend(item);
+  }
+
+  item.dataset.projectName = project.projectname;
+  item.querySelector('.saved-project-name').textContent = project.projectname;
+  list.classList.remove('d-none');
+  emptyMessage.classList.add('d-none');
+
+  while (list.children.length > 10) {
+    list.lastElementChild.remove();
+  }
 }
 
 function loadSavedProject(projectId) {

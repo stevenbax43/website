@@ -53,7 +53,11 @@ def save_project(request):
         projects = ProjectMollier.objects.filter(user=request.user).order_by('created_at')
         if projects.count() > 10:
             projects.exclude(pk=project.pk).first().delete()
-    return JsonResponse({'status': 'success'})
+    return JsonResponse({
+        'status': 'success',
+        'project_id': project.pk,
+        'projectname': project.projectname,
+    })
 
 @method_decorator(csrf_exempt, name='dispatch')
 @login_required(login_url='accounts:login')
