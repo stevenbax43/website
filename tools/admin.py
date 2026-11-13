@@ -18,10 +18,17 @@ class SfbClassAdmin(admin.ModelAdmin):
     search_fields = ("code", "omschrijving")
 
 
+class ConceptSfbLinkInline(admin.TabularInline):
+    model = ConceptSfbLink
+    extra = 0
+    autocomplete_fields = ("sfb",)
+
+
 @admin.register(InstallatieConcept)
 class InstallatieConceptAdmin(admin.ModelAdmin):
     list_display = ("naam", "synoniemen")
     search_fields = ("naam", "synoniemen")
+    inlines = (ConceptSfbLinkInline,)
 
 
 @admin.register(ConceptSfbLink)

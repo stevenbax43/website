@@ -241,7 +241,7 @@ def determine_route(sfb: SfbClass) -> str:
         return "elektrotechnisch"
     if code.startswith("5"):
         return "werktuigbouwkundig"
-    if code[0] in {"1", "2", "3", "4"}:
+    if code[0] in {"1", "2", "3", "4", "7"}:
         return "bouwkundig"
     return "overig"
 
@@ -305,7 +305,7 @@ def add_concept_matches(
     results: Dict[str, List[dict]],
 ) -> None:
     """Include classes linked to configured concepts and their search aliases."""
-    query_tokens = tokenize(term)
+    query_tokens = {normalize_plural(token) for token in tokenize(term)}
 
     concepts = InstallatieConcept.objects.prefetch_related("sfb_links__sfb")
     for concept in concepts:
@@ -313,7 +313,9 @@ def add_concept_matches(
         matched = False
 
         for alias in aliases:
-            alias_tokens = tokenize(alias)
+            alias_tokens = {
+                normalize_plural(token) for token in tokenize(alias)
+            }
             if alias_tokens and alias_tokens.issubset(query_tokens):
                 matched = True
                 break

@@ -1,5 +1,7 @@
 import pandas as pd
+from django.contrib.auth.models import User
 from django.test import TestCase
+from django.urls import reverse
 
 from .Tool_W1_MollierDiagram import (
     adjust_humidity_ratio_for_pressure,
@@ -10,6 +12,7 @@ from .Tool_W1_MollierDiagram import (
 )
 from .Tool_A4_NLsfB import get_parent_code
 from .models import ConceptSfbLink, InstallatieConcept, SfbClass
+from .services.nl_sfb_concepts import DEFAULT_CONCEPTS, seed_default_concepts
 from .services.sfb_scoring import analyse_search_term
 
 
@@ -121,3 +124,52 @@ class NlSfbSearchTests(TestCase):
         self.assertEqual(get_parent_code("57.3"), "57")
         self.assertEqual(get_parent_code("57.31"), "57.3")
         self.assertEqual(get_parent_code("57.311"), "57.31")
+
+    def test_default_search_concepts_are_seeded_idempotently(self):
+        codes = {
+            code
+            for concept in DEFAULT_CONCEPTS.values()
+            for code in concept["links"]
+        }
+        for code in codes:
+            self.create_class(code, f"NL-SfB testclassificatie {code}")
+
+        seed_default_concepts()
+        initial_link_count = ConceptSfbLink.objects.count()
+        seed_default_concepts()
+
+        self.assertEqual(ConceptSfbLink.objects.count(), initial_link_count)
+        ventilation_results = analyse_search_term("ventilatoren")
+        toilet_results = analyse_search_term("wc")
+        outlet_results = analyse_search_term("stopcontacten")
+
+        self.assertEqual(
+            {item["code"] for item in ventilation_results["werktuigbouwkundig"]},
+            {"57.21", "57.31"},
+        )
+        self.assertEqual(toilet_results["bouwkundig"][0]["code"], "74.11")
+        self.assertEqual(outlet_results["elektrotechnisch"][0]["code"], "62.12")
+
+    def test_search_api_returns_synonym_matches(self):
+        sfb_class = self.create_class("57.31", "luchtbehandeling")
+        concept = InstallatieConcept.objects.create(
+            naam="Ventilator",
+            synoniemen="ventilatoren",
+        )
+        ConceptSfbLink.objects.create(
+            concept=concept,
+            sfb=sfb_class,
+            rol="werktuigbouwkundig",
+        )
+        self.client.force_login(User.objects.create_user(username="search-user"))
+
+        response = self.client.get(
+            reverse("tools:sfb_search"),
+            {"q": "ventilatoren"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json()["routes"]["werktuigbouwkundig"][0]["code"],
+            "57.31",
+        )

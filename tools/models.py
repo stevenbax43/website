@@ -112,6 +112,9 @@ class ConceptSfbLink(models.Model):
     ROLE_CHOICES = [
         ("werktuigbouwkundig", "Werktuigbouwkundig"),
         ("bouwkundig", "Bouwkundig"),
+        ("elektrotechnisch", "Elektrotechnisch"),
+        ("verlichting", "Verlichting"),
+        ("beveiliging", "Beveiliging"),
         ("besturing", "Besturing / signalering"),
         ("beheer", "Beheer / onderhoud"),
     ]
@@ -156,5 +159,4 @@ class Ontwerppost(models.Model):
     
     class Meta:
         ordering = ["naam"]
-
 
