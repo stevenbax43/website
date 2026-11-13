@@ -243,6 +243,32 @@ class ExpansievatPrepressureTests(TestCase):
         self.assertEqual(result[13], 1250)
         self.assertEqual(result[5], "Vermogen en CV-afgifte")
 
+    def test_flamco_calculation_example_2(self):
+        request = RequestFactory().post(
+            "/expansievat",
+            {
+                "temp_aanvoer": "80",
+                "temp_retour": "60",
+                "einddruk": "3.0",
+                "st_height": "12",
+                "vermogen": "280",
+                "CVInstallatie": "3",
+                "sys_inhoud_onbekend": "on",
+                "locatieToggle": "on",
+            },
+        )
+
+        result = expansievat(request)
+
+        self.assertEqual(result[13], 2464)
+        self.assertEqual(result[14], 12)
+        self.assertEqual(result[4], 1.5)
+        self.assertEqual(result[7], 2.25)
+        self.assertEqual(result[8], 55.4)
+        self.assertEqual(result[1], 0.375)
+        self.assertEqual(result[2], 184.7)
+        self.assertEqual(result[3], 185)
+
     def test_unknown_system_volume_requires_boiler_power(self):
         user = User.objects.create_user(username="expansievat-missing-power-user")
         self.client.force_login(user)

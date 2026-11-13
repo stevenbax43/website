@@ -133,7 +133,10 @@ def expansievat(request):
         VolumeExpansionPercentage = [(25, 0.35),(30, 0.43),(35, 0.63),(40, 0.75),(45, 0.96),(50, 1.18),(55, 1.42),(60, 1.68),(70, 2.25),(80, 2.89),(90, 3.58),(100, 4.34),(110, 5.16)]
         closest_index_exp = min(range(len(VolumeExpansionPercentage)), key=lambda i: abs(VolumeExpansionPercentage[i][0] - Temp_average))
         expansion_percentage = VolumeExpansionPercentage[closest_index_exp][1]
-        expansion_volume = round(((expansion_percentage/100) * sys_inhoud),2)
+        expansion_volume = round(
+            (expansion_percentage / 100) * sys_inhoud,
+            1,
+        )
 
         based_on_voor = (
             '*Berekend op basis van statische hoogte '
@@ -145,13 +148,16 @@ def expansievat(request):
             raise InvalidPressureRange(
                 "De einddruk moet hoger zijn dan de berekende voordruk."
             )
-        nuttig_effect = round(raw_nuttig_effect, 2)
+        nuttig_effect = round(raw_nuttig_effect, 3)
         if nuttig_effect <= 0:
             raise InvalidPressureRange(
                 "Het drukverschil is te klein om een geldig expansievat te "
                 "berekenen. Verhoog de einddruk."
             )
-        bruto_vessel = round((expansion_volume * 1.25) / nuttig_effect, 1)
+        bruto_vessel = round(
+            (expansion_volume * 1.25) / raw_nuttig_effect,
+            1,
+        )
         volume_advies = math.ceil(bruto_vessel / 5) * 5
         
         
