@@ -982,48 +982,113 @@ def generate_pdf_mollier(request):
         fontSize=8,
         leading=10,
     )
-    metadata_rows = [
-        ("Projectnaam", project_name, "Projectnummer", project_number),
-        ("Winter/zomer", season, "LBK-/ruimtenaam", room_name),
-        ("Luchtdebiet", f"{format_airflow(qv_input)} m<super>3</super>/h" if qv_input else "", "Hoogte", f"{format_input(height_input)} m" if height_input else ""),
-        ("Startpunt 1", start_values[0], "", ""),
-        ("Startpunt 2", start_values[1], "", ""),
-    ]
-    metadata_table_data = [
-        [
-            Paragraph(f"{escape(label)}:", metadata_label_style),
-            Paragraph(
-                value if label == "Luchtdebiet" else format_input(value),
-                metadata_value_style,
-            ),
-            Paragraph(f"{escape(second_label)}:" if second_label else "", metadata_label_style),
-            Paragraph(format_input(second_value), metadata_value_style),
-        ]
-        for label, value, second_label, second_value in metadata_rows
-    ]
-    metadata_table = Table(
-        metadata_table_data,
-        colWidths=[88, 189.5, 88, 189.5],
+    section_heading_style = ParagraphStyle(
+        'metadata_section_heading',
+        parent=normal,
+        fontName='Helvetica-Bold',
+        fontSize=9,
+        leading=11,
+        textColor=colors.HexColor('#286522'),
     )
-    metadata_table.setStyle(TableStyle([
+    metadata_table_style = TableStyle([
         ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#f4faf2")),
         ("BOX", (0, 0), (-1, -1), 0.5, colors.HexColor("#b8d8ae")),
         ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.HexColor("#dcebd7")),
-        ("SPAN", (1, 3), (3, 3)),
-        ("SPAN", (1, 4), (3, 4)),
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
         ("LEFTPADDING", (0, 0), (-1, -1), 5),
         ("RIGHTPADDING", (0, 0), (-1, -1), 5),
         ("TOPPADDING", (0, 0), (-1, -1), 3),
         ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+    ])
+    label_cell = lambda label: Paragraph(
+        f"{escape(label)}:",
+        metadata_label_style,
+    )
+    value_cell = lambda value: Paragraph(
+        format_input(value),
+        metadata_value_style,
+    )
+
+    project_table = Table(
+        [
+            [
+                label_cell("Projectnaam"), value_cell(project_name),
+                label_cell("Projectnummer"), value_cell(project_number),
+            ],
+            [
+                label_cell("Winter/zomer"), value_cell(season),
+                label_cell("LBK-/ruimtenaam"), value_cell(room_name),
+            ],
+        ],
+        colWidths=[88, 169.5, 98, 159.5],
+    )
+    project_table.setStyle(metadata_table_style)
+
+    input_table = Table(
+        [
+            [
+                label_cell("Luchtdebiet"),
+                Paragraph(
+                    f"{format_airflow(qv_input)} m<super>3</super>/h"
+                    if qv_input else "-",
+                    metadata_value_style,
+                ),
+                label_cell("Hoogte"),
+                Paragraph(
+                    f"{format_input(height_input)} m" if height_input else "-",
+                    metadata_value_style,
+                ),
+            ],
+            [
+                label_cell("Startpunt 1"),
+                Paragraph(escape(start_values[0]), metadata_value_style),
+                "",
+                "",
+            ],
+            [
+                label_cell("Startpunt 2"),
+                Paragraph(escape(start_values[1]), metadata_value_style),
+                "",
+                "",
+            ],
+        ],
+        colWidths=[88, 169.5, 98, 159.5],
+    )
+    input_table.setStyle(metadata_table_style)
+    input_table.setStyle(TableStyle([
+        ("SPAN", (1, 1), (3, 1)),
+        ("SPAN", (1, 2), (3, 2)),
     ]))
-    metadata_width, metadata_height = metadata_table.wrap(w - 40, h)
-    metadata_table.drawOn(c, 20, h - 55 - metadata_height)
+
+    project_heading = Paragraph(
+        "Project- en pandgegevens",
+        section_heading_style,
+    )
+    input_heading = Paragraph("Invoerparameters", section_heading_style)
+    project_heading.wrapOn(c, w - 40, h)
+    input_heading.wrapOn(c, w - 40, h)
+    _, project_table_height = project_table.wrap(w - 40, h)
+    _, input_table_height = input_table.wrap(w - 40, h)
+    section_gap = 8
+    metadata_height = (
+        project_heading.height + 3 + project_table_height
+        + section_gap
+        + input_heading.height + 3 + input_table_height
+    )
+
+    y = h - 48
+    project_heading.drawOn(c, 20, y - project_heading.height)
+    y -= project_heading.height + 3
+    project_table.drawOn(c, 20, y - project_table_height)
+    y -= project_table_height + section_gap
+    input_heading.drawOn(c, 20, y - input_heading.height)
+    y -= input_heading.height + 3
+    input_table.drawOn(c, 20, y - input_table_height)
 
     if chart_b64:
         img_data = base64.b64decode(chart_b64)
         img = ImageReader(BytesIO(img_data))
-        chart_top = h - 55 - metadata_height - 12
+        chart_top = h - 48 - metadata_height - 12
         chart_height = min(h / 2 - 80, chart_top - (h - 500 + 35))
         chart_width = chart_height * 4 / 3
         c.drawImage(
