@@ -64,7 +64,8 @@
 <section class="py-5 bg-light">
   
 <!-- ===================== SEARCH ZONE ===================== -->
-<section id="search-zone" class="py-4 bg-light">
+<section id="search-zone" class="py-4 bg-light"
+         data-search-url="{% url 'tools:sfb_search' %}">
   <div class="container">
 
     <div class="card mb-4 shadow-sm">
@@ -72,8 +73,10 @@
         <div class="input-group">
           <span class="input-group-text">🔎</span>
           <input id="search" type="search" class="form-control"
+                 aria-label="Zoek een bouw- of installatie-element"
                  placeholder="Zoek installatie-element (bv. brandklep)">
         </div>
+        <p id="search-status" class="small text-muted mt-2 mb-0" role="status" aria-live="polite"></p>
       </div>
     </div>
 

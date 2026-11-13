@@ -1,7 +1,8 @@
 import re
+import unicodedata
 from typing import Set, Dict, List
 from collections import defaultdict
-from tools.models import SfbClass
+from tools.models import InstallatieConcept, SfbClass
 
 
 # ============================================================
@@ -170,44 +171,26 @@ ROUTE_SCOPE = {
     "communicatie": "installateur",
 }
 
-TECHNICAL_PARTS = {
-    "afscheider",
-    "afsluiter",
-    "armatuur",
-    "batterij",
-    "brandklep",
-    "brandmelder",
-    "detector",
-    "filter",
-    "gasmeter",
-    "heater",
-    "hydrofoor",
-    "kanaal",
-    "klep",
-    "koelbalk",
-    "koelmachine",
-    "leiding",
-    "luchtkast",
-    "luchtrooster",
-    "luchtverhitter",
-    "omvormer",
-    "paneel",
-    "pomp",
-    "radiator",
-    "regelaar",
-    "regelklep",
-    "rooster",
-    "sensor",
-    "transformator",
-    "ventiel",
-    "warmtepomp",
-}
 # ============================================================
 # 3. TOKENISATIE
 # ============================================================
 
 def tokenize(text: str) -> Set[str]:
-    return set(re.findall(r"[a-z]+", text.lower()))
+    normalized = unicodedata.normalize("NFKD", text.casefold())
+    normalized = "".join(
+        character
+        for character in normalized
+        if not unicodedata.combining(character)
+    )
+    return set(re.findall(r"[a-z0-9]+", normalized))
+
+
+def normalize_plural(token: str) -> str:
+    if len(token) > 6 and token.endswith("en"):
+        return token[:-2]
+    if len(token) > 4 and token.endswith("s"):
+        return token[:-1]
+    return token
 
 
 def tokenize_search_term(term: str) -> Set[str]:
@@ -268,61 +251,35 @@ def search_sfb_by_text(tokens: Set[str]) -> Dict[str, List[dict]]:
     Tekstuele zoeking in de volledige NL-SfB tabel.
     """
 
-    #print("\n" + "=" * 60)
-    #print("search_sfb_by_text draait")
-    #print("TOKENS:", tokens)
-
     results: Dict[str, List[dict]] = defaultdict(list)
 
     for sfb in SfbClass.objects.all():
-
-        search_text = (
-            f"{sfb.omschrijving} {sfb.code_tekst}"
-        )
-
+        search_text = f"{sfb.omschrijving} {sfb.code_tekst} {sfb.code}"
         sfb_tokens = tokenize(search_text)
-
-        overlap = set()
+        matched_tokens = set()
+        match_score = 0.0
 
         for token in tokens:
+            if token in sfb_tokens:
+                matched_tokens.add(token)
+                match_score += 1.0
+                continue
 
-            for sfb_token in sfb_tokens:
+            # NL-SfB descriptions commonly join words or use plural forms.
+            if len(token) >= 4 and any(
+                sfb_token.startswith(token)
+                or normalize_plural(sfb_token) == normalize_plural(token)
+                for sfb_token in sfb_tokens
+            ):
+                matched_tokens.add(token)
+                match_score += 0.75
 
-                match = (
-                    token == sfb_token
-                    or token == sfb_token.rstrip("s")
-                    or (
-                        token in TECHNICAL_PARTS
-                        and (
-                            sfb_token.endswith(token)
-                            or token in sfb_token
-                        )
-                    )
-                )
-
-                if match:
-                    overlap.add(token)
-
-                    print(
-                        f"MATCH FOUND | "
-                        f"zoek='{token}' | "
-                        f"sfb_token='{sfb_token}' | "
-                        f"code={sfb.code}"
-                    )
-
-        if not overlap:
+        if not matched_tokens:
             continue
 
-        score = round(len(overlap) / len(tokens), 3)
+        score = round(match_score / len(tokens), 3)
 
         route = determine_route(sfb)
-
-        print(
-            f"RESULT | "
-            f"{sfb.code} | "
-            f"{sfb.omschrijving} | "
-            f"score={score}"
-        )
 
         results[route].append({
             "code": sfb.code,
@@ -335,15 +292,43 @@ def search_sfb_by_text(tokens: Set[str]) -> Dict[str, List[dict]]:
 
     for route, items in results.items():
         items.sort(
-            key=lambda x: x["score"],
-            reverse=True
+            key=lambda item: (-item["score"], item["code"])
         )
 
-        final[route] = [items[0]]
-
-    print("FINAL:", final)
+        final[route] = items[:5]
 
     return final
+
+
+def add_concept_matches(
+    term: str,
+    results: Dict[str, List[dict]],
+) -> None:
+    """Include classes linked to configured concepts and their search aliases."""
+    query_tokens = tokenize(term)
+
+    concepts = InstallatieConcept.objects.prefetch_related("sfb_links__sfb")
+    for concept in concepts:
+        aliases = [concept.naam, *concept.synoniemen.split(",")]
+        matched = False
+
+        for alias in aliases:
+            alias_tokens = tokenize(alias)
+            if alias_tokens and alias_tokens.issubset(query_tokens):
+                matched = True
+                break
+
+        if not matched:
+            continue
+
+        for link in concept.sfb_links.all():
+            route = determine_route(link.sfb)
+            results.setdefault(route, []).append({
+                "code": link.sfb.code,
+                "omschrijving": link.sfb.omschrijving,
+                "score": 1.0,
+                "scope": ROUTE_SCOPE.get(route),
+            })
 
 # ============================================================
 # 5. SYSTEEMUITBREIDING (ROL → CORRECTIE / VERRIJKING)
@@ -432,12 +417,12 @@ def expand_system_routes(roles: Set[str]) -> Dict[str, List[dict]]:
 # ============================================================
 
 def analyse_search_term(term: str) -> Dict[str, List[dict]]:
-    
-    tokens = tokenize_search_term(term)
-    roles = determine_component_roles(tokens)
+    search_tokens = tokenize(term)
+    semantic_tokens = tokenize_search_term(term)
+    roles = determine_component_roles(semantic_tokens)
 
     # A. NL‑SfB tabel (hoofdzakelijk hoofdstukken 50–90)
-    base_routes = search_sfb_by_text(tokens)
+    base_routes = search_sfb_by_text(search_tokens)
 
     # B. Rol-gedreven correcties / uitbreidingen
     role_routes = expand_system_routes(roles)
@@ -445,5 +430,18 @@ def analyse_search_term(term: str) -> Dict[str, List[dict]]:
     # C. Rollen winnen bij conflict
     for route, items in role_routes.items():
         base_routes[route] = items
+
+    add_concept_matches(term, base_routes)
+
+    for route, items in base_routes.items():
+        unique_items = {}
+        for item in items:
+            current = unique_items.get(item["code"])
+            if current is None or item.get("score", 0) > current.get("score", 0):
+                unique_items[item["code"]] = item
+        base_routes[route] = sorted(
+            unique_items.values(),
+            key=lambda item: (-item.get("score", 0), item["code"]),
+        )[:5]
 
     return base_routes

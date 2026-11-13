@@ -8,6 +8,9 @@ from .Tool_W1_MollierDiagram import (
     mollier_graph,
     pressure_at_height,
 )
+from .Tool_A4_NLsfB import get_parent_code
+from .models import ConceptSfbLink, InstallatieConcept, SfbClass
+from .services.sfb_scoring import analyse_search_term
 
 
 class ComfortZonePolygonTests(TestCase):
@@ -71,3 +74,50 @@ class ClimateYearPressureTests(TestCase):
                 high_altitude_data.loc[0, "x"], high_altitude_pressure
             ),
         )
+
+
+class NlSfbSearchTests(TestCase):
+    def create_class(self, code, description):
+        return SfbClass.objects.create(
+            classificatie="NL-SfB",
+            taal="nl",
+            tabel="1",
+            code=code,
+            code_tekst="",
+            omschrijving=description,
+        )
+
+    def test_search_matches_plural_and_compound_terms(self):
+        self.create_class("57.4", "luchtbehandeling; ventilatoren")
+
+        results = analyse_search_term("ventilator")
+
+        self.assertEqual(results["werktuigbouwkundig"][0]["code"], "57.4")
+
+    def test_search_matches_nl_sfb_code(self):
+        self.create_class("57.31", "luchtbehandeling")
+
+        results = analyse_search_term("57.31")
+
+        self.assertEqual(results["werktuigbouwkundig"][0]["code"], "57.31")
+
+    def test_search_uses_configured_concept_synonyms(self):
+        sfb_class = self.create_class("56.81", "verwarming; afgifte")
+        concept = InstallatieConcept.objects.create(
+            naam="radiator",
+            synoniemen="verwarmingselement, heater",
+        )
+        ConceptSfbLink.objects.create(
+            concept=concept,
+            sfb=sfb_class,
+            rol="werktuigbouwkundig",
+        )
+
+        results = analyse_search_term("heater")
+
+        self.assertEqual(results["werktuigbouwkundig"][0]["code"], "56.81")
+
+    def test_parent_code_follows_each_nl_sfb_level(self):
+        self.assertEqual(get_parent_code("57.3"), "57")
+        self.assertEqual(get_parent_code("57.31"), "57.3")
+        self.assertEqual(get_parent_code("57.311"), "57.31")

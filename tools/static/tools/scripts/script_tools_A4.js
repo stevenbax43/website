@@ -22,78 +22,90 @@ function initSearch() {
     const resultsSection = searchZone.querySelector("#results-advice");
     const cardsContainer = searchZone.querySelector("#results-cards");
     const contextExplanation = searchZone.querySelector("#context-explanation");
+    const searchStatus = searchZone.querySelector("#search-status");
+    const searchUrl = searchZone.dataset.searchUrl;
+    if (!searchInput || !resultsSection || !cardsContainer || !searchStatus || !searchUrl) return;
 
     let abortController = null;
+    let debounceTimeout = null;
 
-    searchInput.addEventListener("input", async () => {
+    searchInput.addEventListener("input", () => {
         const query = searchInput.value.trim();
+
+        window.clearTimeout(debounceTimeout);
+        if (abortController) abortController.abort();
 
         if (query.length < 2) {
             hideResults();
+            searchStatus.textContent = "";
             return;
         }
 
-        if (abortController) abortController.abort();
-        abortController = new AbortController();
+        searchStatus.textContent = "Zoeken...";
+        debounceTimeout = window.setTimeout(() => search(query), 250);
+    });
 
+    async function search(query) {
+        abortController = new AbortController();
         try {
-            const response = await fetch(
-                `/tools/api/sfb-search/?q=${encodeURIComponent(query)}`,
+            const response = await fetch(`${searchUrl}?q=${encodeURIComponent(query)}`,
                 { signal: abortController.signal }
             );
+            if (!response.ok) {
+                throw new Error(`Zoeken is mislukt (HTTP ${response.status}).`);
+            }
 
             const data = await response.json();
+            if (searchInput.value.trim() !== query) return;
             if (!data.routes || Object.keys(data.routes).length === 0) {
                 hideResults();
+                searchStatus.textContent = "Geen passende NL-SfB-classificaties gevonden.";
                 return;
             }
 
             renderResults(data, query);
+            searchStatus.textContent = "";
 
         } catch (err) {
-            if (err.name !== "AbortError") {
-             //   console.error("Zoekfout:", err);
-            }
+            if (err.name === "AbortError") return;
+            console.error("NL-SfB zoeken mislukt:", err);
+            hideResults();
+            searchStatus.textContent = "Zoeken is niet gelukt. Probeer het later opnieuw.";
         }
-    });
+    }
 
     function hideResults() {
         resultsSection.classList.add("d-none");
-        cardsContainer.innerHTML = "";
-        contextExplanation.classList.add("d-none");
+        cardsContainer.replaceChildren();
+        if (contextExplanation) contextExplanation.classList.add("d-none");
     }
 
     function renderResults(data, query) {
         resultsSection.classList.remove("d-none");
-        cardsContainer.innerHTML = "";
-        contextExplanation.classList.add("d-none");
+        cardsContainer.replaceChildren();
+        if (contextExplanation) contextExplanation.classList.add("d-none");
 
         const contextCode = detectContextFromQuery(query);
         let hasUncertain = false;
 
         for (const [route, items] of Object.entries(data.routes)) {
-            if (!items?.length) continue;
+            if (!Array.isArray(items) || items.length === 0) continue;
 
-            const uncertain = items.filter(i => i.uncertain === true);
+            const uncertain = items.filter(item => item.uncertain === true);
+            const resolved = contextCode
+                ? uncertain.find(item => item.code === contextCode)
+                : null;
+            const selectedItems = uncertain.length > 1 && resolved
+                ? [resolved]
+                : items.slice(0, 5);
+            hasUncertain = hasUncertain || (uncertain.length > 1 && !resolved);
 
-            if (uncertain.length > 1 && contextCode) {
-                const resolved = uncertain.find(i => i.code === contextCode);
-                if (resolved) {
-                    cardsContainer.appendChild(createScopeCard(route, resolved));
-                    continue;
-                }
-            }
-
-            if (uncertain.length > 1) {
-                hasUncertain = true;
-                cardsContainer.appendChild(createUncertainScopeCard(route, uncertain));
-                continue;
-            }
-
-            cardsContainer.appendChild(createScopeCard(route, items[0]));
+            selectedItems.forEach(item => {
+                cardsContainer.appendChild(createScopeCard(route, item));
+            });
         }
 
-        if (hasUncertain) {
+        if (hasUncertain && contextExplanation) {
             contextExplanation.classList.remove("d-none");
         }
     }
@@ -105,6 +117,7 @@ function detectContextFromQuery(query) {
     if (q.includes("verwarm") || q.includes("cv")) return "56";
     return null;
 }
+
 function createScopeCard(route, item) {
     const titleMap = {
         werktuigbouwkundig: "Werktuigbouwkundig",
@@ -123,66 +136,43 @@ function createScopeCard(route, item) {
     const col = document.createElement("div");
     col.className = "col-md-6";
 
-    col.innerHTML = `
-        <div class="card h-100 search-card" data-nlsfb-code="${item.code}">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
-                    <h6 class="mb-1">${titleMap[route] || route}</h6>
-                    <span class="badge ${scopeClassMap[item.scope] || "bg-light text-dark"}">
-                        ${item.scope || "onbekend"}
-                    </span>
-                </div>
-                <div class="mt-2">
-                    <strong>NL‑SfB ${item.code}</strong><br>
-                    <span class="text-muted">${item.omschrijving}</span>
-                </div>
-            </div>
-        </div>
-    `;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "card h-100 search-card w-100 text-start";
+    button.dataset.nlsfbCode = item.code;
+    button.setAttribute("aria-label", `Open NL-SfB ${item.code}: ${item.omschrijving}`);
 
-    col.querySelector(".search-card").addEventListener("click", () => {
-        openAndHighlightNlSfb(item.code);
-    });
+    const body = document.createElement("div");
+    body.className = "card-body";
 
+    const header = document.createElement("div");
+    header.className = "d-flex justify-content-between align-items-start";
+
+    const title = document.createElement("h6");
+    title.className = "mb-1";
+    title.textContent = titleMap[route] || route;
+
+    const badge = document.createElement("span");
+    badge.className = `badge ${scopeClassMap[item.scope] || "bg-light text-dark"}`;
+    badge.textContent = item.scope || "onbekend";
+    header.append(title, badge);
+
+    const description = document.createElement("div");
+    description.className = "mt-2";
+    const code = document.createElement("strong");
+    code.textContent = `NL-SfB ${item.code}`;
+    const text = document.createElement("span");
+    text.className = "text-muted";
+    text.textContent = item.omschrijving;
+    description.append(code, document.createElement("br"), text);
+
+    body.append(header, description);
+    button.append(body);
+    button.addEventListener("click", () => openAndHighlightNlSfb(item.code));
+    col.append(button);
     return col;
 }
 
-
-function createUncertainScopeCard(route, items) {
-    const col = document.createElement("div");
-    col.className = "col-md-6";
-
-    col.innerHTML = `
-        <div class="card h-100 border-warning">
-            <div class="card-body">
-                <h6>${route}</h6>
-                <span class="badge bg-warning text-dark mb-2 d-inline-block">
-                    Context nodig
-                </span>
-
-                <p class="mt-2">
-                    Dit element kan onder meerdere NL‑SfB categorieën vallen:
-                </p>
-
-                ${items.map((item, idx) => `
-                    <div class="form-check">
-                        <input class="form-check-input"
-                               type="radio"
-                               name="${route}-choice"
-                               id="${route}-${idx}"
-                               value="${item.code}">
-                        <label class="form-check-label" for="${route}-${idx}">
-                            <strong>${item.code}</strong> – ${item.omschrijving}
-                        </label>
-                    </div>
-                `).join("")}
-
-            </div>
-        </div>
-    `;
-
-    return col;
-}
 /* ============================================================
    DEEL 2 – NL-SfB BOOM (PASSIEF, BACKEND-GEDREVEN)
    ============================================================ */
@@ -195,21 +185,22 @@ function initNlsfbTree() {
 }
 
 function getNlSfbPath(code) {
-    // Voorbeeld: "59.3" → ["5-", "59", "59.3"]
-    const parts = [];
-    if (!code) return parts;
+    if (!code) return [];
+    if (code.endsWith("-")) return [code];
 
-    // hoofdstuk
-    parts.push(code.charAt(0) + "-");
+    const parts = [code.charAt(0) + "-"];
+    const separatorIndex = code.indexOf(".");
 
-    if (!code.includes(".")) {
+    if (separatorIndex === -1) {
         parts.push(code);
-        return parts;
+        return [...new Set(parts)];
     }
 
-    const segments = code.split(".");
-    for (let i = 0; i < segments.length; i++) {
-        parts.push(segments.slice(0, i + 1).join("."));
+    const baseCode = code.slice(0, separatorIndex);
+    parts.push(baseCode);
+    const suffix = code.slice(separatorIndex + 1);
+    for (let length = 1; length <= suffix.length; length += 1) {
+        parts.push(`${baseCode}.${suffix.slice(0, length)}`);
     }
 
     return [...new Set(parts)];
@@ -217,38 +208,38 @@ function getNlSfbPath(code) {
 
 function enableNlSfbClicks(scope) {
     scope.querySelectorAll("tr[data-nlsfb]").forEach(row => {
-        
         if (row.dataset.bound) return;
         row.dataset.bound = "true";
+        row.tabIndex = 0;
+        row.setAttribute("role", "button");
+        row.setAttribute("aria-expanded", "false");
 
-
-        
         row.addEventListener("click", async event => {
             event.stopPropagation();
             await toggleNlSfbRow(row, row.dataset.nlsfb);
         });
-
+        row.addEventListener("keydown", async event => {
+            if (event.key !== "Enter" && event.key !== " ") return;
+            event.preventDefault();
+            await toggleNlSfbRow(row, row.dataset.nlsfb);
+        });
     });
 }
 
 const nlSfbCache = {};
 
 async function fetchChildren(code) {
-
-    if (nlSfbCache[code]) {
-        return nlSfbCache[code];
-    }
+    if (nlSfbCache[code]) return nlSfbCache[code];
 
     const response = await fetch(
         `/tools/nl-sfb/nlsfb/children/${encodeURIComponent(code)}/`
     );
+    if (!response.ok) {
+        throw new Error(`NL-SfB-subklassen laden mislukt (HTTP ${response.status}).`);
+    }
 
-    const children = response.ok
-        ? await response.json()
-        : [];
-
+    const children = await response.json();
     nlSfbCache[code] = children;
-
     return children;
 }
 
@@ -256,85 +247,79 @@ async function toggleNlSfbRow(row, code) {
     if (row.nextElementSibling?.classList.contains("nlsfb-children")) {
         row.nextElementSibling.remove();
         row.classList.remove("table-active");
+        row.setAttribute("aria-expanded", "false");
         return;
     }
 
-    
-try {
-
+    try {
         const children = await fetchChildren(code);
-
         if (!children.length) return;
 
         row.classList.add("table-active");
+        row.setAttribute("aria-expanded", "true");
 
-        const tr = document.createElement("tr");
-        tr.classList.add("nlsfb-children");
+        const childRow = document.createElement("tr");
+        childRow.classList.add("nlsfb-children");
 
-        const td = document.createElement("td");
-        td.colSpan = 2;
+        const cell = document.createElement("td");
+        cell.colSpan = 2;
+        const wrapper = document.createElement("div");
+        wrapper.className = "ps-4";
+        const table = document.createElement("table");
+        table.className = "table table-sm table-hover mb-0";
+        const tbody = document.createElement("tbody");
 
-        td.innerHTML = `
-            <div class="ps-4">
-                <table class="table table-sm table-hover mb-0">
-                    <tbody>
-                        ${children.map(c => `
-                            <tr data-nlsfb="${c.code}">
-                                <td style="width:140px">
-                                    <strong>${c.code}</strong>
-                                </td>
-                                <td>${c.omschrijving}</td>
-                            </tr>
-                        `).join("")}
-                    </tbody>
-                </table>
-            </div>
-        `;
+        children.forEach(child => {
+            const childItem = document.createElement("tr");
+            childItem.dataset.nlsfb = child.code;
 
-        tr.appendChild(td);
-        row.after(tr);
+            const codeCell = document.createElement("td");
+            codeCell.style.width = "140px";
+            const strong = document.createElement("strong");
+            strong.textContent = child.code;
+            codeCell.append(strong);
 
-        enableNlSfbClicks(tr);
+            const descriptionCell = document.createElement("td");
+            descriptionCell.textContent = child.omschrijving;
+            childItem.append(codeCell, descriptionCell);
+            tbody.append(childItem);
+        });
 
-    } catch (e) {
-        //console.error("NL‑SfB boom fout:", e);
+        table.append(tbody);
+        wrapper.append(table);
+        cell.append(wrapper);
+        childRow.append(cell);
+        row.after(childRow);
+        enableNlSfbClicks(childRow);
+    } catch (error) {
+        console.error("NL-SfB-subklassen laden mislukt:", error);
     }
 }
+
 async function openAndHighlightNlSfb(code) {
     const path = getNlSfbPath(code);
 
-    // oude highlights opruimen
     document.querySelectorAll(".nlsfb-highlight")
-        .forEach(el => el.classList.remove("nlsfb-highlight"));
+        .forEach(element => element.classList.remove("nlsfb-highlight"));
 
-    let previousRow = null;
-
+    let targetRow = null;
     for (const step of path) {
-        
-        
         const rows = document.querySelectorAll(
             `tr[data-nlsfb="${step}"]`
         );
-
-        if (!rows.length) {
-            continue;
-        }
+        if (!rows.length) continue;
 
         const row = rows[rows.length - 1];
-
-        // als deze nog niet open is, open hem
         if (!row.nextElementSibling?.classList.contains("nlsfb-children")) {
             await toggleNlSfbRow(row, step);
         }
 
-        previousRow = row;
+        if (step === code) targetRow = row;
     }
 
-    // highlight laatste stap
-    if (previousRow) {
-        previousRow.classList.add("nlsfb-highlight");
-        previousRow.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (targetRow) {
+        targetRow.classList.add("nlsfb-highlight");
+        targetRow.scrollIntoView({ behavior: "smooth", block: "center" });
+        targetRow.focus({ preventScroll: true });
     }
 }
-
-
