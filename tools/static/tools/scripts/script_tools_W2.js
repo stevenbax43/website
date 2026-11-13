@@ -123,11 +123,14 @@
     // additional fields initial state + toggle button
     const storedState = sessionStorage.getItem('additionalFieldsExpanded');
     const isExpanded = storedState === 'true';
-    if (document.getElementById('toggleButton')) {
+    const additional = document.getElementById('additional_fields');
+    if (additional && document.getElementById('toggleButton')) {
       toggleAdditionalFields(isExpanded);
-      document.getElementById('toggleButton')?.addEventListener('click', function () {
-        const current = this.getAttribute('aria-expanded') === 'true';
-        toggleAdditionalFields(!current);
+      additional.addEventListener('shown.bs.collapse', () => {
+        toggleAdditionalFields(true);
+      });
+      additional.addEventListener('hidden.bs.collapse', () => {
+        toggleAdditionalFields(false);
       });
     }
 

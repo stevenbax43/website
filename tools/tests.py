@@ -126,6 +126,10 @@ class ExpansievatPrepressureTests(TestCase):
         self.assertContains(response, 'class="card card-output shadow-sm h-100"')
         self.assertContains(response, 'id="st_height"')
         self.assertContains(response, "hoogste radiator")
+        self.assertContains(
+            response,
+            'row row-cols-1 row-cols-sm-2 row-cols-xl-5 g-3',
+        )
         self.assertContains(response, 'id="toggleButton"')
 
     def test_prepressure_is_derived_from_static_height(self):

@@ -59,45 +59,45 @@
         <h2 class="h5 mb-0">Systeemeigenschappen</h2>
       </div>
       <div class="card-body">
-        <div class="row g-3">
-          <div class="col-12 col-sm-6 col-lg-4">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-5 g-3">
+          <div class="col">
             <label for="temp_aanvoer" class="form-label">Aanvoertemperatuur (T<sub>aanv</sub>)</label>
             <div class="input-group">
               <input type="number" class="form-control" id="temp_aanvoer" name="temp_aanvoer" value="80" min="0" max="100" required>
               <span class="input-group-text">°C</span>
             </div>
           </div>
-          <div class="col-12 col-sm-6 col-lg-4">
+          <div class="col">
             <label for="temp_retour" class="form-label">Retourtemperatuur (T<sub>ret</sub>)</label>
             <div class="input-group">
               <input type="number" class="form-control" id="temp_retour" name="temp_retour" value="60" min="0" max="100" required>
               <span class="input-group-text">°C</span>
             </div>
           </div>
-          <div class="col-12 col-sm-6 col-lg-4">
+          <div class="col">
             <label for="sys_inhoud" class="form-label">Systeeminhoud (V<sub>sys</sub>)</label>
             <div class="input-group">
               <input type="number" class="form-control" id="sys_inhoud" name="sys_inhoud" value="1000" min="0" max="10000" required>
               <span class="input-group-text">L</span>
             </div>
           </div>
-          <div class="col-12 col-sm-6 col-lg-6">
+          <div class="col">
             <label for="st_height" class="form-label">Statische hoogte (H<sub>st</sub>)</label>
             <div class="input-group">
               <input type="number" class="form-control" id="st_height" name="st_height" value="0" min="0" max="100" step="0.1" required>
               <span class="input-group-text">m</span>
             </div>
-            <div class="form-text">
-              Vul het hoogteverschil in tussen de plaats waar het expansievat staat en de hoogste radiator. De voordruk wordt automatisch berekend: 0,1 bar per meter hoogteverschil + 0,3 bar veiligheidsmarge, afgerond naar boven op stappen van 0,5 bar.
-            </div>
           </div>
-          <div class="col-12 col-sm-6 col-lg-6">
+          <div class="col">
             <label for="einddruk" class="form-label">Einddruk (P<sub>e</sub>)</label>
             <div class="input-group">
               <input type="number" class="form-control" id="einddruk" name="einddruk" min="1" max="16" value="3" step="0.1" required>
               <span class="input-group-text">bar</span>
             </div>
           </div>
+        </div>
+        <div class="alert alert-info py-2 mt-3 mb-0" role="note">
+          <strong>Statische hoogte:</strong> vul het hoogteverschil in tussen de plaats waar het expansievat staat en de hoogste radiator. De voordruk wordt automatisch berekend: 0,1 bar per meter hoogteverschil + 0,3 bar veiligheidsmarge, afgerond naar boven op stappen van 0,5 bar.
         </div>
 
         <div class="collapse mt-3" id="additional_fields">
