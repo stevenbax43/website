@@ -114,7 +114,12 @@
               </div>
               <div class="col-12 col-md-4">
                 <label for="directivity" class="form-label">Richtingscoëfficiënt Q</label>
-                <input id="directivity" class="form-control" type="number" value="2" min="0.000001" step="any" required>
+                <select id="directivity" class="form-select" required>
+                  <option value="1">(a) Vrije bronpositie — Q = 1</option>
+                  <option value="2" selected>(b) Bron bij één vlak — Q = 2</option>
+                  <option value="4">(c) Bron bij twee vlakken — Q = 4</option>
+                  <option value="8">(d) Bron bij drie vlakken — Q = 8</option>
+                </select>
                 <figure class="q-guide mt-3 mb-0">
                   <figcaption class="small fw-semibold mb-2">Kies Q volgens de bronposities in de afbeelding</figcaption>
                   <img

@@ -673,6 +673,8 @@ class InstallationNoiseCalculationTests(TestCase):
         self.assertContains(page, "geluidsbron-Q-posities.png")
         for position, coefficient in (("a", 1), ("b", 2), ("c", 4), ("d", 8)):
             self.assertContains(page, f"({position})</strong> Q = {coefficient}")
+        self.assertContains(page, '<select id="directivity" class="form-select" required>')
+        self.assertContains(page, '(d) Bron bij drie vlakken — Q = 8')
 
         result = self.client.post(
             reverse("tools:installatiegeluid"),
