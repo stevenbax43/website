@@ -286,7 +286,7 @@
         </div>
         <div class="col-12 col-lg-6">
           <div class="pressure-legend-list">
-            {% for line in pressure_diagram.series %}
+            {% for line in pressure_diagram.series reversed %}
             <div class="pressure-legend-item">
               <span class="pressure-legend-swatch{% if line.key == 'safety' %} is-safety{% endif %}"
                     style="--pressure-line-color: {{ line.color }}"></span>
