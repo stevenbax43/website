@@ -359,7 +359,7 @@
               <text x="{{ pressure_diagram.plot_right|add:'-8' }}"
                     y="{{ line.y|add:'-7' }}" text-anchor="end"
                     class="pressure-line-label">
-                {% if line.key == "p0" %}P₀{% elif line.key == "p1" %}P₁ = Pv{% elif line.key == "pe" %}P₂ = {% if cooling_mode %}Pf{% else %}Pe{% endif %}{% else %}Pbev{% endif %}
+                {% if line.key == "p0" %}P₀{% elif line.key == "p1" %}{% if cooling_mode %}Pg{% else %}P₁ = Pv{% endif %}{% elif line.key == "pe" %}{% if cooling_mode %}Pf{% else %}P₂ = Pe{% endif %}{% else %}Pbev{% endif %}
               </text>
               {% endfor %}
               <text x="22" y="164" text-anchor="middle" class="pressure-axis-title"
@@ -375,8 +375,8 @@
                     style="--pressure-line-color: {{ line.color }}"></span>
               <span>
                 {% if line.key == "p0" %}<strong>P<sub>0</sub> – statische druk</strong>
-                {% elif line.key == "p1" %}<strong>P<sub>1</sub> = P<sub>v</sub> – {% if cooling_mode %}laagste bedrijfsdruk{% else %}voordruk{% endif %}</strong>
-                {% elif line.key == "pe" %}<strong>P<sub>2</sub> = P<sub>{% if cooling_mode %}f{% else %}e{% endif %}</sub> – einddruk</strong>
+                {% elif line.key == "p1" %}{% if cooling_mode %}<strong>P<sub>g</sub> – laagste bedrijfsdruk</strong>{% else %}<strong>P<sub>1</sub> = P<sub>v</sub> – voordruk</strong>{% endif %}
+                {% elif line.key == "pe" %}{% if cooling_mode %}<strong>P<sub>f</sub> – einddruk</strong>{% else %}<strong>P<sub>2</sub> = P<sub>e</sub> – einddruk</strong>{% endif %}
                 {% elif cooling_mode %}<strong>P<sub>bev</sub> – 0,5 bar boven P<sub>f</sub></strong>
                 {% else %}<strong>P<sub>bev</sub> – 0,5 bar boven Pe</strong>{% endif %}
                 <span class="d-block text-muted small">{{ line.pressure_bar|floatformat:2 }} bar</span>
