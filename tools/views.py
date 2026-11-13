@@ -207,6 +207,7 @@ def tool_W2(request):
     pressure_diagram = None
     if expansievat_ouput:
         pressure_diagram = build_pressure_range_diagram(
+            expansievat_ouput[14],
             expansievat_ouput[4],
             expansievat_ouput[11],
             expansievat_ouput[8],

@@ -6,20 +6,25 @@ def calculate_prepressure(st_height):
     return math.ceil(round(static_prepressure * 2, 10)) / 2
 
 
-def build_pressure_range_diagram(prepressure_bar, endpressure_bar, expansion_volume):
+def build_pressure_range_diagram(
+    static_height_m,
+    prepressure_bar,
+    endpressure_bar,
+    expansion_volume,
+):
     plot_left, plot_top = 96, 28
     plot_right, plot_bottom = 670, 300
     plot_height = plot_bottom - plot_top
-    fill_pressure_bar = prepressure_bar + 0.3
+    static_pressure_bar = max(float(static_height_m), 0) * 0.1
+    safety_pressure_bar = endpressure_bar + 0.5
     pressure_lines = [
-        ("p0", prepressure_bar, "#0d6efd", ""),
-        ("pv", fill_pressure_bar, "#20a779", ""),
+        ("p0", static_pressure_bar, "#0d6efd", ""),
+        ("p1", prepressure_bar, "#20a779", ""),
         ("pe", endpressure_bar, "#fd7e14", ""),
-        ("safety", 3, "#dc3545", "8 5"),
+        ("safety", safety_pressure_bar, "#dc3545", "8 5"),
     ]
-    pressures = [line[1] for line in pressure_lines]
-    pressure_min, pressure_max = min(pressures), max(pressures)
-    raw_step = max((pressure_max - pressure_min) / 6, 0.01)
+    pressure_max = max(line[1] for line in pressure_lines)
+    raw_step = max(pressure_max / 6, 0.01)
     magnitude = 10 ** math.floor(math.log10(raw_step))
     normalized_step = raw_step / magnitude
     step_factor = (
@@ -29,8 +34,8 @@ def build_pressure_range_diagram(prepressure_bar, endpressure_bar, expansion_vol
         else 10
     )
     tick_step = step_factor * magnitude
-    axis_min = max(0, math.floor(pressure_min / tick_step) * tick_step - tick_step)
-    axis_max = math.ceil(pressure_max / tick_step) * tick_step + tick_step
+    axis_min = 0
+    axis_max = max(tick_step, math.ceil(pressure_max / tick_step) * tick_step)
 
     def y_coordinate(pressure_bar):
         return plot_top + (axis_max - pressure_bar) / (axis_max - axis_min) * plot_height
@@ -51,7 +56,7 @@ def build_pressure_range_diagram(prepressure_bar, endpressure_bar, expansion_vol
         })
         tick += tick_step
 
-    fill_y = y_coordinate(fill_pressure_bar)
+    fill_y = y_coordinate(prepressure_bar)
     end_y = y_coordinate(endpressure_bar)
     return {
         "plot_left": plot_left,
@@ -63,7 +68,7 @@ def build_pressure_range_diagram(prepressure_bar, endpressure_bar, expansion_vol
         "y_ticks": y_ticks,
         "fill_area_top": min(fill_y, end_y),
         "fill_area_height": abs(fill_y - end_y),
-        "fill_pressure_bar": fill_pressure_bar,
+        "fill_pressure_bar": prepressure_bar,
         "endpressure_bar": endpressure_bar,
         "expansion_volume": expansion_volume,
     }
@@ -132,6 +137,6 @@ def expansievat(request):
         
         
         expansievat_output = [Temp_average, nuttig_effect, bruto_vessel, volume_advies, voordruk, based_on_sys, based_on_voor, expansion_percentage,
-                              round(expansion_volume,1), Temp_aanvoer, Temp_retour,round(einddruk,1) ,input_sys_inhoud, round(sys_inhoud), round(st_height, 1),CV_volume_norm,locatie_toggle ]
+                              round(expansion_volume,1), Temp_aanvoer, Temp_retour,round(einddruk,1) ,input_sys_inhoud, round(sys_inhoud), round(st_height, 1),CV_volume_norm,locatie_toggle, round(einddruk + 0.5, 1)]
         
     return expansievat_output

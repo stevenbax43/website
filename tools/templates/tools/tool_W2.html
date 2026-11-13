@@ -192,7 +192,7 @@
                   <dl class="row mb-0">
                     <dt class="col-7">Voordruk</dt><dd class="col-5 text-end">{{ expansievat_output.4 }} bar</dd>
                     <dt class="col-7">Einddruk</dt><dd class="col-5 text-end">{{ expansievat_output.11 }} bar</dd>
-                    <dt class="col-7">Beveiligingsdruk</dt><dd class="col-5 text-end">3 bar</dd>
+                    <dt class="col-7">Beveiligingsdruk</dt><dd class="col-5 text-end">{{ expansievat_output.17 }} bar</dd>
                   </dl>
                 </section>
               </div>
@@ -238,59 +238,63 @@
     </div>
     <div class="card-body">
       <p class="text-muted">
-        De verticale schaal toont de drukniveaus waarbij het expansievat werkt.
-        Het gemarkeerde gebied tussen Pv en Pe hoort bij het berekende expansievolume.
+        De verticale schaal begint bij 0 bar. P<sub>0</sub> volgt uit de statische hoogte;
+        P<sub>1</sub> is de voordruk met veiligheidsmarge. Het gemarkeerde gebied tussen
+        P<sub>1</sub> en P<sub>2</sub> (Pe) hoort bij het berekende expansievolume.
       </p>
       <div class="alert alert-success py-2 mb-2 text-center">
         <strong>Expansievolume (V<sub>exp</sub>):</strong>
         {{ pressure_diagram.expansion_volume }} L
       </div>
-      <div class="pressure-chart-wrap">
-        <svg class="pressure-range-chart" viewBox="0 0 760 360" role="img"
-             aria-labelledby="pressure-chart-title pressure-chart-description">
-          <title id="pressure-chart-title">Drukbereik van het expansievat</title>
-          <desc id="pressure-chart-description">Drukschaal in bar met voordruk, vuldruk, einddruk en beveiligingsdruk. Het gebied tussen vuldruk en einddruk geeft het expansievolume weer.</desc>
-          <rect x="{{ pressure_diagram.plot_left }}" y="{{ pressure_diagram.fill_area_top }}"
-                width="{{ pressure_diagram.plot_width }}"
-                height="{{ pressure_diagram.fill_area_height }}"
-                class="pressure-working-range" />
-          {% for tick in pressure_diagram.y_ticks %}
-          <line x1="{{ pressure_diagram.plot_left }}" y1="{{ tick.y }}"
-                x2="{{ pressure_diagram.plot_right }}" y2="{{ tick.y }}"
-                class="pressure-grid-line" />
-          <text x="{{ pressure_diagram.plot_left|add:'-10' }}" y="{{ tick.y|add:'4' }}"
-                text-anchor="end" class="pressure-axis-label">{{ tick.label }}</text>
-          {% endfor %}
-          <line x1="{{ pressure_diagram.plot_left }}" y1="{{ pressure_diagram.plot_top }}"
-                x2="{{ pressure_diagram.plot_left }}" y2="{{ pressure_diagram.plot_bottom }}"
-                class="pressure-axis-line" />
-          {% for line in pressure_diagram.series %}
-          <line x1="{{ pressure_diagram.plot_left }}" y1="{{ line.y }}"
-                x2="{{ pressure_diagram.plot_right }}" y2="{{ line.y }}"
-                stroke="{{ line.color }}" stroke-width="3"
-                {% if line.dash %}stroke-dasharray="{{ line.dash }}"{% endif %} />
-          {% endfor %}
-          <text x="22" y="164" text-anchor="middle" class="pressure-axis-title"
-                transform="rotate(-90 22 164)">Druk (bar)</text>
-        </svg>
-      </div>
-
-      <div class="row g-2 mt-2">
-        {% for line in pressure_diagram.series %}
-        <div class="col-12 col-md-6">
-          <div class="pressure-legend-item">
-            <span class="pressure-legend-swatch{% if line.key == 'safety' %} is-safety{% endif %}"
-                  style="--pressure-line-color: {{ line.color }}"></span>
-            <span>
-              {% if line.key == "p0" %}<strong>P<sub>0</sub> – voordruk</strong>
-              {% elif line.key == "pv" %}<strong>P<sub>v</sub> – vuldruk</strong>
-              {% elif line.key == "pe" %}<strong>P<sub>e</sub> – einddruk</strong>
-              {% else %}<strong>P<sub>beveiliging</sub> – 3 bar</strong>{% endif %}
-              <span class="d-block text-muted small">{{ line.pressure_bar|floatformat:2 }} bar</span>
-            </span>
+      <div class="row g-3 align-items-center">
+        <div class="col-12 col-lg-6">
+          <div class="pressure-chart-wrap">
+            <svg class="pressure-range-chart" viewBox="0 0 760 360" role="img"
+                 aria-labelledby="pressure-chart-title pressure-chart-description">
+              <title id="pressure-chart-title">Drukbereik van het expansievat</title>
+              <desc id="pressure-chart-description">Drukschaal in bar vanaf nul met statische druk, voordruk, einddruk en beveiligingsdruk. Het gebied tussen voordruk en einddruk geeft het expansievolume weer.</desc>
+              <rect x="{{ pressure_diagram.plot_left }}" y="{{ pressure_diagram.fill_area_top }}"
+                    width="{{ pressure_diagram.plot_width }}"
+                    height="{{ pressure_diagram.fill_area_height }}"
+                    class="pressure-working-range" />
+              {% for tick in pressure_diagram.y_ticks %}
+              <line x1="{{ pressure_diagram.plot_left }}" y1="{{ tick.y }}"
+                    x2="{{ pressure_diagram.plot_right }}" y2="{{ tick.y }}"
+                    class="pressure-grid-line" />
+              <text x="{{ pressure_diagram.plot_left|add:'-10' }}" y="{{ tick.y|add:'4' }}"
+                    text-anchor="end" class="pressure-axis-label">{{ tick.label }}</text>
+              {% endfor %}
+              <line x1="{{ pressure_diagram.plot_left }}" y1="{{ pressure_diagram.plot_top }}"
+                    x2="{{ pressure_diagram.plot_left }}" y2="{{ pressure_diagram.plot_bottom }}"
+                    class="pressure-axis-line" />
+              {% for line in pressure_diagram.series %}
+              <line x1="{{ pressure_diagram.plot_left }}" y1="{{ line.y }}"
+                    x2="{{ pressure_diagram.plot_right }}" y2="{{ line.y }}"
+                    stroke="{{ line.color }}" stroke-width="3"
+                    {% if line.dash %}stroke-dasharray="{{ line.dash }}"{% endif %} />
+              {% endfor %}
+              <text x="22" y="164" text-anchor="middle" class="pressure-axis-title"
+                    transform="rotate(-90 22 164)">Druk (bar)</text>
+            </svg>
           </div>
         </div>
-        {% endfor %}
+        <div class="col-12 col-lg-6">
+          <div class="pressure-legend-list">
+            {% for line in pressure_diagram.series %}
+            <div class="pressure-legend-item">
+              <span class="pressure-legend-swatch{% if line.key == 'safety' %} is-safety{% endif %}"
+                    style="--pressure-line-color: {{ line.color }}"></span>
+              <span>
+                {% if line.key == "p0" %}<strong>P<sub>0</sub> – statische druk</strong>
+                {% elif line.key == "p1" %}<strong>P<sub>1</sub> – voordruk</strong>
+                {% elif line.key == "pe" %}<strong>P<sub>2</sub> – einddruk (Pe)</strong>
+                {% else %}<strong>P<sub>bev</sub> – 0,5 bar boven Pe</strong>{% endif %}
+                <span class="d-block text-muted small">{{ line.pressure_bar|floatformat:2 }} bar</span>
+              </span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
       </div>
     </div>
   </div>

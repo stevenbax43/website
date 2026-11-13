@@ -112,12 +112,11 @@
 }
 
 .pressure-chart-wrap {
-  overflow-x: auto;
+  width: 100%;
 }
 .pressure-range-chart {
   display: block;
   width: 100%;
-  min-width: 640px;
 }
 .pressure-grid-line {
   stroke: #dee2e6;
@@ -150,6 +149,10 @@
   padding: 0.5rem 0.65rem;
   border-radius: 0.5rem;
   background: #f8f9fa;
+}
+.pressure-legend-list {
+  display: grid;
+  gap: 0.65rem;
 }
 .pressure-legend-swatch {
   flex: 0 0 1.5rem;

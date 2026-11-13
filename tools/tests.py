@@ -145,16 +145,17 @@ class ExpansievatPrepressureTests(TestCase):
         self.assertEqual(calculate_prepressure(7.1), 1.5)
 
     def test_pressure_diagram_shows_four_pressure_levels_and_expansion_volume(self):
-        diagram = build_pressure_range_diagram(1.5, 2.6, 17.4)
+        diagram = build_pressure_range_diagram(7.1, 1.5, 2.6, 17.4)
 
         self.assertEqual(
             [line["key"] for line in diagram["series"]],
-            ["p0", "pv", "pe", "safety"],
+            ["p0", "p1", "pe", "safety"],
         )
-        self.assertEqual(diagram["series"][0]["pressure_bar"], 1.5)
-        self.assertEqual(diagram["series"][1]["pressure_bar"], 1.8)
+        self.assertEqual(diagram["series"][0]["pressure_bar"], 0.71)
+        self.assertEqual(diagram["series"][1]["pressure_bar"], 1.5)
         self.assertEqual(diagram["series"][2]["pressure_bar"], 2.6)
-        self.assertEqual(diagram["series"][3]["pressure_bar"], 3)
+        self.assertEqual(diagram["series"][3]["pressure_bar"], 3.1)
+        self.assertEqual(diagram["y_ticks"][0]["label"], "0")
         self.assertEqual(diagram["expansion_volume"], 17.4)
         self.assertLess(diagram["fill_area_top"], diagram["plot_bottom"])
 
@@ -179,8 +180,9 @@ class ExpansievatPrepressureTests(TestCase):
         self.assertContains(response, "Drukbereik expansievat")
         self.assertContains(response, "Druk (bar)")
         self.assertContains(response, "Expansievolume (V<sub>exp</sub>):")
-        self.assertContains(response, "P<sub>v</sub> – vuldruk")
-        self.assertContains(response, "Beveiligingsdruk</dt><dd class=\"col-5 text-end\">3 bar")
+        self.assertContains(response, "P<sub>1</sub> – voordruk")
+        self.assertContains(response, "P<sub>bev</sub> – 0,5 bar boven Pe")
+        self.assertContains(response, "Beveiligingsdruk</dt><dd class=\"col-5 text-end\">3.1 bar")
 
     def test_calculation_does_not_require_a_manual_prepressure(self):
         request = RequestFactory().post(
