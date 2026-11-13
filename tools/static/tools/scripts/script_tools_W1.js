@@ -685,14 +685,10 @@ function initEventListeners() {
 
   on(byId('SaveInputsButton'), 'click', () => {
     const projectName = prompt("Voer projectnaam in:");
-    if (projectName && projectName.trim() !== "") sendSessionStorageToDjango(projectName.trim());
-  });
-
-  on(byId('LoadInputsButton'), 'click', () => {
-    if (window.bootstrap?.Modal) {
-      const modal = new bootstrap.Modal(byId('loadProjectModal'));
-      modal.show();
-    }
+    if (!projectName || projectName.trim() === "") return;
+    saveInputValues();
+    sessionStorage.setItem('currentProces', String(currentProces));
+    sendSessionStorageToDjango(projectName.trim());
   });
 
   on(byId('pdfDetailsForm'), 'submit', (event) => {
@@ -773,30 +769,45 @@ function sendSessionStorageToDjango(projectName) {
     sessionData[key] = sessionStorage.getItem(key);
   }
 
-  fetch("{% url 'tools:save_project' %}", {
+  fetch(saveProjectUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+      "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]')?.value || getCookie('csrftoken')
     },
     body: JSON.stringify({ projectname: projectName, sessionstorage: sessionData })
   })
-  .then(r => r.json())
-  .then(() => alert("Opgeslagen!"))
+  .then(response => {
+    if (!response.ok) throw new Error(`Server returned ${response.status}`);
+    return response.json();
+  })
+  .then(data => {
+    if (data.status !== 'success') throw new Error(data.message || 'Opslaan mislukt');
+    alert("Opgeslagen!");
+  })
   .catch(err => { console.error(err); alert("Fout bij opslaan"); });
 }
 
 function loadSavedProject(projectId) {
-  fetch("{% url 'tools:load_project' %}", {
+  fetch(loadProjectUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || getCookie('csrftoken')
     },
     body: JSON.stringify({ project_id: projectId })
   })
-  .then(r => r.json())
-  .then(data => { if (data.status === 'ok') location.reload(); else alert('❌ ' + (data.message || 'Fout bij laden')); })
+  .then(response => {
+    if (!response.ok) throw new Error(`Server returned ${response.status}`);
+    return response.json();
+  })
+  .then(data => {
+    if (data.status === 'ok') {
+      location.reload();
+      return;
+    }
+    throw new Error(data.message || 'Fout bij laden');
+  })
   .catch(err => { console.error(err); alert('⚠️ Verbindingsfout'); });
 }
 
@@ -814,15 +825,24 @@ function getCookie(name) {
 function deleteProject(projectId) {
   if (!confirm("Weet je zeker dat je dit project wilt verwijderen?")) return;
 
-  fetch("{% url 'tools:delete_project' %}", {
+  fetch(deleteProjectUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || getCookie('csrftoken')
     },
     body: JSON.stringify({ project_id: projectId })
   })
-  .then(r => { if (!r.ok) throw new Error(`Server returned ${r.status}`); return r.json(); })
-  .then(data => { if (data.status === 'deleted') location.reload(); else alert('❌ ' + (data.message || 'Fout bij verwijderen')); })
+  .then(response => {
+    if (!response.ok) throw new Error(`Server returned ${response.status}`);
+    return response.json();
+  })
+  .then(data => {
+    if (data.status === 'deleted') {
+      location.reload();
+      return;
+    }
+    throw new Error(data.message || 'Fout bij verwijderen');
+  })
   .catch(err => { console.error(err); alert('⚠️ Verbindings- of serverfout bij verwijderen'); });
 }

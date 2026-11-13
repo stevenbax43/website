@@ -1,9 +1,8 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.http import HttpResponse, JsonResponse, Http404
-from django.contrib import messages
 from django.templatetags.static import static
 from tools.models import ProjectMollier, SfbClass
 from django.db.models import Q 
@@ -29,62 +28,81 @@ def tools(request):
 @method_decorator(csrf_exempt, name='dispatch')
 @login_required(login_url='accounts:login')
 def save_project(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            projectname = data.get('projectname')
-            sessionstorage = data.get('sessionstorage')
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Invalid method'}, status=405)
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Ongeldige JSON'}, status=400)
+    if not isinstance(data, dict):
+        return JsonResponse({'status': 'error', 'message': 'Ongeldige projectgegevens'}, status=400)
 
-            # Check if user already has 10 projects
-            existing_projects = ProjectMollier.objects.filter(user=request.user).order_by('created_at')
-            if existing_projects.count() >= 10:
-                # Delete oldest project
-                oldest = existing_projects.first()
-                oldest.delete()
+    projectname = data.get('projectname')
+    sessionstorage = data.get('sessionstorage')
+    if not isinstance(projectname, str) or not projectname.strip():
+        return JsonResponse({'status': 'error', 'message': 'Projectnaam ontbreekt'}, status=400)
+    if not isinstance(sessionstorage, dict):
+        return JsonResponse({'status': 'error', 'message': 'Projectgegevens ontbreken'}, status=400)
 
-            ProjectMollier.objects.update_or_create(
-                user=request.user,
-                projectname=projectname,
-                defaults={'sessionstorage': sessionstorage}
-            )
-            return JsonResponse({'status': 'success'})
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
-    return JsonResponse({'error': 'Invalid method'}, status=405)
+    project, created = ProjectMollier.objects.update_or_create(
+        user=request.user,
+        projectname=projectname.strip(),
+        defaults={'sessionstorage': sessionstorage},
+    )
+    if created:
+        projects = ProjectMollier.objects.filter(user=request.user).order_by('created_at')
+        if projects.count() > 10:
+            projects.exclude(pk=project.pk).first().delete()
+    return JsonResponse({'status': 'success'})
 
 @method_decorator(csrf_exempt, name='dispatch')
 @login_required(login_url='accounts:login')
 def load_project(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            project_id = data.get('project_id')
-            project = ProjectMollier.objects.get(pk=project_id, user=request.user)
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Invalid method'}, status=405)
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Ongeldige JSON'}, status=400)
+    if not isinstance(data, dict):
+        return JsonResponse({'status': 'error', 'message': 'Ongeldige projectgegevens'}, status=400)
 
-            # Save session data temporarily in Django session
-            request.session['restored_sessionstorage'] = project.sessionstorage
+    project_id = data.get('project_id')
+    if isinstance(project_id, bool) or not str(project_id).isdigit():
+        return JsonResponse({'status': 'error', 'message': 'Project niet gevonden'}, status=404)
+    try:
+        project = ProjectMollier.objects.get(
+            pk=project_id,
+            user=request.user,
+        )
+    except (ProjectMollier.DoesNotExist, ValueError, TypeError):
+        return JsonResponse({'status': 'error', 'message': 'Project niet gevonden'}, status=404)
 
-            return JsonResponse({'status': 'ok'})
-        except ProjectMollier.DoesNotExist:
-            return JsonResponse({'status': 'error', 'message': 'Project niet gevonden'}, status=404)
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
-    return JsonResponse({'error': 'Invalid method'}, status=405)
+    request.session['restored_sessionstorage'] = project.sessionstorage
+    return JsonResponse({'status': 'ok'})
 
 @method_decorator(csrf_exempt, name='dispatch')
 @login_required(login_url='accounts:login')
 def delete_project(request):
-    
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Invalid method'}, status=405)
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Ongeldige JSON'}, status=400)
+    if not isinstance(data, dict):
+        return JsonResponse({'status': 'error', 'message': 'Ongeldige projectgegevens'}, status=400)
 
-    # pull from request.POST instead of request.body/JSON
-    project_id = request.POST.get('project_id')
-    
-    project = get_object_or_404(ProjectMollier, id=project_id, user=request.user)
-
-    project.delete()
-    messages.success(request, "Project succesvol verwijderd.")
-    # redirect back to your project‐list page
-    return redirect('tools:tool_W1.html')
+    project_id = data.get('project_id')
+    if isinstance(project_id, bool) or not str(project_id).isdigit():
+        return JsonResponse({'status': 'error', 'message': 'Project niet gevonden'}, status=404)
+    deleted, _ = ProjectMollier.objects.filter(
+        id=project_id,
+        user=request.user,
+    ).delete()
+    if not deleted:
+        return JsonResponse({'status': 'error', 'message': 'Project niet gevonden'}, status=404)
+    return JsonResponse({'status': 'deleted'})
 
 # Gebouwgegevens pagina
 @login_required(login_url='accounts:login')

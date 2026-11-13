@@ -17,7 +17,7 @@ from .Tool_W1_MollierDiagram import (
     pressure_at_height,
 )
 from .Tool_A4_NLsfB import get_parent_code
-from .models import ConceptSfbLink, InstallatieConcept, SfbClass
+from .models import ConceptSfbLink, InstallatieConcept, ProjectMollier, SfbClass
 from .services.nl_sfb_concepts import DEFAULT_CONCEPTS, seed_default_concepts
 from .services.sfb_scoring import analyse_search_term
 
@@ -214,6 +214,65 @@ class MollierPdfExportTests(TestCase):
         for value in ("0", "1", "2", "3", "4", "Proces 1", "Proces 2", "Proces 3", "Proces 4"):
             with self.subTest(value=value):
                 self.assertIn(value, first_page_text)
+
+
+class MollierProjectPersistenceTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="mollier-project-user")
+        self.client.force_login(self.user)
+
+    def test_save_and_load_project_restores_saved_form_state(self):
+        state = {
+            "qv_var": "8500",
+            "varStart1": "Tdb",
+            "StartInput1": "24",
+            "currentProces": "2",
+        }
+        save_response = self.client.post(
+            reverse("tools:save_project"),
+            data=json.dumps({
+                "projectname": "Zomersituatie",
+                "sessionstorage": state,
+            }),
+            content_type="application/json",
+        )
+
+        self.assertEqual(save_response.status_code, 200)
+        project = ProjectMollier.objects.get(
+            user=self.user,
+            projectname="Zomersituatie",
+        )
+        self.assertEqual(project.sessionstorage, state)
+
+        load_response = self.client.post(
+            reverse("tools:load_project"),
+            data=json.dumps({"project_id": project.pk}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(load_response.status_code, 200)
+        self.assertEqual(load_response.json(), {"status": "ok"})
+        self.assertEqual(
+            self.client.session["restored_sessionstorage"],
+            state,
+        )
+
+    def test_delete_project_accepts_json_and_returns_json(self):
+        project = ProjectMollier.objects.create(
+            user=self.user,
+            projectname="Wintersituatie",
+            sessionstorage={"qv_var": "10000"},
+        )
+
+        response = self.client.post(
+            reverse("tools:delete_project"),
+            data=json.dumps({"project_id": project.pk}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"status": "deleted"})
+        self.assertFalse(ProjectMollier.objects.filter(pk=project.pk).exists())
 
 
 class NlSfbSearchTests(TestCase):
