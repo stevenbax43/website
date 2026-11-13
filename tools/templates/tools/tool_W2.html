@@ -182,7 +182,7 @@
                   <dl class="row mb-0">
                     <dt class="col-7">Voordruk</dt><dd class="col-5 text-end">{{ expansievat_output.4 }} bar</dd>
                     <dt class="col-7">Einddruk</dt><dd class="col-5 text-end">{{ expansievat_output.11 }} bar</dd>
-                    <dt class="col-7">Maximum</dt><dd class="col-5 text-end">6 bar</dd>
+                    <dt class="col-7">Beveiligingsdruk</dt><dd class="col-5 text-end">3 bar</dd>
                   </dl>
                 </section>
               </div>
@@ -219,6 +219,78 @@
       </div>
     </div>
   </form>
+
+  {% if pressure_diagram %}
+  <div class="card card-output shadow-sm mt-3">
+    <div class="card-header bg-success-subtle">
+      <h2 class="h5 mb-0">Druk-hoogtediagram</h2>
+    </div>
+    <div class="card-body">
+      <p class="text-muted">
+        Overdruk in Pa ten opzichte van de hoogte. Hoogte 0 m is het expansievat;
+        de hoogste radiator ligt op {{ pressure_diagram.height_label }} m.
+        De druk neemt af met 9.810 Pa per meter.
+      </p>
+      <div class="pressure-chart-wrap">
+        <svg class="pressure-height-chart" viewBox="0 0 760 360" role="img"
+             aria-labelledby="pressure-chart-title pressure-chart-description">
+          <title id="pressure-chart-title">Druk als functie van de hoogte</title>
+          <desc id="pressure-chart-description">Druklijnen voor voordruk, vuldruk, einddruk en beveiligingsdruk, van het expansievat tot de hoogste radiator.</desc>
+          {% for tick in pressure_diagram.y_ticks %}
+          <line x1="{{ pressure_diagram.plot_left }}" y1="{{ tick.y }}"
+                x2="{{ pressure_diagram.plot_right }}" y2="{{ tick.y }}"
+                class="pressure-grid-line" />
+          <text x="{{ pressure_diagram.plot_left|add:'-10' }}" y="{{ tick.y|add:'4' }}"
+                text-anchor="end" class="pressure-axis-label">{{ tick.label }}</text>
+          {% endfor %}
+          {% for tick in pressure_diagram.x_ticks %}
+          <line x1="{{ tick.x }}" y1="{{ pressure_diagram.plot_top }}"
+                x2="{{ tick.x }}" y2="{{ pressure_diagram.plot_bottom }}"
+                class="pressure-grid-line pressure-grid-vertical" />
+          <text x="{{ tick.x }}" y="{{ pressure_diagram.plot_bottom|add:'22' }}"
+                text-anchor="middle" class="pressure-axis-label">{{ tick.label }}</text>
+          {% endfor %}
+          <line x1="{{ pressure_diagram.plot_left }}" y1="{{ pressure_diagram.plot_top }}"
+                x2="{{ pressure_diagram.plot_left }}" y2="{{ pressure_diagram.plot_bottom }}"
+                class="pressure-axis-line" />
+          <line x1="{{ pressure_diagram.plot_left }}" y1="{{ pressure_diagram.plot_bottom }}"
+                x2="{{ pressure_diagram.plot_right }}" y2="{{ pressure_diagram.plot_bottom }}"
+                class="pressure-axis-line" />
+          {% for line in pressure_diagram.series %}
+          <path d="{{ line.path }}" fill="none" stroke="{{ line.color }}" stroke-width="3"
+                {% if line.dash %}stroke-dasharray="{{ line.dash }}"{% endif %} />
+          <circle cx="{{ line.start_x }}" cy="{{ line.start_y }}" r="3" fill="{{ line.color }}" />
+          <circle cx="{{ line.end_x }}" cy="{{ line.end_y }}" r="3" fill="{{ line.color }}" />
+          {% endfor %}
+          <text x="407" y="350" text-anchor="middle" class="pressure-axis-title">Hoogte boven expansievat (m)</text>
+          <text x="18" y="162" text-anchor="middle" class="pressure-axis-title"
+                transform="rotate(-90 18 162)">Overdruk (Pa)</text>
+        </svg>
+      </div>
+
+      <div class="row g-2 mt-2">
+        {% for line in pressure_diagram.series %}
+        <div class="col-12 col-md-6">
+          <div class="pressure-legend-item">
+            <span class="pressure-legend-swatch{% if line.key == 'safety' %} is-safety{% endif %}"
+                  style="--pressure-line-color: {{ line.color }}"></span>
+            <span>
+              {% if line.key == "p0" %}<strong>P<sub>0</sub> – voordruk</strong>
+              {% elif line.key == "pv" %}<strong>P<sub>v</sub> – vuldruk</strong>
+              {% elif line.key == "pe" %}<strong>P<sub>e</sub> – einddruk</strong>
+              {% else %}<strong>P<sub>beveiliging</sub> – 3 bar</strong>{% endif %}
+              <span class="d-block text-muted small">
+                bij expansievat: {{ line.start_pa|floatformat:0 }} Pa;
+                bij hoogste radiator: {{ line.end_pa|floatformat:0 }} Pa
+              </span>
+            </span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
 </div>
 </section>
 {% endblock %}

@@ -17,7 +17,11 @@ from .Tool_W1_MollierDiagram import (
     pressure_at_height,
 )
 from .Tool_A4_NLsfB import get_parent_code
-from .Tool_W2_expansievat import calculate_prepressure, expansievat
+from .Tool_W2_expansievat import (
+    build_pressure_height_diagram,
+    calculate_prepressure,
+    expansievat,
+)
 from .models import ConceptSfbLink, InstallatieConcept, ProjectMollier, SfbClass
 from .services.nl_sfb_concepts import DEFAULT_CONCEPTS, seed_default_concepts
 from .services.sfb_scoring import analyse_search_term
@@ -137,6 +141,43 @@ class ExpansievatPrepressureTests(TestCase):
         self.assertEqual(calculate_prepressure(2), 0.5)
         self.assertEqual(calculate_prepressure(2.1), 1.0)
         self.assertEqual(calculate_prepressure(7.1), 1.5)
+
+    def test_pressure_diagram_shows_four_pressure_lines_in_pascal(self):
+        diagram = build_pressure_height_diagram(7.1, 1.5, 2.6)
+
+        self.assertEqual(
+            [line["key"] for line in diagram["series"]],
+            ["p0", "pv", "pe", "safety"],
+        )
+        self.assertEqual(diagram["series"][0]["start_pa"], 150000)
+        self.assertAlmostEqual(diagram["series"][0]["end_pa"], 80349)
+        self.assertEqual(diagram["series"][1]["start_pa"], 180000)
+        self.assertEqual(diagram["series"][2]["start_pa"], 260000)
+        self.assertEqual(diagram["series"][3]["start_pa"], 300000)
+        self.assertEqual(diagram["series"][0]["end_pa"], 80349)
+
+    def test_w2_page_renders_pressure_height_diagram_after_calculation(self):
+        user = User.objects.create_user(username="expansievat-diagram-user")
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse("tools:expansievat"),
+            {
+                "temp_aanvoer": "80",
+                "temp_retour": "60",
+                "sys_inhoud": "1000",
+                "einddruk": "3",
+                "st_height": "7.1",
+                "vermogen": "0",
+                "CVInstallatie": "4",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Druk-hoogtediagram")
+        self.assertContains(response, "Overdruk (Pa)")
+        self.assertContains(response, "P<sub>v</sub> – vuldruk")
+        self.assertContains(response, "Beveiligingsdruk</dt><dd class=\"col-5 text-end\">3 bar")
 
     def test_calculation_does_not_require_a_manual_prepressure(self):
         request = RequestFactory().post(

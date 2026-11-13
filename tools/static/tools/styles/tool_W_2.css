@@ -111,6 +111,51 @@
   transform: translate(-50%, -50%);
 }
 
+.pressure-chart-wrap {
+  overflow-x: auto;
+}
+.pressure-height-chart {
+  display: block;
+  width: 100%;
+  min-width: 640px;
+}
+.pressure-grid-line {
+  stroke: #dee2e6;
+  stroke-width: 1;
+}
+.pressure-grid-vertical {
+  stroke-dasharray: 3 5;
+}
+.pressure-axis-line {
+  stroke: #495057;
+  stroke-width: 1.5;
+}
+.pressure-axis-label {
+  fill: #495057;
+  font-size: 12px;
+}
+.pressure-axis-title {
+  fill: #212529;
+  font-size: 14px;
+  font-weight: 600;
+}
+.pressure-legend-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.5rem;
+  background: #f8f9fa;
+}
+.pressure-legend-swatch {
+  flex: 0 0 1.5rem;
+  margin-top: 0.65rem;
+  border-top: 3px solid var(--pressure-line-color);
+}
+.pressure-legend-swatch.is-safety {
+  border-top-style: dashed;
+}
+
 /* ===== Print Rules ===== */
 @media print {
   @page { size: A4 landscape; margin: 0; }
