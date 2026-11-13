@@ -44,7 +44,7 @@
       </div>
       <div class="col-12 col-lg-4 d-flex justify-content-lg-end align-items-center gap-3 flex-wrap">
         <a href="{% url 'tools:tool-readme' 'W4' %}" target="_blank" rel="noopener" class="intro-link d-inline-flex align-items-center gap-2">
-          ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" class="icon-30 icon-pdf-red" alt="PDF">
+          ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" class="icon-30" alt="PDF">
         </a>
         <a href="#" id="printButton" class="intro-link d-inline-flex align-items-center">
           <img src="{% static 'tools/images/print.png' %}" class="icon-30" alt="Print">
@@ -66,98 +66,373 @@
       <!-- INPUT CARD -->
       <div class="card card-input shadow-sm mb-3">
         <div class="card-body">
-          <h4 class="h6 mb-3">Invoer</h4>
+          <h4 class="h6 mb-3">Parameters</h4>
 
           <div class="row g-4">
-            <!-- Column 1 -->
+
+            <!-- ===================================================== -->
+            <!-- RUIMTE -->
+            <!-- ===================================================== -->
             <div class="col-12 col-lg-4">
-              <div class="mb-3">
-                <label for="volume_room" class="form-label">Ruimte-inhoud (V)</label>
-                <div class="input-group">
-                  <input type="number" class="form-control" id="volume_room" name="volume_room" value="50" min="0" step="0.1">
-                  <span class="input-group-text">m<sup>3</sup></span>
-                </div>
-              </div>
+                <div class="card h-100 border-primary shadow-sm">
+                    <div class="card-header bg-primary-subtle">
+                        <h5 class="mb-0">
+                            🏢 Ruimte
+                        </h5>
+                    </div>
 
-              <div class="mb-3">
-                <label for="ventilation_pp" class="form-label">Ventilatiehoeveelheid (q<sub>v,pp</sub>)</label>
-                <div class="input-group">
-                  <input type="number" class="form-control" id="ventilation_pp" name="ventilation_pp" value="30" min="0" step="0.1">
-                  <span class="input-group-text">m<sup>3</sup>/h</span>
-                </div>
-              </div>
+                    <div class="card-body">
 
-              <div class="mb-3">
-                <label for="production_pp" class="form-label">CO₂-productie per persoon (p<sub>pp</sub>)</label>
-                <div class="input-group">
-                  <select class="form-select" id="production_pp" name="production_pp">
-                    <option value="10.6">Slapen [10.6]</option>
-                    <option value="14.2" selected>Zitten (kantoorwerk) [14.2]</option>
-                    <option value="21.2">Staand werk [21.2]</option>
-                    <option value="29.5">Wandelen (3 km/h) [29.5]</option>
-                    <option value="35.4">Huishoudelijk werk [35.4]</option>
-                    <option value="41.3">Wandelen (5 km/h) [41.3]</option>
-                    <option value="47.2">Fietsen licht (100 W) [47.2]</option>
-                    <option value="82.6">Joggen (8 km/h) [82.6]</option>
-                    <option value="118.0">Intensief sporten [118]</option>
-                  </select>
-                  <span class="input-group-text">l/h</span>
+                        <div class="mb-3">
+                            <label for="volume_room" class="form-label">
+                                Ruimte-inhoud (V)
+                            </label>
+
+                            <div class="input-group">
+                                <input
+                                    type="number"
+                                    class="form-control"
+                                    id="volume_room"
+                                    name="volume_room"
+                                    value="100"
+                                    min="0"
+                                    step="0.1">
+
+                                <span class="input-group-text">
+                                    m<sup>3</sup>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="mb-0">
+                            <label for="start_ppm" class="form-label">
+                                Beginconcentratie (C<sub>0</sub>)
+                            </label>
+
+                            <div class="input-group">
+                                <input
+                                    type="number"
+                                    class="form-control"
+                                    id="start_ppm"
+                                    name="start_ppm"
+                                    value="400"
+                                    min="0">
+
+                                <span class="input-group-text">
+                                    ppm
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
-              </div>
             </div>
 
-            <!-- Column 2 -->
+
+            <!-- ===================================================== -->
+            <!-- BEZETTING -->
+            <!-- ===================================================== -->
             <div class="col-12 col-lg-4">
-              <div class="mb-3">
-                <label for="number_persons" class="form-label">Aantal personen (n)</label>
-                <div class="input-group">
-                  <input type="number" class="form-control" id="number_persons" name="number_persons" value="10" min="0">
-                  <span class="input-group-text">personen</span>
-                </div>
-              </div>
+                <div class="card h-100 border-success shadow-sm">
+                    <div class="card-header bg-success-subtle">
+                        <h5 class="mb-0">
+                            👥 Bezetting
+                        </h5>
+                    </div>
 
-              <div class="mb-3">
-                <label for="bezetting" class="form-label">Bezetting (β)</label>
-                <div class="input-group">
-                  <input type="number" class="form-control" id="bezetting" name="bezetting" value="100" min="0" max="100">
-                  <span class="input-group-text">%</span>
-                </div>
-              </div>
+                    <div class="card-body">
 
-              <div class="mb-3">
-                <label for="outsite_air_ppm" class="form-label">Kwaliteit buitenlucht (C<sub>ex</sub>)</label>
-                <div class="input-group">
-                  <input type="number" class="form-control" id="outsite_air_ppm" name="outsite_air_ppm" value="400" min="0">
-                  <span class="input-group-text">ppm</span>
+                        <div class="mb-3">
+                            <label for="number_persons" class="form-label">
+                                Aantal personen (n)
+                            </label>
+
+                            <div class="input-group">
+                                <input
+                                    type="number"
+                                    class="form-control"
+                                    id="number_persons"
+                                    name="number_persons"
+                                    value="10"
+                                    min="0">
+
+                                <span class="input-group-text">
+                                    personen
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="bezetting" class="form-label">
+                                Bezettingsgraad (β)
+                            </label>
+
+                            <div class="input-group">
+                                <input
+                                    type="number"
+                                    class="form-control"
+                                    id="bezetting"
+                                    name="bezetting"
+                                    value="100"
+                                    min="0"
+                                    max="100">
+
+                                <span class="input-group-text">
+                                    %
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="mb-0">
+                            <label for="production_pp" class="form-label">
+                                Activiteit / CO₂-productie
+                            </label>
+
+                            <div class="input-group">
+                                <select
+                                    class="form-select"
+                                    id="production_pp"
+                                    name="production_pp">
+
+                                    <option value="10.6">
+                                        Slapen [10.6]
+                                    </option>
+
+                                    <option value="14.2">
+                                        Zitten (kantoorwerk) [14.2]
+                                    </option>
+
+                                    <option value="17.0" selected>
+                                        PvE Frisse Scholen [17.0]
+                                    </option>
+
+                                    <option value="21.2">
+                                        Staand werk [21.2]
+                                    </option>
+
+                                    <option value="29.5">
+                                        Wandelen (3 km/h) [29.5]
+                                    </option>
+
+                                    <option value="35.4">
+                                        Huishoudelijk werk [35.4]
+                                    </option>
+
+                                    <option value="41.3">
+                                        Wandelen (5 km/h) [41.3]
+                                    </option>
+
+                                    <option value="47.2">
+                                        Fietsen licht (100 W) [47.2]
+                                    </option>
+
+                                    <option value="82.6">
+                                        Joggen (8 km/h) [82.6]
+                                    </option>
+
+                                    <option value="118">
+                                        Intensief sporten [118]
+                                    </option>
+
+                                </select>
+
+                                <span class="input-group-text">
+                                    l/h
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
-              </div>
             </div>
 
-            <!-- Column 3 -->
-            <div class="col-12 col-lg-4">
-              <div class="mb-3">
-                <label for="start_ppm" class="form-label">Beginconcentratie (C<sub>0</sub>)</label>
-                <div class="input-group">
-                  <input type="number" class="form-control" id="start_ppm" name="start_ppm" value="400" min="0">
-                  <span class="input-group-text">ppm</span>
-                </div>
-              </div>
 
-              <div class="mb-3">
-                <label for="time_hour" class="form-label">Tijd (t)</label>
-                <div class="input-group">
-                  <input type="number" class="form-control" id="time_hour" name="time_hour" value="1" min="0" max="100" step="0.1">
-                  <span class="input-group-text">h</span>
+            <!-- ===================================================== -->
+            <!-- VENTILATIE -->
+            <!-- ===================================================== -->
+            <div class="col-12 col-lg-4">
+                <div class="card h-100 border-info shadow-sm">
+                    <div class="card-header bg-info-subtle">
+                        <h5 class="mb-0">
+                            🌬 Ventilatie
+                        </h5>
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="mb-3">
+                            <label for="ventilation_mode" class="form-label">
+                                Ventilatie-invoer
+                            </label>
+
+                            <select
+                                class="form-select"
+                                id="ventilation_mode"
+                                name="ventilation_mode">
+
+                                <option value="pp" selected>
+                                    Debiet per persoon
+                                </option>
+
+                                <option value="total">
+                                    Totaal ventilatiedebiet ruimte
+                                </option>
+
+                            </select>
+                        </div>
+                        <div class="mb-3">
+
+                            <label
+                                id="ventilation_label"
+                                for="ventilation_value"
+                                class="form-label">
+
+                                Debiet per persoon
+
+                            </label>
+
+                            <div class="input-group">
+
+                                <input
+                                    type="number"
+                                    class="form-control"
+                                    id="ventilation_value"
+                                    name="ventilation_value"
+                                    value="30"
+                                    min="0"
+                                    step="0.1">
+
+                                <span
+                                    id="ventilation_unit"
+                                    class="input-group-text">
+
+                                    m³/h p.p.
+
+                                </span>
+
+                            </div>
+
+                        </div>
+                        <div class="mb-0">
+                            <label for="outsite_air_ppm" class="form-label">
+                                Buitenluchtkwaliteit (C<sub>ex</sub>)
+                            </label>
+
+                            <div class="input-group">
+                                <input
+                                    type="number"
+                                    class="form-control"
+                                    id="outsite_air_ppm"
+                                    name="outsite_air_ppm"
+                                    value="400"
+                                    min="0">
+
+                                <span class="input-group-text">
+                                    ppm
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
-              </div>
             </div>
-          </div>
+
+        </div>
 
           <!-- Hidden submit (Bootstrap utility) -->
           <button type="submit" id="CO2button" name="CO2button" class="visually-hidden">Submit</button>
         </div>
       </div>
+      <!-- OUTPUT TITLE -->
+      <div class="card card-output shadow-sm mb-3">
+        <div class="card-body">
 
+            <h4 class="h6 mb-3">
+                Resultaten
+            </h4>
+
+            <div class="row g-3">
+              <div class="col-md-3">
+                  <div class="card border-0 shadow-sm h-100 bg-danger-subtle">
+                      <div class="card-body text-center">
+
+                          <div
+                              id="max_concentration_result"
+                              class="fs-3 fw-bold text-danger">
+                              -
+                          </div>
+
+                          <div class="text-muted">
+                              Maximale concentratie
+                          </div>
+
+                      </div>
+                  </div>
+              </div>
+
+              <div class="col-md-3">
+                  <div class="card border-primary shadow-sm h-100">
+                      <div class="card-body text-center">
+
+                          <div
+                              id="max_increase_result"
+                              class="fs-3 fw-bold text-primary">
+                              -
+                          </div>
+
+                          <div class="text-muted">
+                              Maximale verhoging
+                          </div>
+
+                      </div>
+                  </div>
+              </div>
+
+              <div class="col-md-3">
+                  <div class="card border-success shadow-sm h-100">
+                      <div class="card-body text-center">
+
+                          <div
+                              id="time_to_max_result"
+                              class="fs-3 fw-bold text-success">
+                              -
+                          </div>
+
+                          <div class="text-muted">
+                              Tijd tot maximum
+                          </div>
+
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card border-0 shadow-sm h-100 bg-info-subtle">
+
+                    <div class="card-body text-center">
+
+                        <div
+                            id="ventilation_result"
+                            class="fs-3 fw-bold text-info">
+
+                            -
+
+                        </div>
+
+                        <div
+                            id="ventilation_result_label"
+                            class="text-muted">
+
+                            Ventilatie
+
+                        </div>
+
+                    </div>
+
+                </div> <!-- row -->
+              </div> 
+            </div> <!-- row -->
+        </div>  <!-- card-body -->
+      </div> <!-- card-resultaten -->
       <!-- OUTPUT: chart -->
       <div class="card card-output shadow-sm">
         <div class="card-body">
@@ -167,8 +442,65 @@
           </div>
         </div>
       </div>
+      <input type="hidden" id="chart_image_base64" name="chart_image_base64">
 
+      <input type="hidden" id="max_concentration" name="max_concentration">
+      <input type="hidden" id="max_increase" name="max_increase">
+      <input type="hidden" id="time_to_max" name="time_to_max">
+      <input type="hidden" id="project_name" name="project_name">
+      <input type="hidden" id="project_number" name="project_number">
+      <input type="hidden" id="room_name" name="room_name">
+      <input type="hidden" id="room_number" name="room_number">
+      <button
+          id="SavePDFButton"
+          type="button"
+          data-bs-toggle="modal"
+          data-bs-target="#pdfDetailsModal"
+          data-pdf-url="{% url 'tools:generate_pdf_W4' %}"
+          class="btn border shadow btn-save btn-save-pdf-w4">
+
+          Save PDF
+
+          <img
+              src="{% static 'tools/images/PDF-icon.png' %}"
+              class="icon-pdf-red"
+              alt="PDF"
+              width="18">
+      </button>
     </form>
+
+    <div class="modal fade" id="pdfDetailsModal" tabindex="-1" aria-labelledby="pdfDetailsModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <form class="modal-content" id="pdfDetailsForm">
+      <div class="modal-header">
+        <h5 class="modal-title" id="pdfDetailsModalLabel">Projectgegevens voor de PDF</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Sluiten"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="pdf_project_name" class="form-label">Projectnaam</label>
+          <input type="text" class="form-control" id="pdf_project_name" maxlength="80" required>
+        </div>
+        <div class="mb-3">
+          <label for="pdf_project_number" class="form-label">Projectnummer</label>
+          <input type="text" class="form-control" id="pdf_project_number" maxlength="40" required>
+        </div>
+        <div class="mb-3">
+          <label for="pdf_room_name" class="form-label">Ruimtenaam</label>
+          <input type="text" class="form-control" id="pdf_room_name" maxlength="80" required>
+        </div>
+        <div>
+          <label for="pdf_room_number" class="form-label">Ruimtenummer</label>
+          <input type="text" class="form-control" id="pdf_room_number" maxlength="40" required>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuleren</button>
+        <button type="submit" class="btn btn-primary">Download PDF</button>
+      </div>
+        </form>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -179,7 +511,7 @@
 <script>
   // Safe JSON parse
   function safeParse(jsonStr, fb){ try { return JSON.parse(jsonStr); } catch(e){ console.error(e); return fb; } }
-
+  
   // CO2 data from backend
   const CO2_data = safeParse('{{ CO2_data|safe|escapejs }}', { x_values: [], C_t_curve: [], C_t_o_curve: [] });
   const x_values = CO2_data.x_values || [];
@@ -189,7 +521,39 @@
   // Datasets as {x,y}
   const data_C_t   = x_values.map((x,i) => ({ x, y: C_t[i] }));
   const data_C_t_o = x_values.map((x,i) => ({ x, y: C_t_o[i] }));
+  // Resultaten bepalen
+  const maxConcentration =
+      C_t.length ? Math.max(...C_t) : 0;
 
+  const maxIndexConcentration =
+      C_t.indexOf(maxConcentration);
+
+  const maxTimeConcentration =
+      x_values[maxIndexConcentration] ?? 0;
+
+  const maxIncrease =
+      C_t_o.length ? Math.max(...C_t_o) : 0;
+
+  const ventilationMode =
+    CO2_data.ventilation_mode || "pp";
+
+  const ventilatiePP =
+      CO2_data.ventilatie_pp || 0;
+
+  const ventilatieTotaal =
+      CO2_data.ventilatiedebiet_totaal || 0;
+  // Tijd formatteren
+  function formatHours(hours) {
+
+      const h = Math.floor(hours);
+      const m = Math.round((hours - h) * 60);
+
+      if (m === 0) return `${h} h`;
+      if (h === 0) return `${m} min`;
+
+      return `${h} h ${m} min`;
+  }
+ 
   // Chart
   (function initCO2Chart(){
     const el = document.getElementById('CO2_verloop');
@@ -229,6 +593,11 @@
         scales: {
           x: {
             type: 'linear',
+            min: 0,
+            max: x_values[x_values.length - 1],
+            ticks: {
+                stepSize: 0.2
+            },
             title: { display: true, text: 'Uren [h]' }
           },
           y: {

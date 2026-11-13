@@ -136,6 +136,192 @@
     font-weight: 600;
     margin-bottom: 10px;
 }
+
+/* =========================================
+   RECTANGULAR DUCT MATRIX
+   ========================================= */
+
+.duct-matrix-wrapper {
+    max-height: 680px;
+    overflow: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    background: #ffffff;
+}
+
+.duct-matrix {
+    border-collapse: separate;
+    border-spacing: 2px;
+    min-width: max-content;
+    width: 100%;
+}
+
+.duct-matrix th,
+.duct-matrix td {
+    min-width: 66px;
+    height: 48px;
+    padding: 4px 6px;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.duct-matrix th {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #495057;
+    background: #f8f9fa;
+    z-index: 3;
+}
+
+/* Bovenste rij blijft staan */
+.duct-matrix thead th {
+    position: sticky;
+    top: 0;
+}
+
+/* Eerste kolom blijft staan */
+.duct-matrix tbody th {
+    position: sticky;
+    left: 0;
+}
+
+/* Linkerbovenhoek */
+.duct-matrix thead th:first-child {
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 5;
+    min-width: 120px;
+}
+
+.duct-cell {
+    border: 0;
+    border-radius: 0.4rem;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.78rem;
+    transition:
+        transform 0.12s ease,
+        box-shadow 0.12s ease,
+        outline 0.12s ease;
+}
+
+.duct-cell:hover {
+    transform: scale(1.06);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
+    z-index: 2;
+}
+
+.duct-cell.selected {
+    outline: 3px solid #212529;
+    outline-offset: 1px;
+}
+
+/* Te lage snelheid */
+.duct-speed-low {
+    color: #084298;
+    background: #cfe2ff;
+}
+
+/* Goede snelheid en goede verhouding */
+.duct-speed-good {
+    color: #0f5132;
+    background: #d1e7dd;
+}
+
+/* Snelheid goed, verhouding ongunstig */
+.duct-speed-ratio {
+    color: #664d03;
+    background: #fff3cd;
+}
+
+/* Te hoge snelheid */
+.duct-speed-high {
+    color: #842029;
+    background: #f8d7da;
+}
+
+.duct-cell-dimension {
+    display: block;
+    margin-top: 1px;
+    font-size: 0.63rem;
+    font-weight: 400;
+    opacity: 0.75;
+}
+
+.duct-selection {
+    padding: 0.8rem 1rem;
+    border-left: 4px solid #198754;
+    border-radius: 0.35rem;
+    background: #f8f9fa;
+}
+
+.duct-selection-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(110px, 1fr));
+    gap: 0.75rem;
+}
+
+.duct-selection-item small {
+    display: block;
+    color: #6c757d;
+}
+
+.duct-selection-item strong {
+    display: block;
+    margin-top: 2px;
+}
+
+.duct-legend {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    font-size: 0.77rem;
+}
+
+.duct-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.legend-box {
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    border-radius: 3px;
+}
+
+.legend-low {
+    background: #cfe2ff;
+}
+
+.legend-good {
+    background: #d1e7dd;
+}
+
+.legend-ratio {
+    background: #fff3cd;
+}
+
+.legend-high {
+    background: #f8d7da;
+}
+
+@media (max-width: 768px) {
+    .duct-selection-grid {
+        grid-template-columns: repeat(2, minmax(110px, 1fr));
+    }
+
+    .duct-matrix th,
+    .duct-matrix td {
+        min-width: 58px;
+        height: 44px;
+        padding: 3px;
+    }
+}
 /* -------- Number inputs next to sliders -------- */
 /* On very small screens, make the number input stretch when it's stacked */
 @media (max-width: 576px){

@@ -1,6 +1,8 @@
 import pandas as pd 
 import numpy as np
 import math, json, base64
+from decimal import Decimal, InvalidOperation
+from xml.sax.saxutils import escape
 from scipy.optimize import minimize_scalar
 from io import BytesIO
 from datetime import datetime
@@ -32,6 +34,7 @@ def MollierView(request):
         "B": [],
         "C": []
     }
+    comfort_zone_polygon = []
     eta_th, eta_x  = 80, 80  # Default values for thermal and latent efficiency
     #handle POST
     if request.method == 'POST':
@@ -53,6 +56,7 @@ def MollierView(request):
             lines_RH = mollier_render_output.get("lines_RH", [])
             lines_H = mollier_render_output.get("lines_H", [])
             calc_start_point = mollier_render_output.get("calc_start_point", {})
+            comfort_zone_polygon = mollier_render_output.get("comfort_zone_polygon", [])
 
             # Points per process step
             all_points = [
@@ -78,17 +82,19 @@ def MollierView(request):
                     'values': process_values[index]
                 })
             warning_message = mollier_render_output.get("warning", None)
-            heatmap, df = heatmapNEN5060()
+            height_start = safe_float(request.POST.get('Height_var'), 0)
+            pressure = pressure_at_height(height_start)
+            heatmap, df = heatmapNEN5060(pressure)
             eta_th = safe_float(request.POST.get("wtw_thermal"))
             eta_x = safe_float(request.POST.get("wtw_latent"))  
             qv_start = safe_float(request.POST.get('qv_var'), 10000)                     
             comfort_stats = {
 
-                "A": calculate_comfort_statistics(df, "A",eta_th,eta_x,qv_start),
+                "A": calculate_comfort_statistics(df, "A",eta_th,eta_x,qv_start,pressure),
 
-                "B": calculate_comfort_statistics(df, "B",eta_th,eta_x,qv_start),
+                "B": calculate_comfort_statistics(df, "B",eta_th,eta_x,qv_start,pressure),
 
-                "C": calculate_comfort_statistics(df, "C",eta_th,eta_x,qv_start),
+                "C": calculate_comfort_statistics(df, "C",eta_th,eta_x,qv_start,pressure),
             }
             
             comfort_polygons = {
@@ -99,7 +105,7 @@ def MollierView(request):
             
            
     #outside the POST request:            
-    mollierView_output = [lines_RH,lines_H,calc_start_point,calc_points,process_data,warning_message,heatmap,comfort_stats,comfort_polygons]
+    mollierView_output = [lines_RH,lines_H,calc_start_point,calc_points,process_data,warning_message,heatmap,comfort_stats,comfort_polygons,comfort_zone_polygon]
     return mollierView_output
 
 def MollierValues(request):
@@ -110,8 +116,27 @@ def MollierValues(request):
         # Parse general inputs
         height_start = safe_float(request.POST.get('Height_var'), 0)
         qv_start = safe_float(request.POST.get('qv_var'), 10000)
-        pressure = 101325 * (1 - 2.25577e-5 * height_start) ** 5.256
+        pressure = pressure_at_height(height_start)
         lines_RH, lines_H, df_enthalpy, C_values = mollier_graph(pressure)
+
+        comfort_zone_polygon = []
+        comfort_temp_min = safe_float(request.POST.get('comfort_temp_min'), 20)
+        comfort_temp_max = safe_float(request.POST.get('comfort_temp_max'), 24)
+        comfort_rh_min = safe_float(request.POST.get('comfort_rh_min'), 30)
+        comfort_rh_max = safe_float(request.POST.get('comfort_rh_max'), 70)
+        try:
+            comfort_zone_polygon = build_comfort_zone_polygon(
+                comfort_temp_min,
+                comfort_temp_max,
+                comfort_rh_min,
+                comfort_rh_max,
+                pressure,
+                C_values,
+            )
+        except ValueError as error:
+            warning_message = (
+                f"{warning_message}<br>" if warning_message else ""
+            ) + f"<strong>Comfortzone:</strong> {error}"
               
 
         # Get start point variables and values
@@ -183,6 +208,7 @@ def MollierValues(request):
             "calc_point_four": calc_point_four,
             "process_values": [proces_values_one, proces_values_two, proces_values_three, proces_values_four],
             "warning": warning_message,
+            "comfort_zone_polygon": comfort_zone_polygon,
         }
 
     return mollier_render_output
@@ -244,6 +270,48 @@ def mollier_graph(pBar=101325):
     }
     return lines_RH, lines_H, df_enthalpy, C_values
 
+
+def _calculate_saturated_vapor_pressure_array(temperatures, C):
+    temperatures = np.asarray(temperatures, dtype=float)
+    temperature_kelvin = temperatures + 273.15
+    valid_temperatures = temperature_kelvin > 0
+    below_freezing = (temperatures < 0) & valid_temperatures
+    above_freezing = (temperatures >= 0) & valid_temperatures
+    vapor_pressure = np.zeros_like(temperatures)
+
+    for mask, below_zero in (
+        (below_freezing, True),
+        (above_freezing, False),
+    ):
+        if not mask.any():
+            continue
+        kelvin = temperature_kelvin[mask]
+        if below_zero:
+            exponent = (
+                C[1] / kelvin
+                + C[2]
+                + C[3] * kelvin
+                + C[4] * kelvin**2
+                + C[5] * kelvin**3
+                + C[6] * kelvin**4
+                + C[7] * np.log(kelvin)
+            )
+        else:
+            exponent = (
+                C[8] / kelvin
+                + C[9]
+                + C[10] * kelvin
+                + C[11] * kelvin**2
+                + C[12] * kelvin**3
+                + C[13] * np.log(kelvin)
+            )
+        values = np.exp(np.minimum(exponent, 700))
+        values[exponent > 700] = np.inf
+        vapor_pressure[mask] = values
+
+    return vapor_pressure
+
+
 def calculate_mollier(Tdb_var, RH_var, qv_prev, df_enthalpy, pressure=101325, C_values=None, rho_prev=None, Tdb_100=None, x_100=None,qv_meng=None):
     # Calculate extra parameters
     formatted_pBar = f"{pressure / 1000:.3f}"
@@ -295,6 +363,60 @@ def calculate_humidity_ratio(pv, pressure):
     # Inputs: pv in Pa  Output: x in g/kg
     x = (0.62198 * pv) / (pressure - pv)
     return x * 1000  # Convert to g/kg
+
+
+def build_comfort_zone_polygon(
+    temperature_min,
+    temperature_max,
+    humidity_min,
+    humidity_max,
+    pressure,
+    C_values,
+):
+    values = (
+        temperature_min,
+        temperature_max,
+        humidity_min,
+        humidity_max,
+        pressure,
+    )
+    if not all(math.isfinite(value) for value in values):
+        raise ValueError("Vul geldige numerieke grenzen in.")
+    if not -15 <= temperature_min < temperature_max <= 40:
+        raise ValueError("De temperatuurgrenzen moeten binnen -15 tot 40 °C vallen.")
+    if not 1 <= humidity_min < humidity_max <= 100:
+        raise ValueError("De RV-grenzen moeten oplopen en binnen 1 tot 100% vallen.")
+    if pressure <= 0:
+        raise ValueError("De luchtdruk moet groter zijn dan nul.")
+
+    temperature_steps = max(
+        1,
+        math.ceil((temperature_max - temperature_min) / 0.25),
+    )
+    temperatures = [
+        temperature_min
+        + (temperature_max - temperature_min) * index / temperature_steps
+        for index in range(temperature_steps + 1)
+    ]
+    boundary = (
+        [(temperature, humidity_min) for temperature in temperatures]
+        + [(temperature, humidity_max) for temperature in reversed(temperatures)]
+    )
+
+    polygon = []
+    for temperature, humidity in boundary:
+        vapor_pressure = (
+            humidity
+            / 100
+            * calculate_saturated_vapor_pressure(temperature, C_values)
+        )
+        if vapor_pressure >= pressure:
+            raise ValueError("Deze comfortzone valt buiten het geldige drukbereik.")
+        polygon.append({
+            "x": calculate_humidity_ratio(vapor_pressure, pressure),
+            "y": temperature,
+        })
+    return polygon
 def calculate_enthalpy(Tdb, x):
     x = x / 1000  # x in g/kg to kg/kg
     return (1.006 * Tdb) + (x * (2501 + 1.86 * Tdb))
@@ -774,6 +896,48 @@ def generate_pdf_mollier(request):
     chart_b64 = request.POST.get("chart_image_base64")
     title     = request.POST.get("project_title",      "Mollierdiagram")
     user      = request.POST.get("username",           "Gebruiker onbekend")
+    project_name = request.POST.get("project_name", "").strip() or "n.t.b."
+    project_number = request.POST.get("project_number", "").strip() or "n.t.b."
+    season = request.POST.get("season", "").strip() or "n.t.b."
+    room_name = request.POST.get("room_name", "").strip() or "n.t.b."
+    qv_input = request.POST.get("qv_var", "")
+    height_input = request.POST.get("Height_var", "")
+    start_variables = {
+        "Tdb": ("Drogeboltemperatuur", "°C"),
+        "Twb": ("Natteboltemperatuur", "°C"),
+        "RH": ("Relatieve luchtvochtigheid", "%"),
+        "AH": ("Absolute vochtigheid", "g/kg"),
+        "h": ("Enthalpie", "kJ/kg"),
+    }
+
+    def format_input(value):
+        if not value:
+            return "-"
+        value = value.strip()
+        if value.lower() == "n.t.b.":
+            return escape(value)
+        return escape(value).replace(".", ",")
+
+    def format_airflow(value):
+        if not value:
+            return ""
+        try:
+            number = Decimal(value.strip())
+        except InvalidOperation:
+            return escape(value.strip())
+        formatted = format(number, ",f")
+        return formatted.replace(",", "\0").replace(".", ",").replace("\0", ".")
+
+    start_values = []
+    for index in (1, 2):
+        variable = request.POST.get(f"varStart{index}", "")
+        label, unit = start_variables.get(
+            variable,
+            (f"Startwaarde {index}", ""),
+        )
+        value = format_input(request.POST.get(f"StartInput{index}", ""))
+        start_values.append((label, value, unit))
+
     stamp     = datetime.now().strftime('%d %B %Y %H:%M')
 
     # --- setup canvas ---
@@ -787,13 +951,6 @@ def generate_pdf_mollier(request):
     c.setFont('Helvetica', 18)
     c.drawCentredString(w/2, h-35, title)
 
-    # Chart
-    if chart_b64:
-        img_data = base64.b64decode(chart_b64)
-        img      = ImageReader(BytesIO(img_data))
-        img_h    = h /2 
-        c.drawImage(img, 20, h - 50 -img_h, width=w-40, height=img_h, preserveAspectRatio=True)
-
     # Table styles
     styles       = getSampleStyleSheet()
     normal       = styles["Normal"]
@@ -801,20 +958,161 @@ def generate_pdf_mollier(request):
         'table_header',
         parent=normal,
         fontName='Helvetica-Bold',
+        fontSize=10,
+        leading=12,
         textColor=colors.white,
         alignment=1,
-        leading=normal.leading,
     )
     unit_style   = ParagraphStyle(
         'units',
         parent=normal,
         fontSize=8,
         textColor=colors.grey,
-        leading=10,
+        leading=9,
         alignment=1,
     )
     data_style   = ParagraphStyle('data', parent=normal,
-                                  fontSize=9, alignment=1)
+                                  fontSize=9, leading=10, alignment=1)
+    process_data_style = ParagraphStyle(
+        'process_data',
+        parent=normal,
+        fontSize=9,
+        leading=10,
+        alignment=1,
+    )
+
+    metadata_label_style = ParagraphStyle(
+        'metadata_label',
+        parent=normal,
+        fontName='Helvetica-Bold',
+        fontSize=8,
+        leading=10,
+        textColor=colors.HexColor('#286522'),
+    )
+    metadata_value_style = ParagraphStyle(
+        'metadata_value',
+        parent=normal,
+        fontSize=8,
+        leading=10,
+    )
+    section_heading_style = ParagraphStyle(
+        'metadata_section_heading',
+        parent=normal,
+        fontName='Helvetica-Bold',
+        fontSize=9,
+        leading=11,
+        textColor=colors.HexColor('#286522'),
+    )
+    metadata_table_style = TableStyle([
+        ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#f4faf2")),
+        ("BOX", (0, 0), (-1, -1), 0.5, colors.HexColor("#b8d8ae")),
+        ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.HexColor("#dcebd7")),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 5),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 5),
+        ("TOPPADDING", (0, 0), (-1, -1), 3),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+    ])
+    label_cell = lambda label: Paragraph(
+        f"{escape(label)}:",
+        metadata_label_style,
+    )
+    value_cell = lambda value: Paragraph(
+        format_input(value),
+        metadata_value_style,
+    )
+
+    table_x = 135
+    table_width = w - table_x - 20
+    metadata_col_widths = [table_width / 4] * 4
+    project_table = Table(
+        [
+            [
+                label_cell("Projectnaam"), value_cell(project_name),
+                label_cell("Projectnummer"), value_cell(project_number),
+            ],
+            [
+                label_cell("Winter/zomer"), value_cell(season),
+                label_cell("LBK-/ruimtenaam"), value_cell(room_name),
+            ],
+        ],
+        colWidths=metadata_col_widths,
+    )
+    project_table.setStyle(metadata_table_style)
+
+    input_table = Table(
+        [
+            [
+                label_cell("Luchtdebiet"),
+                Paragraph(
+                    f"{format_airflow(qv_input)} m<super>3</super>/h"
+                    if qv_input else "-",
+                    metadata_value_style,
+                ),
+                label_cell("Hoogte"),
+                Paragraph(
+                    f"{format_input(height_input)} m" if height_input else "-",
+                    metadata_value_style,
+                ),
+            ],
+            [
+                label_cell("Startpunt"),
+                Paragraph(
+                    f"<b>{escape(start_values[0][0])}</b><br/>"
+                    f"{escape(start_values[0][1])} {escape(start_values[0][2])}",
+                    metadata_value_style,
+                ),
+                Paragraph(
+                    f"<b>{escape(start_values[1][0])}</b><br/>"
+                    f"{escape(start_values[1][1])} {escape(start_values[1][2])}",
+                    metadata_value_style,
+                ),
+                "",
+            ],
+        ],
+        colWidths=metadata_col_widths,
+    )
+    input_table.setStyle(metadata_table_style)
+    input_table.setStyle(TableStyle([
+        ("SPAN", (2, 1), (3, 1)),
+    ]))
+
+    project_heading = Paragraph(
+        "Project- en pandgegevens",
+        section_heading_style,
+    )
+    input_heading = Paragraph("Invoerparameters", section_heading_style)
+    project_heading.wrapOn(c, table_x - 30, h)
+    input_heading.wrapOn(c, table_x - 30, h)
+    _, project_table_height = project_table.wrap(table_width, h)
+    _, input_table_height = input_table.wrap(table_width, h)
+    section_gap = 8
+    project_section_height = max(
+        project_heading.height,
+        project_table_height,
+    )
+    input_section_height = max(
+        input_heading.height,
+        input_table_height,
+    )
+    metadata_height = (
+        project_section_height + section_gap + input_section_height
+    )
+
+    y = h - 48
+    project_table.drawOn(c, table_x, y - project_table_height)
+    project_heading_y = (
+        y - (project_section_height + project_heading.height) / 2
+    )
+    project_heading.drawOn(c, 20, project_heading_y)
+    y -= project_section_height + section_gap
+
+    input_table.drawOn(c, table_x, y - input_table_height)
+    input_heading_y = (
+        y - (input_section_height + input_heading.height) / 2
+    )
+    input_heading.drawOn(c, 20, input_heading_y)
+
     def fmt(v):
         s = str(v)
         # if it's a float-like or contains a '.', replace with comma
@@ -822,21 +1120,17 @@ def generate_pdf_mollier(request):
             s = s.replace('.', ',')
         return s
 
-    def draw_table(data, headers, col_widths, y_top):
+    def build_export_table(data, headers, col_widths, cell_style):
         if not data:
-            return
-        # header row
+            return None, 0
         data[0] = [Paragraph(cell, header_style) for cell in headers]
-        # unit row
         if len(data) > 1:
             data[1] = [Paragraph(str(v), unit_style) for v in data[1]]
-        # all subsequent rows: wrap & format numbers
         for i in range(2, len(data)):
-            data[i] = [Paragraph(fmt(v), data_style) for v in data[i]]
-        # row heights
-        row_heights = [22, 15] + [None] * (len(data) - 2)
-        tbl = Table(data, colWidths=col_widths, rowHeights=row_heights)
-        tbl.setStyle(TableStyle([
+            data[i] = [Paragraph(fmt(v), cell_style) for v in data[i]]
+        row_heights = [20, 10] + [None] * (len(data) - 2)
+        table = Table(data, colWidths=col_widths, rowHeights=row_heights)
+        table.setStyle(TableStyle([
             ('BACKGROUND',(0,0),(-1,0), colors.HexColor('#3DAB39')),
             ('TEXTCOLOR', (0,0),(-1,0), colors.white),
             ('VALIGN',    (0,0),(-1,0), 'MIDDLE'),
@@ -844,15 +1138,15 @@ def generate_pdf_mollier(request):
             ('VALIGN',    (0,1),(-1,1), 'MIDDLE'),
             ('GRID',      (0,0),(-1,-1), 0.5, colors.white),
             ('FONTNAME',  (0,0),(-1,-1), 'Helvetica'),
-            ('FONTSIZE',  (0,1),(-1,1), 8),
+            ('FONTSIZE',  (0,1),(-1,1), 7),
             ('TEXTCOLOR', (0,1),(-1,1), colors.grey),
-            ('FONTSIZE',  (0,2),(-1,-1), 9),
+            ('FONTSIZE',  (0,2),(-1,-1), cell_style.fontSize),
             ('ALIGN',     (0,2),(-1,-1), 'CENTER'),
+            ('TOPPADDING', (0,0), (-1,-1), 1),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 1),
         ]))
-        tbl.wrapOn(c, w, h)
-        tbl.drawOn(c, 20, y_top - 18 * len(data))
-
-    # columns
+        _, table_height = table.wrap(w, h)
+        return table, table_height
 
     total_w = w - 40
     fracs   = [0.14,0.15,0.15,0.08,0.07,0.07,0.08,0.10,0.08,0.08]
@@ -861,16 +1155,56 @@ def generate_pdf_mollier(request):
                   "X","H","RH","P<sub>w</sub>","ρ","Q<sub>v</sub>"]
     proc_hdrs  = ["Proces","Actie 1","Actie 2","ΔT<sub>db</sub>","ΔX","ΔH",
                   "P<sub>totaal</sub>","P<sub>voelbaar</sub>","P<sub>latent</sub>","VWF"]
-    #draw point table with title
-    point_table_y = h - 500
-    c.setFont('Helvetica', 14)
-    c.drawString(20, point_table_y+10, "Punten in het Mollierdiagram")
-    draw_table(pts,   point_hdrs, col_w, point_table_y)
-    #draw proeces table with title
-    c.setFont('Helvetica', 14)
-    proc_table_y = h -650
-    c.drawString(20, proc_table_y+10, "Processen in het Mollierdiagram")
-    draw_table(procs, proc_hdrs,  col_w, proc_table_y)
+    points_table, points_height = build_export_table(
+        pts,
+        point_hdrs,
+        col_w,
+        data_style,
+    )
+    processes_table, processes_height = build_export_table(
+        procs,
+        proc_hdrs,
+        col_w,
+        process_data_style,
+    )
+
+    processes_bottom = 44
+    points_bottom = processes_bottom + processes_height + 24
+    chart_bottom = points_bottom + points_height + 22
+    chart_top = h - 48 - metadata_height - 12
+
+    if chart_b64 and chart_top > chart_bottom:
+        img_data = base64.b64decode(chart_b64)
+        img = ImageReader(BytesIO(img_data))
+        chart_height = min(
+            (w - 40) * 3 / 4,
+            chart_top - chart_bottom,
+        )
+        chart_width = chart_height * 4 / 3
+        c.drawImage(
+            img,
+            (w - chart_width) / 2,
+            chart_top - chart_height,
+            width=chart_width,
+            height=chart_height,
+            preserveAspectRatio=True,
+        )
+
+    c.setFont('Helvetica', 10)
+    if points_table:
+        c.drawString(
+            20,
+            points_bottom + points_height + 5,
+            "Punten in het Mollierdiagram",
+        )
+        points_table.drawOn(c, 20, points_bottom)
+    if processes_table:
+        c.drawString(
+            20,
+            processes_bottom + processes_height + 5,
+            "Processen in het Mollierdiagram",
+        )
+        processes_table.drawOn(c, 20, processes_bottom)
 
     # Footer
     c.setFont('Helvetica', 8)
@@ -928,10 +1262,10 @@ def generate_pdf_mollier(request):
 
     # draw a header
     c.setFont('Helvetica-Bold',14)
-    c.drawString(40, h-60, "Informatie over de Processen")
+    c.drawString(40, h-65, "Informatie over de Processen")
 
     # place table in a frame
-    frame = Frame(20, 60, w-40, h-140, showBoundary=0)
+    frame = Frame(20, 120, w-40, h-220, showBoundary=0)
     frame.addFromList([info_table], c)
 
     # warning in red below the table
@@ -969,8 +1303,33 @@ def generate_pdf_mollier(request):
 
 
 
-def heatmapNEN5060():
+def pressure_at_height(height_m):
+    return 101325 * (1 - 2.25577e-5 * height_m) ** 5.256
 
+
+def adjust_humidity_ratio_for_pressure(
+    df,
+    pressure,
+    reference_pressure=101325,
+):
+    if not math.isfinite(pressure) or pressure <= 0:
+        raise ValueError("De luchtdruk moet een geldige positieve waarde zijn.")
+
+    adjusted_df = df.copy()
+    humidity_ratio = adjusted_df["x"] / 1000
+    vapor_pressure = (
+        humidity_ratio * reference_pressure / (0.62198 + humidity_ratio)
+    )
+    if (vapor_pressure >= pressure).any():
+        raise ValueError("De klimaatdata past niet binnen de luchtdruk op deze hoogte.")
+
+    adjusted_df["x"] = (
+        0.62198 * vapor_pressure / (pressure - vapor_pressure) * 1000
+    )
+    return adjusted_df
+
+
+def heatmapNEN5060(pressure=101325):
 
     df = pd.read_csv(
         'tools/static/tools/files/KlimaatjaarNEN5060Energie2018.csv',
@@ -986,6 +1345,7 @@ def heatmapNEN5060():
     # correctie NEN5060 (waarden zijn x10 opgeslagen)
     df['T'] = df['T'] / 10
     df['x'] = df['x'] / 10
+    df = adjust_humidity_ratio_for_pressure(df, pressure)
 
     # bins van 1°C en 1 g/kg
     
@@ -1050,7 +1410,8 @@ def calculate_comfort_statistics(
     comfort_class,
     eta_th=80,
     eta_x=80,
-    qv=10000
+    qv=10000,
+    pressure=101325,
 ):
 
     COMFORT_CLASSES = {
@@ -1086,20 +1447,6 @@ def calculate_comfort_statistics(
 
     total_hours = len(df)
 
-    comfort_hours = 0
-    heating_hours = 0
-    cooling_hours = 0
-    humidification_hours = 0
-    dehumidification_hours = 0
-    heating_and_hum_hours = 0
-
-    heat_energy_kwh = 0
-    cool_energy_kwh = 0
-    humidification_kg = 0
-    dehumidification_kg = 0
-
-    pressure = 101325
-
     _, _, _, C_values = mollier_graph(pressure)
 
     # referentie retourlucht voor WTW
@@ -1118,130 +1465,84 @@ def calculate_comfort_statistics(
         pressure
     )
 
-    for _, row in df.iterrows():
+    outdoor_temperature = df["T"].to_numpy(dtype=float)
+    outdoor_humidity = df["x"].to_numpy(dtype=float)
 
-        T_out = row["T"]
-        x_out = row["x"]
+    temperature = outdoor_temperature + eta_th / 100 * (
+        T_return - outdoor_temperature
+    )
+    humidity = outdoor_humidity + eta_x / 100 * (x_return - outdoor_humidity)
+    humidity_ratio = humidity / 1000
+    specific_volume = (
+        0.287055
+        * (temperature + 273.15)
+        * (1 + 1.607858 * humidity_ratio)
+        / (pressure / 1000)
+    )
+    density = (1 + humidity_ratio) / specific_volume
+    qm = qv * density / 3600
+    vapor_pressure = humidity_ratio * pressure / (0.62198 + humidity_ratio)
+    saturation_pressure = _calculate_saturated_vapor_pressure_array(
+        temperature,
+        C_values,
+    )
+    relative_humidity = np.clip(
+        vapor_pressure / saturation_pressure * 100,
+        0,
+        100,
+    )
 
-        # WTW
-        T = T_out + eta_th / 100 * (T_return - T_out)
-        x = x_out + eta_x / 100 * (x_return - x_out)
+    in_comfort = (
+        (temperature >= T_MIN)
+        & (temperature <= T_MAX)
+        & (relative_humidity >= RH_MIN)
+        & (relative_humidity <= RH_MAX)
+    )
+    heating = temperature < T_MIN
+    cooling = temperature > T_MAX
+    humidification = relative_humidity < RH_MIN
+    dehumidification = relative_humidity > RH_MAX
 
-        rho = density_moist_air(
-            T,
-            x,
-            pressure
+    comfort_hours = int(np.count_nonzero(in_comfort))
+    heating_hours = int(np.count_nonzero(heating))
+    cooling_hours = int(np.count_nonzero(cooling))
+    humidification_hours = int(np.count_nonzero(humidification))
+    dehumidification_hours = int(np.count_nonzero(dehumidification))
+    heating_and_hum_hours = int(
+        np.count_nonzero(heating & humidification)
+    )
+
+    heat_energy_kwh = np.sum(
+        qm[heating] * 1.006 * (T_MIN - temperature[heating])
+    )
+    cool_energy_kwh = np.sum(
+        qm[cooling] * 1.006 * (temperature[cooling] - T_MAX)
+    )
+
+    humidification_kg = 0
+    if humidification.any():
+        target_temperature = np.maximum(temperature[humidification], T_MIN)
+        target_saturation_pressure = _calculate_saturated_vapor_pressure_array(
+            target_temperature,
+            C_values,
         )
-
-        qm = qv * rho / 3600
-
-        pv = calculate_partial_vapor_pressure(
-            x,
-            pressure
+        target_pressure = RH_MIN / 100 * target_saturation_pressure
+        target_ratio = 0.62198 * target_pressure / (pressure - target_pressure)
+        delta = np.maximum(
+            0,
+            target_ratio - humidity_ratio[humidification],
         )
+        humidification_kg = np.sum(qm[humidification] * delta * 3600)
 
-        pws = calculate_saturated_vapor_pressure(
-            T,
-            C_values
+    dehumidification_kg = 0
+    if dehumidification.any():
+        target_pressure = RH_MAX / 100 * saturation_pressure[dehumidification]
+        target_ratio = 0.62198 * target_pressure / (pressure - target_pressure)
+        delta = np.maximum(
+            0,
+            humidity_ratio[dehumidification] - target_ratio,
         )
-
-        RH = calculate_relative_humidity(
-            pv,
-            pws
-        )
-
-        in_comfort = (
-            T_MIN <= T <= T_MAX
-            and
-            RH_MIN <= RH <= RH_MAX
-        )
-
-        if in_comfort:
-            comfort_hours += 1
-
-        # verwarmen
-        if T < T_MIN:
-
-            heating_hours += 1
-
-            Q_heat = (
-                qm
-                * 1.006
-                * (T_MIN - T)
-            )
-
-            heat_energy_kwh += Q_heat
-
-        # koelen
-        if T > T_MAX:
-
-            cooling_hours += 1
-
-            Q_cool = (
-                qm
-                * 1.006
-                * (T - T_MAX)
-            )
-
-            cool_energy_kwh += Q_cool
-
-        # bevochtigen
-        if RH < RH_MIN:
-
-            humidification_hours += 1
-
-            pws_target = calculate_saturated_vapor_pressure(
-                max(T, T_MIN),
-                C_values
-            )
-
-            pv_target = (
-                RH_MIN / 100
-            ) * pws_target
-
-            x_target = calculate_humidity_ratio(
-                pv_target,
-                pressure
-            )
-
-            delta_x = max(
-                0,
-                x_target - x
-            )
-
-            humidification_kg += (
-                qm
-                * delta_x / 1000
-                * 3600
-            )
-
-        # ontvochtigen
-        if RH > RH_MAX:
-
-            dehumidification_hours += 1
-
-            pv_target = (
-                RH_MAX / 100
-            ) * pws
-
-            x_target = calculate_humidity_ratio(
-                pv_target,
-                pressure
-            )
-
-            delta_x = max(
-                0,
-                x - x_target
-            )
-
-            dehumidification_kg += (
-                qm
-                * delta_x / 1000
-                * 3600
-            )
-
-        if T < T_MIN and RH < RH_MIN:
-            heating_and_hum_hours += 1
+        dehumidification_kg = np.sum(qm[dehumidification] * delta * 3600)
 
     outside_hours = (
         total_hours - comfort_hours

@@ -35,6 +35,50 @@
 .card{ border-radius:.75rem; }
 .card.shadow-sm{ box-shadow:0 .25rem .75rem rgba(0,0,0,.08); }
 
+.comfort-zone-toggle{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:.25rem;
+  padding:.375rem .75rem;
+  border:1px solid #b8d8ae;
+  border-radius:999px;
+  background-color:#f4faF2;
+  color:#246b20;
+  font-size:.875rem;
+  font-weight:600;
+  line-height:1.25;
+  text-decoration:none;
+  white-space:nowrap;
+  transition:background-color .2s ease, border-color .2s ease, color .2s ease, box-shadow .2s ease;
+}
+.comfort-zone-toggle:hover,
+.comfort-zone-toggle[aria-expanded="true"]{
+  border-color:#4b9b3e;
+  background-color:#e5f3e1;
+  color:#174f14;
+}
+.comfort-zone-toggle:focus-visible{
+  outline:0;
+  box-shadow:0 0 0 .2rem rgba(75,155,62,.25);
+}
+.comfort-zone-chevron{
+  width:1rem;
+  height:1rem;
+  flex:0 0 auto;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  transition:transform .2s ease;
+}
+.comfort-zone-toggle[aria-expanded="true"] .comfort-zone-chevron{
+  transform:rotate(180deg);
+}
+.climate-year-select{
+  max-width:18rem;
+}
 
 /* Output fields look like read-only inputs */
 output.form-control.output{

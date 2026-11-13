@@ -1,13 +1,55 @@
 
-/* ===== Input & Output Cards ===== */
+/* ===== Input & Output Cards (consistent with W4) ===== */
 .card-input {
-  border-left: 4px solid #267800;
+  border-left: 6px solid #0d6efd;
+  background: rgba(13, 110, 253, 0.03);
+  position: relative;
 }
 .card-output {
-  border-left: 4px solid #0d6efd;
+  border-left: 6px solid #13a538;
+  position: relative;
+}
+.card-input::after,
+.card-output::after {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.75rem;
+  z-index: 1;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+}
+.card-input::after {
+  content: "Input";
+  border: 1px solid rgba(13, 110, 253, 0.25);
+  background: rgba(13, 110, 253, 0.1);
+  color: #0a58ca;
+}
+.card-output::after {
+  content: "Output";
+  border: 1px solid rgba(19, 165, 56, 0.25);
+  background: rgba(19, 165, 56, 0.12);
+  color: #146c43;
+}
+.card-input .card-header,
+.card-output .card-header {
+  padding-right: 5rem;
 }
 .card-title {
   font-weight: 600;
+}
+
+.form-text {
+  line-height: 1.45;
+}
+
+.card-output dl dt,
+.card-output dl dd {
+  margin-bottom: 0.45rem;
+}
+.card-output dl dt:last-of-type,
+.card-output dl dd:last-of-type {
+  margin-bottom: 0;
 }
 
 /* ===== Table Styling (match A1/A2/A3) ===== */
@@ -69,13 +111,76 @@
   transform: translate(-50%, -50%);
 }
 
+.pressure-chart-wrap {
+  width: 100%;
+}
+.pressure-range-chart {
+  display: block;
+  width: 100%;
+}
+.pressure-grid-line {
+  stroke: #dee2e6;
+  stroke-width: 1;
+}
+.pressure-grid-vertical {
+  stroke-dasharray: 3 5;
+}
+.pressure-working-range {
+  fill: #000;
+  fill-opacity: 0.5;
+}
+.pressure-axis-line {
+  stroke: #495057;
+  stroke-width: 1.5;
+}
+.pressure-axis-label {
+  fill: #495057;
+  font-size: 12px;
+}
+.pressure-axis-title {
+  fill: #212529;
+  font-size: 14px;
+  font-weight: 600;
+}
+.pressure-line-label {
+  fill: #212529;
+  font-size: 13px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: #fff;
+  stroke-linejoin: round;
+  stroke-width: 4px;
+}
+.pressure-legend-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.5rem;
+  background: #f8f9fa;
+}
+.pressure-legend-list {
+  display: grid;
+  gap: 0.65rem;
+}
+.pressure-legend-swatch {
+  flex: 0 0 1.5rem;
+  margin-top: 0.65rem;
+  border-top: 3px solid var(--pressure-line-color);
+}
+.pressure-legend-swatch.is-safety {
+  border-top-style: dashed;
+}
+
 /* ===== Print Rules ===== */
 @media print {
   @page { size: A4 landscape; margin: 0; }
   .no-print, .d-print-none { display: none !important; }
   .shadow-sm { box-shadow: none !important; }
   .card { border: 1px solid #000 !important; }
+  .card-input::after, .card-output::after { display: none !important; }
   .card-input, .card-output { border-left: 4px solid #000; background: #fff; }
+  .card-header { background: #fff !important; }
   .ratio { height: auto !important; min-height: auto !important; }
   canvas { width: 100% !important; height: auto !important; max-height: 400px !important; }
 }

@@ -99,7 +99,7 @@
             <p class="mb-1 mb-lg-2">&copy; 2025 www.kropman.nl</p>
             <p class="mb-1 mb-lg-2">Lagelandseweg 84, 6545CG Nijmegen Nederland</p>
             <p class="mb-1 mb-lg-0">Email: <a class="link-light text-decoration-underline" href="mailto:steven.bax@kropman.nl">steven.bax@kropman.nl</a></p>
-            <p class="mb-0 small opacity-75">Versie 1.6</p>
+            <p class="mb-1 mb-lg-0">Versie 2.0</p>
           </div>
           <div class="col-12 col-lg-5 d-flex align-items-center justify-content-lg-end">
             <span class="me-2">Volg ons op:</span>
@@ -112,8 +112,11 @@
             <a href="https://www.linkedin.com/company/kropman-installatietechniek">
               <img class="footer-image img-fluid" src="{% static 'home/images/linkedin.png' %}" alt="LinkedIn" width="30" height="30">
             </a>
+          
           </div>
+               
         </div>
+    
       </div>
     </div>
   </footer>
@@ -124,6 +127,15 @@
   <!-- Your scripts -->
   <script src="{% static 'home/scripts/script_home.js' %}"></script>
   {% block extra_js %}{% endblock %}
+  {% if user.is_authenticated and request.resolver_match.app_name == "tools" %}
+    <script>
+      window.toolUsageTrackingConfig = {
+        endpoint: "{% url 'tools:record_client_calculation' %}",
+        tool: "{{ request.resolver_match.url_name|escapejs }}"
+      };
+    </script>
+    <script src="{% static 'tools/scripts/tool_usage_tracking.js' %}"></script>
+  {% endif %}
 </body>
 </html>
 {% comment %}

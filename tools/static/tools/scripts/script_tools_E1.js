@@ -1,208 +1,130 @@
-// JavaScript function to calculate pressure loss and related values
-function calculateVermogen(U_spanning, I_stroom, Phi_factor) {
-    
-    // Function to calculate Reynolds number
-    function actiefvermogen(U_spanning, I_stroom, Phi_factor) {
-        return (U_spanning * I_stroom * Math.sqrt(3)*Phi_factor / 1000);
-    }
+(() => {
+  function calculatePower(voltage, current, powerFactor) {
+    const apparent = Math.sqrt(3) * voltage * current / 1000;
+    const active = apparent * powerFactor;
+    const reactive = apparent * Math.sqrt(Math.max(0, 1 - powerFactor ** 2));
+    return { active, apparent, reactive };
+  }
 
-    // Function to calculate Reynolds number
-    function schijnbaarvermogen(U_spanning, I_stroom) {
-        return (U_spanning * I_stroom * Math.sqrt(3) / 1000);
-    }
-   
-    // Calculate values
-    const P_actief = actiefvermogen(U_spanning, I_stroom, Phi_factor);
-    const S_schijn = schijnbaarvermogen(U_spanning, I_stroom);
-    const B_blind = Math.sqrt(S_schijn**2 - P_actief**2)
+  function setVector(line, x1, y1, x2, y2) {
+    line.setAttribute('x1', x1);
+    line.setAttribute('y1', y1);
+    line.setAttribute('x2', x2);
+    line.setAttribute('y2', y2);
+  }
 
-    // Create the result list
-    const vermogenList = [
-        P_actief.toFixed(2),
-        S_schijn.toFixed(2),
-        B_blind.toFixed(2),
-    ];
+  function setLabel(label, x, y, value) {
+    label.setAttribute('x', x);
+    label.setAttribute('y', y);
+    label.textContent = value;
+  }
 
-    return vermogenList;
-}
+  function drawPowerTriangle(power, powerFactor) {
+    const originX = 140;
+    const originY = 345;
+    const horizontalLimit = 455;
+    const verticalLimit = 250;
+    const scale = power.apparent > 0
+      ? Math.min(
+        horizontalLimit / power.apparent,
+        power.reactive > 0 ? verticalLimit / power.reactive : Infinity,
+      )
+      : 0;
+    const activeLength = power.active * scale;
+    const reactiveLength = power.reactive * scale;
+    const endX = originX + activeLength;
+    const endY = originY - reactiveLength;
 
-const sliders = [
-    { id: 'U_spanning', valueId: 'slider-value1' },
-    { id: 'I_stroom', valueId: 'slider-value2' },
-    { id: 'Phi_factor', valueId: 'slider-value3' }
-];
+    setVector(document.getElementById('vectorP'), originX, originY, endX, originY);
+    setVector(document.getElementById('vectorQ'), endX, originY, endX, endY);
+    setVector(document.getElementById('vectorS'), originX, originY, endX, endY);
 
-// Function to update the displayed values and perform calculation
-function updateValues() {
-    // Get values from sliders
-    const U = parseFloat(document.getElementById('U_spanning').value);
-    const I = parseFloat(document.getElementById('I_stroom').value);
-    const CosPhi = parseFloat(document.getElementById('Phi_factor').value);
+    setLabel(
+      document.getElementById('labelP'),
+      originX + activeLength / 2,
+      originY + 28,
+      `P ${power.active.toFixed(2)} kW`,
+    );
+    setLabel(
+      document.getElementById('labelQ'),
+      endX + 14,
+      originY - reactiveLength / 2,
+      `Q ${power.reactive.toFixed(2)} kVAr`,
+    );
+    setLabel(
+      document.getElementById('labelS'),
+      originX + activeLength / 2 - 12,
+      originY - reactiveLength / 2 - 14,
+      `S ${power.apparent.toFixed(2)} kVA`,
+    );
 
-    // Calculate drukverlies
-    const result = calculateVermogen(U, I, CosPhi);
-    //console.log('Calculation result:', result);
-    // Update result display
-    document.getElementById('P_actief').textContent = ` ${Math.round(result[0])} `;
-    document.getElementById('S_schijn').textContent = ` ${Math.round(result[1])}`;
-    document.getElementById('B_blind').textContent = ` ${Math.round(result[2])}`;
-    
-    // Update arrow based on I_stroom
-    drawArrows(Math.round(result[0]),Math.round(result[1]),Math.round(result[2]),CosPhi);
-    //drawArrows(400,400,153,0.85);
-}
+    const angle = Math.acos(Math.min(1, Math.max(0, powerFactor)));
+    const radius = 42;
+    const arcEndX = originX + radius * Math.cos(angle);
+    const arcEndY = originY - radius * Math.sin(angle);
+    document.getElementById('powerAngle').setAttribute(
+      'd',
+      `M ${originX + radius} ${originY} A ${radius} ${radius} 0 0 0 ${arcEndX} ${arcEndY}`,
+    );
+    setLabel(
+      document.getElementById('labelPhi'),
+      originX + (radius + 18) * Math.cos(angle / 2),
+      originY - (radius + 18) * Math.sin(angle / 2),
+      `φ ${((angle * 180) / Math.PI).toFixed(1)}°`,
+    );
 
-// Function to draw the arrows
-function drawArrows(P_actief, S_Schijn, B_blind,CosPhi) {
-   
-    const canvas = document.getElementById('arrowCanvas');
-    const ctx = canvas.getContext('2d');
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);   // Clear the canvas
+    document.getElementById('powerDiagramDescription').textContent =
+      `Vermogensdriehoek: actief vermogen ${power.active.toFixed(2)} kilowatt, ` +
+      `blindvermogen ${power.reactive.toFixed(2)} kilovoltampere reactief, ` +
+      `schijnbaar vermogen ${power.apparent.toFixed(2)} kilovoltampere.`;
+  }
 
-    //start drawing lines
-    const lineWidth = 5
-    const arrowLengthP = P_actief; // Map to 0-200px arrow length
+  function updateValues() {
+    const voltage = Number(document.getElementById('U_spanning').value);
+    const current = Number(document.getElementById('I_stroom').value);
+    const powerFactor = Number(document.getElementById('Phi_factor').value);
+    const power = calculatePower(voltage, current, powerFactor);
 
-    // Arrow properties
-    const startX = 300; // Canvas center (x-coordinate)
-    const startY = 50; // Canvas center (y-coordinate)
+    document.getElementById('P_actief').textContent = power.active.toFixed(2);
+    document.getElementById('S_schijn').textContent = power.apparent.toFixed(2);
+    document.getElementById('B_blind').textContent = power.reactive.toFixed(2);
+    drawPowerTriangle(power, powerFactor);
+  }
 
-    // First arrow pointing to the right
-    const endX1 = startX + arrowLengthP; // Arrow extends to the right by arrowLength
-    const endY1 = startY; // Arrow remains at the same y-coordinate
-
-    // Draw the first arrow shaft
-    ctx.beginPath();
-    offset = 10
-    ctx.moveTo(startX, startY-5);
-    ctx.lineTo(endX1, endY1-5);
-    ctx.lineWidth = lineWidth;
-    ctx.strokeStyle = 'blue';
-    ctx.stroke();
-
-    // Draw the first arrowhead
-    const arrowheadSize = 10;
-    ctx.beginPath();
-    ctx.moveTo(endX1+5 - arrowheadSize, endY1 - 0.5*arrowheadSize-5);
-    ctx.lineTo(endX1+5, endY1-5);
-    ctx.lineTo(endX1+5 - arrowheadSize, endY1 + 0.5*arrowheadSize-5);
-    ctx.fillStyle = 'blue';
-    ctx.fill();
-
-    // Label for the first arrow
-    ctx.font = '14px Arial';
-    ctx.fillStyle = 'blue';
-    ctx.fillText(`Actief: ${P_actief} kW`, endX1 -90, endY1-15);
-
-    // Second arrow with an angle
-    const angleRadians = Math.acos(CosPhi) 
-    const arrowLengthS = Math.round(S_Schijn)//between 0 and 90 degrees. 
-    
-    const endY2 = startY + arrowLengthS * Math.sin(angleRadians); // Adjust y-coordinate by angle
-
-    // Draw the second arrow shaft
-    ctx.beginPath();
-    ctx.moveTo(startX , startY);
-    ctx.lineTo(endX1, endY2 );
-    ctx.lineWidth = lineWidth;
-    ctx.strokeStyle = 'red';
-    ctx.stroke();
-
-    //Debug
-    DeltaS = 5
-    XdeltaS = endX1+DeltaS*Math.cos(angleRadians)
-    YdeltaS = endY2+DeltaS * Math.sin(angleRadians)
-    test = Math.cos(Math.PI/6)*180/Math.PI
-    console.log(test)
-    const baseLeftX = XdeltaS - arrowheadSize * Math.cos(angleRadians + Math.PI / 6);
-    const baseLeftY = YdeltaS - arrowheadSize * Math.sin(angleRadians + Math.PI / 6);
-
-    const baseRightX = XdeltaS - arrowheadSize * Math.cos(angleRadians - Math.PI / 6);
-    const baseRightY = YdeltaS - arrowheadSize * Math.sin(angleRadians - Math.PI / 6);
-
-    // Draw the second arrowhead
-    ctx.beginPath();
-    ctx.moveTo(baseLeftX, baseLeftY); // Left base point
-    ctx.lineTo(XdeltaS, YdeltaS);        // Arrow tip
-    ctx.lineTo(baseRightX, baseRightY); // Right base point
-    ctx.closePath();
-    ctx.fillStyle = 'red';
-    ctx.fill();
-
-    // Label for the second arrow
-    ctx.font = '14px Arial';
-    ctx.fillStyle = 'red';
-    ctx.fillText(`Schijnbaar: ${arrowLengthS} kVA`, endX1 - 140, endY2+20);
-
-    // Draw the third arrow shaft
-    ctx.beginPath();
-    ctx.moveTo(endX1 + offset, startY);
-    ctx.lineTo(endX1 + offset, endY2);
-    ctx.lineWidth = lineWidth;
-    ctx.strokeStyle = 'orange';
-    ctx.stroke();
-
-    // Draw the third arrowhead
-    ctx.beginPath();
-    ctx.moveTo(endX1 - 0.5*arrowheadSize + offset, endY2 +5- arrowheadSize);// Move to the left side of the arrow (the start of the arrowhead)
-    ctx.lineTo(endX1+offset, endY2+5); // Draw the main line from the base of the arrowhead to the tip
-    ctx.lineTo(endX1 + 0.5*arrowheadSize+offset, endY2 +5 - arrowheadSize);// Draw the right side of the arrowhead
-    ctx.fillStyle = 'orange';
-    ctx.fill();
-
-    // Label for the third arrow
-    ctx.font = '14px Arial';
-    ctx.fillStyle = 'orange';
-    ctx.fillText(`Blind: ${B_blind} kVA`, endX1 +20, endY2-10);
-}
-
-
-// Function to synchronize slider and input field
-function syncSliderAndInput(sliderId, inputId) {
+  function syncSliderAndInput(sliderId, inputId) {
     const slider = document.getElementById(sliderId);
     const input = document.getElementById(inputId);
 
-    function updateInputFromSlider() {
-        input.value = slider.value;
-    }
+    slider.addEventListener('input', () => {
+      input.value = slider.value;
+      updateValues();
+    });
 
-    function updateSliderFromInput() {
-        const newValue = parseFloat(input.value);
-        if (!isNaN(newValue)) {
-            slider.value = Math.max(slider.min, Math.min(slider.max, newValue));
-            input.value = slider.value;
-        }
-    }
-    slider.addEventListener('input', updateInputFromSlider);
-    input.addEventListener('input', updateSliderFromInput);
+    input.addEventListener('input', () => {
+      if (input.value === '') return;
+      const value = Number(input.value);
+      if (!Number.isFinite(value)) return;
+      const boundedValue = Math.min(Number(slider.max), Math.max(Number(slider.min), value));
+      slider.value = boundedValue;
+      input.value = boundedValue;
+      updateValues();
+    });
+  }
 
-    updateInputFromSlider();
-}
-// Event listener for DOMContentLoaded event
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize sliders and text inputs
+  document.addEventListener('DOMContentLoaded', () => {
     syncSliderAndInput('U_spanning', 'slider-value1');
     syncSliderAndInput('I_stroom', 'slider-value2');
     syncSliderAndInput('Phi_factor', 'slider-value3');
 
-    // Auto-submit on slider change
-    document.querySelectorAll('input[type="range"], input[type="number"]').forEach(slider => {
-        slider.addEventListener('input', updateValues);
+    document.getElementById('printButton')?.addEventListener('click', event => {
+      event.preventDefault();
+      window.print();
+    });
+    document.getElementById('excelButton')?.addEventListener('click', event => {
+      event.preventDefault();
+      window.open(pdfUrlExcel, '_blank', 'noopener');
     });
 
-    // Initialize values on page load
     updateValues();
-
-    // Event listener for print button
-    document.getElementById('printButton').addEventListener('click', function() {
-        window.print();
-    });
-
-    
-
-    // Event listener for excel button
-    document.getElementById('excelButton').addEventListener('click', function() {
-        window.open(pdfUrlExcel, '_blank');
-    });
-});
+  });
+})();

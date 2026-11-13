@@ -27,7 +27,7 @@ def import_nl_sfb_classification():
         / "static"
         / "tools"
         / "files"
-        / "TOOL_A5_NL_sfB.xlsx"
+        / "TOOL_A4_NL_sfB.xlsx"
     )
 
     df = (
@@ -132,7 +132,10 @@ def get_parent_code(code: str):
 
     # Subniveau
     if "." in code:
-        return code.rsplit(".", 1)[0]
+        base_code, suffix = code.split(".", 1)
+        if len(suffix) > 1:
+            return f"{base_code}.{suffix[:-1]}"
+        return base_code
 
     # Tweecijferige klasse
     if len(code) == 2 and code.isdigit():

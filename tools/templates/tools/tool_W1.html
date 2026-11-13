@@ -71,17 +71,6 @@
             <!-- Diagram card (OUTPUT) -->
             <div class="card card-output shadow-sm mt-2">
                 <div class="card-body">
-                  <div class="form-check mb-2">
-                    <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="toggleClimateHeatmap"
-                        checked
-                    >
-                    <label class="form-check-label" for="toggleClimateHeatmap">
-                        Klimaatjaaranalyse
-                    </label>
-                </div>
                 <div class="ratio ratio-4x3" style="min-height: 700px;">
                     <canvas id="myLinesRH"></canvas>
                     
@@ -92,9 +81,83 @@
                 
                 
             </div>
+            <div class="card card-input shadow-sm mt-3 no-print comfort-zone-controls">
+              <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                    <div class="d-flex align-items-center gap-2">
+                      <h5 class="card-title mb-0">Comfortzone</h5>
+                      <button type="button" class="btn btn-sm comfort-zone-toggle"
+                              aria-expanded="false" aria-controls="comfortZoneSettings">
+                        <span>Grenzen aanpassen</span>
+                        <svg class="comfort-zone-chevron ms-1" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="m6 9 6 6 6-6"></path>
+                        </svg>
+                      </button>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="toggleComfortZone" checked>
+                      <label class="form-check-label" for="toggleComfortZone">Toon comfortzone</label>
+                    </div>
+                  </div>
+                  <div id="comfortZoneSettings" class="comfort-zone-settings" hidden>
+                    <p class="form-text mt-0" id="comfortZoneHelp">
+                      Stel de grenzen in. De relatieve luchtvochtigheid wordt met de luchtdruk op de gekozen hoogte omgerekend.
+                    </p>
+                    <div class="row g-3">
+                      <div class="col-6">
+                        <label for="comfortTempMin" class="form-label">Temperatuur min. (°C)</label>
+                        <input type="number" class="form-control" id="comfortTempMin" name="comfort_temp_min"
+                               value="{{ comfort_zone_values.temp_min }}" min="-15" max="40" step="0.1" required>
+                      </div>
+                      <div class="col-6">
+                        <label for="comfortTempMax" class="form-label">Temperatuur max. (°C)</label>
+                        <input type="number" class="form-control" id="comfortTempMax" name="comfort_temp_max"
+                               value="{{ comfort_zone_values.temp_max }}" min="-15" max="40" step="0.1" required>
+                      </div>
+                      <div class="col-6">
+                        <label for="comfortRhMin" class="form-label">Relatieve vochtigheid min. (%)</label>
+                        <input type="number" class="form-control" id="comfortRhMin" name="comfort_rh_min"
+                               value="{{ comfort_zone_values.rh_min }}" min="1" max="100" step="0.1" required>
+                      </div>
+                      <div class="col-6">
+                        <label for="comfortRhMax" class="form-label">Relatieve vochtigheid max. (%)</label>
+                        <input type="number" class="form-control" id="comfortRhMax" name="comfort_rh_max"
+                               value="{{ comfort_zone_values.rh_max }}" min="1" max="100" step="0.1" required>
+                      </div>
+                    </div>
+                  </div>
+              </div>
+            </div>
+            <div class="card card-input shadow-sm mt-3 no-print climate-year-controls">
+              <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                  <div class="d-flex align-items-center gap-2">
+                    <h5 class="card-title mb-0">Klimaatjaar</h5>
+                    <button type="button" class="btn btn-sm comfort-zone-toggle"
+                            aria-expanded="false" aria-controls="climateYearSettings">
+                      <span>Klimaatjaar kiezen</span>
+                      <svg class="comfort-zone-chevron ms-1" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="m6 9 6 6 6-6"></path>
+                      </svg>
+                    </button>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="toggleClimateHeatmap" checked>
+                    <label class="form-check-label" for="toggleClimateHeatmap">Toon klimaatjaaranalyse</label>
+                  </div>
+                </div>
+                <div id="climateYearSettings" class="climate-year-settings" hidden>
+                  <label for="climateYearSelect" class="form-label">Selecteer klimaatjaar</label>
+                  <select class="form-select climate-year-select" id="climateYearSelect" name="climate_year">
+                    <option value="nen5060-energie-2018">NEN5060 (Excel)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
             <!-- Toolbar -->
             <div class="d-flex flex-wrap gap-2 mt-3 no-print">
                 <button id="SavePDFButton" name="SavePDFButton" type="button"
+                        data-bs-toggle="modal" data-bs-target="#pdfDetailsModal"
                         data-pdf-url="{% url 'tools:generate_pdf_W1' %}"
                         class="btn border shadow btn-save d-inline-flex align-items-center gap-2 no-print">
                     <span>Save PDF</span>
@@ -102,6 +165,7 @@
                 </button>
 
                 <button id="SaveInputsButton" name="SaveInputsButton" type="button"
+                        data-bs-toggle="modal" data-bs-target="#saveInputsModal"
                         class="btn border shadow btn-save d-inline-flex align-items-center gap-2">
                     <span>Save Inputs</span>
                     <img src="{% static 'tools/images/save.png' %}" alt="Save Inputs" width="18" height="18" class="icon-save-blue ">
@@ -505,6 +569,10 @@
       <input type="hidden" name="chart_image_base64" id="chart_image_base64">
       <input type="hidden" name="project_title" id="project_title" value="Mollierdiagram">
       <input type="hidden" name="username" id="username" value="{{ request.user.username|default:'Onbekend' }}">
+      <input type="hidden" name="project_name" id="project_name">
+      <input type="hidden" name="project_number" id="project_number">
+      <input type="hidden" name="season" id="season">
+      <input type="hidden" name="room_name" id="room_name">
     </form>
   </div>
 </section>
@@ -518,21 +586,113 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Sluiten"></button>
       </div>
       <div class="modal-body">
-        {% if saved_projects %}
-          <ul class="list-group">
-            {% for project in saved_projects %}
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span>{{ project.projectname }}</span>
-                <div class="btn-group btn-group-sm" role="group">
-                  <button type="button" class="btn btn-outline-primary" onclick="loadSavedProject('{{ project.id }}')">Load</button>
-                  <button type="button" class="btn btn-outline-danger" onclick="deleteProject('{{ project.id }}')">Delete</button>
-                </div>
-              </li>
-            {% endfor %}
-          </ul>
-        {% else %}
-          <p class="mb-0">Je hebt nog geen projecten opgeslagen.</p>
-        {% endif %}
+        <h6 class="mb-2">Voorbeelden (beschikbaar voor iedereen)</h6>
+        <div class="list-group mb-4">
+          <button type="button" class="list-group-item list-group-item-action"
+                  onclick="loadMollierPreset('summer')">
+            <span class="fw-semibold">Zomersituatie</span>
+            <span class="d-block small text-muted">32 °C, 40% RV, warmtewiel, koelbatterij en naverwarming</span>
+          </button>
+          <button type="button" class="list-group-item list-group-item-action"
+                  onclick="loadMollierPreset('winter')">
+            <span class="fw-semibold">Wintersituatie</span>
+            <span class="d-block small text-muted">−8 °C, 1 g/kg, warmtewiel en naverwarming</span>
+          </button>
+        </div>
+
+        <h6 class="mb-2">Mijn opgeslagen projecten</h6>
+        <p class="mb-0 text-muted {% if saved_projects %}d-none{% endif %}" id="noSavedProjectsMessage">
+          Je hebt nog geen projecten opgeslagen.
+        </p>
+        <ul class="list-group {% if not saved_projects %}d-none{% endif %}" id="savedProjectsList">
+          {% for project in saved_projects %}
+            <li class="list-group-item d-flex justify-content-between align-items-center"
+                data-project-id="{{ project.id }}" data-project-name="{{ project.projectname }}">
+              <span class="saved-project-name">{{ project.projectname }}</span>
+              <div class="btn-group btn-group-sm" role="group">
+                <button type="button" class="btn btn-outline-primary"
+                        onclick="loadSavedProject('{{ project.id }}')">Load</button>
+                <button type="button" class="btn btn-outline-danger"
+                        onclick="deleteProject('{{ project.id }}')">Delete</button>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="pdfDetailsModal" tabindex="-1" aria-labelledby="pdfDetailsModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" id="pdfDetailsForm">
+      <div class="modal-header">
+        <h5 class="modal-title" id="pdfDetailsModalLabel">Projectgegevens voor de PDF</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Sluiten"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="pdf_project_name" class="form-label">Projectnaam</label>
+          <input type="text" class="form-control" id="pdf_project_name" maxlength="80" value="n.t.b.">
+        </div>
+        <div class="mb-3">
+          <label for="pdf_project_number" class="form-label">Projectnummer</label>
+          <input type="text" class="form-control" id="pdf_project_number" maxlength="40" value="n.t.b.">
+        </div>
+        <div class="mb-3">
+          <label for="pdf_season" class="form-label">Winter/zomer</label>
+          <select class="form-select" id="pdf_season">
+            <option value="n.t.b." selected>n.t.b.</option>
+            <option value="Winter">Winter</option>
+            <option value="Zomer">Zomer</option>
+          </select>
+        </div>
+        <div>
+          <label for="pdf_room_name" class="form-label">LBK- of ruimtenaam</label>
+          <input type="text" class="form-control" id="pdf_room_name" maxlength="80" value="n.t.b.">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuleren</button>
+        <button type="submit" class="btn btn-primary">Download PDF</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal fade" id="saveInputsModal" tabindex="-1" aria-labelledby="saveInputsModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" id="saveInputsForm" novalidate>
+      <div class="modal-header">
+        <h5 class="modal-title" id="saveInputsModalLabel">Invoer opslaan</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Sluiten"></button>
+      </div>
+      <div class="modal-body">
+        <label for="save_project_name" class="form-label">Projectnaam</label>
+        <input type="text" class="form-control" id="save_project_name" maxlength="255">
+        <div class="alert mt-3 mb-0 d-none" id="saveInputsStatus" role="status" aria-live="polite"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuleren</button>
+        <button type="submit" class="btn btn-primary" id="saveInputsSubmitButton">Invoer opslaan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal fade" id="confirmHeightModal" tabindex="-1" aria-labelledby="confirmHeightModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmHeightModalLabel">Hoogte wijzigen</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Sluiten"></button>
+      </div>
+      <div class="modal-body">
+        Weet je zeker dat je de hoogte wilt wijzigen? De berekeningen worden opnieuw uitgevoerd.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuleren</button>
+        <button type="button" class="btn btn-primary" id="confirmHeightChangeButton">Ja, wijzigen</button>
       </div>
     </div>
   </div>
@@ -603,10 +763,10 @@ const climateHeatmap = JSON.parse('{{ climate_heatmap|escapejs }}');
 
 
 const comfortPolygons = JSON.parse('{{ comfort_polygons|escapejs }}');
-let comfortPolygon =
-    comfortPolygons.A;
+let comfortPolygon = JSON.parse('{{ comfort_zone_polygon|escapejs }}');
 
-
+const comfortZoneEnabled =
+    sessionStorage.getItem('comfortZoneEnabled') !== 'false';
 
 const heatmapEnabled =
     sessionStorage.getItem('toggleClimateHeatmap') !== 'false';
@@ -1073,7 +1233,7 @@ const comfortZonePlugin = {
     beforeDatasetsDraw(chart) {
         
         if (
-            !chart.options.plugins.climateHeatmap.enabled
+            !chart.options.plugins.comfortZone.enabled
         ) return;
 
         const ctx = chart.ctx;
@@ -1184,6 +1344,7 @@ const pressurePlugin = {
       },
       plugins: {
         climateHeatmap: {enabled: heatmapEnabled},
+        comfortZone: {enabled: comfortZoneEnabled},
         legend: { display: false },
         tooltip: {
           enabled: true, displayColors: false,
@@ -1281,5 +1442,3 @@ window.currentUsername = "{{ username|escapejs }}";
   <script>pdfUrlReadMe = "{% static 'tools/files/TOOLW1-README.pdf' %}"</script>
   <script>pdfUrlExcel = "{% static 'tools/files/TOOL_W1_Mollierdiagram.xlsx' %}"</script>
 {% endblock %}
-
-

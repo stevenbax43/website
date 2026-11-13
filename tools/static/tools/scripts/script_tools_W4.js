@@ -2,10 +2,11 @@
   // prevent double-wiring if the script is included twice
   if (window.__co2Init) return;
   window.__co2Init = true;
-
+  
   // ====== Save/Load (as you had) ==================================================
   function saveInputValues() {
-    const fields = document.querySelectorAll('input[type="number"],input[type="text"], select');
+ 
+    const fields = document.querySelectorAll('#inputForm input[type="number"], #inputForm input[type="text"], #inputForm select');
     fields.forEach(field => {
       const { id, type, name, value } = field;
       if (id && type !== 'hidden' && name !== 'csrfmiddlewaretoken') {
@@ -15,7 +16,8 @@
   }
 
   function loadInputValues() {
-    const fields = document.querySelectorAll('input[type="number"],input[type="text"], select');
+    console.log("LOAD");
+    const fields = document.querySelectorAll('#inputForm input[type="number"], #inputForm input[type="text"], #inputForm select');
     fields.forEach(field => {
       const { id, type, name } = field;
       if (id && type !== 'hidden' && name !== 'csrfmiddlewaretoken') {
@@ -25,6 +27,7 @@
         }
       }
     });
+    
   }
 
   // ====== Trigger control ==========================================================
@@ -96,6 +99,245 @@
       leavingToDifferent = dest !== HREF;
     }
   });
+  //dynamische wissel ventialtie totaal of pp 
+  const ventilationMode =
+      CO2_data.ventilation_mode || "pp";
+
+  const ventilatiePP =
+      CO2_data.ventilatie_pp || 0;
+
+  const ventilatieTotaal =
+      CO2_data.ventilatiedebiet_totaal || 0;
+  
+  // ======================================================
+  // Ventilatie
+  // ======================================================
+
+  const modeEl =
+      document.getElementById("ventilation_mode");
+
+  const labelEl =
+      document.getElementById("ventilation_label");
+
+  const unitEl =
+      document.getElementById("ventilation_unit");
+
+  const valueEl =
+      document.getElementById("ventilation_value");
+
+  const personsEl =
+      document.getElementById("number_persons");
+
+
+  function updateVentilationUI() {
+
+      if (
+          !modeEl ||
+          !labelEl ||
+          !unitEl
+      ) return;
+
+      if (modeEl.value === "pp") {
+
+          labelEl.textContent =
+              "Debiet per persoon";
+
+          unitEl.textContent =
+              "m³/h p.p.";
+
+      } else {
+
+          labelEl.textContent =
+              "Totaal ventilatiedebiet";
+
+          unitEl.textContent =
+              "m³/h";
+      }
+  }
+
+
+  function convertVentilationValue() {
+
+      if (
+          !valueEl ||
+          !personsEl
+      ) return;
+
+      const persons =
+          parseFloat(
+              personsEl.value || 0
+          );
+
+      if (persons <= 0) return;
+
+      let value =
+          parseFloat(
+              valueEl.value || 0
+          );
+
+      if (isNaN(value)) value = 0;
+
+      if (modeEl.value === "pp") {
+
+          // totaal -> pp
+
+          value = value / persons;
+
+      } else {
+
+          // pp -> totaal
+
+          value = value * persons;
+      }
+
+      valueEl.value =
+          value.toFixed(1);
+  }
+
+
+  modeEl?.addEventListener(
+      "change",
+      function () {
+
+          convertVentilationValue();
+
+          updateVentilationUI();
+
+          saveInputValues();
+      }
+  );
+
+  // Resultatenkaarten vullen
+   document.addEventListener("DOMContentLoaded", () => {
+
+      const conc =
+          document.getElementById(
+              "max_concentration_result"
+          );
+
+      const increase =
+          document.getElementById(
+              "max_increase_result"
+          );
+
+      const time =
+          document.getElementById(
+              "time_to_max_result"
+          );
+
+      const ventilationResult =
+          document.getElementById(
+              "ventilation_result"
+          );
+
+      const ventilationLabel =
+          document.getElementById(
+              "ventilation_result_label"
+          );
+
+      if (conc) {
+          conc.innerHTML =
+              `${maxConcentration.toFixed(0)} ppm`;
+      }
+
+      if (increase) {
+          increase.innerHTML =
+              `+${maxIncrease.toFixed(0)} ppm`;
+      }
+
+      if (time) {
+          time.innerHTML =
+              formatHours(maxTimeConcentration);
+      }
+
+      if (
+          ventilationResult &&
+          ventilationLabel
+      ) {
+
+          if (ventilationMode === "pp") {
+
+              ventilationResult.innerHTML =
+                  `${ventilatieTotaal.toFixed(0)} m³/h`;
+
+              ventilationLabel.innerHTML =
+                  "Ventilatiedebiet totaal";
+
+          } else {
+
+              ventilationResult.innerHTML =
+                  `${ventilatiePP.toFixed(1)} m³/h p.p.`;
+
+              ventilationLabel.innerHTML =
+                  "Ventilatie per persoon";
+          }
+      }
+
+  });
+  document
+  .getElementById("pdfDetailsForm")
+  .addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      document.getElementById("project_name").value =
+          document.getElementById("pdf_project_name").value.trim();
+      document.getElementById("project_number").value =
+          document.getElementById("pdf_project_number").value.trim();
+      document.getElementById("room_name").value =
+          document.getElementById("pdf_room_name").value.trim();
+      document.getElementById("room_number").value =
+          document.getElementById("pdf_room_number").value.trim();
+
+      const canvas = document.getElementById("CO2_verloop");
+
+      if (!canvas) {
+        console.error("[CO2] Cannot generate PDF: chart canvas not found");
+        return;
+      }
+
+      const scale = 4;
+
+      const exportCanvas = document.createElement("canvas");
+
+      exportCanvas.width = canvas.width * scale;
+      exportCanvas.height = canvas.height * scale;
+
+      const exportCtx = exportCanvas.getContext("2d");
+
+      exportCtx.fillStyle = "#FFFFFF";
+      exportCtx.fillRect(
+          0,
+          0,
+          exportCanvas.width,
+          exportCanvas.height
+      );
+
+      exportCtx.scale(scale, scale);
+      exportCtx.drawImage(canvas, 0, 0);
+
+      const chartImage = exportCanvas
+          .toDataURL("image/png")
+          .split(",")[1];
+
+      document.getElementById("chart_image_base64").value =
+          chartImage;
+
+      document.getElementById("max_concentration").value =
+          maxConcentration.toFixed(0);
+
+      document.getElementById("max_increase").value =
+          maxIncrease.toFixed(0);
+
+      document.getElementById("time_to_max").value =
+          formatHours(maxTimeConcentration);
+
+      const form = document.getElementById("inputForm");
+
+      form.action = document.getElementById("SavePDFButton").dataset.pdfUrl;
+      form.method = "post";
+
+      form.submit();
+  });
 
   document.addEventListener('submit', (e) => {
     const action = e.target.getAttribute('action') || location.href;
@@ -116,9 +358,9 @@
   document.addEventListener('DOMContentLoaded', function () {
     // Load input values when the page is loaded
     loadInputValues();
-
+    updateVentilationUI();
     // Save & submit on change
-    document.querySelectorAll('input, select').forEach(field => {
+    document.querySelectorAll('#inputForm input').forEach(field => {
       field.addEventListener('change', function () {
         console.log(`[CO2] change -> save+submit: ${field.id}`);
         saveInputValues();
@@ -126,6 +368,14 @@
         if (form && typeof form.requestSubmit === 'function') form.requestSubmit();
         else if (form) form.submit();
       });
+    });
+
+    document.getElementById('production_pp')?.addEventListener('change', function () {
+      console.log('[CO2] change -> save+submit: production_pp');
+      saveInputValues();
+      const form = document.getElementById('inputForm');
+      if (form && typeof form.requestSubmit === 'function') form.requestSubmit();
+      else if (form) form.submit();
     });
 
     // Remember and restore scroll position (per path)
@@ -144,4 +394,3 @@
     });
   });
 })();
-

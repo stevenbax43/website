@@ -8,7 +8,7 @@ const on = (el, evt, fn) => el && el.addEventListener(evt, fn);
 // Persist inputs
 // -------------------------
 function saveInputValues() {
-  const fields = document.querySelectorAll('input[type="number"],input[type="text"],input[type="checkbox"], select');
+  const fields = byId('inputForm')?.querySelectorAll('input[type="number"],input[type="text"],input[type="checkbox"], select') || [];
   fields.forEach(field => {
     const { id, type, name, value } = field;
     if (id && type !== 'hidden' && name !== 'csrfmiddlewaretoken') {
@@ -498,12 +498,72 @@ function cloneAndConvertTableHeaders(originalTable) {
 }
 
 function initEventListeners() {
+  const comfortZoneSettingsButton =
+    document.querySelector('.comfort-zone-toggle[aria-controls="comfortZoneSettings"]');
+  const comfortZoneSettings = byId('comfortZoneSettings');
+  if (comfortZoneSettingsButton && comfortZoneSettings) {
+    on(comfortZoneSettingsButton, 'click', () => {
+      const isExpanded = comfortZoneSettingsButton.getAttribute('aria-expanded') === 'true';
+      comfortZoneSettings.hidden = isExpanded;
+      comfortZoneSettingsButton.setAttribute('aria-expanded', String(!isExpanded));
+    });
+  }
+
+  const climateYearSettingsButton =
+    document.querySelector('.comfort-zone-toggle[aria-controls="climateYearSettings"]');
+  const climateYearSettings = byId('climateYearSettings');
+  if (climateYearSettingsButton && climateYearSettings) {
+    on(climateYearSettingsButton, 'click', () => {
+      const isExpanded = climateYearSettingsButton.getAttribute('aria-expanded') === 'true';
+      climateYearSettings.hidden = isExpanded;
+      climateYearSettingsButton.setAttribute('aria-expanded', String(!isExpanded));
+    });
+  }
+
   // Inputs → recalc + keep UI visibility logic
+  const heightInput = byId('Height_var');
+  let confirmedHeight = heightInput?.value;
+  const heightModalElement = byId('confirmHeightModal');
+  const heightModal = heightModalElement && window.bootstrap?.Modal
+    ? bootstrap.Modal.getOrCreateInstance(heightModalElement)
+    : null;
+  let confirmingHeightChange = false;
+
+  const recalculateMollier = () => {
+    saveInputValues();
+    byId('mollierButton')?.click();
+    setTimeout(initProcesDropdowns, 100);
+  };
+
+  on(byId('confirmHeightChangeButton'), 'click', () => {
+    if (!heightInput || !heightModal) return;
+    confirmingHeightChange = true;
+    confirmedHeight = heightInput.value;
+    heightModal.hide();
+    recalculateMollier();
+  });
+
+  on(heightModalElement, 'hidden.bs.modal', () => {
+    if (!confirmingHeightChange && heightInput) {
+      heightInput.value = confirmedHeight;
+      sessionStorage.setItem(heightInput.id, confirmedHeight);
+    }
+    confirmingHeightChange = false;
+  });
+
   document.querySelectorAll('input[type="number"]').forEach(field => {
     on(field, 'change', () => {
-      saveInputValues();
-      byId('mollierButton')?.click();
-      setTimeout(initProcesDropdowns, 100);
+      if (field === heightInput && field.value !== confirmedHeight) {
+        if (!heightModal) {
+          console.error('[W1] Bootstrap-modal voor hoogtebevestiging is niet beschikbaar.');
+          field.value = confirmedHeight;
+          return;
+        }
+        heightModal.show();
+        return;
+      }
+
+      recalculateMollier();
     });
     setAllProcessNameColors();   
   });
@@ -549,22 +609,48 @@ function initEventListeners() {
     }
   });
   
-  on(
-      byId('comfortClass'),
-      'change',
-      function () {
+  const comfortZoneToggle = byId('toggleComfortZone');
+  if (comfortZoneToggle) {
+    comfortZoneToggle.checked =
+      sessionStorage.getItem('comfortZoneEnabled') !== 'false';
+    sessionStorage.setItem(
+      comfortZoneToggle.id,
+      String(comfortZoneToggle.checked)
+    );
 
-          comfortPolygon =
-              comfortPolygons[
-                  this.value
-              ];
+    on(comfortZoneToggle, 'change', function () {
+      const isVisible = this.checked;
+      sessionStorage.setItem('comfortZoneEnabled', String(isVisible));
+      sessionStorage.setItem(this.id, String(isVisible));
 
-          window.myLineChart.update();
+      const chart = window.myLineChart;
+      const comfortZoneOptions = chart?.options?.plugins?.comfortZone;
+      if (!comfortZoneOptions) {
+        console.error('[W1] Comfortzone-instelling ontbreekt in de grafiek.');
+        return;
       }
-  );
+
+      comfortZoneOptions.enabled = isVisible;
+      chart.update('none');
+    });
+  }
 
   const climateToggle =
     byId('toggleClimateHeatmap');
+
+  const climateYearSelect = byId('climateYearSelect');
+  if (climateYearSelect) {
+    const savedClimateYear = sessionStorage.getItem(climateYearSelect.id);
+    const hasSavedOption = Array.from(climateYearSelect.options)
+      .some(option => option.value === savedClimateYear);
+    if (hasSavedOption) {
+      climateYearSelect.value = savedClimateYear;
+    }
+
+    on(climateYearSelect, 'change', function () {
+      sessionStorage.setItem(climateYearSelect.id, this.value);
+    });
+  }
 
   on(climateToggle, 'change', function () {
 
@@ -597,19 +683,42 @@ function initEventListeners() {
   on(byId('printButton'), 'click', () => window.print());
   on(byId('excelButton'), 'click', () => { if (window.pdfUrlExcel) window.open(pdfUrlExcel, '_blank'); });
 
-  on(byId('SaveInputsButton'), 'click', () => {
-    const projectName = prompt("Voer projectnaam in:");
-    if (projectName && projectName.trim() !== "") sendSessionStorageToDjango(projectName.trim());
-  });
+  on(byId('saveInputsForm'), 'submit', async (event) => {
+    event.preventDefault();
+    const nameInput = byId('save_project_name');
+    const status = byId('saveInputsStatus');
+    const submitButton = byId('saveInputsSubmitButton');
+    const projectName = nameInput.value.trim();
+    status.classList.add('d-none');
+    status.classList.remove('alert-success', 'alert-danger');
+    if (!projectName) {
+      nameInput.focus();
+      status.textContent = 'Vul een projectnaam in om de invoer op te slaan.';
+      status.classList.add('alert-danger');
+      status.classList.remove('d-none');
+      return;
+    }
 
-  on(byId('LoadInputsButton'), 'click', () => {
-    if (window.bootstrap?.Modal) {
-      const modal = new bootstrap.Modal(byId('loadProjectModal'));
-      modal.show();
+    saveInputValues();
+    sessionStorage.setItem('currentProces', String(currentProces));
+    submitButton.disabled = true;
+    try {
+      const savedProject = await sendSessionStorageToDjango(projectName);
+      updateSavedProjectList(savedProject);
+      status.textContent = 'Project opgeslagen. Je kunt het ophalen via de knop Load Project.';
+      status.classList.add('alert-success');
+    } catch (error) {
+      console.error('[W1] Opslaan van de invoer is mislukt:', error);
+      status.textContent = 'Opslaan is niet gelukt. Probeer het opnieuw.';
+      status.classList.add('alert-danger');
+    } finally {
+      submitButton.disabled = false;
+      status.classList.remove('d-none');
     }
   });
 
-  on(byId('SavePDFButton'), 'click', () => {
+  on(byId('pdfDetailsForm'), 'submit', (event) => {
+    event.preventDefault();
     const tablePoints = document.querySelector('#table_points')?.closest('.card-body')?.querySelector('table');
     const tableProces = document.querySelector('#table_proces')?.closest('.card-body')?.querySelector('table'); 
     if (!tablePoints || !tableProces) return;
@@ -642,6 +751,10 @@ function initEventListeners() {
     byId("table_points_json").value  = JSON.stringify(tableDataPoints);
     byId("table_process_json").value = JSON.stringify(tableDataProces);
     byId("chart_image_base64").value = base64;
+    byId("project_name").value = byId("pdf_project_name").value.trim();
+    byId("project_number").value = byId("pdf_project_number").value.trim();
+    byId("season").value = byId("pdf_season").value;
+    byId("room_name").value = byId("pdf_room_name").value.trim();
 
     const pdfUrl = byId("SavePDFButton")?.dataset?.pdfUrl;
     const form = byId("inputForm");
@@ -682,31 +795,200 @@ function sendSessionStorageToDjango(projectName) {
     sessionData[key] = sessionStorage.getItem(key);
   }
 
-  fetch("{% url 'tools:save_project' %}", {
+  return fetch(saveProjectUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+      "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]')?.value || getCookie('csrftoken')
     },
     body: JSON.stringify({ projectname: projectName, sessionstorage: sessionData })
   })
-  .then(r => r.json())
-  .then(() => alert("Opgeslagen!"))
-  .catch(err => { console.error(err); alert("Fout bij opslaan"); });
+  .then(response => {
+    if (!response.ok) throw new Error(`Server returned ${response.status}`);
+    return response.json();
+  })
+  .then(data => {
+    if (data.status !== 'success') throw new Error(data.message || 'Opslaan mislukt');
+    return data;
+  });
+}
+
+function updateSavedProjectList(project) {
+  const list = byId('savedProjectsList');
+  const emptyMessage = byId('noSavedProjectsMessage');
+  if (!list || !emptyMessage || !project?.project_id) {
+    throw new Error('De lijst met opgeslagen projecten ontbreekt.');
+  }
+
+  const projectId = String(project.project_id);
+  let item = list.querySelector(`[data-project-id="${projectId}"]`);
+  if (!item) {
+    item = document.createElement('li');
+    item.className = 'list-group-item d-flex justify-content-between align-items-center';
+    item.dataset.projectId = projectId;
+
+    const name = document.createElement('span');
+    name.className = 'saved-project-name';
+    item.appendChild(name);
+
+    const buttons = document.createElement('div');
+    buttons.className = 'btn-group btn-group-sm';
+    buttons.setAttribute('role', 'group');
+
+    const loadButton = document.createElement('button');
+    loadButton.type = 'button';
+    loadButton.className = 'btn btn-outline-primary';
+    loadButton.textContent = 'Load';
+    loadButton.addEventListener('click', () => loadSavedProject(projectId));
+    buttons.appendChild(loadButton);
+
+    const deleteButton = document.createElement('button');
+    deleteButton.type = 'button';
+    deleteButton.className = 'btn btn-outline-danger';
+    deleteButton.textContent = 'Delete';
+    deleteButton.addEventListener('click', () => deleteProject(projectId));
+    buttons.appendChild(deleteButton);
+    item.appendChild(buttons);
+
+    list.prepend(item);
+  }
+
+  item.dataset.projectName = project.projectname;
+  item.querySelector('.saved-project-name').textContent = project.projectname;
+  list.classList.remove('d-none');
+  emptyMessage.classList.add('d-none');
+
+  while (list.children.length > 10) {
+    list.lastElementChild.remove();
+  }
 }
 
 function loadSavedProject(projectId) {
-  fetch("{% url 'tools:load_project' %}", {
+  fetch(loadProjectUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || getCookie('csrftoken')
     },
     body: JSON.stringify({ project_id: projectId })
   })
-  .then(r => r.json())
-  .then(data => { if (data.status === 'ok') location.reload(); else alert('❌ ' + (data.message || 'Fout bij laden')); })
+  .then(response => {
+    if (!response.ok) throw new Error(`Server returned ${response.status}`);
+    return response.json();
+  })
+  .then(data => {
+    if (data.status === 'ok') {
+      location.reload();
+      return;
+    }
+    throw new Error(data.message || 'Fout bij laden');
+  })
   .catch(err => { console.error(err); alert('⚠️ Verbindingsfout'); });
+}
+
+function loadMollierPreset(presetName) {
+  const presets = {
+    summer: {
+      name: 'Zomersituatie',
+      activeSteps: 3,
+      fields: {
+        comfortTempMin: '21',
+        comfortTempMax: '24',
+        comfortRhMin: '30',
+        comfortRhMax: '70',
+        toggleClimateHeatmap: false,
+        qv_var: '10000',
+        varStart1: 'Tdb',
+        StartInput1: '32',
+        varStart2: 'RH',
+        StartInput2: '40',
+        proces1: 'heat_rec',
+        inputproces1_name: 'Warmtewiel',
+        Proces1_value4_input: '24',
+        Proces1_value6_input: '50',
+        Proces1_value7_input: '80',
+        Proces1_value8_input: '80',
+        proces2: 'cool',
+        proces2_func: 'power',
+        inputproces2_name: 'Koelbatterij',
+        Proces2_value1_input: '80',
+        Proces2_value2_input: '100',
+        proces3: 'heat',
+        proces3_func: 'toTemp',
+        inputproces3_name: 'Naverwarming',
+        Proces3_value2_input: '21',
+      },
+    },
+    winter: {
+      name: 'Wintersituatie',
+      activeSteps: 2,
+      fields: {
+        comfortTempMin: '21',
+        comfortTempMax: '24',
+        comfortRhMin: '30',
+        comfortRhMax: '70',
+        toggleClimateHeatmap: false,
+        qv_var: '10000',
+        varStart1: 'Tdb',
+        StartInput1: '-8',
+        varStart2: 'AH',
+        StartInput2: '1',
+        proces1: 'heat_rec',
+        inputproces1_name: 'Warmtewiel',
+        Proces1_value4_input: '21',
+        Proces1_value6_input: '40',
+        Proces1_value7_input: '80',
+        Proces1_value8_input: '80',
+        proces2: 'heat',
+        proces2_func: 'toTemp',
+        inputproces2_name: 'Naverwarming',
+        Proces2_value2_input: '22',
+      },
+    },
+  };
+  const preset = presets[presetName];
+  const form = byId('inputForm');
+  const submitButton = byId('mollierButton');
+  if (!preset || !form || !submitButton) {
+    console.error(`[W1] Voorbeeld '${presetName}' kan niet worden geladen.`);
+    return;
+  }
+
+  for (let step = 1; step <= maxProces; step++) {
+    const processSelect = byId(`proces${step}`);
+    const functionSelect = byId(`proces${step}_func`);
+    const secondaryFunctionSelect = byId(`proces${step}_func2`);
+    const processName = byId(`inputproces${step}_name`);
+    if (processSelect) processSelect.value = 'selectProces';
+    if (functionSelect) functionSelect.value = 'power';
+    if (secondaryFunctionSelect) secondaryFunctionSelect.value = 'AdiabaticX';
+    if (processName) processName.value = '';
+    for (let inputIndex = 1; inputIndex <= 9; inputIndex++) {
+      const input = byId(`Proces${step}_value${inputIndex}_input`);
+      if (input) input.value = input.defaultValue;
+    }
+  }
+
+  Object.entries(preset.fields).forEach(([id, value]) => {
+    const field = byId(id);
+    if (!field) return;
+    if (field.type === 'checkbox') {
+      field.checked = Boolean(value);
+    } else {
+      field.value = value;
+    }
+  });
+
+  currentProces = preset.activeSteps;
+  sessionStorage.setItem('currentProces', String(currentProces));
+  updateProcesContainers();
+  initAirInputs();
+  initProcesDropdowns();
+  saveInputValues();
+  window.bootstrap?.Modal
+    .getOrCreateInstance(byId('loadProjectModal'))
+    .hide();
+  submitButton.click();
 }
 
 function getCookie(name) {
@@ -723,16 +1005,24 @@ function getCookie(name) {
 function deleteProject(projectId) {
   if (!confirm("Weet je zeker dat je dit project wilt verwijderen?")) return;
 
-  fetch("{% url 'tools:delete_project' %}", {
+  fetch(deleteProjectUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || getCookie('csrftoken')
     },
     body: JSON.stringify({ project_id: projectId })
   })
-  .then(r => { if (!r.ok) throw new Error(`Server returned ${r.status}`); return r.json(); })
-  .then(data => { if (data.status === 'deleted') location.reload(); else alert('❌ ' + (data.message || 'Fout bij verwijderen')); })
+  .then(response => {
+    if (!response.ok) throw new Error(`Server returned ${response.status}`);
+    return response.json();
+  })
+  .then(data => {
+    if (data.status === 'deleted') {
+      location.reload();
+      return;
+    }
+    throw new Error(data.message || 'Fout bij verwijderen');
+  })
   .catch(err => { console.error(err); alert('⚠️ Verbindings- of serverfout bij verwijderen'); });
 }
-

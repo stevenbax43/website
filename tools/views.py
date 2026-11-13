@@ -1,25 +1,31 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods, require_POST
 from django.utils.decorators import method_decorator
 from django.http import HttpResponse, JsonResponse, Http404
-from django.contrib import messages
 from django.templatetags.static import static
-from tools.models import ProjectMollier, SfbClass
+from tools.models import ProjectMollier, SfbClass, ToolUsageEvent
 from django.db.models import Q 
 from tools.services.sfb_scoring import analyse_search_term
+from .usage_tracking import CLIENT_CALCULATION_TOOLS, is_usage_tracking_excluded
 
 from .Tool_A1_Gebouwdata import gebouwgegevens
 from .Tool_A3_klimaatjaar import klimaatjaar, generate_pdf_climate
-from .Tool_A4_conceptlogic import handle_tool_request
-from .Tool_A5_NLsfB import get_children
+from .Tool_A4_NLsfB import get_children
 from .Tool_W1_MollierDiagram import MollierView, generate_pdf_mollier
-from .Tool_W2_expansievat import expansievat
-from .Tool_W4_CO2verloop import CO2verloop
+from .Tool_W2_expansievat import (
+    InvalidCoolingInputs,
+    InvalidPressureRange,
+    build_pressure_range_diagram,
+    expansievat,
+)
+from .Tool_W4_CO2verloop import CO2verloop, generate_pdf_CO2
 from .Tool_W5_buffervat import buffervat
+from .Tool_W7_installatiegeluid import OCTAVE_BANDS, calculate as calculate_installation_noise
 
 
-import json, io
+import json, io, math
 import pandas as pd
 
 # inhoudsopgave pagina 
@@ -27,65 +33,107 @@ import pandas as pd
 def tools(request):
     return render(request, 'tools/tools_index.html')
 
+
+@login_required(login_url='accounts:login')
+@require_POST
+def record_client_calculation(request):
+    if is_usage_tracking_excluded(request.user):
+        return HttpResponse(status=204)
+
+    tool = request.POST.get("tool")
+    if tool not in CLIENT_CALCULATION_TOOLS:
+        return JsonResponse({"error": "Unknown client-side tool"}, status=400)
+
+    ToolUsageEvent.objects.create(
+        user=request.user,
+        tool=tool,
+        action="calculation",
+    )
+    return HttpResponse(status=204)
+
+
 @method_decorator(csrf_exempt, name='dispatch')
 @login_required(login_url='accounts:login')
 def save_project(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            projectname = data.get('projectname')
-            sessionstorage = data.get('sessionstorage')
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Invalid method'}, status=405)
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Ongeldige JSON'}, status=400)
+    if not isinstance(data, dict):
+        return JsonResponse({'status': 'error', 'message': 'Ongeldige projectgegevens'}, status=400)
 
-            # Check if user already has 10 projects
-            existing_projects = ProjectMollier.objects.filter(user=request.user).order_by('created_at')
-            if existing_projects.count() >= 10:
-                # Delete oldest project
-                oldest = existing_projects.first()
-                oldest.delete()
+    projectname = data.get('projectname')
+    sessionstorage = data.get('sessionstorage')
+    if not isinstance(projectname, str) or not projectname.strip():
+        return JsonResponse({'status': 'error', 'message': 'Projectnaam ontbreekt'}, status=400)
+    if not isinstance(sessionstorage, dict):
+        return JsonResponse({'status': 'error', 'message': 'Projectgegevens ontbreken'}, status=400)
 
-            ProjectMollier.objects.update_or_create(
-                user=request.user,
-                projectname=projectname,
-                defaults={'sessionstorage': sessionstorage}
-            )
-            return JsonResponse({'status': 'success'})
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
-    return JsonResponse({'error': 'Invalid method'}, status=405)
+    project, created = ProjectMollier.objects.update_or_create(
+        user=request.user,
+        projectname=projectname.strip(),
+        defaults={'sessionstorage': sessionstorage},
+    )
+    if created:
+        projects = ProjectMollier.objects.filter(user=request.user).order_by('created_at')
+        if projects.count() > 10:
+            projects.exclude(pk=project.pk).first().delete()
+    return JsonResponse({
+        'status': 'success',
+        'project_id': project.pk,
+        'projectname': project.projectname,
+    })
 
 @method_decorator(csrf_exempt, name='dispatch')
 @login_required(login_url='accounts:login')
 def load_project(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            project_id = data.get('project_id')
-            project = ProjectMollier.objects.get(pk=project_id, user=request.user)
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Invalid method'}, status=405)
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Ongeldige JSON'}, status=400)
+    if not isinstance(data, dict):
+        return JsonResponse({'status': 'error', 'message': 'Ongeldige projectgegevens'}, status=400)
 
-            # Save session data temporarily in Django session
-            request.session['restored_sessionstorage'] = project.sessionstorage
+    project_id = data.get('project_id')
+    if isinstance(project_id, bool) or not str(project_id).isdigit():
+        return JsonResponse({'status': 'error', 'message': 'Project niet gevonden'}, status=404)
+    try:
+        project = ProjectMollier.objects.get(
+            pk=project_id,
+            user=request.user,
+        )
+    except (ProjectMollier.DoesNotExist, ValueError, TypeError):
+        return JsonResponse({'status': 'error', 'message': 'Project niet gevonden'}, status=404)
 
-            return JsonResponse({'status': 'ok'})
-        except ProjectMollier.DoesNotExist:
-            return JsonResponse({'status': 'error', 'message': 'Project niet gevonden'}, status=404)
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
-    return JsonResponse({'error': 'Invalid method'}, status=405)
+    request.session['restored_sessionstorage'] = project.sessionstorage
+    return JsonResponse({'status': 'ok'})
 
 @method_decorator(csrf_exempt, name='dispatch')
 @login_required(login_url='accounts:login')
 def delete_project(request):
-    
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Invalid method'}, status=405)
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Ongeldige JSON'}, status=400)
+    if not isinstance(data, dict):
+        return JsonResponse({'status': 'error', 'message': 'Ongeldige projectgegevens'}, status=400)
 
-    # pull from request.POST instead of request.body/JSON
-    project_id = request.POST.get('project_id')
-    
-    project = get_object_or_404(ProjectMollier, id=project_id, user=request.user)
-
-    project.delete()
-    messages.success(request, "Project succesvol verwijderd.")
-    # redirect back to your project‐list page
-    return redirect('tools:tool_W1.html')
+    project_id = data.get('project_id')
+    if isinstance(project_id, bool) or not str(project_id).isdigit():
+        return JsonResponse({'status': 'error', 'message': 'Project niet gevonden'}, status=404)
+    deleted, _ = ProjectMollier.objects.filter(
+        id=project_id,
+        user=request.user,
+    ).delete()
+    if not deleted:
+        return JsonResponse({'status': 'error', 'message': 'Project niet gevonden'}, status=404)
+    return JsonResponse({'status': 'deleted'})
 
 # Gebouwgegevens pagina
 @login_required(login_url='accounts:login')
@@ -117,22 +165,9 @@ def tool_A3(request):
 
 @login_required(login_url='accounts:login')
 def tool_A4(request):
-    if request.GET.get("reset") == "true":
-        request.session.pop("answers", None)
-        request.session.pop("current_question", None)
-        
-        return redirect("tools:conceptdenken")
-
-    context = handle_tool_request(request)
-
-    return render(request, "tools/tool_A4.html", context)
-
-#NL-sfB pagina
-
-@login_required(login_url='accounts:login')
-def tool_A5(request):
+   
     root_classes = SfbClass.objects.filter(parent__isnull=True)
-    return render(request, "tools/tool_A5.html", {"classes": root_classes})
+    return render(request, "tools/tool_A4.html", {"classes": root_classes})
 
 
 #Mollier diagram pagina 
@@ -146,6 +181,12 @@ def tool_W1(request):
     restored_sessionstorage = request.session.pop('restored_sessionstorage', None)
     comfort_stats = mollierView_output[7] or {}
     comfort_polygons = mollierView_output[8] or {}
+    comfort_zone_values = {
+        'temp_min': request.POST.get('comfort_temp_min') or '20',
+        'temp_max': request.POST.get('comfort_temp_max') or '24',
+        'rh_min': request.POST.get('comfort_rh_min') or '30',
+        'rh_max': request.POST.get('comfort_rh_max') or '70',
+    }
     # Final render
     return render(request, 'tools/tool_W1.html', {
         'lines_RH': json.dumps(mollierView_output[0]),
@@ -160,6 +201,8 @@ def tool_W1(request):
         'comfort_stats_json': json.dumps(comfort_stats),  # Used for comfort stats
         'comfort_stats': comfort_stats, 
         'comfort_polygons': json.dumps(comfort_polygons),
+        'comfort_zone_polygon': json.dumps(mollierView_output[9]),
+        'comfort_zone_values': comfort_zone_values,
         'process_steps': list(range(1, 5)),  # Used for template iteration
         'username': [request.user.first_name, request.user.last_name,request.user.username],
         'saved_projects': saved_projects,  # Pass projects to template
@@ -170,8 +213,64 @@ def tool_W1(request):
 # expansievat pagina
 @login_required(login_url='accounts:login')
 def tool_W2(request):
-    expansievat_ouput = expansievat(request)
-    return render(request, 'tools/tool_W2.html', {'expansievat_output': expansievat_ouput})
+    volume_input_error = None
+    calculation_error = None
+    calculation_mode = request.POST.get('calculation_mode', 'heating')
+    cooling_mode = calculation_mode == 'cooling'
+    system_volume_unknown = request.method == 'POST' and request.POST.get(
+        'sys_inhoud_onbekend'
+    ) == 'on' and not cooling_mode
+    requested_unknown_volume = request.method == 'POST' and request.POST.get(
+        'sys_inhoud_onbekend'
+    ) == 'on'
+    if cooling_mode and requested_unknown_volume:
+        expansievat_ouput = []
+        volume_input_error = (
+            'Voor de Flamco-koelmethode is de werkelijke systeeminhoud nodig. '
+            'Vul deze in en schakel "Systeeminhoud onbekend" uit.'
+        )
+    elif system_volume_unknown:
+        try:
+            entered_power = float(request.POST.get('vermogen', ''))
+        except ValueError:
+            entered_power = 0
+        if not math.isfinite(entered_power) or entered_power <= 0:
+            expansievat_ouput = []
+            volume_input_error = (
+                'Vul het vermogen van de cv-ketel in om de systeeminhoud te schatten.'
+            )
+        else:
+            try:
+                expansievat_ouput = expansievat(request)
+            except (InvalidPressureRange, InvalidCoolingInputs) as error:
+                expansievat_ouput = []
+                calculation_error = str(error)
+    elif request.method == 'POST':
+        try:
+            expansievat_ouput = expansievat(request)
+        except (InvalidPressureRange, InvalidCoolingInputs) as error:
+            expansievat_ouput = []
+            calculation_error = str(error)
+    else:
+        expansievat_ouput = []
+    pressure_diagram = None
+    if expansievat_ouput:
+        pressure_diagram = build_pressure_range_diagram(
+            expansievat_ouput[14],
+            expansievat_ouput[4],
+            expansievat_ouput[11],
+            expansievat_ouput[8],
+            expansievat_ouput[23] if cooling_mode else None,
+        )
+    return render(request, 'tools/tool_W2.html', {
+        'expansievat_output': expansievat_ouput,
+        'pressure_diagram': pressure_diagram,
+        'volume_input_error': volume_input_error,
+        'calculation_error': calculation_error,
+        'system_volume_unknown': system_volume_unknown,
+        'calculation_mode': calculation_mode,
+        'cooling_mode': cooling_mode,
+    })
 
 # drukverlies pagina
 @login_required(login_url='accounts:login')
@@ -193,6 +292,27 @@ def tool_W5(request):
 @login_required(login_url='accounts:login')
 def tool_W6(request):
     return render(request, 'tools/tool_W6.html')
+
+@login_required(login_url='accounts:login')
+@require_http_methods(["GET", "POST"])
+def tool_W7(request):
+    if request.method == "POST":
+        try:
+            payload = json.loads(request.body)
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            return JsonResponse({"error": "Ongeldige JSON-invoer."}, status=400)
+        try:
+            return JsonResponse(calculate_installation_noise(payload))
+        except ValueError as error:
+            return JsonResponse({"error": str(error)}, status=400)
+
+    spectrum_defaults = (80, 78, 75, 72, 70, 68, 65, 60)
+    return render(request, 'tools/tool_W7.html', {
+        "spectrum_bands": [
+            (frequency, correction, default)
+            for (frequency, correction), default in zip(OCTAVE_BANDS, spectrum_defaults)
+        ],
+    })
 
 # driefase-vermogen pagina
 @login_required(login_url='accounts:login')
@@ -232,12 +352,14 @@ def download_excel(request):
 @login_required(login_url='accounts:login')
 def generate_pdf_W1(request):
     return generate_pdf_mollier(request)
+def generate_pdf_W4(request):
+    return generate_pdf_CO2(request)
 @login_required(login_url='accounts:login')
 def generate_pdf_A3(request):
     return generate_pdf_climate(request)
 
 # Whitelist allowed tools; add more as needed for the ReadME!
-ALLOWED = {"INDEX","A1","A2","A3", "E1","W1","W2", "W3", "W4", "W5", "W6"}
+ALLOWED = {"INDEX","A1","A2","A3", "E1","W1","W2", "W3", "W4", "W5", "W6", "W7"}
 def tool_readme(request, tool):
     code = tool.upper()
     if code not in ALLOWED:

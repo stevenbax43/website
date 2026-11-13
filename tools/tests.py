@@ -1,3 +1,1075 @@
-from django.test import TestCase
+import json
+from io import BytesIO
 
-# Create your tests here.
+import pandas as pd
+from PyPDF2 import PdfReader
+from django.contrib.auth.models import User
+from django.test import RequestFactory, TestCase
+from django.urls import reverse
+
+from .Tool_W1_MollierDiagram import (
+    adjust_humidity_ratio_for_pressure,
+    build_comfort_zone_polygon,
+    calculate_comfort_statistics,
+    calculate_partial_vapor_pressure,
+    heatmapNEN5060,
+    mollier_graph,
+    pressure_at_height,
+)
+from .Tool_A4_NLsfB import get_parent_code
+from .Tool_W2_expansievat import (
+    InvalidCoolingInputs,
+    InvalidPressureRange,
+    build_pressure_range_diagram,
+    calculate_prepressure,
+    cooling_expansion_percentage,
+    expansievat,
+)
+from .Tool_W5_buffervat import buffervat
+from .Tool_W7_installatiegeluid import (
+    calculate_a_weighted_spectrum,
+    equivalent_sound_level,
+    logarithmic_sum,
+    sound_pressure_level,
+)
+from .models import (
+    ConceptSfbLink,
+    InstallatieConcept,
+    ProjectMollier,
+    SfbClass,
+    ToolUsageEvent,
+)
+from .services.nl_sfb_concepts import DEFAULT_CONCEPTS, seed_default_concepts
+from .services.sfb_scoring import analyse_search_term
+
+
+class ComfortZonePolygonTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.C_values = mollier_graph()[3]
+
+    def test_default_zone_has_curved_boundaries(self):
+        polygon = build_comfort_zone_polygon(
+            20, 24, 30, 70, 101325, self.C_values
+        )
+
+        self.assertEqual(len(polygon), 34)
+        self.assertEqual(polygon[0]["y"], 20)
+        self.assertEqual(polygon[16]["y"], 24)
+        self.assertEqual(polygon[17]["y"], 24)
+        self.assertEqual(polygon[-1]["y"], 20)
+
+    def test_zone_uses_pressure_at_the_selected_altitude(self):
+        sea_level_polygon = build_comfort_zone_polygon(
+            20, 24, 30, 70, 101325, self.C_values
+        )
+        high_altitude_pressure = 101325 * (1 - 2.25577e-5 * 3000) ** 5.256
+        high_altitude_polygon = build_comfort_zone_polygon(
+            20, 24, 30, 70, high_altitude_pressure, self.C_values
+        )
+
+        self.assertGreater(
+            high_altitude_polygon[0]["x"],
+            sea_level_polygon[0]["x"],
+        )
+
+    def test_invalid_bounds_are_rejected(self):
+        with self.assertRaises(ValueError):
+            build_comfort_zone_polygon(
+                24, 20, 30, 70, 101325, self.C_values
+            )
+
+
+class ClimateYearPressureTests(TestCase):
+    def test_humidity_ratio_is_recalculated_for_altitude_pressure(self):
+        source_data = {"x": [8.0]}
+        sea_level_pressure = 101325
+        high_altitude_pressure = pressure_at_height(2000)
+
+        sea_level_data = adjust_humidity_ratio_for_pressure(
+            pd.DataFrame(source_data),
+            sea_level_pressure,
+        )
+        high_altitude_data = adjust_humidity_ratio_for_pressure(
+            pd.DataFrame(source_data),
+            high_altitude_pressure,
+        )
+
+        self.assertGreater(high_altitude_data.loc[0, "x"], sea_level_data.loc[0, "x"])
+        self.assertAlmostEqual(
+            calculate_partial_vapor_pressure(
+                sea_level_data.loc[0, "x"], sea_level_pressure
+            ),
+            calculate_partial_vapor_pressure(
+                high_altitude_data.loc[0, "x"], high_altitude_pressure
+            ),
+        )
+
+
+class ComfortStatisticsTests(TestCase):
+    def test_vectorized_statistics_preserve_default_results(self):
+        _, climate_data = heatmapNEN5060()
+        expected = {
+            "A": (1693, 7067, 48, 41217, 50, 19.3),
+            "B": (3798, 4962, 0, 20917, 0, 43.4),
+            "C": (6019, 2741, 0, 7797, 0, 68.7),
+        }
+
+        for comfort_class, values in expected.items():
+            with self.subTest(comfort_class=comfort_class):
+                result = calculate_comfort_statistics(
+                    climate_data,
+                    comfort_class,
+                )
+                self.assertEqual(
+                    (
+                        result["comfort_hours"],
+                        result["heating_hours"],
+                        result["dehumidification_hours"],
+                        result["heat_energy_kwh"],
+                        result["dehumidification_kg"],
+                        result["comfort_factor"],
+                    ),
+                    values,
+                )
+
+
+class ExpansievatPrepressureTests(TestCase):
+    def test_w2_page_renders_bootstrap_input_and_output_cards(self):
+        user = User.objects.create_user(username="expansievat-layout-user")
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("tools:expansievat"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'class="card card-input shadow-sm mb-3"')
+        self.assertContains(response, 'id="st_height"')
+        self.assertContains(response, "hoogste radiator")
+        self.assertContains(response, 'id="calculation_mode"')
+        self.assertContains(response, 'id="cooling_parameters"')
+        self.assertContains(
+            response,
+            'row row-cols-1 row-cols-sm-2 row-cols-xl-5 g-3',
+        )
+        self.assertContains(response, 'id="sys_inhoud_onbekend"')
+        self.assertContains(response, 'id="locatieToggle"')
+        self.assertNotContains(response, 'id="toggleButton"')
+
+    def test_prepressure_is_derived_from_static_height(self):
+        self.assertEqual(calculate_prepressure(0), 0.5)
+        self.assertEqual(calculate_prepressure(2), 0.5)
+        self.assertEqual(calculate_prepressure(2.1), 1.0)
+        self.assertEqual(calculate_prepressure(7.1), 1.5)
+
+    def test_cooling_expansion_table_and_interpolation(self):
+        self.assertEqual(cooling_expansion_percentage(30, 0), 0.43)
+        self.assertAlmostEqual(cooling_expansion_percentage(35, 0), 0.61)
+        with self.assertRaises(InvalidCoolingInputs):
+            cooling_expansion_percentage(9, 0)
+
+    def test_cooling_calculation_uses_reserve_and_lowest_operating_pressure(self):
+        request = RequestFactory().post(
+            "/expansievat",
+            {
+                "calculation_mode": "cooling",
+                "cooling_min_temp": "10",
+                "cooling_max_temp": "30",
+                "glycol_percentage": "0",
+                "sys_inhoud": "1000",
+                "einddruk": "3",
+                "st_height": "0",
+                "vermogen": "0",
+                "CVInstallatie": "4",
+                "locatieToggle": "on",
+            },
+        )
+
+        result = expansievat(request)
+
+        self.assertEqual(result[18], "cooling")
+        self.assertEqual(result[19], 0)
+        self.assertEqual(result[20:22], [10.0, 30.0])
+        self.assertEqual(result[7], 0.39)
+        self.assertEqual(result[8], 3.9)
+        self.assertEqual(result[22], 2.0)
+        self.assertEqual(result[23], 1.0)
+        self.assertEqual(result[2], 18.2)
+        diagram = build_pressure_range_diagram(
+            result[14], result[4], result[11], result[8], result[23]
+        )
+        self.assertEqual(diagram["series"][1]["pressure_bar"], 1.0)
+
+    def test_cooling_rejects_reversed_temperature_range(self):
+        request = RequestFactory().post(
+            "/expansievat",
+            {
+                "calculation_mode": "cooling",
+                "cooling_min_temp": "30",
+                "cooling_max_temp": "10",
+                "glycol_percentage": "0",
+                "sys_inhoud": "1000",
+                "einddruk": "3",
+                "st_height": "0",
+                "locatieToggle": "on",
+            },
+        )
+
+        with self.assertRaises(InvalidCoolingInputs):
+            expansievat(request)
+
+    def test_cooling_requires_known_system_volume(self):
+        user = User.objects.create_user(username="expansievat-cooling-volume-user")
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse("tools:expansievat"),
+            {
+                "calculation_mode": "cooling",
+                "cooling_min_temp": "10",
+                "cooling_max_temp": "30",
+                "glycol_percentage": "0",
+                "sys_inhoud_onbekend": "on",
+                "einddruk": "3",
+                "st_height": "0",
+                "locatieToggle": "on",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "werkelijke systeeminhoud nodig")
+        self.assertIsNone(response.context["pressure_diagram"])
+
+    def test_cooling_page_renders_calculation_and_pressure_diagram(self):
+        user = User.objects.create_user(username="expansievat-cooling-page-user")
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse("tools:expansievat"),
+            {
+                "calculation_mode": "cooling",
+                "cooling_min_temp": "10",
+                "cooling_max_temp": "30",
+                "glycol_percentage": "0",
+                "sys_inhoud": "1000",
+                "einddruk": "3",
+                "st_height": "0",
+                "vermogen": "0",
+                "CVInstallatie": "4",
+                "locatieToggle": "on",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["pressure_diagram"]["fill_pressure_bar"], 1.0)
+        self.assertContains(response, "Koelinstallatie (Flamco)")
+        self.assertContains(response, "Reserve (50% Vexp)")
+        self.assertContains(response, "P<sub>g</sub> – laagste bedrijfsdruk")
+        self.assertContains(response, "P_f=P_{\\mathrm{veilig}}")
+        self.assertContains(response, "Pf")
+        self.assertNotContains(response, "P₁ = Pv")
+        self.assertNotContains(response, "P₂ = Pe")
+        self.assertNotContains(response, "P_e=P_{\\mathrm{veilig}}")
+        self.assertContains(response, "Glycol")
+        self.assertEqual(response.context["expansievat_output"][19], 0)
+
+    def test_pressure_diagram_shows_four_pressure_levels_and_expansion_volume(self):
+        diagram = build_pressure_range_diagram(7.1, 1.5, 2.6, 17.4)
+
+        self.assertEqual(
+            [line["key"] for line in diagram["series"]],
+            ["p0", "p1", "pe", "safety"],
+        )
+        self.assertEqual(diagram["series"][0]["pressure_bar"], 0.71)
+        self.assertEqual(diagram["series"][1]["pressure_bar"], 1.5)
+        self.assertEqual(diagram["series"][2]["pressure_bar"], 2.6)
+        self.assertEqual(diagram["series"][3]["pressure_bar"], 3.1)
+        self.assertEqual(diagram["y_ticks"][0]["label"], "0")
+        self.assertEqual(diagram["expansion_volume"], 17.4)
+        self.assertLess(diagram["fill_area_top"], diagram["plot_bottom"])
+
+    def test_w2_page_renders_pressure_range_diagram_after_calculation(self):
+        user = User.objects.create_user(username="expansievat-diagram-user")
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse("tools:expansievat"),
+            {
+                "temp_aanvoer": "80",
+                "temp_retour": "60",
+                "sys_inhoud": "1000",
+                "einddruk": "3",
+                "st_height": "7.1",
+                "vermogen": "0",
+                "CVInstallatie": "4",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'class="card card-output shadow-sm h-100"')
+        self.assertContains(response, "Drukbereik expansievat")
+        self.assertContains(response, "Druk (bar)")
+        self.assertContains(response, "Expansievolume (V<sub>exp</sub>):")
+        self.assertContains(response, "P<sub>1</sub> = P<sub>v</sub> – voordruk")
+        self.assertContains(response, "P₁ = Pv")
+        self.assertContains(response, "P₂ = Pe")
+        self.assertContains(response, "P<sub>bev</sub> – 0,5 bar boven Pe")
+        self.assertContains(response, "Beveiligingsdruk</dt><dd class=\"col-5 text-end\">3.1 bar")
+
+    def test_calculation_does_not_require_a_manual_prepressure(self):
+        request = RequestFactory().post(
+            "/expansievat",
+            {
+                "temp_aanvoer": "80",
+                "temp_retour": "60",
+                "sys_inhoud": "1000",
+                "einddruk": "3",
+                "st_height": "7.1",
+                "vermogen": "0",
+                "CVInstallatie": "4",
+            },
+        )
+
+        result = expansievat(request)
+
+        self.assertEqual(result[4], 1.5)
+
+    def test_known_system_volume_uses_entered_volume(self):
+        request = RequestFactory().post(
+            "/expansievat",
+            {
+                "temp_aanvoer": "80",
+                "temp_retour": "60",
+                "sys_inhoud": "1000",
+                "einddruk": "3",
+                "st_height": "0",
+                "vermogen": "200",
+                "CVInstallatie": "4",
+            },
+        )
+
+        result = expansievat(request)
+
+        self.assertEqual(result[13], 1000)
+        self.assertEqual(result[5], "Ingevoerde Vsys")
+
+    def test_unknown_system_volume_is_estimated_from_power_and_emitter(self):
+        request = RequestFactory().post(
+            "/expansievat",
+            {
+                "temp_aanvoer": "80",
+                "temp_retour": "60",
+                "einddruk": "3",
+                "st_height": "0",
+                "vermogen": "125",
+                "CVInstallatie": "4",
+                "sys_inhoud_onbekend": "on",
+            },
+        )
+
+        result = expansievat(request)
+
+        self.assertEqual(result[13], 1250)
+        self.assertEqual(result[5], "Vermogen en CV-afgifte")
+
+    def test_flamco_calculation_example_2(self):
+        request = RequestFactory().post(
+            "/expansievat",
+            {
+                "temp_aanvoer": "80",
+                "temp_retour": "60",
+                "einddruk": "3.0",
+                "st_height": "12",
+                "vermogen": "280",
+                "CVInstallatie": "3",
+                "sys_inhoud_onbekend": "on",
+                "locatieToggle": "on",
+            },
+        )
+
+        result = expansievat(request)
+
+        self.assertEqual(result[13], 2464)
+        self.assertEqual(result[14], 12)
+        self.assertEqual(result[4], 1.5)
+        self.assertEqual(result[7], 2.25)
+        self.assertEqual(result[8], 55.4)
+        self.assertEqual(result[1], 0.375)
+        self.assertEqual(result[2], 184.7)
+        self.assertEqual(result[3], 185)
+
+    def test_unknown_system_volume_requires_boiler_power(self):
+        user = User.objects.create_user(username="expansievat-missing-power-user")
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse("tools:expansievat"),
+            {
+                "temp_aanvoer": "80",
+                "temp_retour": "60",
+                "einddruk": "3",
+                "st_height": "0",
+                "CVInstallatie": "4",
+                "sys_inhoud_onbekend": "on",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Vul het vermogen van de cv-ketel in")
+        self.assertContains(response, 'id="sys_inhoud_onbekend" name="sys_inhoud_onbekend" checked')
+        self.assertContains(response, "Vermogen cv-ketel (P)")
+        self.assertContains(response, "Circulatiepomp in vertrek/retourleiding")
+
+    def test_static_height_that_exceeds_end_pressure_is_rejected(self):
+        user = User.objects.create_user(username="expansievat-invalid-pressure-user")
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse("tools:expansievat"),
+            {
+                "temp_aanvoer": "80",
+                "temp_retour": "60",
+                "sys_inhoud": "2000",
+                "einddruk": "3",
+                "st_height": "100",
+                "vermogen": "0",
+                "CVInstallatie": "4",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Geen geldig expansievatadvies")
+        self.assertContains(response, "De berekende voordruk (10.5 bar)")
+        self.assertNotContains(response, "Benodigd bruto volume")
+        self.assertIsNone(response.context["pressure_diagram"])
+
+    def test_expansion_calculation_raises_when_pressure_range_is_invalid(self):
+        request = RequestFactory().post(
+            "/expansievat",
+            {
+                "temp_aanvoer": "80",
+                "temp_retour": "60",
+                "sys_inhoud": "2000",
+                "einddruk": "3",
+                "st_height": "100",
+                "vermogen": "0",
+                "CVInstallatie": "4",
+            },
+        )
+
+        with self.assertRaises(InvalidPressureRange):
+            expansievat(request)
+
+
+class BuffervatWaterPropertiesTests(TestCase):
+    def test_buffervat_uses_fixed_water_properties(self):
+        request = RequestFactory().post(
+            "/buffervat",
+            {
+                "max_vermogen": "100",
+                "min_vermogen": "30",
+                "temp_verschil": "5",
+                "tijd_aan": "10",
+                "soortelijke_warmte": "1",
+                "dichtheid": "1",
+            },
+        )
+
+        result = buffervat(request)
+
+        self.assertEqual(result[0], 859)
+        self.assertEqual(result[1:4], [30.0, 5, 10])
+        self.assertEqual(result[4:], [4.2, 998])
+
+    def test_w5_page_shows_fixed_water_properties_without_editable_fields(self):
+        user = User.objects.create_user(username="buffervat-water-properties-user")
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("tools:buffervat"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "vaste soortelijke warmte")
+        self.assertContains(response, "998 kg/m")
+        self.assertNotContains(response, 'id="soortelijke_warmte"')
+        self.assertNotContains(response, 'id="dichtheid"')
+
+
+class ThreePhasePowerToolTests(TestCase):
+    def test_e1_page_renders_bootstrap_inputs_results_and_power_triangle(self):
+        user = User.objects.create_user(username="three-phase-power-user")
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("tools:driefase_vermogen"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "class=\"card card-input shadow-sm h-100\"")
+        self.assertContains(response, "class=\"power-result power-result--active\"")
+        self.assertContains(response, 'id="powerVectorDiagram"')
+        self.assertContains(response, 'id="vectorP"')
+        self.assertContains(response, 'id="vectorQ"')
+        self.assertContains(response, 'id="vectorS"')
+        self.assertNotContains(response, 'id="arrowCanvas"')
+
+
+class ToolUsageTrackingTests(TestCase):
+    def test_authenticated_tool_page_open_is_logged(self):
+        user = User.objects.create_user(username="tool-usage-page-user")
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("tools:driefase_vermogen"))
+
+        self.assertEqual(response.status_code, 200)
+        event = ToolUsageEvent.objects.get()
+        self.assertEqual(event.user, user)
+        self.assertEqual(event.tool, "E1")
+        self.assertEqual(event.action, "page_view")
+
+    def test_anonymous_tool_page_open_is_not_logged(self):
+        response = self.client.get(reverse("tools:driefase_vermogen"))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(ToolUsageEvent.objects.exists())
+
+    def test_owner_is_excluded_by_username_and_email(self):
+        excluded_users = [
+            User.objects.create_user(username="stevenbax", email="owner@example.com"),
+            User.objects.create_user(
+                username="owner-email-user",
+                email="steven.bax@kropman.nl",
+            ),
+        ]
+
+        for user in excluded_users:
+            with self.subTest(username=user.username):
+                self.client.force_login(user)
+                response = self.client.get(reverse("tools:driefase_vermogen"))
+                self.assertEqual(response.status_code, 200)
+                self.client.post(
+                    reverse("tools:record_client_calculation"),
+                    {"tool": "E1"},
+                )
+                self.assertFalse(ToolUsageEvent.objects.filter(user=user).exists())
+
+    def test_server_calculation_is_logged_without_input_values(self):
+        user = User.objects.create_user(username="tool-usage-calc-user")
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse("tools:buffervat"),
+            {
+                "max_vermogen": "100",
+                "min_vermogen": "30",
+                "temp_verschil": "5",
+                "tijd_aan": "10",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        event = ToolUsageEvent.objects.get()
+        self.assertEqual((event.user, event.tool, event.action), (user, "W5", "calculation"))
+        self.assertNotIn("max_vermogen", {field.name for field in event._meta.fields})
+
+    def test_client_calculation_event_accepts_only_supported_tool_codes(self):
+        user = User.objects.create_user(username="tool-usage-client-calc-user")
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse("tools:record_client_calculation"),
+            {"tool": "E1"},
+        )
+
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(ToolUsageEvent.objects.get().tool, "E1")
+
+        invalid_response = self.client.post(
+            reverse("tools:record_client_calculation"),
+            {"tool": "A1"},
+        )
+
+        self.assertEqual(invalid_response.status_code, 400)
+        self.assertEqual(ToolUsageEvent.objects.count(), 1)
+
+    def test_admin_shows_tool_usage_totals_and_filterable_events(self):
+        user = User.objects.create_superuser(
+            username="tool-usage-admin-user",
+            email="admin@example.com",
+            password="test-password",
+        )
+        ToolUsageEvent.objects.create(user=user, tool="W5", action="page_view")
+        ToolUsageEvent.objects.create(user=user, tool="W5", action="calculation")
+        ToolUsageEvent.objects.create(user=user, tool="E1", action="page_view")
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse("admin:tools_toolusageevent_changelist")
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Toolgebruik")
+        self.assertContains(response, "W5")
+        self.assertContains(response, "Pagina geopend")
+        self.assertContains(response, "Berekening uitgevoerd")
+        summary = {item["tool"]: item for item in response.context["usage_summary"]}
+        self.assertEqual(summary["W5"]["page_views"], 1)
+        self.assertEqual(summary["W5"]["calculations"], 1)
+        self.assertEqual(summary["W5"]["total"], 2)
+
+
+class InstallationNoiseCalculationTests(TestCase):
+    def test_logarithmic_sum_matches_readme_example(self):
+        self.assertAlmostEqual(logarithmic_sum([70, 74]), 75.455, places=2)
+        self.assertAlmostEqual(logarithmic_sum([70, 70]), 73.010, places=2)
+
+    def test_a_weighted_spectrum_matches_readme_example(self):
+        result = calculate_a_weighted_spectrum(
+            [80, 78, 75, 72, 70, 68, 65, 60]
+        )
+
+        self.assertAlmostEqual(result["total_db"], 83.6, places=1)
+        self.assertAlmostEqual(result["total_db_a"], 75.6, places=1)
+        self.assertEqual(len(result["bands"]), 8)
+        self.assertEqual(result["bands"][0]["correction_db"], -26)
+
+    def test_a_weighted_spectrum_ignores_empty_bands(self):
+        result = calculate_a_weighted_spectrum(
+            [None, None, None, None, 70, None, None, None]
+        )
+
+        self.assertEqual(result["total_db"], 70)
+        self.assertEqual(result["total_db_a"], 70)
+        self.assertEqual(len(result["bands"]), 1)
+
+    def test_open_air_conversion_uses_readme_formula(self):
+        result = sound_pressure_level(80, 2, 10)
+
+        self.assertAlmostEqual(result, 52.0182, places=3)
+
+    def test_operating_time_correction_matches_readme_formula(self):
+        self.assertAlmostEqual(equivalent_sound_level(80, 4, 8), 76.9897, places=3)
+        with self.assertRaises(ValueError):
+            equivalent_sound_level(80, 9, 8)
+
+    def test_invalid_or_empty_input_is_rejected(self):
+        for levels in ([], [float("nan")], [True]):
+            with self.subTest(levels=levels):
+                with self.assertRaises(ValueError):
+                    logarithmic_sum(levels)
+        with self.assertRaises(ValueError):
+            calculate_a_weighted_spectrum([None] * 8)
+        with self.assertRaises(ValueError):
+            sound_pressure_level(80, 0, 10)
+
+    def test_tool_renders_and_calculation_endpoint_tracks_only_calculations(self):
+        user = User.objects.create_user(username="installation-noise-user")
+        self.client.force_login(user)
+
+        page = self.client.get(reverse("tools:installatiegeluid"))
+        self.assertEqual(page.status_code, 200)
+        self.assertContains(page, "Tool W7: Installatiegeluid")
+        self.assertContains(page, "id=\"band63\"")
+        self.assertContains(page, 'id="spectrumUnweightedResult"')
+        self.assertEqual(ToolUsageEvent.objects.get().tool, "W7")
+        self.assertEqual(ToolUsageEvent.objects.get().action, "page_view")
+
+        index = self.client.get(reverse("tools:tools"))
+        self.assertEqual(index.status_code, 200)
+        self.assertContains(index, "installatiegeluid.png")
+        self.assertContains(page, "geluidsbron-Q-posities.png")
+        for position, coefficient in (("a", 1), ("b", 2), ("c", 4), ("d", 8)):
+            self.assertContains(page, f"({position})</strong> Q = {coefficient}")
+        self.assertContains(page, '<select id="directivity" class="form-select" required>')
+        self.assertContains(page, '(d) Bron bij drie vlakken — Q = 8')
+
+        result = self.client.post(
+            reverse("tools:installatiegeluid"),
+            data=json.dumps({"calculation": "sum", "levels": [70, 74]}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(result.status_code, 200)
+        self.assertAlmostEqual(result.json()["total_db"], 75.455, places=2)
+        self.assertEqual(ToolUsageEvent.objects.count(), 2)
+        self.assertEqual(
+            ToolUsageEvent.objects.order_by("-created_at").first().action,
+            "calculation",
+        )
+
+    def test_tool_rejects_malformed_and_invalid_requests(self):
+        user = User.objects.create_user(username="installation-noise-invalid-user")
+        self.client.force_login(user)
+
+        malformed = self.client.post(
+            reverse("tools:installatiegeluid"),
+            data="{",
+            content_type="application/json",
+        )
+        invalid = self.client.post(
+            reverse("tools:installatiegeluid"),
+            data=json.dumps({"calculation": "sum", "levels": []}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(malformed.status_code, 400)
+        self.assertEqual(invalid.status_code, 400)
+        self.assertFalse(ToolUsageEvent.objects.filter(action="calculation").exists())
+
+
+class MollierPdfExportTests(TestCase):
+    def test_pdf_defaults_missing_project_details_to_not_determined(self):
+        user = User.objects.create_user(username="mollier-pdf-defaults-user")
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse("tools:generate_pdf_W1"),
+            {
+                "SavePDFButton": "clicked",
+                "table_points_json": "[]",
+                "table_process_json": "[]",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        first_page = PdfReader(BytesIO(response.content)).pages[0]
+        exported_text = " ".join(first_page.extract_text().split())
+        self.assertGreaterEqual(exported_text.count("n.t.b."), 4)
+
+    def test_pdf_includes_project_and_start_condition_inputs(self):
+        user = User.objects.create_user(username="mollier-pdf-user")
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse("tools:generate_pdf_W1"),
+            {
+                "SavePDFButton": "clicked",
+                "project_name": "Project & gebouw",
+                "project_number": "P-123",
+                "season": "Winter",
+                "room_name": "LBK hoofdgebouw",
+                "qv_var": "12500",
+                "Height_var": "350",
+                "varStart1": "Tdb",
+                "StartInput1": "22.5",
+                "varStart2": "RH",
+                "StartInput2": "55",
+                "table_points_json": "[]",
+                "table_process_json": "[]",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "application/pdf")
+        first_page = PdfReader(BytesIO(response.content)).pages[0]
+        exported_text = " ".join(first_page.extract_text().split())
+        second_page_text = PdfReader(BytesIO(response.content)).pages[1].extract_text()
+
+        for value in (
+            "Project & gebouw",
+            "P-123",
+            "Winter",
+            "LBK hoofdgebouw",
+            "12.500 m3/h",
+            "350 m",
+            "Startpunt",
+            "Drogeboltemperatuur",
+            "22,5",
+            "Relatieve luchtvochtigheid",
+            "55 %",
+        ):
+            with self.subTest(value=value):
+                self.assertIn(value, exported_text)
+
+        self.assertIn("Informatie over de Processen", second_page_text)
+        self.assertIn("Drogeboltemperatuur", second_page_text)
+
+    def test_pdf_tables_fit_all_five_points_and_four_processes(self):
+        user = User.objects.create_user(username="mollier-table-user")
+        self.client.force_login(user)
+        point_rows = [
+            ["Punt", "Tdb", "Tnb", "Tdauw", "X", "H", "RH", "Pw", "rho", "Qv"],
+            ["", "[C]", "[C]", "[C]", "[g/kg]", "[kJ/kg]", "[%]", "[Pa]", "[kg/m3]", "[m3/h]"],
+        ]
+        point_rows.extend(
+            [[str(point), "20", "15", "10", "8", "40", "50", "1200", "1.2", "10000"]
+             for point in range(5)]
+        )
+        process_rows = [
+            ["Proces", "Actie 1", "Actie 2", "Delta T", "Delta X", "Delta H", "P totaal", "P voelbaar", "P latent", "VWF"],
+            ["", "", "", "[C]", "[g/kg]", "[kJ/kg]", "[kW]", "[kW]", "[kW]", "[-]"],
+        ]
+        process_rows.extend(
+            [[f"Proces {step}", "Verwarmen", "", "2", "0", "2", "1", "1", "0", "1"]
+             for step in range(1, 5)]
+        )
+
+        response = self.client.post(
+            reverse("tools:generate_pdf_W1"),
+            {
+                "SavePDFButton": "clicked",
+                "table_points_json": json.dumps(point_rows),
+                "table_process_json": json.dumps(process_rows),
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        first_page_text = PdfReader(BytesIO(response.content)).pages[0].extract_text()
+        for value in ("0", "1", "2", "3", "4", "Proces 1", "Proces 2", "Proces 3", "Proces 4"):
+            with self.subTest(value=value):
+                self.assertIn(value, first_page_text)
+
+
+class MollierProjectPersistenceTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="mollier-project-user")
+        self.client.force_login(self.user)
+
+    def test_save_and_load_project_restores_saved_form_state(self):
+        state = {
+            "qv_var": "8500",
+            "varStart1": "Tdb",
+            "StartInput1": "24",
+            "currentProces": "2",
+        }
+        save_response = self.client.post(
+            reverse("tools:save_project"),
+            data=json.dumps({
+                "projectname": "Zomersituatie",
+                "sessionstorage": state,
+            }),
+            content_type="application/json",
+        )
+
+        self.assertEqual(save_response.status_code, 200)
+        self.assertEqual(save_response.json()["status"], "success")
+        project = ProjectMollier.objects.get(
+            user=self.user,
+            projectname="Zomersituatie",
+        )
+        self.assertEqual(save_response.json()["project_id"], project.pk)
+        self.assertEqual(save_response.json()["projectname"], project.projectname)
+        self.assertEqual(project.sessionstorage, state)
+
+        load_response = self.client.post(
+            reverse("tools:load_project"),
+            data=json.dumps({"project_id": project.pk}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(load_response.status_code, 200)
+        self.assertEqual(load_response.json(), {"status": "ok"})
+        self.assertEqual(
+            self.client.session["restored_sessionstorage"],
+            state,
+        )
+
+    def test_delete_project_accepts_json_and_returns_json(self):
+        project = ProjectMollier.objects.create(
+            user=self.user,
+            projectname="Wintersituatie",
+            sessionstorage={"qv_var": "10000"},
+        )
+
+        response = self.client.post(
+            reverse("tools:delete_project"),
+            data=json.dumps({"project_id": project.pk}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"status": "deleted"})
+        self.assertFalse(ProjectMollier.objects.filter(pk=project.pk).exists())
+
+
+class MollierExamplePresetTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="mollier-example-user")
+        self.client.force_login(self.user)
+
+    def test_examples_are_available_without_user_saved_projects(self):
+        response = self.client.get(reverse("tools:mollier"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Zomersituatie")
+        self.assertContains(response, "Wintersituatie")
+        self.assertContains(response, "loadMollierPreset('summer')")
+        self.assertContains(response, "loadMollierPreset('winter')")
+        self.assertFalse(ProjectMollier.objects.filter(user=self.user).exists())
+
+    def test_example_process_inputs_generate_process_rows(self):
+        examples = (
+            {
+                "currentProces": "1,2,3",
+                "comfort_temp_min": "21",
+                "comfort_temp_max": "24",
+                "comfort_rh_min": "30",
+                "comfort_rh_max": "70",
+                "qv_var": "10000",
+                "varStart1": "Tdb",
+                "StartInput1": "32",
+                "varStart2": "RH",
+                "StartInput2": "40",
+                "proces1": "heat_rec",
+                "inputproces1_name": "Warmtewiel",
+                "Proces1_value4_input": "24",
+                "Proces1_value6_input": "50",
+                "Proces1_value7_input": "80",
+                "Proces1_value8_input": "80",
+                "proces2": "cool",
+                "proces2_func": "power",
+                "inputproces2_name": "Koelbatterij",
+                "Proces2_value1_input": "80",
+                "Proces2_value2_input": "100",
+                "proces3": "heat",
+                "proces3_func": "toTemp",
+                "inputproces3_name": "Naverwarming",
+                "Proces3_value2_input": "21",
+            },
+            {
+                "currentProces": "1,2",
+                "comfort_temp_min": "21",
+                "comfort_temp_max": "24",
+                "comfort_rh_min": "30",
+                "comfort_rh_max": "70",
+                "qv_var": "10000",
+                "varStart1": "Tdb",
+                "StartInput1": "-8",
+                "varStart2": "AH",
+                "StartInput2": "1",
+                "proces1": "heat_rec",
+                "inputproces1_name": "Warmtewiel",
+                "Proces1_value4_input": "21",
+                "Proces1_value6_input": "40",
+                "Proces1_value7_input": "80",
+                "Proces1_value8_input": "80",
+                "proces2": "heat",
+                "proces2_func": "toTemp",
+                "inputproces2_name": "Naverwarming",
+                "Proces2_value2_input": "22",
+            },
+        )
+        expected_process_names = (
+            ("Warmtewiel", "Koelbatterij", "Naverwarming"),
+            ("Warmtewiel", "Naverwarming"),
+        )
+
+        for form_data, expected_names in zip(examples, expected_process_names):
+            with self.subTest(start=form_data["StartInput1"]):
+                response = self.client.post(reverse("tools:mollier"), form_data)
+
+                self.assertEqual(response.status_code, 200)
+                for process_name in expected_names:
+                    self.assertContains(response, process_name)
+                self.assertContains(
+                    response,
+                    'id="comfortTempMin" name="comfort_temp_min"\n'
+                    '                               value="21"',
+                )
+                self.assertContains(
+                    response,
+                    'id="comfortTempMax" name="comfort_temp_max"\n'
+                    '                               value="24"',
+                )
+                self.assertContains(
+                    response,
+                    'id="comfortRhMin" name="comfort_rh_min"\n'
+                    '                               value="30"',
+                )
+                self.assertContains(
+                    response,
+                    'id="comfortRhMax" name="comfort_rh_max"\n'
+                    '                               value="70"',
+                )
+
+
+class NlSfbSearchTests(TestCase):
+    def create_class(self, code, description):
+        return SfbClass.objects.create(
+            classificatie="NL-SfB",
+            taal="nl",
+            tabel="1",
+            code=code,
+            code_tekst="",
+            omschrijving=description,
+        )
+
+    def test_search_matches_plural_and_compound_terms(self):
+        self.create_class("57.4", "luchtbehandeling; ventilatoren")
+
+        results = analyse_search_term("ventilator")
+
+        self.assertEqual(results["werktuigbouwkundig"][0]["code"], "57.4")
+
+    def test_search_matches_nl_sfb_code(self):
+        self.create_class("57.31", "luchtbehandeling")
+
+        results = analyse_search_term("57.31")
+
+        self.assertEqual(results["werktuigbouwkundig"][0]["code"], "57.31")
+
+    def test_search_uses_configured_concept_synonyms(self):
+        sfb_class = self.create_class("56.81", "verwarming; afgifte")
+        concept = InstallatieConcept.objects.create(
+            naam="radiator",
+            synoniemen="verwarmingselement, heater",
+        )
+        ConceptSfbLink.objects.create(
+            concept=concept,
+            sfb=sfb_class,
+            rol="werktuigbouwkundig",
+        )
+
+        results = analyse_search_term("heater")
+
+        self.assertEqual(results["werktuigbouwkundig"][0]["code"], "56.81")
+
+    def test_parent_code_follows_each_nl_sfb_level(self):
+        self.assertEqual(get_parent_code("57.3"), "57")
+        self.assertEqual(get_parent_code("57.31"), "57.3")
+        self.assertEqual(get_parent_code("57.311"), "57.31")
+
+    def test_default_search_concepts_are_seeded_idempotently(self):
+        codes = {
+            code
+            for concept in DEFAULT_CONCEPTS.values()
+            for code in concept["links"]
+        }
+        for code in codes:
+            self.create_class(code, f"NL-SfB testclassificatie {code}")
+
+        seed_default_concepts()
+        initial_link_count = ConceptSfbLink.objects.count()
+        seed_default_concepts()
+
+        self.assertEqual(ConceptSfbLink.objects.count(), initial_link_count)
+        ventilation_results = analyse_search_term("ventilatoren")
+        toilet_results = analyse_search_term("wc")
+        outlet_results = analyse_search_term("stopcontacten")
+
+        self.assertEqual(
+            {item["code"] for item in ventilation_results["werktuigbouwkundig"]},
+            {"57.21", "57.31"},
+        )
+        self.assertEqual(toilet_results["bouwkundig"][0]["code"], "74.11")
+        self.assertEqual(outlet_results["elektrotechnisch"][0]["code"], "62.12")
+
+    def test_search_api_returns_synonym_matches(self):
+        sfb_class = self.create_class("57.31", "luchtbehandeling")
+        concept = InstallatieConcept.objects.create(
+            naam="Ventilator",
+            synoniemen="ventilatoren",
+        )
+        ConceptSfbLink.objects.create(
+            concept=concept,
+            sfb=sfb_class,
+            rol="werktuigbouwkundig",
+        )
+        self.client.force_login(User.objects.create_user(username="search-user"))
+
+        response = self.client.get(
+            reverse("tools:sfb_search"),
+            {"q": "ventilatoren"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json()["routes"]["werktuigbouwkundig"][0]["code"],
+            "57.31",
+        )

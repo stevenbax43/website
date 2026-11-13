@@ -1,0 +1,30 @@
+{% extends "admin/change_list.html" %}
+
+{% block content_title %}
+  {{ block.super }}
+  {% if usage_summary %}
+    <section class="module" aria-labelledby="usage-summary-title">
+      <h2 id="usage-summary-title">Toolgebruik (alle geregistreerde gebeurtenissen)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Tool</th>
+            <th scope="col">Pagina geopend</th>
+            <th scope="col">Berekening uitgevoerd</th>
+            <th scope="col">Totaal</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in usage_summary %}
+            <tr>
+              <th scope="row">{{ item.tool }}</th>
+              <td>{{ item.page_views }}</td>
+              <td>{{ item.calculations }}</td>
+              <td>{{ item.total }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+  {% endif %}
+{% endblock %}

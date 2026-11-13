@@ -1,0 +1,46 @@
+.w7-result,
+.result-message {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #146c43;
+  font-variant-numeric: tabular-nums;
+}
+
+.source-level .input-group-text:first-child {
+  min-width: 5.5rem;
+}
+
+.error-message {
+  color: #b02a37;
+  min-height: 1.25rem;
+}
+
+#spectrumDetails .spectrum-detail {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid #e9ecef;
+  padding: .2rem 0;
+}
+
+.q-guide-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.q-guide-key {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .25rem .75rem;
+  font-size: .9rem;
+}
+
+@media print {
+  .no-print,
+  .calculate-button,
+  #addSource,
+  .remove-source {
+    display: none !important;
+  }
+}
