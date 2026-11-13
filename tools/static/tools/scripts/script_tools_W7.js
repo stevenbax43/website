@@ -76,6 +76,7 @@
       if (kind === "sum") {
         document.getElementById("sumResult").textContent = `Resultaat: ${format(data.total_db)} dB`;
       } else if (kind === "spectrum") {
+        document.getElementById("spectrumUnweightedResult").textContent = `Totaal Lw: ${format(data.total_db)} dB`;
         document.getElementById("spectrumResult").textContent = `Totaal Lp,A: ${format(data.total_db_a)} dB(A)`;
         document.getElementById("spectrumDetails").innerHTML = data.bands.map((band) => (
           `<div class="spectrum-detail"><span>${band.frequency_hz} Hz: ${format(band.level_db)} ${band.correction_db >= 0 ? "+" : ""}${band.correction_db} dB</span><strong>${format(band.level_a_db)} dB(A)</strong></div>`

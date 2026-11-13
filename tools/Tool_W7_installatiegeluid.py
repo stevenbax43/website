@@ -41,12 +41,14 @@ def calculate_a_weighted_spectrum(levels):
         raise ValueError("Vul voor elke octaafband een waarde in of laat deze leeg.")
 
     bands = []
+    unweighted_levels = []
     weighted_levels = []
     for (frequency, correction), level in zip(OCTAVE_BANDS, levels):
         if level is None or level == "":
             continue
         level_db = _number(level, f"{frequency} Hz", -200, 200)
         level_a_db = level_db + correction
+        unweighted_levels.append(level_db)
         weighted_levels.append(level_a_db)
         bands.append({
             "frequency_hz": frequency,
@@ -57,10 +59,13 @@ def calculate_a_weighted_spectrum(levels):
 
     if not weighted_levels:
         raise ValueError("Vul minimaal één octaafband in.")
+    total_db = 10 * math.log10(
+        sum(10 ** (level / 10) for level in unweighted_levels)
+    )
     total_db_a = 10 * math.log10(
         sum(10 ** (level / 10) for level in weighted_levels)
     )
-    return {"bands": bands, "total_db_a": total_db_a}
+    return {"bands": bands, "total_db": total_db, "total_db_a": total_db_a}
 
 
 def sound_pressure_level(sound_power_db, directivity_factor, distance_m):

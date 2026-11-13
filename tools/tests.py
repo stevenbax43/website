@@ -624,6 +624,7 @@ class InstallationNoiseCalculationTests(TestCase):
             [80, 78, 75, 72, 70, 68, 65, 60]
         )
 
+        self.assertAlmostEqual(result["total_db"], 83.6, places=1)
         self.assertAlmostEqual(result["total_db_a"], 75.6, places=1)
         self.assertEqual(len(result["bands"]), 8)
         self.assertEqual(result["bands"][0]["correction_db"], -26)
@@ -633,6 +634,7 @@ class InstallationNoiseCalculationTests(TestCase):
             [None, None, None, None, 70, None, None, None]
         )
 
+        self.assertEqual(result["total_db"], 70)
         self.assertEqual(result["total_db_a"], 70)
         self.assertEqual(len(result["bands"]), 1)
 
@@ -664,6 +666,7 @@ class InstallationNoiseCalculationTests(TestCase):
         self.assertEqual(page.status_code, 200)
         self.assertContains(page, "Tool W7: Installatiegeluid")
         self.assertContains(page, "id=\"band63\"")
+        self.assertContains(page, 'id="spectrumUnweightedResult"')
         self.assertEqual(ToolUsageEvent.objects.get().tool, "W7")
         self.assertEqual(ToolUsageEvent.objects.get().action, "page_view")
 
