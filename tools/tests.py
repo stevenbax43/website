@@ -18,6 +18,7 @@ from .Tool_W1_MollierDiagram import (
 )
 from .Tool_A4_NLsfB import get_parent_code
 from .Tool_W2_expansievat import (
+    InvalidPressureRange,
     build_pressure_range_diagram,
     calculate_prepressure,
     expansievat,
@@ -127,7 +128,6 @@ class ExpansievatPrepressureTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'class="card card-input shadow-sm mb-3"')
-        self.assertContains(response, 'class="card card-output shadow-sm h-100"')
         self.assertContains(response, 'id="st_height"')
         self.assertContains(response, "hoogste radiator")
         self.assertContains(
@@ -177,6 +177,7 @@ class ExpansievatPrepressureTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'class="card card-output shadow-sm h-100"')
         self.assertContains(response, "Drukbereik expansievat")
         self.assertContains(response, "Druk (bar)")
         self.assertContains(response, "Expansievolume (V<sub>exp</sub>):")
@@ -263,6 +264,46 @@ class ExpansievatPrepressureTests(TestCase):
         self.assertContains(response, 'id="sys_inhoud_onbekend" name="sys_inhoud_onbekend" checked')
         self.assertContains(response, "Vermogen cv-ketel (P)")
         self.assertContains(response, "Circulatiepomp in vertrek/retourleiding")
+
+    def test_static_height_that_exceeds_end_pressure_is_rejected(self):
+        user = User.objects.create_user(username="expansievat-invalid-pressure-user")
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse("tools:expansievat"),
+            {
+                "temp_aanvoer": "80",
+                "temp_retour": "60",
+                "sys_inhoud": "2000",
+                "einddruk": "3",
+                "st_height": "100",
+                "vermogen": "0",
+                "CVInstallatie": "4",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Geen geldig expansievatadvies")
+        self.assertContains(response, "De berekende voordruk (10.5 bar)")
+        self.assertNotContains(response, "Benodigd bruto volume")
+        self.assertIsNone(response.context["pressure_diagram"])
+
+    def test_expansion_calculation_raises_when_pressure_range_is_invalid(self):
+        request = RequestFactory().post(
+            "/expansievat",
+            {
+                "temp_aanvoer": "80",
+                "temp_retour": "60",
+                "sys_inhoud": "2000",
+                "einddruk": "3",
+                "st_height": "100",
+                "vermogen": "0",
+                "CVInstallatie": "4",
+            },
+        )
+
+        with self.assertRaises(InvalidPressureRange):
+            expansievat(request)
 
 
 class MollierPdfExportTests(TestCase):

@@ -150,6 +150,13 @@
       </div>
     </div>
 
+    {% if calculation_error %}
+    <div class="alert alert-danger mt-3" role="alert">
+      <strong>Geen geldig expansievatadvies:</strong> {{ calculation_error }}
+    </div>
+    {% endif %}
+
+    {% if expansievat_output %}
     <div class="row g-3">
       <div class="col-12 col-lg-5">
         <div class="card card-output shadow-sm h-100">
@@ -229,6 +236,7 @@
         </div>
       </div>
     </div>
+    {% endif %}
   </form>
 
   {% if pressure_diagram %}

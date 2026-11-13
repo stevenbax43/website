@@ -12,7 +12,11 @@ from .Tool_A1_Gebouwdata import gebouwgegevens
 from .Tool_A3_klimaatjaar import klimaatjaar, generate_pdf_climate
 from .Tool_A4_NLsfB import get_children
 from .Tool_W1_MollierDiagram import MollierView, generate_pdf_mollier
-from .Tool_W2_expansievat import build_pressure_range_diagram, expansievat
+from .Tool_W2_expansievat import (
+    InvalidPressureRange,
+    build_pressure_range_diagram,
+    expansievat,
+)
 from .Tool_W4_CO2verloop import CO2verloop, generate_pdf_CO2
 from .Tool_W5_buffervat import buffervat
 
@@ -187,6 +191,7 @@ def tool_W1(request):
 @login_required(login_url='accounts:login')
 def tool_W2(request):
     volume_input_error = None
+    calculation_error = None
     system_volume_unknown = request.method == 'POST' and request.POST.get(
         'sys_inhoud_onbekend'
     ) == 'on'
@@ -201,9 +206,17 @@ def tool_W2(request):
                 'Vul het vermogen van de cv-ketel in om de systeeminhoud te schatten.'
             )
         else:
-            expansievat_ouput = expansievat(request)
+            try:
+                expansievat_ouput = expansievat(request)
+            except InvalidPressureRange as error:
+                expansievat_ouput = []
+                calculation_error = str(error)
     else:
-        expansievat_ouput = expansievat(request)
+        try:
+            expansievat_ouput = expansievat(request)
+        except InvalidPressureRange as error:
+            expansievat_ouput = []
+            calculation_error = str(error)
     pressure_diagram = None
     if expansievat_ouput:
         pressure_diagram = build_pressure_range_diagram(
@@ -216,6 +229,7 @@ def tool_W2(request):
         'expansievat_output': expansievat_ouput,
         'pressure_diagram': pressure_diagram,
         'volume_input_error': volume_input_error,
+        'calculation_error': calculation_error,
         'system_volume_unknown': system_volume_unknown,
     })
 

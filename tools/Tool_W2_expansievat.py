@@ -1,6 +1,10 @@
 import math
 
 
+class InvalidPressureRange(ValueError):
+    pass
+
+
 def calculate_prepressure(st_height):
     static_prepressure = st_height * 0.1 + 0.3
     return math.ceil(round(static_prepressure * 2, 10)) / 2
@@ -103,6 +107,15 @@ def expansievat(request):
             einddruk = einddruk - 0.4
         else:
             einddruk = einddruk
+
+        voordruk = calculate_prepressure(st_height)
+        if voordruk >= einddruk:
+            raise InvalidPressureRange(
+                f"De berekende voordruk ({voordruk:.1f} bar) is niet lager dan "
+                f"de effectieve einddruk ({einddruk:.1f} bar). Verlaag de "
+                "statische hoogte of verhoog de einddruk."
+            )
+
         #bepaal inhoud vat op basis van vermogen en CV-keuze
         CVInstallatieValues = [(0,5.2),(1,5.5),(2,6.9),(3,8.8),(4,10.0),(5,12.0),(6,20.0),(7,18.5),(8,25.8)]
         closest_index_CV = min(range(len(CVInstallatieValues)), key=lambda i: abs(CVInstallatieValues[i][0] - CV_keuze))
@@ -122,16 +135,22 @@ def expansievat(request):
         expansion_percentage = VolumeExpansionPercentage[closest_index_exp][1]
         expansion_volume = round(((expansion_percentage/100) * sys_inhoud),2)
 
-        voordruk = calculate_prepressure(st_height)
         based_on_voor = (
             '*Berekend op basis van statische hoogte '
             '(0,1 bar per meter + 0,3 bar veiligheidsmarge; afgerond naar '
             'boven op stappen van 0,5 bar)'
         )
-        nuttig_effect = round(
-            ((einddruk + 1) - (voordruk + 1)) / (einddruk + 1),
-            2,
-        )
+        raw_nuttig_effect = (einddruk - voordruk) / (einddruk + 1)
+        if raw_nuttig_effect <= 0:
+            raise InvalidPressureRange(
+                "De einddruk moet hoger zijn dan de berekende voordruk."
+            )
+        nuttig_effect = round(raw_nuttig_effect, 2)
+        if nuttig_effect <= 0:
+            raise InvalidPressureRange(
+                "Het drukverschil is te klein om een geldig expansievat te "
+                "berekenen. Verhoog de einddruk."
+            )
         bruto_vessel = round((expansion_volume * 1.25) / nuttig_effect, 1)
         volume_advies = math.ceil(bruto_vessel / 5) * 5
         
