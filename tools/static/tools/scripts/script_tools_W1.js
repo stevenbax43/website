@@ -865,7 +865,7 @@ function loadMollierPreset(presetName) {
         proces3: 'heat',
         proces3_func: 'toTemp',
         inputproces3_name: 'Naverwarming',
-        Proces3_value2_input: '16',
+        Proces3_value2_input: '21',
       },
     },
     winter: {
