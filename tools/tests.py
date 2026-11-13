@@ -4,7 +4,7 @@ from io import BytesIO
 import pandas as pd
 from PyPDF2 import PdfReader
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
 from .Tool_W1_MollierDiagram import (
@@ -17,6 +17,7 @@ from .Tool_W1_MollierDiagram import (
     pressure_at_height,
 )
 from .Tool_A4_NLsfB import get_parent_code
+from .Tool_W2_expansievat import calculate_prepressure, expansievat
 from .models import ConceptSfbLink, InstallatieConcept, ProjectMollier, SfbClass
 from .services.nl_sfb_concepts import DEFAULT_CONCEPTS, seed_default_concepts
 from .services.sfb_scoring import analyse_search_term
@@ -111,6 +112,32 @@ class ComfortStatisticsTests(TestCase):
                     ),
                     values,
                 )
+
+
+class ExpansievatPrepressureTests(TestCase):
+    def test_prepressure_is_derived_from_static_height(self):
+        self.assertEqual(calculate_prepressure(0), 0.5)
+        self.assertEqual(calculate_prepressure(2), 0.5)
+        self.assertEqual(calculate_prepressure(2.1), 1.0)
+        self.assertEqual(calculate_prepressure(7.1), 1.5)
+
+    def test_calculation_does_not_require_a_manual_prepressure(self):
+        request = RequestFactory().post(
+            "/expansievat",
+            {
+                "temp_aanvoer": "80",
+                "temp_retour": "60",
+                "sys_inhoud": "1000",
+                "einddruk": "3",
+                "st_height": "7.1",
+                "vermogen": "0",
+                "CVInstallatie": "4",
+            },
+        )
+
+        result = expansievat(request)
+
+        self.assertEqual(result[4], 1.5)
 
 
 class MollierPdfExportTests(TestCase):

@@ -1,14 +1,25 @@
 import math
+
+
+def calculate_prepressure(st_height):
+    static_prepressure = st_height * 0.1 + 0.3
+    return math.ceil(round(static_prepressure * 2, 10)) / 2
+
+
 def expansievat(request): 
     Temp_aanvoer, Temp_retour, Temp_average, input_sys_inhoud, expansion_volume,CV_volume_norm = 0,0,0,0,0,0
-    einddruk, voordruk_input,st_height, nuttig_effect, bruto_vessel, volume_advies, vermogen, voordruk =0,0,0,0,0,0,0,0
+    einddruk, st_height, nuttig_effect, bruto_vessel, volume_advies, vermogen, voordruk =0,0,0,0,0,0,0
     based_on_voor, based_on_sys = '',''
     locatie_toggle = False
     VolumeExpansionPercentage, CVInstallatieValues,expansievat_output= [], [], []
     if request.method =='POST':
         
         Temp_aanvoer, Temp_retour, input_sys_inhoud = map(int, [request.POST.get('temp_aanvoer'), request.POST.get('temp_retour'),  request.POST.get('sys_inhoud')])
-        einddruk, voordruk_input, st_height, vermogen = map(float,[request.POST.get('einddruk'), request.POST.get('voordruk'), request.POST.get('st_height'),request.POST.get('vermogen')])
+        einddruk, st_height, vermogen = map(float,[
+            request.POST.get('einddruk'),
+            request.POST.get('st_height'),
+            request.POST.get('vermogen'),
+        ])
         
                                                                      
         CV_keuze = int(request.POST.get('CVInstallatie'))
@@ -40,20 +51,18 @@ def expansievat(request):
         expansion_percentage = VolumeExpansionPercentage[closest_index_exp][1]
         expansion_volume = round(((expansion_percentage/100) * sys_inhoud),2)
 
-        nuttig_effect = round(((einddruk+1) - (voordruk_input+1))/(einddruk+1),2)
-        bruto_vessel = round((expansion_volume * 1.25) / nuttig_effect ,1)
-        volume_advies = math.ceil((bruto_vessel)/5) *5
-
-        # bepaal statische voordruk
-        voordruk_static = (st_height * 0.1) + 0.3 # statische hoogte 1 meter waterkolom = 0.1 bar. Met 0.3 bar veiligheidsmarge
-        if voordruk_static > voordruk_input: # als de statische berekende voordruk groter is dat de gekozen voordruk, kies een hogere voordruk
-            
-            data_voordruk = {0.5,1.0,1.5,2.0,2.5,3}
-            voordruk = next((value for value in data_voordruk if value >= voordruk_static), None)
-            based_on_voor = '*Berekend op basis van berekende statische voordruk'
-        else:
-            voordruk = voordruk_input
-            based_on_voor = '*Berekend op basis van voordruk input'
+        voordruk = calculate_prepressure(st_height)
+        based_on_voor = (
+            '*Berekend op basis van statische hoogte '
+            '(0,1 bar per meter + 0,3 bar veiligheidsmarge; afgerond naar '
+            'boven op stappen van 0,5 bar)'
+        )
+        nuttig_effect = round(
+            ((einddruk + 1) - (voordruk + 1)) / (einddruk + 1),
+            2,
+        )
+        bruto_vessel = round((expansion_volume * 1.25) / nuttig_effect, 1)
+        volume_advies = math.ceil(bruto_vessel / 5) * 5
         
         
         expansievat_output = [Temp_average, nuttig_effect, bruto_vessel, volume_advies, voordruk, based_on_sys, based_on_voor, expansion_percentage,
