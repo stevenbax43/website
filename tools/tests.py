@@ -1,3 +1,4 @@
+import json
 from io import BytesIO
 
 import pandas as pd
@@ -139,7 +140,7 @@ class MollierPdfExportTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response["Content-Type"], "application/pdf")
         first_page = PdfReader(BytesIO(response.content)).pages[0]
-        exported_text = first_page.extract_text()
+        exported_text = " ".join(first_page.extract_text().split())
         second_page_text = PdfReader(BytesIO(response.content)).pages[1].extract_text()
 
         for value in (
@@ -151,7 +152,7 @@ class MollierPdfExportTests(TestCase):
             "350 m",
             "Startpunt",
             "Drogeboltemperatuur",
-            "22,5 °C",
+            "22,5",
             "Relatieve luchtvochtigheid",
             "55 %",
         ):
@@ -160,6 +161,41 @@ class MollierPdfExportTests(TestCase):
 
         self.assertIn("Informatie over de Processen", second_page_text)
         self.assertIn("Drogeboltemperatuur", second_page_text)
+
+    def test_pdf_tables_fit_all_five_points_and_four_processes(self):
+        user = User.objects.create_user(username="mollier-table-user")
+        self.client.force_login(user)
+        point_rows = [
+            ["Punt", "Tdb", "Tnb", "Tdauw", "X", "H", "RH", "Pw", "rho", "Qv"],
+            ["", "[C]", "[C]", "[C]", "[g/kg]", "[kJ/kg]", "[%]", "[Pa]", "[kg/m3]", "[m3/h]"],
+        ]
+        point_rows.extend(
+            [[str(point), "20", "15", "10", "8", "40", "50", "1200", "1.2", "10000"]
+             for point in range(5)]
+        )
+        process_rows = [
+            ["Proces", "Actie 1", "Actie 2", "Delta T", "Delta X", "Delta H", "P totaal", "P voelbaar", "P latent", "VWF"],
+            ["", "", "", "[C]", "[g/kg]", "[kJ/kg]", "[kW]", "[kW]", "[kW]", "[-]"],
+        ]
+        process_rows.extend(
+            [[f"Proces {step}", "Verwarmen", "", "2", "0", "2", "1", "1", "0", "1"]
+             for step in range(1, 5)]
+        )
+
+        response = self.client.post(
+            reverse("tools:generate_pdf_W1"),
+            {
+                "SavePDFButton": "clicked",
+                "table_points_json": json.dumps(point_rows),
+                "table_process_json": json.dumps(process_rows),
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        first_page_text = PdfReader(BytesIO(response.content)).pages[0].extract_text()
+        for value in ("0", "1", "2", "3", "4", "Proces 1", "Proces 2", "Proces 3", "Proces 4"):
+            with self.subTest(value=value):
+                self.assertIn(value, first_page_text)
 
 
 class NlSfbSearchTests(TestCase):

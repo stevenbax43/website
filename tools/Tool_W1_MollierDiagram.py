@@ -983,18 +983,6 @@ def generate_pdf_mollier(request):
         fontSize=8,
         leading=10,
     )
-    compact_metadata_label_style = ParagraphStyle(
-        'compact_metadata_label',
-        parent=metadata_label_style,
-        fontSize=7,
-        leading=8,
-    )
-    compact_metadata_value_style = ParagraphStyle(
-        'compact_metadata_value',
-        parent=metadata_value_style,
-        fontSize=7,
-        leading=8,
-    )
     section_heading_style = ParagraphStyle(
         'metadata_section_heading',
         parent=normal,
@@ -1017,15 +1005,14 @@ def generate_pdf_mollier(request):
         f"{escape(label)}:",
         metadata_label_style,
     )
-    compact_label_cell = lambda label: Paragraph(
-        f"{escape(label)}:",
-        compact_metadata_label_style,
-    )
     value_cell = lambda value: Paragraph(
         format_input(value),
         metadata_value_style,
     )
 
+    table_x = 135
+    table_width = w - table_x - 20
+    metadata_col_widths = [table_width / 4] * 4
     project_table = Table(
         [
             [
@@ -1037,64 +1024,49 @@ def generate_pdf_mollier(request):
                 label_cell("LBK-/ruimtenaam"), value_cell(room_name),
             ],
         ],
-        colWidths=[70, 145, 75, 150],
+        colWidths=metadata_col_widths,
     )
     project_table.setStyle(metadata_table_style)
 
     input_table = Table(
         [
             [
-                compact_label_cell("Luchtdebiet"),
+                label_cell("Luchtdebiet"),
                 Paragraph(
                     f"{format_airflow(qv_input)} m<super>3</super>/h"
                     if qv_input else "-",
-                    compact_metadata_value_style,
+                    metadata_value_style,
                 ),
-                "",
-                compact_label_cell("Hoogte"),
+                label_cell("Hoogte"),
                 Paragraph(
                     f"{format_input(height_input)} m" if height_input else "-",
-                    compact_metadata_value_style,
+                    metadata_value_style,
                 ),
-                "",
             ],
             [
-                Paragraph("Startpunt", compact_metadata_label_style),
-                "",
+                label_cell("Startpunt"),
                 Paragraph(
                     f"<b>{escape(start_values[0][0])}</b><br/>"
                     f"{escape(start_values[0][1])} {escape(start_values[0][2])}",
-                    compact_metadata_value_style,
+                    metadata_value_style,
                 ),
-                "",
                 Paragraph(
                     f"<b>{escape(start_values[1][0])}</b><br/>"
                     f"{escape(start_values[1][1])} {escape(start_values[1][2])}",
-                    compact_metadata_value_style,
+                    metadata_value_style,
                 ),
                 "",
             ],
         ],
-        colWidths=[(w - 155) / 6] * 6,
+        colWidths=metadata_col_widths,
     )
     input_table.setStyle(metadata_table_style)
-    input_table.setStyle(TableStyle([
-        ("SPAN", (1, 0), (2, 0)),
-        ("SPAN", (4, 0), (5, 0)),
-        ("SPAN", (0, 1), (1, 1)),
-        ("SPAN", (2, 1), (3, 1)),
-        ("SPAN", (4, 1), (5, 1)),
-        ("TOPPADDING", (0, 0), (-1, -1), 2),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 2),
-    ]))
 
     project_heading = Paragraph(
         "Project- en pandgegevens",
         section_heading_style,
     )
     input_heading = Paragraph("Invoerparameters", section_heading_style)
-    table_x = 135
-    table_width = w - table_x - 20
     project_heading.wrapOn(c, table_x - 30, h)
     input_heading.wrapOn(c, table_x - 30, h)
     _, project_table_height = project_table.wrap(table_width, h)
@@ -1126,11 +1098,67 @@ def generate_pdf_mollier(request):
     )
     input_heading.drawOn(c, 20, input_heading_y)
 
-    if chart_b64:
+    def fmt(v):
+        s = str(v)
+        # if it's a float-like or contains a '.', replace with comma
+        if any(c.isdigit() for c in s) and '.' in s:
+            s = s.replace('.', ',')
+        return s
+
+    def build_export_table(data, headers, col_widths):
+        if not data:
+            return None, 0
+        data[0] = [Paragraph(cell, header_style) for cell in headers]
+        if len(data) > 1:
+            data[1] = [Paragraph(str(v), unit_style) for v in data[1]]
+        for i in range(2, len(data)):
+            data[i] = [Paragraph(fmt(v), data_style) for v in data[i]]
+        row_heights = [None, 10] + [None] * (len(data) - 2)
+        table = Table(data, colWidths=col_widths, rowHeights=row_heights)
+        table.setStyle(TableStyle([
+            ('BACKGROUND',(0,0),(-1,0), colors.HexColor('#3DAB39')),
+            ('TEXTCOLOR', (0,0),(-1,0), colors.white),
+            ('VALIGN',    (0,0),(-1,0), 'MIDDLE'),
+            ('ALIGN',     (0,1),(-1,1), 'CENTER'),   # <-- center units row
+            ('VALIGN',    (0,1),(-1,1), 'MIDDLE'),
+            ('GRID',      (0,0),(-1,-1), 0.5, colors.white),
+            ('FONTNAME',  (0,0),(-1,-1), 'Helvetica'),
+            ('FONTSIZE',  (0,1),(-1,1), 6),
+            ('TEXTCOLOR', (0,1),(-1,1), colors.grey),
+            ('FONTSIZE',  (0,2),(-1,-1), 7),
+            ('ALIGN',     (0,2),(-1,-1), 'CENTER'),
+            ('TOPPADDING', (0,0), (-1,-1), 1),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 1),
+        ]))
+        _, table_height = table.wrap(w, h)
+        return table, table_height
+
+    total_w = w - 40
+    fracs   = [0.14,0.15,0.15,0.08,0.07,0.07,0.08,0.10,0.08,0.08]
+    col_w   = [total_w * p for p in fracs]
+    point_hdrs = ["Punt","T<sub>db</sub>","T<sub>nb</sub>","T<sub>dauw</sub>",
+                  "X","H","RH","P<sub>w</sub>","ρ","Q<sub>v</sub>"]
+    proc_hdrs  = ["Proces","Actie 1","Actie 2","ΔT<sub>db</sub>","ΔX","ΔH",
+                  "P<sub>totaal</sub>","P<sub>voelbaar</sub>","P<sub>latent</sub>","VWF"]
+    points_table, points_height = build_export_table(pts, point_hdrs, col_w)
+    processes_table, processes_height = build_export_table(
+        procs,
+        proc_hdrs,
+        col_w,
+    )
+
+    processes_bottom = 44
+    points_bottom = processes_bottom + processes_height + 24
+    chart_bottom = points_bottom + points_height + 22
+    chart_top = h - 48 - metadata_height - 12
+
+    if chart_b64 and chart_top > chart_bottom:
         img_data = base64.b64decode(chart_b64)
         img = ImageReader(BytesIO(img_data))
-        chart_top = h - 48 - metadata_height - 12
-        chart_height = min(h / 2 - 80, chart_top - (h - 500 + 35))
+        chart_height = min(
+            (w - 40) * 3 / 4,
+            chart_top - chart_bottom,
+        )
         chart_width = chart_height * 4 / 3
         c.drawImage(
             img,
@@ -1140,64 +1168,22 @@ def generate_pdf_mollier(request):
             height=chart_height,
             preserveAspectRatio=True,
         )
-    def fmt(v):
-        s = str(v)
-        # if it's a float-like or contains a '.', replace with comma
-        if any(c.isdigit() for c in s) and '.' in s:
-            s = s.replace('.', ',')
-        return s
 
-    def draw_table(data, headers, col_widths, y_top):
-        if not data:
-            return
-        # header row
-        data[0] = [Paragraph(cell, header_style) for cell in headers]
-        # unit row
-        if len(data) > 1:
-            data[1] = [Paragraph(str(v), unit_style) for v in data[1]]
-        # all subsequent rows: wrap & format numbers
-        for i in range(2, len(data)):
-            data[i] = [Paragraph(fmt(v), data_style) for v in data[i]]
-        # row heights
-        row_heights = [19, 12] + [None] * (len(data) - 2)
-        tbl = Table(data, colWidths=col_widths, rowHeights=row_heights)
-        tbl.setStyle(TableStyle([
-            ('BACKGROUND',(0,0),(-1,0), colors.HexColor('#3DAB39')),
-            ('TEXTCOLOR', (0,0),(-1,0), colors.white),
-            ('VALIGN',    (0,0),(-1,0), 'MIDDLE'),
-            ('ALIGN',     (0,1),(-1,1), 'CENTER'),   # <-- center units row
-            ('VALIGN',    (0,1),(-1,1), 'MIDDLE'),
-            ('GRID',      (0,0),(-1,-1), 0.5, colors.white),
-            ('FONTNAME',  (0,0),(-1,-1), 'Helvetica'),
-            ('FONTSIZE',  (0,1),(-1,1), 7),
-            ('TEXTCOLOR', (0,1),(-1,1), colors.grey),
-            ('FONTSIZE',  (0,2),(-1,-1), 8),
-            ('ALIGN',     (0,2),(-1,-1), 'CENTER'),
-            ('TOPPADDING', (0,0), (-1,-1), 2),
-            ('BOTTOMPADDING', (0,0), (-1,-1), 2),
-        ]))
-        _, table_height = tbl.wrap(w, h)
-        tbl.drawOn(c, 20, y_top - table_height)
-
-    # columns
-
-    total_w = w - 40
-    fracs   = [0.14,0.15,0.15,0.08,0.07,0.07,0.08,0.10,0.08,0.08]
-    col_w   = [total_w * p for p in fracs]
-    point_hdrs = ["Punt","T<sub>db</sub>","T<sub>nb</sub>","T<sub>dauw</sub>",
-                  "X","H","RH","P<sub>w</sub>","ρ","Q<sub>v</sub>"]
-    proc_hdrs  = ["Proces","Actie 1","Actie 2","ΔT<sub>db</sub>","ΔX","ΔH",
-                  "P<sub>totaal</sub>","P<sub>voelbaar</sub>","P<sub>latent</sub>","VWF"]
-    #draw point table with title
-    point_table_y = h - 500
-    c.setFont('Helvetica', 12)
-    c.drawString(20, point_table_y+8, "Punten in het Mollierdiagram")
-    draw_table(pts,   point_hdrs, col_w, point_table_y)
-    #draw proeces table with title
-    c.setFont('Helvetica', 12)
-    proc_table_y = h - 640
-    c.drawString(20, proc_table_y+8, "Processen in het Mollierdiagram")
-    draw_table(procs, proc_hdrs,  col_w, proc_table_y)
+    c.setFont('Helvetica', 10)
+    if points_table:
+        c.drawString(
+            20,
+            points_bottom + points_height + 5,
+            "Punten in het Mollierdiagram",
+        )
+        points_table.drawOn(c, 20, points_bottom)
+    if processes_table:
+        c.drawString(
+            20,
+            processes_bottom + processes_height + 5,
+            "Processen in het Mollierdiagram",
+        )
+        processes_table.drawOn(c, 20, processes_bottom)
 
     # Footer
     c.setFont('Helvetica', 8)
