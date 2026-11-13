@@ -953,20 +953,21 @@ def generate_pdf_mollier(request):
         'table_header',
         parent=normal,
         fontName='Helvetica-Bold',
+        fontSize=9,
+        leading=10,
         textColor=colors.white,
         alignment=1,
-        leading=normal.leading,
     )
     unit_style   = ParagraphStyle(
         'units',
         parent=normal,
-        fontSize=8,
+        fontSize=7,
         textColor=colors.grey,
-        leading=10,
+        leading=8,
         alignment=1,
     )
     data_style   = ParagraphStyle('data', parent=normal,
-                                  fontSize=9, alignment=1)
+                                  fontSize=8, leading=9, alignment=1)
 
     metadata_label_style = ParagraphStyle(
         'metadata_label',
@@ -981,6 +982,18 @@ def generate_pdf_mollier(request):
         parent=normal,
         fontSize=8,
         leading=10,
+    )
+    compact_metadata_label_style = ParagraphStyle(
+        'compact_metadata_label',
+        parent=metadata_label_style,
+        fontSize=7,
+        leading=8,
+    )
+    compact_metadata_value_style = ParagraphStyle(
+        'compact_metadata_value',
+        parent=metadata_value_style,
+        fontSize=7,
+        leading=8,
     )
     section_heading_style = ParagraphStyle(
         'metadata_section_heading',
@@ -1003,6 +1016,10 @@ def generate_pdf_mollier(request):
     label_cell = lambda label: Paragraph(
         f"{escape(label)}:",
         metadata_label_style,
+    )
+    compact_label_cell = lambda label: Paragraph(
+        f"{escape(label)}:",
+        compact_metadata_label_style,
     )
     value_cell = lambda value: Paragraph(
         format_input(value),
@@ -1027,33 +1044,33 @@ def generate_pdf_mollier(request):
     input_table = Table(
         [
             [
-                label_cell("Luchtdebiet"),
+                compact_label_cell("Luchtdebiet"),
                 Paragraph(
                     f"{format_airflow(qv_input)} m<super>3</super>/h"
                     if qv_input else "-",
-                    metadata_value_style,
+                    compact_metadata_value_style,
                 ),
                 "",
-                label_cell("Hoogte"),
+                compact_label_cell("Hoogte"),
                 Paragraph(
                     f"{format_input(height_input)} m" if height_input else "-",
-                    metadata_value_style,
+                    compact_metadata_value_style,
                 ),
                 "",
             ],
             [
-                Paragraph("Startpunt", metadata_label_style),
+                Paragraph("Startpunt", compact_metadata_label_style),
                 "",
                 Paragraph(
                     f"<b>{escape(start_values[0][0])}</b><br/>"
                     f"{escape(start_values[0][1])} {escape(start_values[0][2])}",
-                    metadata_value_style,
+                    compact_metadata_value_style,
                 ),
                 "",
                 Paragraph(
                     f"<b>{escape(start_values[1][0])}</b><br/>"
                     f"{escape(start_values[1][1])} {escape(start_values[1][2])}",
-                    metadata_value_style,
+                    compact_metadata_value_style,
                 ),
                 "",
             ],
@@ -1067,6 +1084,8 @@ def generate_pdf_mollier(request):
         ("SPAN", (0, 1), (1, 1)),
         ("SPAN", (2, 1), (3, 1)),
         ("SPAN", (4, 1), (5, 1)),
+        ("TOPPADDING", (0, 0), (-1, -1), 2),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 2),
     ]))
 
     project_heading = Paragraph(
@@ -1140,7 +1159,7 @@ def generate_pdf_mollier(request):
         for i in range(2, len(data)):
             data[i] = [Paragraph(fmt(v), data_style) for v in data[i]]
         # row heights
-        row_heights = [22, 15] + [None] * (len(data) - 2)
+        row_heights = [19, 12] + [None] * (len(data) - 2)
         tbl = Table(data, colWidths=col_widths, rowHeights=row_heights)
         tbl.setStyle(TableStyle([
             ('BACKGROUND',(0,0),(-1,0), colors.HexColor('#3DAB39')),
@@ -1150,13 +1169,15 @@ def generate_pdf_mollier(request):
             ('VALIGN',    (0,1),(-1,1), 'MIDDLE'),
             ('GRID',      (0,0),(-1,-1), 0.5, colors.white),
             ('FONTNAME',  (0,0),(-1,-1), 'Helvetica'),
-            ('FONTSIZE',  (0,1),(-1,1), 8),
+            ('FONTSIZE',  (0,1),(-1,1), 7),
             ('TEXTCOLOR', (0,1),(-1,1), colors.grey),
-            ('FONTSIZE',  (0,2),(-1,-1), 9),
+            ('FONTSIZE',  (0,2),(-1,-1), 8),
             ('ALIGN',     (0,2),(-1,-1), 'CENTER'),
+            ('TOPPADDING', (0,0), (-1,-1), 2),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 2),
         ]))
-        tbl.wrapOn(c, w, h)
-        tbl.drawOn(c, 20, y_top - 18 * len(data))
+        _, table_height = tbl.wrap(w, h)
+        tbl.drawOn(c, 20, y_top - table_height)
 
     # columns
 
@@ -1169,13 +1190,13 @@ def generate_pdf_mollier(request):
                   "P<sub>totaal</sub>","P<sub>voelbaar</sub>","P<sub>latent</sub>","VWF"]
     #draw point table with title
     point_table_y = h - 500
-    c.setFont('Helvetica', 14)
-    c.drawString(20, point_table_y+10, "Punten in het Mollierdiagram")
+    c.setFont('Helvetica', 12)
+    c.drawString(20, point_table_y+8, "Punten in het Mollierdiagram")
     draw_table(pts,   point_hdrs, col_w, point_table_y)
     #draw proeces table with title
-    c.setFont('Helvetica', 14)
-    proc_table_y = h -650
-    c.drawString(20, proc_table_y+10, "Processen in het Mollierdiagram")
+    c.setFont('Helvetica', 12)
+    proc_table_y = h - 640
+    c.drawString(20, proc_table_y+8, "Processen in het Mollierdiagram")
     draw_table(procs, proc_hdrs,  col_w, proc_table_y)
 
     # Footer
