@@ -13,6 +13,7 @@ from .Tool_A3_klimaatjaar import klimaatjaar, generate_pdf_climate
 from .Tool_A4_NLsfB import get_children
 from .Tool_W1_MollierDiagram import MollierView, generate_pdf_mollier
 from .Tool_W2_expansievat import (
+    InvalidCoolingInputs,
     InvalidPressureRange,
     build_pressure_range_diagram,
     expansievat,
@@ -192,10 +193,21 @@ def tool_W1(request):
 def tool_W2(request):
     volume_input_error = None
     calculation_error = None
+    calculation_mode = request.POST.get('calculation_mode', 'heating')
+    cooling_mode = calculation_mode == 'cooling'
     system_volume_unknown = request.method == 'POST' and request.POST.get(
         'sys_inhoud_onbekend'
+    ) == 'on' and not cooling_mode
+    requested_unknown_volume = request.method == 'POST' and request.POST.get(
+        'sys_inhoud_onbekend'
     ) == 'on'
-    if system_volume_unknown:
+    if cooling_mode and requested_unknown_volume:
+        expansievat_ouput = []
+        volume_input_error = (
+            'Voor de Flamco-koelmethode is de werkelijke systeeminhoud nodig. '
+            'Vul deze in en schakel "Systeeminhoud onbekend" uit.'
+        )
+    elif system_volume_unknown:
         try:
             entered_power = float(request.POST.get('vermogen', ''))
         except ValueError:
@@ -208,15 +220,17 @@ def tool_W2(request):
         else:
             try:
                 expansievat_ouput = expansievat(request)
-            except InvalidPressureRange as error:
+            except (InvalidPressureRange, InvalidCoolingInputs) as error:
                 expansievat_ouput = []
                 calculation_error = str(error)
-    else:
+    elif request.method == 'POST':
         try:
             expansievat_ouput = expansievat(request)
-        except InvalidPressureRange as error:
+        except (InvalidPressureRange, InvalidCoolingInputs) as error:
             expansievat_ouput = []
             calculation_error = str(error)
+    else:
+        expansievat_ouput = []
     pressure_diagram = None
     if expansievat_ouput:
         pressure_diagram = build_pressure_range_diagram(
@@ -224,6 +238,7 @@ def tool_W2(request):
             expansievat_ouput[4],
             expansievat_ouput[11],
             expansievat_ouput[8],
+            expansievat_ouput[23] if cooling_mode else None,
         )
     return render(request, 'tools/tool_W2.html', {
         'expansievat_output': expansievat_ouput,
@@ -231,6 +246,8 @@ def tool_W2(request):
         'volume_input_error': volume_input_error,
         'calculation_error': calculation_error,
         'system_volume_unknown': system_volume_unknown,
+        'calculation_mode': calculation_mode,
+        'cooling_mode': cooling_mode,
     })
 
 # drukverlies pagina

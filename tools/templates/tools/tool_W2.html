@@ -32,7 +32,7 @@
     <div class="row align-items-center g-3">
       <div class="col-12 col-lg-8">
         <p class="mb-0">
-          Een expansievat vangt de volumeverandering van het water in een verwarmingsinstallatie op wanneer de temperatuur verandert. 
+          Een expansievat vangt de volumeverandering van het water in een verwarmingsinstallatie op wanneer de temperatuur verandert.
           De Flamco berekeningsmethode wordt gebruikt. Lees de ReadMe voor meer informatie over de berekening en de aannames die worden gemaakt.
         </p>
       </div>
@@ -60,18 +60,27 @@
         <h2 class="h5 mb-0">Systeemeigenschappen</h2>
       </div>
       <div class="card-body">
+        <div class="row mb-3">
+          <div class="col-12 col-md-6 col-xl-4">
+            <label for="calculation_mode" class="form-label">Installatietype</label>
+            <select class="form-select" id="calculation_mode" name="calculation_mode">
+              <option value="heating"{% if not cooling_mode %} selected{% endif %}>Verwarmingsinstallatie</option>
+              <option value="cooling"{% if cooling_mode %} selected{% endif %}>Koelinstallatie (Flamco)</option>
+            </select>
+          </div>
+        </div>
         <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-5 g-3">
-          <div class="col">
+          <div class="col heating-temperature-field{% if cooling_mode %} d-none{% endif %}">
             <label for="temp_aanvoer" class="form-label">Aanvoertemperatuur (T<sub>aanv</sub>)</label>
             <div class="input-group">
-              <input type="number" class="form-control" id="temp_aanvoer" name="temp_aanvoer" value="80" min="0" max="100" required>
+              <input type="number" class="form-control" id="temp_aanvoer" name="temp_aanvoer" value="80" min="0" max="100"{% if not cooling_mode %} required{% else %} disabled{% endif %}>
               <span class="input-group-text">°C</span>
             </div>
           </div>
-          <div class="col">
+          <div class="col heating-temperature-field{% if cooling_mode %} d-none{% endif %}">
             <label for="temp_retour" class="form-label">Retourtemperatuur (T<sub>ret</sub>)</label>
             <div class="input-group">
-              <input type="number" class="form-control" id="temp_retour" name="temp_retour" value="60" min="0" max="100" required>
+              <input type="number" class="form-control" id="temp_retour" name="temp_retour" value="60" min="0" max="100"{% if not cooling_mode %} required{% else %} disabled{% endif %}>
               <span class="input-group-text">°C</span>
             </div>
           </div>
@@ -83,9 +92,9 @@
                 <span class="input-group-text">L</span>
               </div>
             </div>
-            <div class="form-check form-switch mt-2">
+            <div class="form-check form-switch mt-2{% if cooling_mode %} d-none{% endif %}" id="unknown_volume_switch">
               <input class="form-check-input" type="checkbox" role="switch"
-                     id="sys_inhoud_onbekend" name="sys_inhoud_onbekend"{% if system_volume_unknown %} checked{% endif %}>
+                     id="sys_inhoud_onbekend" name="sys_inhoud_onbekend"{% if system_volume_unknown %} checked{% endif %}{% if cooling_mode %} disabled{% endif %}>
               <label class="form-check-label" for="sys_inhoud_onbekend">
                 Systeeminhoud onbekend
               </label>
@@ -99,30 +108,66 @@
             </div>
           </div>
           <div class="col">
-            <label for="einddruk" class="form-label">Einddruk (P<sub>e</sub>)</label>
+            <label for="einddruk" class="form-label">
+              <span class="heating-only{% if cooling_mode %} d-none{% endif %}">Einddruk (P<sub>e</sub>)</span>
+              <span class="cooling-only{% if not cooling_mode %} d-none{% endif %}">Insteldruk veiligheidsventiel</span>
+            </label>
             <div class="input-group">
               <input type="number" class="form-control" id="einddruk" name="einddruk" min="1" max="16" value="3" step="0.1" required>
               <span class="input-group-text">bar</span>
             </div>
           </div>
         </div>
-        <div class="alert alert-info py-2 mt-3 mb-0" role="note">
+        <div class="row row-cols-1 row-cols-sm-3 g-3 mt-2{% if not cooling_mode %} d-none{% endif %}" id="cooling_parameters">
+          <div class="col">
+            <label for="cooling_min_temp" class="form-label">Laagste vloeistoftemperatuur</label>
+            <div class="input-group">
+              <input type="number" class="form-control" id="cooling_min_temp" name="cooling_min_temp"
+                     value="10" min="10" max="100" step="any"{% if cooling_mode %} required{% else %} disabled{% endif %}>
+              <span class="input-group-text">°C</span>
+            </div>
+          </div>
+          <div class="col">
+            <label for="cooling_max_temp" class="form-label">Hoogste omgevingstemperatuur</label>
+            <div class="input-group">
+              <input type="number" class="form-control" id="cooling_max_temp" name="cooling_max_temp"
+                     value="30" min="10" max="100" step="any"{% if cooling_mode %} required{% else %} disabled{% endif %}>
+              <span class="input-group-text">°C</span>
+            </div>
+          </div>
+          <div class="col">
+            <label for="glycol_percentage" class="form-label">Glycolpercentage</label>
+            <select class="form-select" id="glycol_percentage" name="glycol_percentage"
+                    {% if cooling_mode %}required{% else %}disabled{% endif %}>
+              <option value="0">0%</option>
+              <option value="10">10%</option>
+              <option value="20">20%</option>
+              <option value="30">30%</option>
+              <option value="40">40%</option>
+              <option value="50">50%</option>
+            </select>
+          </div>
+        </div>
+        <div class="alert alert-info py-2 mt-3 mb-0 heating-only{% if cooling_mode %} d-none{% endif %}" role="note">
           <strong>Statische hoogte:</strong> vul het hoogteverschil in tussen de plaats waar het expansievat staat en de hoogste radiator. De voordruk wordt automatisch berekend: 0,1 bar per meter hoogteverschil + 0,3 bar veiligheidsmarge, afgerond naar boven op stappen van 0,5 bar.
+        </div>
+        <div class="alert alert-info py-2 mt-3 mb-0 cooling-only{% if not cooling_mode %} d-none{% endif %}" role="note">
+          De koelberekening gebruikt de Flamco-tabel voor water/glycol (10–100 °C). Vul de werkelijke systeeminhoud in; de schatting op basis van cv-ketelvermogen is hier niet van toepassing.
         </div>
 
         <div class="row g-3 border-top pt-3 mt-3">
-            <div class="col-12 col-sm-6 col-lg-4{% if not system_volume_unknown %} d-none{% endif %}" id="estimated_volume_fields">
+            <div class="col-12 col-sm-6 col-lg-4{% if not system_volume_unknown or cooling_mode %} d-none{% endif %}" id="estimated_volume_fields">
               <p class="form-label mb-1">Systeeminhoud schatten</p>
               <p class="form-text mt-0">Vsys wordt bepaald met het vermogen en de gekozen CV-afgifte.</p>
             </div>
-            <div class="col-12 col-sm-6 col-lg-4{% if not system_volume_unknown %} d-none{% endif %}" id="boiler_power_field">
+            <div class="col-12 col-sm-6 col-lg-4{% if not system_volume_unknown or cooling_mode %} d-none{% endif %}" id="boiler_power_field">
               <label for="vermogen" class="form-label">Vermogen cv-ketel (P)</label>
               <div class="input-group">
                 <input type="number" class="form-control" id="vermogen" name="vermogen" value="0" min="0.1" step="any"{% if system_volume_unknown %} required{% else %} disabled{% endif %}>
                 <span class="input-group-text">kW</span>
               </div>
             </div>
-            <div class="col-12 col-sm-6 col-lg-4{% if not system_volume_unknown %} d-none{% endif %}" id="cv_emission_field">
+            <div class="col-12 col-sm-6 col-lg-4{% if not system_volume_unknown or cooling_mode %} d-none{% endif %}" id="cv_emission_field">
               <label for="CVInstallatie" class="form-label">CV-afgifte</label>
               <select name="CVInstallatie" class="form-select" id="CVInstallatie"{% if system_volume_unknown %} required{% else %} disabled{% endif %}>
                 <option value="0">Convectors en/of luchtverhitters</option>
@@ -187,10 +232,16 @@
                 <section class="h-100 rounded-3 bg-light p-3">
                   <h3 class="h6">Temperaturen</h3>
                   <dl class="row mb-0">
+                    {% if cooling_mode %}
+                    <dt class="col-7">Laagste temperatuur</dt><dd class="col-5 text-end">{{ expansievat_output.10 }} °C</dd>
+                    <dt class="col-7">Hoogste temperatuur</dt><dd class="col-5 text-end">{{ expansievat_output.9 }} °C</dd>
+                    <dt class="col-7">Glycol</dt><dd class="col-5 text-end">{{ expansievat_output.19 }} %</dd>
+                    {% else %}
                     <dt class="col-7">Aanvoer</dt><dd class="col-5 text-end">{{ expansievat_output.9 }} °C</dd>
                     <dt class="col-7">Retour</dt><dd class="col-5 text-end">{{ expansievat_output.10 }} °C</dd>
                     <dt class="col-7">Gemiddeld</dt><dd class="col-5 text-end">{{ expansievat_output.0 }} °C</dd>
                     <dt class="col-7">Minimum</dt><dd class="col-5 text-end">10 °C</dd>
+                    {% endif %}
                   </dl>
                 </section>
               </div>
@@ -199,6 +250,9 @@
                   <h3 class="h6">Drukken</h3>
                   <dl class="row mb-0">
                     <dt class="col-7">Voordruk</dt><dd class="col-5 text-end">{{ expansievat_output.4 }} bar</dd>
+                    {% if cooling_mode %}
+                    <dt class="col-7">Laagste bedrijfsdruk</dt><dd class="col-5 text-end">{{ expansievat_output.23 }} bar</dd>
+                    {% endif %}
                     <dt class="col-7">Einddruk</dt><dd class="col-5 text-end">{{ expansievat_output.11 }} bar</dd>
                     <dt class="col-7">Beveiligingsdruk</dt><dd class="col-5 text-end">{{ expansievat_output.17 }} bar</dd>
                   </dl>
@@ -212,7 +266,9 @@
                     <dt class="col-7">Berekend op basis van</dt><dd class="col-5 text-end">{{ expansievat_output.5 }}</dd>
                     <dt class="col-7">Bruto vat</dt><dd class="col-5 text-end">{{ expansievat_output.2 }} L</dd>
                     <dt class="col-7">Expansie</dt><dd class="col-5 text-end">{{ expansievat_output.8 }} L</dd>
+                    {% if not cooling_mode %}
                     <dt class="col-7">Norminhoud</dt><dd class="col-5 text-end">{{ expansievat_output.15 }} L/kW</dd>
+                    {% endif %}
                   </dl>
                 </section>
               </div>
@@ -223,7 +279,11 @@
                     <dt class="col-7">Nuttig effect</dt><dd class="col-5 text-end">{{ expansievat_output.1 }}</dd>
                     <dt class="col-7">Statische hoogte</dt><dd class="col-5 text-end">{{ expansievat_output.14 }} m</dd>
                     <dt class="col-7">Expansiepercentage</dt><dd class="col-5 text-end">{{ expansievat_output.7 }} %</dd>
+                    {% if cooling_mode %}
+                    <dt class="col-7">Reserve (50% Vexp)</dt><dd class="col-5 text-end">{{ expansievat_output.22 }} L</dd>
+                    {% else %}
                     <dt class="col-7">Veiligheidsfactor</dt><dd class="col-5 text-end">25 %</dd>
+                    {% endif %}
                   </dl>
                 </section>
               </div>
@@ -231,7 +291,16 @@
             <div class="border-top mt-3 pt-3">
               <h3 class="h6 mb-1">Formule bruto vatinhoud</h3>
               <p class="mb-0 text-muted">Meer uitleg vind je in de ReadMe.</p>
+              {% if cooling_mode %}
+              <div class="fs-6">
+                \( V_{\exp}=V_{\mathrm{sys}}\cdot(\beta_{\mathrm{hoog}}-\beta_{\mathrm{laag}})/100 \)<br>
+                \( P_{\min}=P_0+0{,}5 \), \( P_e=P_{\mathrm{veilig}}-0{,}5 \)<br>
+                \( n_e=\frac{P_e-P_{\min}}{P_e+1}\cdot\left(1-\frac{P_{\min}-P_0}{P_{\min}+1}\right) \)<br>
+                \( V_{\mathrm{br}}=\frac{1{,}5V_{\exp}}{\min(n_e,0{,}63)} \)
+              </div>
+              {% else %}
               <div class="fs-5">\( V_{br}[L] = \frac{ V_{\exp} \cdot \beta}{n_{e} } \)</div>
+              {% endif %}
             </div>
           </div>
         </div>
@@ -247,10 +316,15 @@
     </div>
     <div class="card-body">
       <p class="text-muted">
+        {% if cooling_mode %}
+        De Flamco-koelmethode houdt rekening met de werkdruk bij de laagste temperatuur,
+        de reservefactor en 0,5 bar marge onder de veiligheidsventielinstelling.
+        {% else %}
         De verticale schaal begint bij 0 bar. P<sub>0</sub> volgt uit de statische hoogte;
         P<sub>1</sub> = P<sub>v</sub> is de voordruk met veiligheidsmarge.
         P<sub>2</sub> = P<sub>e</sub> is de einddruk. Het gemarkeerde gebied tussen
         P<sub>v</sub> en P<sub>e</sub> hoort bij het berekende expansievolume.
+        {% endif %}
       </p>
       <div class="alert alert-success py-2 mb-2 text-center">
         <strong>Expansievolume (V<sub>exp</sub>):</strong>
@@ -262,7 +336,7 @@
             <svg class="pressure-range-chart" viewBox="0 0 760 360" role="img"
                  aria-labelledby="pressure-chart-title pressure-chart-description">
               <title id="pressure-chart-title">Drukbereik van het expansievat</title>
-              <desc id="pressure-chart-description">Drukschaal in bar vanaf nul met statische druk, voordruk, einddruk en beveiligingsdruk. Het gebied tussen voordruk en einddruk geeft het expansievolume weer.</desc>
+              <desc id="pressure-chart-description">{% if cooling_mode %}Drukschaal in bar vanaf nul met statische druk, laagste bedrijfsdruk, einddruk en beveiligingsdruk. Het gemarkeerde gebied geeft het expansievolume weer.{% else %}Drukschaal in bar vanaf nul met statische druk, voordruk, einddruk en beveiligingsdruk. Het gebied tussen voordruk en einddruk geeft het expansievolume weer.{% endif %}</desc>
               <rect x="{{ pressure_diagram.plot_left }}" y="{{ pressure_diagram.fill_area_top }}"
                     width="{{ pressure_diagram.plot_width }}"
                     height="{{ pressure_diagram.fill_area_height }}"
@@ -301,7 +375,7 @@
                     style="--pressure-line-color: {{ line.color }}"></span>
               <span>
                 {% if line.key == "p0" %}<strong>P<sub>0</sub> – statische druk</strong>
-                {% elif line.key == "p1" %}<strong>P<sub>1</sub> = P<sub>v</sub> – voordruk</strong>
+                {% elif line.key == "p1" %}<strong>P<sub>1</sub> = P<sub>v</sub> – {% if cooling_mode %}laagste bedrijfsdruk{% else %}voordruk{% endif %}</strong>
                 {% elif line.key == "pe" %}<strong>P<sub>2</sub> = P<sub>e</sub> – einddruk</strong>
                 {% else %}<strong>P<sub>bev</sub> – 0,5 bar boven Pe</strong>{% endif %}
                 <span class="d-block text-muted small">{{ line.pressure_bar|floatformat:2 }} bar</span>

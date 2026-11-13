@@ -28,6 +28,8 @@
   }
 
   function updateSystemVolumeMode() {
+    const calculationMode = document.getElementById('calculation_mode');
+    const isCooling = calculationMode?.value === 'cooling';
     const unknownToggle = document.getElementById('sys_inhoud_onbekend');
     const knownInput = document.getElementById('sys_inhoud');
     const knownInputContainer = document.getElementById('system_volume_input');
@@ -36,10 +38,24 @@
     const cvField = document.getElementById('cv_emission_field');
     const powerInput = document.getElementById('vermogen');
     const cvSelect = document.getElementById('CVInstallatie');
+    const unknownToggleContainer = document.getElementById('unknown_volume_switch');
+    const heatingTemperatures = document.querySelectorAll('.heating-temperature-field');
+    const coolingParameters = document.getElementById('cooling_parameters');
+    const heatingNotes = document.querySelectorAll('.heating-only');
+    const coolingNotes = document.querySelectorAll('.cooling-only');
     if (!unknownToggle || !knownInput || !knownInputContainer || !estimatedFields ||
         !powerField || !cvField || !powerInput || !cvSelect) return;
 
-    const isUnknown = unknownToggle.checked;
+    const isUnknown = unknownToggle.checked && !isCooling;
+    const minTemp = document.getElementById('cooling_min_temp');
+    const maxTemp = document.getElementById('cooling_max_temp');
+    const glycol = document.getElementById('glycol_percentage');
+    unknownToggle.disabled = isCooling;
+    unknownToggleContainer?.classList.toggle('d-none', isCooling);
+    heatingTemperatures.forEach(field => field.classList.toggle('d-none', isCooling));
+    coolingParameters?.classList.toggle('d-none', !isCooling);
+    heatingNotes.forEach(note => note.classList.toggle('d-none', isCooling));
+    coolingNotes.forEach(note => note.classList.toggle('d-none', !isCooling));
     knownInputContainer.classList.toggle('d-none', isUnknown);
     estimatedFields.classList.toggle('d-none', !isUnknown);
     powerField.classList.toggle('d-none', !isUnknown);
@@ -50,6 +66,19 @@
     powerInput.required = isUnknown;
     cvSelect.disabled = !isUnknown;
     cvSelect.required = isUnknown;
+    [minTemp, maxTemp, glycol].forEach(field => {
+      if (field) {
+        field.disabled = !isCooling;
+        field.required = isCooling;
+      }
+    });
+    ['temp_aanvoer', 'temp_retour'].forEach(id => {
+      const field = document.getElementById(id);
+      if (field) {
+        field.disabled = isCooling;
+        field.required = !isCooling;
+      }
+    });
   }
 
   // ===== Auto-trigger control (no reload loops) =====
@@ -131,7 +160,9 @@
     // Save & submit on change (single listener per field)
     document.querySelectorAll('input, select').forEach(field => {
       field.addEventListener('change', function () {
-        if (field.id === 'sys_inhoud_onbekend') updateSystemVolumeMode();
+        if (field.id === 'sys_inhoud_onbekend' || field.id === 'calculation_mode') {
+          updateSystemVolumeMode();
+        }
         saveInputValues();
         // submit/click
         const form = document.getElementById('inputForm');

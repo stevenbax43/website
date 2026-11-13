@@ -18,9 +18,11 @@ from .Tool_W1_MollierDiagram import (
 )
 from .Tool_A4_NLsfB import get_parent_code
 from .Tool_W2_expansievat import (
+    InvalidCoolingInputs,
     InvalidPressureRange,
     build_pressure_range_diagram,
     calculate_prepressure,
+    cooling_expansion_percentage,
     expansievat,
 )
 from .models import ConceptSfbLink, InstallatieConcept, ProjectMollier, SfbClass
@@ -130,6 +132,8 @@ class ExpansievatPrepressureTests(TestCase):
         self.assertContains(response, 'class="card card-input shadow-sm mb-3"')
         self.assertContains(response, 'id="st_height"')
         self.assertContains(response, "hoogste radiator")
+        self.assertContains(response, 'id="calculation_mode"')
+        self.assertContains(response, 'id="cooling_parameters"')
         self.assertContains(
             response,
             'row row-cols-1 row-cols-sm-2 row-cols-xl-5 g-3',
@@ -143,6 +147,112 @@ class ExpansievatPrepressureTests(TestCase):
         self.assertEqual(calculate_prepressure(2), 0.5)
         self.assertEqual(calculate_prepressure(2.1), 1.0)
         self.assertEqual(calculate_prepressure(7.1), 1.5)
+
+    def test_cooling_expansion_table_and_interpolation(self):
+        self.assertEqual(cooling_expansion_percentage(30, 0), 0.43)
+        self.assertAlmostEqual(cooling_expansion_percentage(35, 0), 0.61)
+        with self.assertRaises(InvalidCoolingInputs):
+            cooling_expansion_percentage(9, 0)
+
+    def test_cooling_calculation_uses_reserve_and_lowest_operating_pressure(self):
+        request = RequestFactory().post(
+            "/expansievat",
+            {
+                "calculation_mode": "cooling",
+                "cooling_min_temp": "10",
+                "cooling_max_temp": "30",
+                "glycol_percentage": "0",
+                "sys_inhoud": "1000",
+                "einddruk": "3",
+                "st_height": "0",
+                "vermogen": "0",
+                "CVInstallatie": "4",
+                "locatieToggle": "on",
+            },
+        )
+
+        result = expansievat(request)
+
+        self.assertEqual(result[18], "cooling")
+        self.assertEqual(result[19], 0)
+        self.assertEqual(result[20:22], [10.0, 30.0])
+        self.assertEqual(result[7], 0.39)
+        self.assertEqual(result[8], 3.9)
+        self.assertEqual(result[22], 2.0)
+        self.assertEqual(result[23], 1.0)
+        self.assertEqual(result[2], 18.2)
+        diagram = build_pressure_range_diagram(
+            result[14], result[4], result[11], result[8], result[23]
+        )
+        self.assertEqual(diagram["series"][1]["pressure_bar"], 1.0)
+
+    def test_cooling_rejects_reversed_temperature_range(self):
+        request = RequestFactory().post(
+            "/expansievat",
+            {
+                "calculation_mode": "cooling",
+                "cooling_min_temp": "30",
+                "cooling_max_temp": "10",
+                "glycol_percentage": "0",
+                "sys_inhoud": "1000",
+                "einddruk": "3",
+                "st_height": "0",
+                "locatieToggle": "on",
+            },
+        )
+
+        with self.assertRaises(InvalidCoolingInputs):
+            expansievat(request)
+
+    def test_cooling_requires_known_system_volume(self):
+        user = User.objects.create_user(username="expansievat-cooling-volume-user")
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse("tools:expansievat"),
+            {
+                "calculation_mode": "cooling",
+                "cooling_min_temp": "10",
+                "cooling_max_temp": "30",
+                "glycol_percentage": "0",
+                "sys_inhoud_onbekend": "on",
+                "einddruk": "3",
+                "st_height": "0",
+                "locatieToggle": "on",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "werkelijke systeeminhoud nodig")
+        self.assertIsNone(response.context["pressure_diagram"])
+
+    def test_cooling_page_renders_calculation_and_pressure_diagram(self):
+        user = User.objects.create_user(username="expansievat-cooling-page-user")
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse("tools:expansievat"),
+            {
+                "calculation_mode": "cooling",
+                "cooling_min_temp": "10",
+                "cooling_max_temp": "30",
+                "glycol_percentage": "0",
+                "sys_inhoud": "1000",
+                "einddruk": "3",
+                "st_height": "0",
+                "vermogen": "0",
+                "CVInstallatie": "4",
+                "locatieToggle": "on",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["pressure_diagram"]["fill_pressure_bar"], 1.0)
+        self.assertContains(response, "Koelinstallatie (Flamco)")
+        self.assertContains(response, "Reserve (50% Vexp)")
+        self.assertContains(response, "P<sub>1</sub> = P<sub>v</sub> – laagste bedrijfsdruk")
+        self.assertContains(response, "Glycol")
+        self.assertEqual(response.context["expansievat_output"][19], 0)
 
     def test_pressure_diagram_shows_four_pressure_levels_and_expansion_volume(self):
         diagram = build_pressure_range_diagram(7.1, 1.5, 2.6, 17.4)
