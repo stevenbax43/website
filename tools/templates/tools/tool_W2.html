@@ -27,13 +27,12 @@
 </header>
 
 
-<div class="bg-light py-3 no-print">
+<section class="bg-light py-3 no-print">
   <div class="container">
     <div class="row align-items-center g-3">
       <div class="col-12 col-lg-8">
         <p class="mb-0">
-          Expansievaten worden toegepast om de bij temperatuurverandering optredende verschillen tussen volumeverandering 
-          van de installatie en de volumeverandeing van het warmtetransportmedium op te vangen.
+          Een expansievat vangt de volumeverandering van het water in een verwarmingsinstallatie op wanneer de temperatuur verandert.
         </p>
       </div>
       <div class="col-12 col-lg-4 d-flex justify-content-lg-end align-items-center gap-3 flex-wrap">
@@ -49,110 +48,106 @@
       </div>
     </div>
   </div>
-</div>
+</section>
 
-<div class="container my-4">
+<section class="py-3" id="print_content">
+<div class="container">
   <form method="post" id="inputForm">
     {% csrf_token %}
-    <div class="row g-4">
-      
-      <!-- Input Card -->
-      <div class="col-12 col-lg-4">
-        <div class="card shadow-sm">
-          <div class="card-body">
-            <h4 class="card-title">Systeemeigenschappen</h4>
-            
-            <!-- Aanvoer -->
-            <div class="mb-3">
-              <label for="temp_aanvoer" class="form-label">Aanvoertemperatuur (T<sub>aanv</sub>):</label>
-              <div class="input-group">
-                <input type="number" class="form-control" id="temp_aanvoer" name="temp_aanvoer" value="80" min="0" max="100" required>
-                <span class="input-group-text">°C</span>
-              </div>
+    <div class="card card-input shadow-sm mb-3">
+      <div class="card-header bg-primary-subtle">
+        <h2 class="h5 mb-0">Systeemeigenschappen</h2>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-12 col-sm-6 col-lg-4">
+            <label for="temp_aanvoer" class="form-label">Aanvoertemperatuur (T<sub>aanv</sub>)</label>
+            <div class="input-group">
+              <input type="number" class="form-control" id="temp_aanvoer" name="temp_aanvoer" value="80" min="0" max="100" required>
+              <span class="input-group-text">°C</span>
             </div>
-            
-            <!-- Retour -->
-            <div class="mb-3">
-              <label for="temp_retour" class="form-label">Retourtemperatuur (T<sub>ret</sub>):</label>
-              <div class="input-group">
-                <input type="number" class="form-control" id="temp_retour" name="temp_retour" value="60" min="0" max="100" required>
-                <span class="input-group-text">°C</span>
-              </div>
+          </div>
+          <div class="col-12 col-sm-6 col-lg-4">
+            <label for="temp_retour" class="form-label">Retourtemperatuur (T<sub>ret</sub>)</label>
+            <div class="input-group">
+              <input type="number" class="form-control" id="temp_retour" name="temp_retour" value="60" min="0" max="100" required>
+              <span class="input-group-text">°C</span>
             </div>
-            
-            <!-- Systeeminhoud -->
-            <div class="mb-3">
-              <label for="sys_inhoud" class="form-label">Systeeminhoud (V<sub>sys</sub>):</label>
-              <div class="input-group">
-                <input type="number" class="form-control" id="sys_inhoud" name="sys_inhoud" value="1000" min="0" max="10000" required>
-                <span class="input-group-text">L</span>
-              </div>
+          </div>
+          <div class="col-12 col-sm-6 col-lg-4">
+            <label for="sys_inhoud" class="form-label">Systeeminhoud (V<sub>sys</sub>)</label>
+            <div class="input-group">
+              <input type="number" class="form-control" id="sys_inhoud" name="sys_inhoud" value="1000" min="0" max="10000" required>
+              <span class="input-group-text">L</span>
             </div>
+          </div>
+          <div class="col-12 col-sm-6 col-lg-6">
+            <label for="st_height" class="form-label">Statische hoogte (H<sub>st</sub>)</label>
+            <div class="input-group">
+              <input type="number" class="form-control" id="st_height" name="st_height" value="0" min="0" max="100" step="0.1" required>
+              <span class="input-group-text">m</span>
+            </div>
+            <div class="form-text">
+              Vul het hoogteverschil in tussen de plaats waar het expansievat staat en de hoogste radiator. De voordruk wordt automatisch berekend: 0,1 bar per meter hoogteverschil + 0,3 bar veiligheidsmarge, afgerond naar boven op stappen van 0,5 bar.
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-lg-6">
+            <label for="einddruk" class="form-label">Einddruk (P<sub>e</sub>)</label>
+            <div class="input-group">
+              <input type="number" class="form-control" id="einddruk" name="einddruk" min="1" max="16" value="3" step="0.1" required>
+              <span class="input-group-text">bar</span>
+            </div>
+          </div>
+        </div>
 
-            <!-- Statische hoogte bepaalt automatisch de voordruk -->
-            <div class="mb-3">
-              <label for="st_height" class="form-label">Statische hoogte (H<sub>st</sub>):</label>
+        <div class="collapse mt-3" id="additional_fields">
+          <div class="row g-3 border-top pt-3">
+            <div class="col-12 col-sm-6 col-lg-4">
+              <label for="vermogen" class="form-label">Vermogen (P)</label>
               <div class="input-group">
-                <input type="number" class="form-control" id="st_height" name="st_height" value="0" min="0" max="100" step="0.1" required>
-                <span class="input-group-text">m</span>
-              </div>
-              <div class="form-text">
-                Vul het hoogteverschil in tussen de plaats waar het expansievat staat en de hoogste radiator. De voordruk wordt automatisch berekend: 0,1 bar per meter hoogteverschil + 0,3 bar veiligheidsmarge, afgerond naar boven op stappen van 0,5 bar.
+                <input type="number" class="form-control" id="vermogen" name="vermogen" value="0">
+                <span class="input-group-text">kW</span>
               </div>
             </div>
-
-            <!-- Einddruk -->
-            <div class="mb-3">
-              <label for="einddruk" class="form-label">Einddruk (P<sub>e</sub>):</label>
-              <div class="input-group">
-                <input type="number" class="form-control" id="einddruk" name="einddruk" min="1" max="16" value="3" step="0.1" required>
-                <span class="input-group-text">bar</span>
-              </div>
+            <div class="col-12 col-sm-6 col-lg-4">
+              <label for="CVInstallatie" class="form-label">CV-afgifte</label>
+              <select name="CVInstallatie" class="form-select" id="CVInstallatie">
+                <option value="0">Convectors en/of luchtverhitters</option>
+                <option value="1">Inductie Units</option>
+                <option value="2">Luchtbehandelingsinstallaties</option>
+                <option value="3">Paneelradiatoren</option>
+                <option value="4" selected>Utiliteit mix CV</option>
+                <option value="5">Kolomradiatoren</option>
+                <option value="6">Utiliteit mix GWK</option>
+                <option value="7">Stralingspanelen en/of vloerverwarming</option>
+                <option value="8">Wijkverwarming</option>
+              </select>
             </div>
-
-            <!-- Additional Fields -->
-            <div class="collapse" id="additional_fields">
-              <div class="mb-3">
-                <label for="vermogen" class="form-label">Vermogen (P):</label>
-                <div class="input-group">
-                  <input type="number" class="form-control" id="vermogen" name="vermogen" value="0">
-                  <span class="input-group-text">kW</span>
-                </div>
-              </div>
-              <div class="mb-3">
-                <label for="CVInstallatie" class="form-label">CV-afgifte:</label>
-                <select name="CVInstallatie" class="form-control" id="CVInstallatie">
-                  <option value="0">Convectors en/of luchtverhitters</option>
-                  <option value="1">Inductie Units</option>
-                  <option value="2">Luchtbehandelingsinstallaties</option>
-                  <option value="3">Paneelradiatoren</option>
-                  <option value="4" selected>Utiliteit mix CV</option>
-                  <option value="5">Kolomradiatoren</option>
-                  <option value="6">Utiliteit mix GWK</option>
-                  <option value="7">Stralingspanelen en/of vloerverwarming</option>
-                  <option value="8">Wijkverwarming</option>
-                </select>
-              </div>
+            <div class="col-12 col-lg-4 d-flex align-items-center">
               <div class="form-check form-switch">
                 <input type="checkbox" class="form-check-input" id="locatieToggle" name="locatieToggle">
                 <label class="form-check-label" for="locatieToggle">Circulatiepomp in vertrek/retourleiding</label>
               </div>
             </div>
-
-            <!-- Toggle -->
-            <button type="button" class="btn btn-link p-0 mt-2" data-bs-toggle="collapse" data-bs-target="#additional_fields" aria-expanded="false">
-              <i class="fas fa-chevron-down"></i> Uitbreiden
-            </button>
           </div>
         </div>
-      </div>
 
-      <!-- Output 1 -->
-      <div class="col-12 col-lg-4">
-        <div class="card shadow-sm">
+        <button type="button" class="btn btn-outline-primary btn-sm mt-3" id="toggleButton"
+                data-bs-toggle="collapse" data-bs-target="#additional_fields"
+                aria-controls="additional_fields" aria-expanded="false">
+          <i class="fas fa-chevron-down" aria-hidden="true"></i> Uitbreiden
+        </button>
+      </div>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-12 col-lg-5">
+        <div class="card card-output shadow-sm h-100">
+          <div class="card-header bg-success-subtle">
+            <h2 class="h5 mb-0">Advies expansievat</h2>
+          </div>
           <div class="card-body text-center">
-            <h4 class="card-title">Advies Expansievat</h4>
-            <h6>Bruto volume en voordruk</h6>
+            <p class="text-muted mb-2">Benodigd bruto volume en berekende voordruk</p>
             <div class="image-container">
               <img src="{% static 'tools/images/expansion.png' %}" alt="Inhoud buffervat" class="img-fluid">
               <div class="overlay o_1">{{ expansievat_output.3 }} L</div>
@@ -161,52 +156,71 @@
             <button type="submit" class="d-none" id="ExpansieButton" name="ExpansieButton"></button>
           </div>
         </div>
-        <div class="card shadow-sm mt-3">
-          <div class="card-body">
-            <h4 class="card-title">Formules</h4>
-            <p>Meer info zie "ReadMe"</p>
-            <h4>\( V_{br}[L] = \frac{ V_{\exp} \cdot \beta}{n_{e} } \)</h4>
-          </div>
-        </div>
       </div>
 
-      <!-- Output 2 -->
-      <div class="col-12 col-lg-4">
-        <div class="card shadow-sm">
+      <div class="col-12 col-lg-7">
+        <div class="card card-output shadow-sm h-100">
+          <div class="card-header bg-success-subtle">
+            <h2 class="h5 mb-0">Berekeningsgegevens</h2>
+          </div>
           <div class="card-body">
-            <h4 class="card-title">Gegeven Waarden</h4>
-            <div>
-              <strong>Vloeistof:</strong> Water <br>
-              <strong>Temperaturen:</strong><br>
-              T<sub>aanv</sub>={{ expansievat_output.9 }} °C<br>
-              T<sub>ret</sub> = {{ expansievat_output.10 }} °C<br>
-              T<sub>gem</sub> = {{ expansievat_output.0 }} °C<br>
-              T<sub>min</sub> = 10 °C<br><br>
-
-              <strong>Drukken:</strong><br>
-              P<sub>v</sub> = {{ expansievat_output.4 }} bar<br>
-              P<sub>e</sub> = {{ expansievat_output.11 }} bar<br>
-              P<sub>max</sub> = 6 bar<br><br>
-
-              <strong>Volumen:</strong><br>
-              V<sub>sys</sub> = {{ expansievat_output.13 }} L<br>
-              V<sub>br</sub> = {{ expansievat_output.2 }} L<br>
-              V<sub>exp</sub> = {{ expansievat_output.8 }} L<br>
-              V<sub>norm.</sub> = {{ expansievat_output.15 }} L/kW<br><br>
-
-              <strong>Overig:</strong><br>
-              n<sub>e</sub> = {{ expansievat_output.1 }}<br>
-              H<sub>st</sub> = {{ expansievat_output.14 }} m<br>
-              η = {{ expansievat_output.7 }} %<br>
-              β = 25 %<br>
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <section class="h-100 rounded-3 bg-light p-3">
+                  <h3 class="h6">Temperaturen</h3>
+                  <dl class="row mb-0">
+                    <dt class="col-7">Aanvoer</dt><dd class="col-5 text-end">{{ expansievat_output.9 }} °C</dd>
+                    <dt class="col-7">Retour</dt><dd class="col-5 text-end">{{ expansievat_output.10 }} °C</dd>
+                    <dt class="col-7">Gemiddeld</dt><dd class="col-5 text-end">{{ expansievat_output.0 }} °C</dd>
+                    <dt class="col-7">Minimum</dt><dd class="col-5 text-end">10 °C</dd>
+                  </dl>
+                </section>
+              </div>
+              <div class="col-12 col-md-6">
+                <section class="h-100 rounded-3 bg-light p-3">
+                  <h3 class="h6">Drukken</h3>
+                  <dl class="row mb-0">
+                    <dt class="col-7">Voordruk</dt><dd class="col-5 text-end">{{ expansievat_output.4 }} bar</dd>
+                    <dt class="col-7">Einddruk</dt><dd class="col-5 text-end">{{ expansievat_output.11 }} bar</dd>
+                    <dt class="col-7">Maximum</dt><dd class="col-5 text-end">6 bar</dd>
+                  </dl>
+                </section>
+              </div>
+              <div class="col-12 col-md-6">
+                <section class="h-100 rounded-3 bg-light p-3">
+                  <h3 class="h6">Volumes</h3>
+                  <dl class="row mb-0">
+                    <dt class="col-7">Systeem</dt><dd class="col-5 text-end">{{ expansievat_output.13 }} L</dd>
+                    <dt class="col-7">Bruto vat</dt><dd class="col-5 text-end">{{ expansievat_output.2 }} L</dd>
+                    <dt class="col-7">Expansie</dt><dd class="col-5 text-end">{{ expansievat_output.8 }} L</dd>
+                    <dt class="col-7">Norminhoud</dt><dd class="col-5 text-end">{{ expansievat_output.15 }} L/kW</dd>
+                  </dl>
+                </section>
+              </div>
+              <div class="col-12 col-md-6">
+                <section class="h-100 rounded-3 bg-light p-3">
+                  <h3 class="h6">Overig</h3>
+                  <dl class="row mb-0">
+                    <dt class="col-7">Nuttig effect</dt><dd class="col-5 text-end">{{ expansievat_output.1 }}</dd>
+                    <dt class="col-7">Statische hoogte</dt><dd class="col-5 text-end">{{ expansievat_output.14 }} m</dd>
+                    <dt class="col-7">Expansiepercentage</dt><dd class="col-5 text-end">{{ expansievat_output.7 }} %</dd>
+                    <dt class="col-7">Veiligheidsfactor</dt><dd class="col-5 text-end">25 %</dd>
+                  </dl>
+                </section>
+              </div>
+            </div>
+            <div class="border-top mt-3 pt-3">
+              <h3 class="h6 mb-1">Formule bruto vatinhoud</h3>
+              <p class="mb-0 text-muted">Meer uitleg vind je in de ReadMe.</p>
+              <div class="fs-5">\( V_{br}[L] = \frac{ V_{\exp} \cdot \beta}{n_{e} } \)</div>
             </div>
           </div>
         </div>
       </div>
-
     </div>
   </form>
 </div>
+</section>
 {% endblock %}
 
 

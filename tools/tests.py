@@ -115,6 +115,19 @@ class ComfortStatisticsTests(TestCase):
 
 
 class ExpansievatPrepressureTests(TestCase):
+    def test_w2_page_renders_bootstrap_input_and_output_cards(self):
+        user = User.objects.create_user(username="expansievat-layout-user")
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("tools:expansievat"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'class="card card-input shadow-sm mb-3"')
+        self.assertContains(response, 'class="card card-output shadow-sm h-100"')
+        self.assertContains(response, 'id="st_height"')
+        self.assertContains(response, "hoogste radiator")
+        self.assertContains(response, 'id="toggleButton"')
+
     def test_prepressure_is_derived_from_static_height(self):
         self.assertEqual(calculate_prepressure(0), 0.5)
         self.assertEqual(calculate_prepressure(2), 0.5)
