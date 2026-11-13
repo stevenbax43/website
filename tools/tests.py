@@ -26,6 +26,12 @@ from .Tool_W2_expansievat import (
     expansievat,
 )
 from .Tool_W5_buffervat import buffervat
+from .Tool_W7_installatiegeluid import (
+    calculate_a_weighted_spectrum,
+    equivalent_sound_level,
+    logarithmic_sum,
+    sound_pressure_level,
+)
 from .models import (
     ConceptSfbLink,
     InstallatieConcept,
@@ -606,6 +612,97 @@ class ToolUsageTrackingTests(TestCase):
         self.assertEqual(summary["W5"]["page_views"], 1)
         self.assertEqual(summary["W5"]["calculations"], 1)
         self.assertEqual(summary["W5"]["total"], 2)
+
+
+class InstallationNoiseCalculationTests(TestCase):
+    def test_logarithmic_sum_matches_readme_example(self):
+        self.assertAlmostEqual(logarithmic_sum([70, 74]), 75.455, places=2)
+        self.assertAlmostEqual(logarithmic_sum([70, 70]), 73.010, places=2)
+
+    def test_a_weighted_spectrum_matches_readme_example(self):
+        result = calculate_a_weighted_spectrum(
+            [80, 78, 75, 72, 70, 68, 65, 60]
+        )
+
+        self.assertAlmostEqual(result["total_db_a"], 75.6, places=1)
+        self.assertEqual(len(result["bands"]), 8)
+        self.assertEqual(result["bands"][0]["correction_db"], -26)
+
+    def test_a_weighted_spectrum_ignores_empty_bands(self):
+        result = calculate_a_weighted_spectrum(
+            [None, None, None, None, 70, None, None, None]
+        )
+
+        self.assertEqual(result["total_db_a"], 70)
+        self.assertEqual(len(result["bands"]), 1)
+
+    def test_open_air_conversion_uses_readme_formula(self):
+        result = sound_pressure_level(80, 2, 10)
+
+        self.assertAlmostEqual(result, 52.0182, places=3)
+
+    def test_operating_time_correction_matches_readme_formula(self):
+        self.assertAlmostEqual(equivalent_sound_level(80, 4, 8), 76.9897, places=3)
+        with self.assertRaises(ValueError):
+            equivalent_sound_level(80, 9, 8)
+
+    def test_invalid_or_empty_input_is_rejected(self):
+        for levels in ([], [float("nan")], [True]):
+            with self.subTest(levels=levels):
+                with self.assertRaises(ValueError):
+                    logarithmic_sum(levels)
+        with self.assertRaises(ValueError):
+            calculate_a_weighted_spectrum([None] * 8)
+        with self.assertRaises(ValueError):
+            sound_pressure_level(80, 0, 10)
+
+    def test_tool_renders_and_calculation_endpoint_tracks_only_calculations(self):
+        user = User.objects.create_user(username="installation-noise-user")
+        self.client.force_login(user)
+
+        page = self.client.get(reverse("tools:installatiegeluid"))
+        self.assertEqual(page.status_code, 200)
+        self.assertContains(page, "Tool W7: Installatiegeluid")
+        self.assertContains(page, "id=\"band63\"")
+        self.assertEqual(ToolUsageEvent.objects.get().tool, "W7")
+        self.assertEqual(ToolUsageEvent.objects.get().action, "page_view")
+
+        index = self.client.get(reverse("tools:tools"))
+        self.assertEqual(index.status_code, 200)
+        self.assertContains(index, "installatiegeluid.svg")
+
+        result = self.client.post(
+            reverse("tools:installatiegeluid"),
+            data=json.dumps({"calculation": "sum", "levels": [70, 74]}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(result.status_code, 200)
+        self.assertAlmostEqual(result.json()["total_db"], 75.455, places=2)
+        self.assertEqual(ToolUsageEvent.objects.count(), 2)
+        self.assertEqual(
+            ToolUsageEvent.objects.order_by("-created_at").first().action,
+            "calculation",
+        )
+
+    def test_tool_rejects_malformed_and_invalid_requests(self):
+        user = User.objects.create_user(username="installation-noise-invalid-user")
+        self.client.force_login(user)
+
+        malformed = self.client.post(
+            reverse("tools:installatiegeluid"),
+            data="{",
+            content_type="application/json",
+        )
+        invalid = self.client.post(
+            reverse("tools:installatiegeluid"),
+            data=json.dumps({"calculation": "sum", "levels": []}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(malformed.status_code, 400)
+        self.assertEqual(invalid.status_code, 400)
+        self.assertFalse(ToolUsageEvent.objects.filter(action="calculation").exists())
 
 
 class MollierPdfExportTests(TestCase):

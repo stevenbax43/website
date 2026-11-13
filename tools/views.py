@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_http_methods, require_POST
 from django.utils.decorators import method_decorator
 from django.http import HttpResponse, JsonResponse, Http404
 from django.templatetags.static import static
@@ -22,6 +22,7 @@ from .Tool_W2_expansievat import (
 )
 from .Tool_W4_CO2verloop import CO2verloop, generate_pdf_CO2
 from .Tool_W5_buffervat import buffervat
+from .Tool_W7_installatiegeluid import OCTAVE_BANDS, calculate as calculate_installation_noise
 
 
 import json, io, math
@@ -292,6 +293,27 @@ def tool_W5(request):
 def tool_W6(request):
     return render(request, 'tools/tool_W6.html')
 
+@login_required(login_url='accounts:login')
+@require_http_methods(["GET", "POST"])
+def tool_W7(request):
+    if request.method == "POST":
+        try:
+            payload = json.loads(request.body)
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            return JsonResponse({"error": "Ongeldige JSON-invoer."}, status=400)
+        try:
+            return JsonResponse(calculate_installation_noise(payload))
+        except ValueError as error:
+            return JsonResponse({"error": str(error)}, status=400)
+
+    spectrum_defaults = (80, 78, 75, 72, 70, 68, 65, 60)
+    return render(request, 'tools/tool_W7.html', {
+        "spectrum_bands": [
+            (frequency, correction, default)
+            for (frequency, correction), default in zip(OCTAVE_BANDS, spectrum_defaults)
+        ],
+    })
+
 # driefase-vermogen pagina
 @login_required(login_url='accounts:login')
 def tool_E1(request):
@@ -337,7 +359,7 @@ def generate_pdf_A3(request):
     return generate_pdf_climate(request)
 
 # Whitelist allowed tools; add more as needed for the ReadME!
-ALLOWED = {"INDEX","A1","A2","A3", "E1","W1","W2", "W3", "W4", "W5", "W6"}
+ALLOWED = {"INDEX","A1","A2","A3", "E1","W1","W2", "W3", "W4", "W5", "W6", "W7"}
 def tool_readme(request, tool):
     code = tool.upper()
     if code not in ALLOWED:

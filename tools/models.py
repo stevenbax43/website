@@ -54,6 +54,7 @@ class ToolUsageEvent(models.Model):
         ("W4", "W4 - CO2-verloop"),
         ("W5", "W5 - Buffervat"),
         ("W6", "W6 - Thermisch vermogen"),
+        ("W7", "W7 - Installatiegeluid"),
         ("E1", "E1 - Driefasevermogen"),
     ]
     ACTION_CHOICES = [

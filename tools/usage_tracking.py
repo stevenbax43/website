@@ -9,6 +9,7 @@ TOOL_ROUTE_CODES = {
     "CO2verloop": "W4",
     "buffervat": "W5",
     "thermisch_vermogen": "W6",
+    "installatiegeluid": "W7",
     "driefase_vermogen": "E1",
 }
 
@@ -19,6 +20,7 @@ SERVER_CALCULATION_ROUTES = {
     "expansievat",
     "CO2verloop",
     "buffervat",
+    "installatiegeluid",
 }
 
 CLIENT_CALCULATION_TOOLS = {
