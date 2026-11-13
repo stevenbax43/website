@@ -12,7 +12,7 @@ from .Tool_A1_Gebouwdata import gebouwgegevens
 from .Tool_A3_klimaatjaar import klimaatjaar, generate_pdf_climate
 from .Tool_A4_NLsfB import get_children
 from .Tool_W1_MollierDiagram import MollierView, generate_pdf_mollier
-from .Tool_W2_expansievat import build_pressure_height_diagram, expansievat
+from .Tool_W2_expansievat import build_pressure_range_diagram, expansievat
 from .Tool_W4_CO2verloop import CO2verloop, generate_pdf_CO2
 from .Tool_W5_buffervat import buffervat
 
@@ -206,10 +206,10 @@ def tool_W2(request):
         expansievat_ouput = expansievat(request)
     pressure_diagram = None
     if expansievat_ouput:
-        pressure_diagram = build_pressure_height_diagram(
-            expansievat_ouput[14],
+        pressure_diagram = build_pressure_range_diagram(
             expansievat_ouput[4],
             expansievat_ouput[11],
+            expansievat_ouput[8],
         )
     return render(request, 'tools/tool_W2.html', {
         'expansievat_output': expansievat_ouput,

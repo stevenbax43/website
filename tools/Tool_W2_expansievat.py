@@ -6,92 +6,67 @@ def calculate_prepressure(st_height):
     return math.ceil(round(static_prepressure * 2, 10)) / 2
 
 
-def build_pressure_height_diagram(st_height, prepressure_bar, endpressure_bar):
-    height = max(float(st_height), 0)
-    plot_left, plot_top = 82, 24
-    plot_width, plot_height = 650, 276
-    x_max = height if height > 0 else 1
-    pressure_drop_per_meter = 9810
+def build_pressure_range_diagram(prepressure_bar, endpressure_bar, expansion_volume):
+    plot_left, plot_top = 96, 28
+    plot_right, plot_bottom = 670, 300
+    plot_height = plot_bottom - plot_top
+    fill_pressure_bar = prepressure_bar + 0.3
     pressure_lines = [
         ("p0", prepressure_bar, "#0d6efd", ""),
-        ("pv", prepressure_bar + 0.3, "#20a779", ""),
+        ("pv", fill_pressure_bar, "#20a779", ""),
         ("pe", endpressure_bar, "#fd7e14", ""),
         ("safety", 3, "#dc3545", "8 5"),
     ]
-
-    series = []
-    for key, pressure_bar, color, dash in pressure_lines:
-        start_pa = pressure_bar * 100000
-        end_pa = start_pa - pressure_drop_per_meter * height
-        series.append({
-            "key": key,
-            "color": color,
-            "dash": dash,
-            "start_pa": start_pa,
-            "end_pa": end_pa,
-        })
-
-    all_pressures = [
-        pressure
-        for item in series
-        for pressure in (item["start_pa"], item["end_pa"])
-    ]
-    pressure_min = min(0, min(all_pressures))
-    pressure_max = max(0, max(all_pressures))
-    raw_step = max((pressure_max - pressure_min) / 6, 1)
+    pressures = [line[1] for line in pressure_lines]
+    pressure_min, pressure_max = min(pressures), max(pressures)
+    raw_step = max((pressure_max - pressure_min) / 6, 0.01)
     magnitude = 10 ** math.floor(math.log10(raw_step))
     normalized_step = raw_step / magnitude
-    step_factor = 1 if normalized_step <= 1 else 2 if normalized_step <= 2 else 5 if normalized_step <= 5 else 10
+    step_factor = (
+        1 if normalized_step <= 1
+        else 2 if normalized_step <= 2
+        else 5 if normalized_step <= 5
+        else 10
+    )
     tick_step = step_factor * magnitude
-    axis_min = math.floor(pressure_min / tick_step) * tick_step
-    axis_max = math.ceil(pressure_max / tick_step) * tick_step
-    if axis_max == axis_min:
-        axis_max = axis_min + tick_step
+    axis_min = max(0, math.floor(pressure_min / tick_step) * tick_step - tick_step)
+    axis_max = math.ceil(pressure_max / tick_step) * tick_step + tick_step
 
-    def y_coordinate(pressure_pa):
-        return plot_top + (axis_max - pressure_pa) / (axis_max - axis_min) * plot_height
+    def y_coordinate(pressure_bar):
+        return plot_top + (axis_max - pressure_bar) / (axis_max - axis_min) * plot_height
 
-    for item in series:
-        end_x = plot_left + height / x_max * plot_width
-        item["start_x"] = plot_left
-        item["start_y"] = y_coordinate(item["start_pa"])
-        item["end_x"] = end_x
-        item["end_y"] = y_coordinate(item["end_pa"])
-        item["path"] = (
-            f"M {item['start_x']} {item['start_y']:.1f} "
-            f"L {item['end_x']:.1f} {item['end_y']:.1f}"
-        )
-
+    series = [{
+        "key": key,
+        "pressure_bar": pressure_bar,
+        "y": y_coordinate(pressure_bar),
+        "color": color,
+        "dash": dash,
+    } for key, pressure_bar, color, dash in pressure_lines]
     y_ticks = []
     tick = axis_min
-    while tick <= axis_max:
+    while tick <= axis_max + tick_step / 1000:
         y_ticks.append({
-            "value": tick,
             "y": y_coordinate(tick),
-            "label": f"{int(tick):,}".replace(",", "."),
+            "label": f"{tick:.2f}".rstrip("0").rstrip(".").replace(".", ","),
         })
         tick += tick_step
 
-    x_tick_values = (
-        [height * index / 4 for index in range(5)] if height > 0 else [0]
-    )
-    x_ticks = [{
-        "x": plot_left + value / x_max * plot_width,
-        "label": f"{value:.1f}".rstrip("0").rstrip("."),
-    } for value in x_tick_values]
-
+    fill_y = y_coordinate(fill_pressure_bar)
+    end_y = y_coordinate(endpressure_bar)
     return {
-        "height": height,
-        "height_label": f"{height:g}",
         "plot_left": plot_left,
         "plot_top": plot_top,
-        "plot_right": plot_left + plot_width,
-        "plot_bottom": plot_top + plot_height,
+        "plot_right": plot_right,
+        "plot_bottom": plot_bottom,
+        "plot_width": plot_right - plot_left,
         "series": series,
         "y_ticks": y_ticks,
-        "x_ticks": x_ticks,
+        "fill_area_top": min(fill_y, end_y),
+        "fill_area_height": abs(fill_y - end_y),
+        "fill_pressure_bar": fill_pressure_bar,
+        "endpressure_bar": endpressure_bar,
+        "expansion_volume": expansion_volume,
     }
-
 
 def expansievat(request): 
     Temp_aanvoer, Temp_retour, Temp_average, input_sys_inhoud, expansion_volume,CV_volume_norm = 0,0,0,0,0,0

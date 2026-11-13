@@ -74,11 +74,13 @@
               <span class="input-group-text">°C</span>
             </div>
           </div>
-          <div class="col{% if system_volume_unknown %} d-none{% endif %}" id="system_volume_input">
-            <label for="sys_inhoud" class="form-label">Systeeminhoud (V<sub>sys</sub>)</label>
-            <div class="input-group">
-              <input type="number" class="form-control" id="sys_inhoud" name="sys_inhoud" value="1000" min="0" max="10000"{% if not system_volume_unknown %} required{% else %} disabled{% endif %}>
-              <span class="input-group-text">L</span>
+          <div class="col">
+            <div id="system_volume_input" class="{% if system_volume_unknown %}d-none{% endif %}">
+              <label for="sys_inhoud" class="form-label">Systeeminhoud (V<sub>sys</sub>)</label>
+              <div class="input-group">
+                <input type="number" class="form-control" id="sys_inhoud" name="sys_inhoud" value="1000" min="0" max="10000"{% if not system_volume_unknown %} required{% else %} disabled{% endif %}>
+                <span class="input-group-text">L</span>
+              </div>
             </div>
             <div class="form-check form-switch mt-2">
               <input class="form-check-input" type="checkbox" role="switch"
@@ -232,19 +234,26 @@
   {% if pressure_diagram %}
   <div class="card card-output shadow-sm mt-3">
     <div class="card-header bg-success-subtle">
-      <h2 class="h5 mb-0">Druk-hoogtediagram</h2>
+      <h2 class="h5 mb-0">Drukbereik expansievat</h2>
     </div>
     <div class="card-body">
       <p class="text-muted">
-        Overdruk in Pa ten opzichte van de hoogte. Hoogte 0 m is het expansievat;
-        de hoogste radiator ligt op {{ pressure_diagram.height_label }} m.
-        De druk neemt af met 9.810 Pa per meter.
+        De verticale schaal toont de drukniveaus waarbij het expansievat werkt.
+        Het gemarkeerde gebied tussen Pv en Pe hoort bij het berekende expansievolume.
       </p>
+      <div class="alert alert-success py-2 mb-2 text-center">
+        <strong>Expansievolume (V<sub>exp</sub>):</strong>
+        {{ pressure_diagram.expansion_volume }} L
+      </div>
       <div class="pressure-chart-wrap">
-        <svg class="pressure-height-chart" viewBox="0 0 760 360" role="img"
+        <svg class="pressure-range-chart" viewBox="0 0 760 360" role="img"
              aria-labelledby="pressure-chart-title pressure-chart-description">
-          <title id="pressure-chart-title">Druk als functie van de hoogte</title>
-          <desc id="pressure-chart-description">Druklijnen voor voordruk, vuldruk, einddruk en beveiligingsdruk, van het expansievat tot de hoogste radiator.</desc>
+          <title id="pressure-chart-title">Drukbereik van het expansievat</title>
+          <desc id="pressure-chart-description">Drukschaal in bar met voordruk, vuldruk, einddruk en beveiligingsdruk. Het gebied tussen vuldruk en einddruk geeft het expansievolume weer.</desc>
+          <rect x="{{ pressure_diagram.plot_left }}" y="{{ pressure_diagram.fill_area_top }}"
+                width="{{ pressure_diagram.plot_width }}"
+                height="{{ pressure_diagram.fill_area_height }}"
+                class="pressure-working-range" />
           {% for tick in pressure_diagram.y_ticks %}
           <line x1="{{ pressure_diagram.plot_left }}" y1="{{ tick.y }}"
                 x2="{{ pressure_diagram.plot_right }}" y2="{{ tick.y }}"
@@ -252,28 +261,17 @@
           <text x="{{ pressure_diagram.plot_left|add:'-10' }}" y="{{ tick.y|add:'4' }}"
                 text-anchor="end" class="pressure-axis-label">{{ tick.label }}</text>
           {% endfor %}
-          {% for tick in pressure_diagram.x_ticks %}
-          <line x1="{{ tick.x }}" y1="{{ pressure_diagram.plot_top }}"
-                x2="{{ tick.x }}" y2="{{ pressure_diagram.plot_bottom }}"
-                class="pressure-grid-line pressure-grid-vertical" />
-          <text x="{{ tick.x }}" y="{{ pressure_diagram.plot_bottom|add:'22' }}"
-                text-anchor="middle" class="pressure-axis-label">{{ tick.label }}</text>
-          {% endfor %}
           <line x1="{{ pressure_diagram.plot_left }}" y1="{{ pressure_diagram.plot_top }}"
                 x2="{{ pressure_diagram.plot_left }}" y2="{{ pressure_diagram.plot_bottom }}"
                 class="pressure-axis-line" />
-          <line x1="{{ pressure_diagram.plot_left }}" y1="{{ pressure_diagram.plot_bottom }}"
-                x2="{{ pressure_diagram.plot_right }}" y2="{{ pressure_diagram.plot_bottom }}"
-                class="pressure-axis-line" />
           {% for line in pressure_diagram.series %}
-          <path d="{{ line.path }}" fill="none" stroke="{{ line.color }}" stroke-width="3"
+          <line x1="{{ pressure_diagram.plot_left }}" y1="{{ line.y }}"
+                x2="{{ pressure_diagram.plot_right }}" y2="{{ line.y }}"
+                stroke="{{ line.color }}" stroke-width="3"
                 {% if line.dash %}stroke-dasharray="{{ line.dash }}"{% endif %} />
-          <circle cx="{{ line.start_x }}" cy="{{ line.start_y }}" r="3" fill="{{ line.color }}" />
-          <circle cx="{{ line.end_x }}" cy="{{ line.end_y }}" r="3" fill="{{ line.color }}" />
           {% endfor %}
-          <text x="407" y="350" text-anchor="middle" class="pressure-axis-title">Hoogte boven expansievat (m)</text>
-          <text x="18" y="162" text-anchor="middle" class="pressure-axis-title"
-                transform="rotate(-90 18 162)">Overdruk (Pa)</text>
+          <text x="22" y="164" text-anchor="middle" class="pressure-axis-title"
+                transform="rotate(-90 22 164)">Druk (bar)</text>
         </svg>
       </div>
 
@@ -288,10 +286,7 @@
               {% elif line.key == "pv" %}<strong>P<sub>v</sub> – vuldruk</strong>
               {% elif line.key == "pe" %}<strong>P<sub>e</sub> – einddruk</strong>
               {% else %}<strong>P<sub>beveiliging</sub> – 3 bar</strong>{% endif %}
-              <span class="d-block text-muted small">
-                bij expansievat: {{ line.start_pa|floatformat:0 }} Pa;
-                bij hoogste radiator: {{ line.end_pa|floatformat:0 }} Pa
-              </span>
+              <span class="d-block text-muted small">{{ line.pressure_bar|floatformat:2 }} bar</span>
             </span>
           </div>
         </div>

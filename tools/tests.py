@@ -18,7 +18,7 @@ from .Tool_W1_MollierDiagram import (
 )
 from .Tool_A4_NLsfB import get_parent_code
 from .Tool_W2_expansievat import (
-    build_pressure_height_diagram,
+    build_pressure_range_diagram,
     calculate_prepressure,
     expansievat,
 )
@@ -144,20 +144,21 @@ class ExpansievatPrepressureTests(TestCase):
         self.assertEqual(calculate_prepressure(2.1), 1.0)
         self.assertEqual(calculate_prepressure(7.1), 1.5)
 
-    def test_pressure_diagram_shows_four_pressure_lines_in_pascal(self):
-        diagram = build_pressure_height_diagram(7.1, 1.5, 2.6)
+    def test_pressure_diagram_shows_four_pressure_levels_and_expansion_volume(self):
+        diagram = build_pressure_range_diagram(1.5, 2.6, 17.4)
 
         self.assertEqual(
             [line["key"] for line in diagram["series"]],
             ["p0", "pv", "pe", "safety"],
         )
-        self.assertEqual(diagram["series"][0]["start_pa"], 150000)
-        self.assertAlmostEqual(diagram["series"][0]["end_pa"], 80349)
-        self.assertEqual(diagram["series"][1]["start_pa"], 180000)
-        self.assertEqual(diagram["series"][2]["start_pa"], 260000)
-        self.assertEqual(diagram["series"][3]["start_pa"], 300000)
+        self.assertEqual(diagram["series"][0]["pressure_bar"], 1.5)
+        self.assertEqual(diagram["series"][1]["pressure_bar"], 1.8)
+        self.assertEqual(diagram["series"][2]["pressure_bar"], 2.6)
+        self.assertEqual(diagram["series"][3]["pressure_bar"], 3)
+        self.assertEqual(diagram["expansion_volume"], 17.4)
+        self.assertLess(diagram["fill_area_top"], diagram["plot_bottom"])
 
-    def test_w2_page_renders_pressure_height_diagram_after_calculation(self):
+    def test_w2_page_renders_pressure_range_diagram_after_calculation(self):
         user = User.objects.create_user(username="expansievat-diagram-user")
         self.client.force_login(user)
 
@@ -175,8 +176,9 @@ class ExpansievatPrepressureTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Druk-hoogtediagram")
-        self.assertContains(response, "Overdruk (Pa)")
+        self.assertContains(response, "Drukbereik expansievat")
+        self.assertContains(response, "Druk (bar)")
+        self.assertContains(response, "Expansievolume (V<sub>exp</sub>):")
         self.assertContains(response, "P<sub>v</sub> – vuldruk")
         self.assertContains(response, "Beveiligingsdruk</dt><dd class=\"col-5 text-end\">3 bar")
 
