@@ -931,7 +931,7 @@ def generate_pdf_mollier(request):
             (f"Startwaarde {index}", ""),
         )
         value = format_input(request.POST.get(f"StartInput{index}", ""))
-        start_values.append(f"{label}: {value} {unit}".strip())
+        start_values.append((label, value, unit))
 
     stamp     = datetime.now().strftime('%d %B %Y %H:%M')
 
@@ -1038,26 +1038,35 @@ def generate_pdf_mollier(request):
                     f"{format_input(height_input)} m" if height_input else "-",
                     metadata_value_style,
                 ),
-            ],
-            [
-                label_cell("Startpunt 1"),
-                Paragraph(escape(start_values[0]), metadata_value_style),
                 "",
                 "",
             ],
             [
-                label_cell("Startpunt 2"),
-                Paragraph(escape(start_values[1]), metadata_value_style),
+                Paragraph("Startpunt", metadata_label_style),
+                Paragraph(
+                    f"<b>{escape(start_values[0][0])}</b><br/>"
+                    f"{escape(start_values[0][1])} {escape(start_values[0][2])}",
+                    metadata_value_style,
+                ),
+                Paragraph(
+                    f"<b>{escape(start_values[1][0])}</b><br/>"
+                    f"{escape(start_values[1][1])} {escape(start_values[1][2])}",
+                    metadata_value_style,
+                ),
+                "",
                 "",
                 "",
             ],
         ],
-        colWidths=[88, 169.5, 98, 159.5],
+        colWidths=[(w - 40) / 6] * 6,
     )
     input_table.setStyle(metadata_table_style)
     input_table.setStyle(TableStyle([
-        ("SPAN", (1, 1), (3, 1)),
-        ("SPAN", (1, 2), (3, 2)),
+        ("SPAN", (1, 0), (2, 0)),
+        ("SPAN", (4, 0), (5, 0)),
+        ("SPAN", (0, 1), (1, 1)),
+        ("SPAN", (2, 1), (3, 1)),
+        ("SPAN", (4, 1), (5, 1)),
     ]))
 
     project_heading = Paragraph(

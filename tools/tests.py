@@ -148,8 +148,11 @@ class MollierPdfExportTests(TestCase):
             "LBK hoofdgebouw",
             "12.500 m3/h",
             "350 m",
-            "Drogeboltemperatuur: 22,5 °C",
-            "Relatieve luchtvochtigheid: 55 %",
+            "Startpunt",
+            "Drogeboltemperatuur",
+            "22,5 °C",
+            "Relatieve luchtvochtigheid",
+            "55 %",
         ):
             with self.subTest(value=value):
                 self.assertIn(value, exported_text)
