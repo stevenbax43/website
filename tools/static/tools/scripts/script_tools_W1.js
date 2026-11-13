@@ -841,6 +841,11 @@ function loadMollierPreset(presetName) {
       name: 'Zomersituatie',
       activeSteps: 3,
       fields: {
+        comfortTempMin: '21',
+        comfortTempMax: '24',
+        comfortRhMin: '30',
+        comfortRhMax: '70',
+        toggleClimateHeatmap: false,
         qv_var: '10000',
         varStart1: 'Tdb',
         StartInput1: '32',
@@ -867,6 +872,11 @@ function loadMollierPreset(presetName) {
       name: 'Wintersituatie',
       activeSteps: 2,
       fields: {
+        comfortTempMin: '21',
+        comfortTempMax: '24',
+        comfortRhMin: '30',
+        comfortRhMax: '70',
+        toggleClimateHeatmap: false,
         qv_var: '10000',
         varStart1: 'Tdb',
         StartInput1: '-8',
@@ -910,7 +920,12 @@ function loadMollierPreset(presetName) {
 
   Object.entries(preset.fields).forEach(([id, value]) => {
     const field = byId(id);
-    if (field) field.value = value;
+    if (!field) return;
+    if (field.type === 'checkbox') {
+      field.checked = Boolean(value);
+    } else {
+      field.value = value;
+    }
   });
 
   currentProces = preset.activeSteps;

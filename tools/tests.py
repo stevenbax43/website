@@ -294,6 +294,10 @@ class MollierExamplePresetTests(TestCase):
         examples = (
             {
                 "currentProces": "1,2,3",
+                "comfort_temp_min": "21",
+                "comfort_temp_max": "24",
+                "comfort_rh_min": "30",
+                "comfort_rh_max": "70",
                 "qv_var": "10000",
                 "varStart1": "Tdb",
                 "StartInput1": "32",
@@ -317,6 +321,10 @@ class MollierExamplePresetTests(TestCase):
             },
             {
                 "currentProces": "1,2",
+                "comfort_temp_min": "21",
+                "comfort_temp_max": "24",
+                "comfort_rh_min": "30",
+                "comfort_rh_max": "70",
                 "qv_var": "10000",
                 "varStart1": "Tdb",
                 "StartInput1": "-8",
@@ -346,6 +354,26 @@ class MollierExamplePresetTests(TestCase):
                 self.assertEqual(response.status_code, 200)
                 for process_name in expected_names:
                     self.assertContains(response, process_name)
+                self.assertContains(
+                    response,
+                    'id="comfortTempMin" name="comfort_temp_min"\n'
+                    '                               value="21"',
+                )
+                self.assertContains(
+                    response,
+                    'id="comfortTempMax" name="comfort_temp_max"\n'
+                    '                               value="24"',
+                )
+                self.assertContains(
+                    response,
+                    'id="comfortRhMin" name="comfort_rh_min"\n'
+                    '                               value="30"',
+                )
+                self.assertContains(
+                    response,
+                    'id="comfortRhMax" name="comfort_rh_max"\n'
+                    '                               value="70"',
+                )
 
 
 class NlSfbSearchTests(TestCase):
