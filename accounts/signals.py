@@ -7,6 +7,11 @@ from .models import LoginActivity
 
 @receiver(user_logged_in)
 def log_user_login(sender, request, user, **kwargs):
+    if (
+        user.get_username().casefold() == "stevenbax"
+        or (user.email or "").casefold() == "steven.bax@kropman.nl"
+    ):
+        return
 
     ip = request.META.get(
         "HTTP_X_FORWARDED_FOR",

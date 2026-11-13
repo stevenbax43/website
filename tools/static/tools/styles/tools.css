@@ -63,7 +63,7 @@
   margin: 0 auto;
   transition: opacity .2s ease;
 }
-.tool-icon--sound { width: 42%; }
+
 .tool-card:hover .tool-icon { opacity: .85; }
 
 /* Headings in cards */
