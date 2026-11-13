@@ -1020,7 +1020,7 @@ def generate_pdf_mollier(request):
                 label_cell("LBK-/ruimtenaam"), value_cell(room_name),
             ],
         ],
-        colWidths=[88, 169.5, 98, 159.5],
+        colWidths=[70, 145, 75, 150],
     )
     project_table.setStyle(metadata_table_style)
 
@@ -1033,32 +1033,32 @@ def generate_pdf_mollier(request):
                     if qv_input else "-",
                     metadata_value_style,
                 ),
+                "",
                 label_cell("Hoogte"),
                 Paragraph(
                     f"{format_input(height_input)} m" if height_input else "-",
                     metadata_value_style,
                 ),
                 "",
-                "",
             ],
             [
                 Paragraph("Startpunt", metadata_label_style),
+                "",
                 Paragraph(
                     f"<b>{escape(start_values[0][0])}</b><br/>"
                     f"{escape(start_values[0][1])} {escape(start_values[0][2])}",
                     metadata_value_style,
                 ),
+                "",
                 Paragraph(
                     f"<b>{escape(start_values[1][0])}</b><br/>"
                     f"{escape(start_values[1][1])} {escape(start_values[1][2])}",
                     metadata_value_style,
                 ),
                 "",
-                "",
-                "",
             ],
         ],
-        colWidths=[(w - 40) / 6] * 6,
+        colWidths=[(w - 155) / 6] * 6,
     )
     input_table.setStyle(metadata_table_style)
     input_table.setStyle(TableStyle([
@@ -1074,25 +1074,38 @@ def generate_pdf_mollier(request):
         section_heading_style,
     )
     input_heading = Paragraph("Invoerparameters", section_heading_style)
-    project_heading.wrapOn(c, w - 40, h)
-    input_heading.wrapOn(c, w - 40, h)
-    _, project_table_height = project_table.wrap(w - 40, h)
-    _, input_table_height = input_table.wrap(w - 40, h)
+    table_x = 135
+    table_width = w - table_x - 20
+    project_heading.wrapOn(c, table_x - 30, h)
+    input_heading.wrapOn(c, table_x - 30, h)
+    _, project_table_height = project_table.wrap(table_width, h)
+    _, input_table_height = input_table.wrap(table_width, h)
     section_gap = 8
+    project_section_height = max(
+        project_heading.height,
+        project_table_height,
+    )
+    input_section_height = max(
+        input_heading.height,
+        input_table_height,
+    )
     metadata_height = (
-        project_heading.height + 3 + project_table_height
-        + section_gap
-        + input_heading.height + 3 + input_table_height
+        project_section_height + section_gap + input_section_height
     )
 
     y = h - 48
-    project_heading.drawOn(c, 20, y - project_heading.height)
-    y -= project_heading.height + 3
-    project_table.drawOn(c, 20, y - project_table_height)
-    y -= project_table_height + section_gap
-    input_heading.drawOn(c, 20, y - input_heading.height)
-    y -= input_heading.height + 3
-    input_table.drawOn(c, 20, y - input_table_height)
+    project_table.drawOn(c, table_x, y - project_table_height)
+    project_heading_y = (
+        y - (project_section_height + project_heading.height) / 2
+    )
+    project_heading.drawOn(c, 20, project_heading_y)
+    y -= project_section_height + section_gap
+
+    input_table.drawOn(c, table_x, y - input_table_height)
+    input_heading_y = (
+        y - (input_section_height + input_heading.height) / 2
+    )
+    input_heading.drawOn(c, 20, input_heading_y)
 
     if chart_b64:
         img_data = base64.b64decode(chart_b64)
