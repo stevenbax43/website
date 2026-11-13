@@ -1,6 +1,7 @@
 import pandas as pd 
 import numpy as np
 import math, json, base64
+from decimal import Decimal, InvalidOperation
 from xml.sax.saxutils import escape
 from scipy.optimize import minimize_scalar
 from io import BytesIO
@@ -902,8 +903,8 @@ def generate_pdf_mollier(request):
     qv_input = request.POST.get("qv_var", "")
     height_input = request.POST.get("Height_var", "")
     start_variables = {
-        "Tdb": ("Drogeboltemperatuur", "graden C"),
-        "Twb": ("Natteboltemperatuur", "graden C"),
+        "Tdb": ("Drogeboltemperatuur", "°C"),
+        "Twb": ("Natteboltemperatuur", "°C"),
         "RH": ("Relatieve luchtvochtigheid", "%"),
         "AH": ("Absolute vochtigheid", "g/kg"),
         "h": ("Enthalpie", "kJ/kg"),
@@ -912,6 +913,16 @@ def generate_pdf_mollier(request):
     def format_input(value):
         return escape(value.strip()).replace(".", ",") if value else "-"
 
+    def format_airflow(value):
+        if not value:
+            return ""
+        try:
+            number = Decimal(value.strip())
+        except InvalidOperation:
+            return escape(value.strip())
+        formatted = format(number, ",f")
+        return formatted.replace(",", "\0").replace(".", ",").replace("\0", ".")
+
     start_values = []
     for index in (1, 2):
         variable = request.POST.get(f"varStart{index}", "")
@@ -919,7 +930,7 @@ def generate_pdf_mollier(request):
             variable,
             (f"Startwaarde {index}", ""),
         )
-        value = request.POST.get(f"StartInput{index}", "").strip().replace(".", ",")
+        value = format_input(request.POST.get(f"StartInput{index}", ""))
         start_values.append(f"{label}: {value} {unit}".strip())
 
     stamp     = datetime.now().strftime('%d %B %Y %H:%M')
@@ -974,13 +985,17 @@ def generate_pdf_mollier(request):
     metadata_rows = [
         ("Projectnaam", project_name, "Projectnummer", project_number),
         ("Winter/zomer", season, "LBK-/ruimtenaam", room_name),
-        ("Luchtdebiet", f"{qv_input} m3/h" if qv_input else "", "Hoogte", f"{height_input} m" if height_input else ""),
-        ("Startpunt", " | ".join(start_values), "", ""),
+        ("Luchtdebiet", f"{format_airflow(qv_input)} m<super>3</super>/h" if qv_input else "", "Hoogte", f"{format_input(height_input)} m" if height_input else ""),
+        ("Startpunt 1", start_values[0], "", ""),
+        ("Startpunt 2", start_values[1], "", ""),
     ]
     metadata_table_data = [
         [
             Paragraph(f"{escape(label)}:", metadata_label_style),
-            Paragraph(format_input(value), metadata_value_style),
+            Paragraph(
+                value if label == "Luchtdebiet" else format_input(value),
+                metadata_value_style,
+            ),
             Paragraph(f"{escape(second_label)}:" if second_label else "", metadata_label_style),
             Paragraph(format_input(second_value), metadata_value_style),
         ]
@@ -995,6 +1010,7 @@ def generate_pdf_mollier(request):
         ("BOX", (0, 0), (-1, -1), 0.5, colors.HexColor("#b8d8ae")),
         ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.HexColor("#dcebd7")),
         ("SPAN", (1, 3), (3, 3)),
+        ("SPAN", (1, 4), (3, 4)),
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
         ("LEFTPADDING", (0, 0), (-1, -1), 5),
         ("RIGHTPADDING", (0, 0), (-1, -1), 5),

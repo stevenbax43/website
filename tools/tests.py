@@ -146,9 +146,9 @@ class MollierPdfExportTests(TestCase):
             "P-123",
             "Winter",
             "LBK hoofdgebouw",
-            "12500 m3/h",
+            "12.500 m3/h",
             "350 m",
-            "Drogeboltemperatuur: 22,5 graden C",
+            "Drogeboltemperatuur: 22,5 °C",
             "Relatieve luchtvochtigheid: 55 %",
         ):
             with self.subTest(value=value):
