@@ -1,6 +1,7 @@
 import pandas as pd 
 import numpy as np
 import math, json, base64
+from xml.sax.saxutils import escape
 from scipy.optimize import minimize_scalar
 from io import BytesIO
 from datetime import datetime
@@ -894,6 +895,10 @@ def generate_pdf_mollier(request):
     chart_b64 = request.POST.get("chart_image_base64")
     title     = request.POST.get("project_title",      "Mollierdiagram")
     user      = request.POST.get("username",           "Gebruiker onbekend")
+    project_name = request.POST.get("project_name", "")
+    project_number = request.POST.get("project_number", "")
+    room_name = request.POST.get("room_name", "")
+    room_number = request.POST.get("room_number", "")
     stamp     = datetime.now().strftime('%d %B %Y %H:%M')
 
     # --- setup canvas ---
@@ -1048,10 +1053,29 @@ def generate_pdf_mollier(request):
 
     # draw a header
     c.setFont('Helvetica-Bold',14)
-    c.drawString(40, h-60, "Informatie over de Processen")
+    project_style = ParagraphStyle(
+        'project_details',
+        parent=normal,
+        fontName='Helvetica',
+        fontSize=9,
+        leading=12,
+    )
+    project_details = [
+        f"<b>Projectnaam:</b> {escape(project_name)}"
+        f" &nbsp;&nbsp; <b>Projectnummer:</b> {escape(project_number)}",
+        f"<b>Ruimtenaam:</b> {escape(room_name)}"
+        f" &nbsp;&nbsp; <b>Ruimtenummer:</b> {escape(room_number)}",
+    ]
+    for index, detail in enumerate(project_details):
+        paragraph = Paragraph(detail, project_style)
+        paragraph.wrapOn(c, w - 40, 16)
+        paragraph.drawOn(c, 20, h - 78 - index * 16)
+
+    c.setFont('Helvetica-Bold',14)
+    c.drawString(40, h-125, "Informatie over de Processen")
 
     # place table in a frame
-    frame = Frame(20, 60, w-40, h-140, showBoundary=0)
+    frame = Frame(20, 60, w-40, h-150, showBoundary=0)
     frame.addFromList([info_table], c)
 
     # warning in red below the table

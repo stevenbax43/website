@@ -695,7 +695,8 @@ function initEventListeners() {
     }
   });
 
-  on(byId('SavePDFButton'), 'click', () => {
+  on(byId('pdfDetailsForm'), 'submit', (event) => {
+    event.preventDefault();
     const tablePoints = document.querySelector('#table_points')?.closest('.card-body')?.querySelector('table');
     const tableProces = document.querySelector('#table_proces')?.closest('.card-body')?.querySelector('table'); 
     if (!tablePoints || !tableProces) return;
@@ -728,6 +729,10 @@ function initEventListeners() {
     byId("table_points_json").value  = JSON.stringify(tableDataPoints);
     byId("table_process_json").value = JSON.stringify(tableDataProces);
     byId("chart_image_base64").value = base64;
+    byId("project_name").value = byId("pdf_project_name").value.trim();
+    byId("project_number").value = byId("pdf_project_number").value.trim();
+    byId("room_name").value = byId("pdf_room_name").value.trim();
+    byId("room_number").value = byId("pdf_room_number").value.trim();
 
     const pdfUrl = byId("SavePDFButton")?.dataset?.pdfUrl;
     const form = byId("inputForm");

@@ -157,6 +157,7 @@
             <!-- Toolbar -->
             <div class="d-flex flex-wrap gap-2 mt-3 no-print">
                 <button id="SavePDFButton" name="SavePDFButton" type="button"
+                        data-bs-toggle="modal" data-bs-target="#pdfDetailsModal"
                         data-pdf-url="{% url 'tools:generate_pdf_W1' %}"
                         class="btn border shadow btn-save d-inline-flex align-items-center gap-2 no-print">
                     <span>Save PDF</span>
@@ -567,6 +568,10 @@
       <input type="hidden" name="chart_image_base64" id="chart_image_base64">
       <input type="hidden" name="project_title" id="project_title" value="Mollierdiagram">
       <input type="hidden" name="username" id="username" value="{{ request.user.username|default:'Onbekend' }}">
+      <input type="hidden" name="project_name" id="project_name">
+      <input type="hidden" name="project_number" id="project_number">
+      <input type="hidden" name="room_name" id="room_name">
+      <input type="hidden" name="room_number" id="room_number">
     </form>
   </div>
 </section>
@@ -597,6 +602,39 @@
         {% endif %}
       </div>
     </div>
+  </div>
+</div>
+
+<div class="modal fade" id="pdfDetailsModal" tabindex="-1" aria-labelledby="pdfDetailsModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" id="pdfDetailsForm">
+      <div class="modal-header">
+        <h5 class="modal-title" id="pdfDetailsModalLabel">Projectgegevens voor de PDF</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Sluiten"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="pdf_project_name" class="form-label">Projectnaam</label>
+          <input type="text" class="form-control" id="pdf_project_name" maxlength="80" required>
+        </div>
+        <div class="mb-3">
+          <label for="pdf_project_number" class="form-label">Projectnummer</label>
+          <input type="text" class="form-control" id="pdf_project_number" maxlength="40" required>
+        </div>
+        <div class="mb-3">
+          <label for="pdf_room_name" class="form-label">Ruimtenaam</label>
+          <input type="text" class="form-control" id="pdf_room_name" maxlength="80" required>
+        </div>
+        <div>
+          <label for="pdf_room_number" class="form-label">Ruimtenummer</label>
+          <input type="text" class="form-control" id="pdf_room_number" maxlength="40" required>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuleren</button>
+        <button type="submit" class="btn btn-primary">Download PDF</button>
+      </div>
+    </form>
   </div>
 </div>
 
