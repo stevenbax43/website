@@ -268,6 +268,48 @@ def mollier_graph(pBar=101325):
     }
     return lines_RH, lines_H, df_enthalpy, C_values
 
+
+def _calculate_saturated_vapor_pressure_array(temperatures, C):
+    temperatures = np.asarray(temperatures, dtype=float)
+    temperature_kelvin = temperatures + 273.15
+    valid_temperatures = temperature_kelvin > 0
+    below_freezing = (temperatures < 0) & valid_temperatures
+    above_freezing = (temperatures >= 0) & valid_temperatures
+    vapor_pressure = np.zeros_like(temperatures)
+
+    for mask, below_zero in (
+        (below_freezing, True),
+        (above_freezing, False),
+    ):
+        if not mask.any():
+            continue
+        kelvin = temperature_kelvin[mask]
+        if below_zero:
+            exponent = (
+                C[1] / kelvin
+                + C[2]
+                + C[3] * kelvin
+                + C[4] * kelvin**2
+                + C[5] * kelvin**3
+                + C[6] * kelvin**4
+                + C[7] * np.log(kelvin)
+            )
+        else:
+            exponent = (
+                C[8] / kelvin
+                + C[9]
+                + C[10] * kelvin
+                + C[11] * kelvin**2
+                + C[12] * kelvin**3
+                + C[13] * np.log(kelvin)
+            )
+        values = np.exp(np.minimum(exponent, 700))
+        values[exponent > 700] = np.inf
+        vapor_pressure[mask] = values
+
+    return vapor_pressure
+
+
 def calculate_mollier(Tdb_var, RH_var, qv_prev, df_enthalpy, pressure=101325, C_values=None, rho_prev=None, Tdb_100=None, x_100=None,qv_meng=None):
     # Calculate extra parameters
     formatted_pBar = f"{pressure / 1000:.3f}"
@@ -1191,18 +1233,6 @@ def calculate_comfort_statistics(
 
     total_hours = len(df)
 
-    comfort_hours = 0
-    heating_hours = 0
-    cooling_hours = 0
-    humidification_hours = 0
-    dehumidification_hours = 0
-    heating_and_hum_hours = 0
-
-    heat_energy_kwh = 0
-    cool_energy_kwh = 0
-    humidification_kg = 0
-    dehumidification_kg = 0
-
     _, _, _, C_values = mollier_graph(pressure)
 
     # referentie retourlucht voor WTW
@@ -1221,130 +1251,84 @@ def calculate_comfort_statistics(
         pressure
     )
 
-    for _, row in df.iterrows():
+    outdoor_temperature = df["T"].to_numpy(dtype=float)
+    outdoor_humidity = df["x"].to_numpy(dtype=float)
 
-        T_out = row["T"]
-        x_out = row["x"]
+    temperature = outdoor_temperature + eta_th / 100 * (
+        T_return - outdoor_temperature
+    )
+    humidity = outdoor_humidity + eta_x / 100 * (x_return - outdoor_humidity)
+    humidity_ratio = humidity / 1000
+    specific_volume = (
+        0.287055
+        * (temperature + 273.15)
+        * (1 + 1.607858 * humidity_ratio)
+        / (pressure / 1000)
+    )
+    density = (1 + humidity_ratio) / specific_volume
+    qm = qv * density / 3600
+    vapor_pressure = humidity_ratio * pressure / (0.62198 + humidity_ratio)
+    saturation_pressure = _calculate_saturated_vapor_pressure_array(
+        temperature,
+        C_values,
+    )
+    relative_humidity = np.clip(
+        vapor_pressure / saturation_pressure * 100,
+        0,
+        100,
+    )
 
-        # WTW
-        T = T_out + eta_th / 100 * (T_return - T_out)
-        x = x_out + eta_x / 100 * (x_return - x_out)
+    in_comfort = (
+        (temperature >= T_MIN)
+        & (temperature <= T_MAX)
+        & (relative_humidity >= RH_MIN)
+        & (relative_humidity <= RH_MAX)
+    )
+    heating = temperature < T_MIN
+    cooling = temperature > T_MAX
+    humidification = relative_humidity < RH_MIN
+    dehumidification = relative_humidity > RH_MAX
 
-        rho = density_moist_air(
-            T,
-            x,
-            pressure
+    comfort_hours = int(np.count_nonzero(in_comfort))
+    heating_hours = int(np.count_nonzero(heating))
+    cooling_hours = int(np.count_nonzero(cooling))
+    humidification_hours = int(np.count_nonzero(humidification))
+    dehumidification_hours = int(np.count_nonzero(dehumidification))
+    heating_and_hum_hours = int(
+        np.count_nonzero(heating & humidification)
+    )
+
+    heat_energy_kwh = np.sum(
+        qm[heating] * 1.006 * (T_MIN - temperature[heating])
+    )
+    cool_energy_kwh = np.sum(
+        qm[cooling] * 1.006 * (temperature[cooling] - T_MAX)
+    )
+
+    humidification_kg = 0
+    if humidification.any():
+        target_temperature = np.maximum(temperature[humidification], T_MIN)
+        target_saturation_pressure = _calculate_saturated_vapor_pressure_array(
+            target_temperature,
+            C_values,
         )
-
-        qm = qv * rho / 3600
-
-        pv = calculate_partial_vapor_pressure(
-            x,
-            pressure
+        target_pressure = RH_MIN / 100 * target_saturation_pressure
+        target_ratio = 0.62198 * target_pressure / (pressure - target_pressure)
+        delta = np.maximum(
+            0,
+            target_ratio - humidity_ratio[humidification],
         )
+        humidification_kg = np.sum(qm[humidification] * delta * 3600)
 
-        pws = calculate_saturated_vapor_pressure(
-            T,
-            C_values
+    dehumidification_kg = 0
+    if dehumidification.any():
+        target_pressure = RH_MAX / 100 * saturation_pressure[dehumidification]
+        target_ratio = 0.62198 * target_pressure / (pressure - target_pressure)
+        delta = np.maximum(
+            0,
+            humidity_ratio[dehumidification] - target_ratio,
         )
-
-        RH = calculate_relative_humidity(
-            pv,
-            pws
-        )
-
-        in_comfort = (
-            T_MIN <= T <= T_MAX
-            and
-            RH_MIN <= RH <= RH_MAX
-        )
-
-        if in_comfort:
-            comfort_hours += 1
-
-        # verwarmen
-        if T < T_MIN:
-
-            heating_hours += 1
-
-            Q_heat = (
-                qm
-                * 1.006
-                * (T_MIN - T)
-            )
-
-            heat_energy_kwh += Q_heat
-
-        # koelen
-        if T > T_MAX:
-
-            cooling_hours += 1
-
-            Q_cool = (
-                qm
-                * 1.006
-                * (T - T_MAX)
-            )
-
-            cool_energy_kwh += Q_cool
-
-        # bevochtigen
-        if RH < RH_MIN:
-
-            humidification_hours += 1
-
-            pws_target = calculate_saturated_vapor_pressure(
-                max(T, T_MIN),
-                C_values
-            )
-
-            pv_target = (
-                RH_MIN / 100
-            ) * pws_target
-
-            x_target = calculate_humidity_ratio(
-                pv_target,
-                pressure
-            )
-
-            delta_x = max(
-                0,
-                x_target - x
-            )
-
-            humidification_kg += (
-                qm
-                * delta_x / 1000
-                * 3600
-            )
-
-        # ontvochtigen
-        if RH > RH_MAX:
-
-            dehumidification_hours += 1
-
-            pv_target = (
-                RH_MAX / 100
-            ) * pws
-
-            x_target = calculate_humidity_ratio(
-                pv_target,
-                pressure
-            )
-
-            delta_x = max(
-                0,
-                x - x_target
-            )
-
-            dehumidification_kg += (
-                qm
-                * delta_x / 1000
-                * 3600
-            )
-
-        if T < T_MIN and RH < RH_MIN:
-            heating_and_hum_hours += 1
+        dehumidification_kg = np.sum(qm[dehumidification] * delta * 3600)
 
     outside_hours = (
         total_hours - comfort_hours

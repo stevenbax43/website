@@ -6,7 +6,9 @@ from django.urls import reverse
 from .Tool_W1_MollierDiagram import (
     adjust_humidity_ratio_for_pressure,
     build_comfort_zone_polygon,
+    calculate_comfort_statistics,
     calculate_partial_vapor_pressure,
+    heatmapNEN5060,
     mollier_graph,
     pressure_at_height,
 )
@@ -77,6 +79,34 @@ class ClimateYearPressureTests(TestCase):
                 high_altitude_data.loc[0, "x"], high_altitude_pressure
             ),
         )
+
+
+class ComfortStatisticsTests(TestCase):
+    def test_vectorized_statistics_preserve_default_results(self):
+        _, climate_data = heatmapNEN5060()
+        expected = {
+            "A": (1693, 7067, 48, 41217, 50, 19.3),
+            "B": (3798, 4962, 0, 20917, 0, 43.4),
+            "C": (6019, 2741, 0, 7797, 0, 68.7),
+        }
+
+        for comfort_class, values in expected.items():
+            with self.subTest(comfort_class=comfort_class):
+                result = calculate_comfort_statistics(
+                    climate_data,
+                    comfort_class,
+                )
+                self.assertEqual(
+                    (
+                        result["comfort_hours"],
+                        result["heating_hours"],
+                        result["dehumidification_hours"],
+                        result["heat_energy_kwh"],
+                        result["dehumidification_kg"],
+                        result["comfort_factor"],
+                    ),
+                    values,
+                )
 
 
 class NlSfbSearchTests(TestCase):
