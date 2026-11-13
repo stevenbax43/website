@@ -5,6 +5,7 @@ app_name = 'tools'
 
 urlpatterns = [
     path('', views.tools, name='tools'),
+    path('usage-event/', views.record_client_calculation, name='record_client_calculation'),
     path('gebouwgegevens', views.tool_A1, name='gebouwgegevens'),
     path('eenhedenconversie', views.tool_A2, name='eenhedenconversie'),
     path('klimaatjaar', views.tool_A3, name='klimaatjaar'),

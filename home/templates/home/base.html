@@ -127,6 +127,15 @@
   <!-- Your scripts -->
   <script src="{% static 'home/scripts/script_home.js' %}"></script>
   {% block extra_js %}{% endblock %}
+  {% if user.is_authenticated and request.resolver_match.app_name == "tools" %}
+    <script>
+      window.toolUsageTrackingConfig = {
+        endpoint: "{% url 'tools:record_client_calculation' %}",
+        tool: "{{ request.resolver_match.url_name|escapejs }}"
+      };
+    </script>
+    <script src="{% static 'tools/scripts/tool_usage_tracking.js' %}"></script>
+  {% endif %}
 </body>
 </html>
 {% comment %}

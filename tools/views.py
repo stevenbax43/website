@@ -1,12 +1,14 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from django.utils.decorators import method_decorator
 from django.http import HttpResponse, JsonResponse, Http404
 from django.templatetags.static import static
-from tools.models import ProjectMollier, SfbClass
+from tools.models import ProjectMollier, SfbClass, ToolUsageEvent
 from django.db.models import Q 
 from tools.services.sfb_scoring import analyse_search_term
+from .usage_tracking import CLIENT_CALCULATION_TOOLS
 
 from .Tool_A1_Gebouwdata import gebouwgegevens
 from .Tool_A3_klimaatjaar import klimaatjaar, generate_pdf_climate
@@ -29,6 +31,22 @@ import pandas as pd
 @login_required(login_url='accounts:login')
 def tools(request):
     return render(request, 'tools/tools_index.html')
+
+
+@login_required(login_url='accounts:login')
+@require_POST
+def record_client_calculation(request):
+    tool = request.POST.get("tool")
+    if tool not in CLIENT_CALCULATION_TOOLS:
+        return JsonResponse({"error": "Unknown client-side tool"}, status=400)
+
+    ToolUsageEvent.objects.create(
+        user=request.user,
+        tool=tool,
+        action="calculation",
+    )
+    return HttpResponse(status=204)
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 @login_required(login_url='accounts:login')

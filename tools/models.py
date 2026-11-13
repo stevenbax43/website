@@ -40,6 +40,47 @@ class ProjectMollier(models.Model):
 
     def __str__(self):
         return f"{self.id}: {self.projectname} ({self.user.username})"
+
+
+class ToolUsageEvent(models.Model):
+    TOOL_CHOICES = [
+        ("A1", "A1 - Gebouwgegevens"),
+        ("A2", "A2 - Eenhedenconversie"),
+        ("A3", "A3 - Klimaatjaar"),
+        ("A4", "A4 - NL-SfB"),
+        ("W1", "W1 - Mollierdiagram"),
+        ("W2", "W2 - Expansievat"),
+        ("W3", "W3 - Leidingverliezen"),
+        ("W4", "W4 - CO2-verloop"),
+        ("W5", "W5 - Buffervat"),
+        ("W6", "W6 - Thermisch vermogen"),
+        ("E1", "E1 - Driefasevermogen"),
+    ]
+    ACTION_CHOICES = [
+        ("page_view", "Toolpagina geopend"),
+        ("calculation", "Berekening uitgevoerd"),
+    ]
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="tool_usage_events",
+    )
+    tool = models.CharField(max_length=2, choices=TOOL_CHOICES, db_index=True)
+    action = models.CharField(max_length=20, choices=ACTION_CHOICES, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["tool", "action", "created_at"]),
+            models.Index(fields=["user", "created_at"]),
+        ]
+
+    def __str__(self):
+        return f"{self.get_tool_display()} - {self.get_action_display()}"
     
 
 # voor Tool_A5_NLsfB.py: 
@@ -159,4 +200,3 @@ class Ontwerppost(models.Model):
     
     class Meta:
         ordering = ["naam"]
-

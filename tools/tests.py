@@ -26,7 +26,13 @@ from .Tool_W2_expansievat import (
     expansievat,
 )
 from .Tool_W5_buffervat import buffervat
-from .models import ConceptSfbLink, InstallatieConcept, ProjectMollier, SfbClass
+from .models import (
+    ConceptSfbLink,
+    InstallatieConcept,
+    ProjectMollier,
+    SfbClass,
+    ToolUsageEvent,
+)
 from .services.nl_sfb_concepts import DEFAULT_CONCEPTS, seed_default_concepts
 from .services.sfb_scoring import analyse_search_term
 
@@ -496,6 +502,90 @@ class ThreePhasePowerToolTests(TestCase):
         self.assertContains(response, 'id="vectorQ"')
         self.assertContains(response, 'id="vectorS"')
         self.assertNotContains(response, 'id="arrowCanvas"')
+
+
+class ToolUsageTrackingTests(TestCase):
+    def test_authenticated_tool_page_open_is_logged(self):
+        user = User.objects.create_user(username="tool-usage-page-user")
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("tools:driefase_vermogen"))
+
+        self.assertEqual(response.status_code, 200)
+        event = ToolUsageEvent.objects.get()
+        self.assertEqual(event.user, user)
+        self.assertEqual(event.tool, "E1")
+        self.assertEqual(event.action, "page_view")
+
+    def test_anonymous_tool_page_open_is_not_logged(self):
+        response = self.client.get(reverse("tools:driefase_vermogen"))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(ToolUsageEvent.objects.exists())
+
+    def test_server_calculation_is_logged_without_input_values(self):
+        user = User.objects.create_user(username="tool-usage-calc-user")
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse("tools:buffervat"),
+            {
+                "max_vermogen": "100",
+                "min_vermogen": "30",
+                "temp_verschil": "5",
+                "tijd_aan": "10",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        event = ToolUsageEvent.objects.get()
+        self.assertEqual((event.user, event.tool, event.action), (user, "W5", "calculation"))
+        self.assertNotIn("max_vermogen", {field.name for field in event._meta.fields})
+
+    def test_client_calculation_event_accepts_only_supported_tool_codes(self):
+        user = User.objects.create_user(username="tool-usage-client-calc-user")
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse("tools:record_client_calculation"),
+            {"tool": "E1"},
+        )
+
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(ToolUsageEvent.objects.get().tool, "E1")
+
+        invalid_response = self.client.post(
+            reverse("tools:record_client_calculation"),
+            {"tool": "A1"},
+        )
+
+        self.assertEqual(invalid_response.status_code, 400)
+        self.assertEqual(ToolUsageEvent.objects.count(), 1)
+
+    def test_admin_shows_tool_usage_totals_and_filterable_events(self):
+        user = User.objects.create_superuser(
+            username="tool-usage-admin-user",
+            email="admin@example.com",
+            password="test-password",
+        )
+        ToolUsageEvent.objects.create(user=user, tool="W5", action="page_view")
+        ToolUsageEvent.objects.create(user=user, tool="W5", action="calculation")
+        ToolUsageEvent.objects.create(user=user, tool="E1", action="page_view")
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse("admin:tools_toolusageevent_changelist")
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Toolgebruik")
+        self.assertContains(response, "W5")
+        self.assertContains(response, "Pagina geopend")
+        self.assertContains(response, "Berekening uitgevoerd")
+        summary = {item["tool"]: item for item in response.context["usage_summary"]}
+        self.assertEqual(summary["W5"]["page_views"], 1)
+        self.assertEqual(summary["W5"]["calculations"], 1)
+        self.assertEqual(summary["W5"]["total"], 2)
 
 
 class MollierPdfExportTests(TestCase):
