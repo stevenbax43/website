@@ -958,26 +958,26 @@ def generate_pdf_mollier(request):
         'table_header',
         parent=normal,
         fontName='Helvetica-Bold',
-        fontSize=9,
-        leading=10,
+        fontSize=10,
+        leading=12,
         textColor=colors.white,
         alignment=1,
     )
     unit_style   = ParagraphStyle(
         'units',
         parent=normal,
-        fontSize=7,
+        fontSize=8,
         textColor=colors.grey,
-        leading=8,
+        leading=9,
         alignment=1,
     )
     data_style   = ParagraphStyle('data', parent=normal,
-                                  fontSize=8, leading=9, alignment=1)
+                                  fontSize=9, leading=10, alignment=1)
     process_data_style = ParagraphStyle(
         'process_data',
         parent=normal,
-        fontSize=8,
-        leading=9,
+        fontSize=9,
+        leading=10,
         alignment=1,
     )
 
@@ -1128,7 +1128,7 @@ def generate_pdf_mollier(request):
             data[1] = [Paragraph(str(v), unit_style) for v in data[1]]
         for i in range(2, len(data)):
             data[i] = [Paragraph(fmt(v), cell_style) for v in data[i]]
-        row_heights = [None, 10] + [None] * (len(data) - 2)
+        row_heights = [16, 10] + [None] * (len(data) - 2)
         table = Table(data, colWidths=col_widths, rowHeights=row_heights)
         table.setStyle(TableStyle([
             ('BACKGROUND',(0,0),(-1,0), colors.HexColor('#3DAB39')),
@@ -1138,7 +1138,7 @@ def generate_pdf_mollier(request):
             ('VALIGN',    (0,1),(-1,1), 'MIDDLE'),
             ('GRID',      (0,0),(-1,-1), 0.5, colors.white),
             ('FONTNAME',  (0,0),(-1,-1), 'Helvetica'),
-            ('FONTSIZE',  (0,1),(-1,1), 6),
+            ('FONTSIZE',  (0,1),(-1,1), 7),
             ('TEXTCOLOR', (0,1),(-1,1), colors.grey),
             ('FONTSIZE',  (0,2),(-1,-1), cell_style.fontSize),
             ('ALIGN',     (0,2),(-1,-1), 'CENTER'),
