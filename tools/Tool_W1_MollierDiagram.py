@@ -896,10 +896,10 @@ def generate_pdf_mollier(request):
     chart_b64 = request.POST.get("chart_image_base64")
     title     = request.POST.get("project_title",      "Mollierdiagram")
     user      = request.POST.get("username",           "Gebruiker onbekend")
-    project_name = request.POST.get("project_name", "")
-    project_number = request.POST.get("project_number", "")
-    season = request.POST.get("season", "")
-    room_name = request.POST.get("room_name", "")
+    project_name = request.POST.get("project_name", "").strip() or "n.t.b."
+    project_number = request.POST.get("project_number", "").strip() or "n.t.b."
+    season = request.POST.get("season", "").strip() or "n.t.b."
+    room_name = request.POST.get("room_name", "").strip() or "n.t.b."
     qv_input = request.POST.get("qv_var", "")
     height_input = request.POST.get("Height_var", "")
     start_variables = {
@@ -911,7 +911,12 @@ def generate_pdf_mollier(request):
     }
 
     def format_input(value):
-        return escape(value.strip()).replace(".", ",") if value else "-"
+        if not value:
+            return "-"
+        value = value.strip()
+        if value.lower() == "n.t.b.":
+            return escape(value)
+        return escape(value).replace(".", ",")
 
     def format_airflow(value):
         if not value:

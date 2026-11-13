@@ -114,6 +114,24 @@ class ComfortStatisticsTests(TestCase):
 
 
 class MollierPdfExportTests(TestCase):
+    def test_pdf_defaults_missing_project_details_to_not_determined(self):
+        user = User.objects.create_user(username="mollier-pdf-defaults-user")
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse("tools:generate_pdf_W1"),
+            {
+                "SavePDFButton": "clicked",
+                "table_points_json": "[]",
+                "table_process_json": "[]",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        first_page = PdfReader(BytesIO(response.content)).pages[0]
+        exported_text = " ".join(first_page.extract_text().split())
+        self.assertGreaterEqual(exported_text.count("n.t.b."), 4)
+
     def test_pdf_includes_project_and_start_condition_inputs(self):
         user = User.objects.create_user(username="mollier-pdf-user")
         self.client.force_login(user)
