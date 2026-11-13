@@ -251,6 +251,9 @@ class ExpansievatPrepressureTests(TestCase):
         self.assertContains(response, "Koelinstallatie (Flamco)")
         self.assertContains(response, "Reserve (50% Vexp)")
         self.assertContains(response, "P<sub>1</sub> = P<sub>v</sub> – laagste bedrijfsdruk")
+        self.assertContains(response, "P_f=P_{\\mathrm{veilig}}")
+        self.assertContains(response, "P₂ = Pf")
+        self.assertNotContains(response, "P_e=P_{\\mathrm{veilig}}")
         self.assertContains(response, "Glycol")
         self.assertEqual(response.context["expansievat_output"][19], 0)
 
