@@ -101,20 +101,10 @@
                 </div>
               </div>
 
-              <div class="mb-3">
-                <label for="soortelijke_warmte" class="form-label">Soortelijke warmte (c<sub>v</sub>)</label>
-                <div class="input-group">
-                  <input type="number" class="form-control" id="soortelijke_warmte" name="soortelijke_warmte" value="4.2" min="0" max="100" step="0.1" required>
-                  <span class="input-group-text">kJ/kgK</span>
-                </div>
-              </div>
-
-              <div class="mb-0">
-                <label for="dichtheid" class="form-label">Dichtheid (&rho;)</label>
-                <div class="input-group">
-                  <input type="number" class="form-control" id="dichtheid" name="dichtheid" value="998" min="0" max="2000" required>
-                  <span class="input-group-text">kg/m<sup>3</sup></span>
-                </div>
+              <div class="alert alert-info mb-0" role="note">
+                De berekening gaat uit van water met een vaste soortelijke warmte
+                <i>c</i><sub>v</sub> = 4,2 kJ/kgK en een dichtheid
+                &rho; = 998 kg/m<sup>3</sup>.
               </div>
 
               <!-- Hidden submit (Bootstrap-safe) -->

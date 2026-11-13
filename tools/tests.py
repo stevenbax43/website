@@ -25,6 +25,7 @@ from .Tool_W2_expansievat import (
     cooling_expansion_percentage,
     expansievat,
 )
+from .Tool_W5_buffervat import buffervat
 from .models import ConceptSfbLink, InstallatieConcept, ProjectMollier, SfbClass
 from .services.nl_sfb_concepts import DEFAULT_CONCEPTS, seed_default_concepts
 from .services.sfb_scoring import analyse_search_term
@@ -445,6 +446,39 @@ class ExpansievatPrepressureTests(TestCase):
 
         with self.assertRaises(InvalidPressureRange):
             expansievat(request)
+
+
+class BuffervatWaterPropertiesTests(TestCase):
+    def test_buffervat_uses_fixed_water_properties(self):
+        request = RequestFactory().post(
+            "/buffervat",
+            {
+                "max_vermogen": "100",
+                "min_vermogen": "30",
+                "temp_verschil": "5",
+                "tijd_aan": "10",
+                "soortelijke_warmte": "1",
+                "dichtheid": "1",
+            },
+        )
+
+        result = buffervat(request)
+
+        self.assertEqual(result[0], 859)
+        self.assertEqual(result[1:4], [30.0, 5, 10])
+        self.assertEqual(result[4:], [4.2, 998])
+
+    def test_w5_page_shows_fixed_water_properties_without_editable_fields(self):
+        user = User.objects.create_user(username="buffervat-water-properties-user")
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("tools:buffervat"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "vaste soortelijke warmte")
+        self.assertContains(response, "998 kg/m")
+        self.assertNotContains(response, 'id="soortelijke_warmte"')
+        self.assertNotContains(response, 'id="dichtheid"')
 
 
 class MollierPdfExportTests(TestCase):
