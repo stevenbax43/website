@@ -521,8 +521,22 @@ function initEventListeners() {
   }
 
   // Inputs → recalc + keep UI visibility logic
+  const heightInput = byId('Height_var');
+  let confirmedHeight = heightInput?.value;
   document.querySelectorAll('input[type="number"]').forEach(field => {
     on(field, 'change', () => {
+      if (field === heightInput && field.value !== confirmedHeight) {
+        const shouldRecalculate = window.confirm(
+          'Weet je zeker dat je de hoogte wilt wijzigen? De berekeningen worden opnieuw uitgevoerd.'
+        );
+        if (!shouldRecalculate) {
+          field.value = confirmedHeight;
+          sessionStorage.setItem(field.id, confirmedHeight);
+          return;
+        }
+        confirmedHeight = field.value;
+      }
+
       saveInputValues();
       byId('mollierButton')?.click();
       setTimeout(initProcesDropdowns, 100);
