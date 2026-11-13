@@ -570,8 +570,8 @@
       <input type="hidden" name="username" id="username" value="{{ request.user.username|default:'Onbekend' }}">
       <input type="hidden" name="project_name" id="project_name">
       <input type="hidden" name="project_number" id="project_number">
+      <input type="hidden" name="season" id="season">
       <input type="hidden" name="room_name" id="room_name">
-      <input type="hidden" name="room_number" id="room_number">
     </form>
   </div>
 </section>
@@ -622,12 +622,16 @@
           <input type="text" class="form-control" id="pdf_project_number" maxlength="40" required>
         </div>
         <div class="mb-3">
-          <label for="pdf_room_name" class="form-label">Ruimtenaam</label>
-          <input type="text" class="form-control" id="pdf_room_name" maxlength="80" required>
+          <label for="pdf_season" class="form-label">Winter/zomer</label>
+          <select class="form-select" id="pdf_season" required>
+            <option value="" selected disabled>Kies winter of zomer</option>
+            <option value="Winter">Winter</option>
+            <option value="Zomer">Zomer</option>
+          </select>
         </div>
         <div>
-          <label for="pdf_room_number" class="form-label">Ruimtenummer</label>
-          <input type="text" class="form-control" id="pdf_room_number" maxlength="40" required>
+          <label for="pdf_room_name" class="form-label">LBK- of ruimtenaam</label>
+          <input type="text" class="form-control" id="pdf_room_name" maxlength="80" required>
         </div>
       </div>
       <div class="modal-footer">

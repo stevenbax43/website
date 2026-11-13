@@ -731,8 +731,8 @@ function initEventListeners() {
     byId("chart_image_base64").value = base64;
     byId("project_name").value = byId("pdf_project_name").value.trim();
     byId("project_number").value = byId("pdf_project_number").value.trim();
+    byId("season").value = byId("pdf_season").value;
     byId("room_name").value = byId("pdf_room_name").value.trim();
-    byId("room_number").value = byId("pdf_room_number").value.trim();
 
     const pdfUrl = byId("SavePDFButton")?.dataset?.pdfUrl;
     const form = byId("inputForm");

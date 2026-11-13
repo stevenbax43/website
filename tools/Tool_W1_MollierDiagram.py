@@ -897,8 +897,31 @@ def generate_pdf_mollier(request):
     user      = request.POST.get("username",           "Gebruiker onbekend")
     project_name = request.POST.get("project_name", "")
     project_number = request.POST.get("project_number", "")
+    season = request.POST.get("season", "")
     room_name = request.POST.get("room_name", "")
-    room_number = request.POST.get("room_number", "")
+    qv_input = request.POST.get("qv_var", "")
+    height_input = request.POST.get("Height_var", "")
+    start_variables = {
+        "Tdb": ("Drogeboltemperatuur", "graden C"),
+        "Twb": ("Natteboltemperatuur", "graden C"),
+        "RH": ("Relatieve luchtvochtigheid", "%"),
+        "AH": ("Absolute vochtigheid", "g/kg"),
+        "h": ("Enthalpie", "kJ/kg"),
+    }
+
+    def format_input(value):
+        return escape(value.strip()).replace(".", ",") if value else "-"
+
+    start_values = []
+    for index in (1, 2):
+        variable = request.POST.get(f"varStart{index}", "")
+        label, unit = start_variables.get(
+            variable,
+            (f"Startwaarde {index}", ""),
+        )
+        value = request.POST.get(f"StartInput{index}", "").strip().replace(".", ",")
+        start_values.append(f"{label}: {value} {unit}".strip())
+
     stamp     = datetime.now().strftime('%d %B %Y %H:%M')
 
     # --- setup canvas ---
@@ -911,13 +934,6 @@ def generate_pdf_mollier(request):
     # Title (moved down 35pt)
     c.setFont('Helvetica', 18)
     c.drawCentredString(w/2, h-35, title)
-
-    # Chart
-    if chart_b64:
-        img_data = base64.b64decode(chart_b64)
-        img      = ImageReader(BytesIO(img_data))
-        img_h    = h /2 
-        c.drawImage(img, 20, h - 50 -img_h, width=w-40, height=img_h, preserveAspectRatio=True)
 
     # Table styles
     styles       = getSampleStyleSheet()
@@ -940,6 +956,68 @@ def generate_pdf_mollier(request):
     )
     data_style   = ParagraphStyle('data', parent=normal,
                                   fontSize=9, alignment=1)
+
+    metadata_label_style = ParagraphStyle(
+        'metadata_label',
+        parent=normal,
+        fontName='Helvetica-Bold',
+        fontSize=8,
+        leading=10,
+        textColor=colors.HexColor('#286522'),
+    )
+    metadata_value_style = ParagraphStyle(
+        'metadata_value',
+        parent=normal,
+        fontSize=8,
+        leading=10,
+    )
+    metadata_rows = [
+        ("Projectnaam", project_name, "Projectnummer", project_number),
+        ("Winter/zomer", season, "LBK-/ruimtenaam", room_name),
+        ("Luchtdebiet", f"{qv_input} m3/h" if qv_input else "", "Hoogte", f"{height_input} m" if height_input else ""),
+        ("Startpunt", " | ".join(start_values), "", ""),
+    ]
+    metadata_table_data = [
+        [
+            Paragraph(f"{escape(label)}:", metadata_label_style),
+            Paragraph(format_input(value), metadata_value_style),
+            Paragraph(f"{escape(second_label)}:" if second_label else "", metadata_label_style),
+            Paragraph(format_input(second_value), metadata_value_style),
+        ]
+        for label, value, second_label, second_value in metadata_rows
+    ]
+    metadata_table = Table(
+        metadata_table_data,
+        colWidths=[88, 189.5, 88, 189.5],
+    )
+    metadata_table.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#f4faf2")),
+        ("BOX", (0, 0), (-1, -1), 0.5, colors.HexColor("#b8d8ae")),
+        ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.HexColor("#dcebd7")),
+        ("SPAN", (1, 3), (3, 3)),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 5),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 5),
+        ("TOPPADDING", (0, 0), (-1, -1), 3),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+    ]))
+    metadata_width, metadata_height = metadata_table.wrap(w - 40, h)
+    metadata_table.drawOn(c, 20, h - 55 - metadata_height)
+
+    if chart_b64:
+        img_data = base64.b64decode(chart_b64)
+        img = ImageReader(BytesIO(img_data))
+        chart_top = h - 55 - metadata_height - 12
+        chart_height = min(h / 2 - 80, chart_top - (h - 500 + 35))
+        chart_width = chart_height * 4 / 3
+        c.drawImage(
+            img,
+            (w - chart_width) / 2,
+            chart_top - chart_height,
+            width=chart_width,
+            height=chart_height,
+            preserveAspectRatio=True,
+        )
     def fmt(v):
         s = str(v)
         # if it's a float-like or contains a '.', replace with comma
@@ -1052,25 +1130,6 @@ def generate_pdf_mollier(request):
     ]))
 
     # draw a header
-    c.setFont('Helvetica-Bold',14)
-    project_style = ParagraphStyle(
-        'project_details',
-        parent=normal,
-        fontName='Helvetica',
-        fontSize=9,
-        leading=12,
-    )
-    project_details = [
-        f"<b>Projectnaam:</b> {escape(project_name)}"
-        f" &nbsp;&nbsp; <b>Projectnummer:</b> {escape(project_number)}",
-        f"<b>Ruimtenaam:</b> {escape(room_name)}"
-        f" &nbsp;&nbsp; <b>Ruimtenummer:</b> {escape(room_number)}",
-    ]
-    for index, detail in enumerate(project_details):
-        paragraph = Paragraph(detail, project_style)
-        paragraph.wrapOn(c, w - 40, 16)
-        paragraph.drawOn(c, 20, h - 78 - index * 16)
-
     c.setFont('Helvetica-Bold',14)
     c.drawString(40, h-125, "Informatie over de Processen")
 

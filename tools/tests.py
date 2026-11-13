@@ -1,4 +1,7 @@
+from io import BytesIO
+
 import pandas as pd
+from PyPDF2 import PdfReader
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
@@ -107,6 +110,49 @@ class ComfortStatisticsTests(TestCase):
                     ),
                     values,
                 )
+
+
+class MollierPdfExportTests(TestCase):
+    def test_pdf_includes_project_and_start_condition_inputs(self):
+        user = User.objects.create_user(username="mollier-pdf-user")
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse("tools:generate_pdf_W1"),
+            {
+                "SavePDFButton": "clicked",
+                "project_name": "Project & gebouw",
+                "project_number": "P-123",
+                "season": "Winter",
+                "room_name": "LBK hoofdgebouw",
+                "qv_var": "12500",
+                "Height_var": "350",
+                "varStart1": "Tdb",
+                "StartInput1": "22.5",
+                "varStart2": "RH",
+                "StartInput2": "55",
+                "table_points_json": "[]",
+                "table_process_json": "[]",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "application/pdf")
+        first_page = PdfReader(BytesIO(response.content)).pages[0]
+        exported_text = first_page.extract_text()
+
+        for value in (
+            "Project & gebouw",
+            "P-123",
+            "Winter",
+            "LBK hoofdgebouw",
+            "12500 m3/h",
+            "350 m",
+            "Drogeboltemperatuur: 22,5 graden C",
+            "Relatieve luchtvochtigheid: 55 %",
+        ):
+            with self.subTest(value=value):
+                self.assertIn(value, exported_text)
 
 
 class NlSfbSearchTests(TestCase):
