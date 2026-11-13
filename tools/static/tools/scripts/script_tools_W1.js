@@ -683,12 +683,37 @@ function initEventListeners() {
   on(byId('printButton'), 'click', () => window.print());
   on(byId('excelButton'), 'click', () => { if (window.pdfUrlExcel) window.open(pdfUrlExcel, '_blank'); });
 
-  on(byId('SaveInputsButton'), 'click', () => {
-    const projectName = prompt("Voer projectnaam in:");
-    if (!projectName || projectName.trim() === "") return;
+  on(byId('saveInputsForm'), 'submit', async (event) => {
+    event.preventDefault();
+    const nameInput = byId('save_project_name');
+    const status = byId('saveInputsStatus');
+    const submitButton = byId('saveInputsSubmitButton');
+    const projectName = nameInput.value.trim();
+    status.classList.add('d-none');
+    status.classList.remove('alert-success', 'alert-danger');
+    if (!projectName) {
+      nameInput.focus();
+      status.textContent = 'Vul een projectnaam in om de invoer op te slaan.';
+      status.classList.add('alert-danger');
+      status.classList.remove('d-none');
+      return;
+    }
+
     saveInputValues();
     sessionStorage.setItem('currentProces', String(currentProces));
-    sendSessionStorageToDjango(projectName.trim());
+    submitButton.disabled = true;
+    try {
+      await sendSessionStorageToDjango(projectName);
+      status.textContent = 'De invoer is opgeslagen.';
+      status.classList.add('alert-success');
+    } catch (error) {
+      console.error('[W1] Opslaan van de invoer is mislukt:', error);
+      status.textContent = 'Opslaan is niet gelukt. Probeer het opnieuw.';
+      status.classList.add('alert-danger');
+    } finally {
+      submitButton.disabled = false;
+      status.classList.remove('d-none');
+    }
   });
 
   on(byId('pdfDetailsForm'), 'submit', (event) => {
@@ -769,7 +794,7 @@ function sendSessionStorageToDjango(projectName) {
     sessionData[key] = sessionStorage.getItem(key);
   }
 
-  fetch(saveProjectUrl, {
+  return fetch(saveProjectUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -783,9 +808,8 @@ function sendSessionStorageToDjango(projectName) {
   })
   .then(data => {
     if (data.status !== 'success') throw new Error(data.message || 'Opslaan mislukt');
-    alert("Opgeslagen!");
-  })
-  .catch(err => { console.error(err); alert("Fout bij opslaan"); });
+    return data;
+  });
 }
 
 function loadSavedProject(projectId) {
