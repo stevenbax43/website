@@ -1,5 +1,9 @@
 from .models import ToolUsageEvent
-from .usage_tracking import SERVER_CALCULATION_ROUTES, TOOL_ROUTE_CODES
+from .usage_tracking import (
+    SERVER_CALCULATION_ROUTES,
+    TOOL_ROUTE_CODES,
+    is_usage_tracking_excluded,
+)
 
 
 class ToolUsageTrackingMiddleware:
@@ -12,6 +16,7 @@ class ToolUsageTrackingMiddleware:
         if (
             response.status_code < 400
             and getattr(request.user, "is_authenticated", False)
+            and not is_usage_tracking_excluded(request.user)
             and match is not None
             and match.namespace == "tools"
         ):

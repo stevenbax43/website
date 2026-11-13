@@ -523,6 +523,26 @@ class ToolUsageTrackingTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertFalse(ToolUsageEvent.objects.exists())
 
+    def test_owner_is_excluded_by_username_and_email(self):
+        excluded_users = [
+            User.objects.create_user(username="stevenbax", email="owner@example.com"),
+            User.objects.create_user(
+                username="owner-email-user",
+                email="steven.bax@kropman.nl",
+            ),
+        ]
+
+        for user in excluded_users:
+            with self.subTest(username=user.username):
+                self.client.force_login(user)
+                response = self.client.get(reverse("tools:driefase_vermogen"))
+                self.assertEqual(response.status_code, 200)
+                self.client.post(
+                    reverse("tools:record_client_calculation"),
+                    {"tool": "E1"},
+                )
+                self.assertFalse(ToolUsageEvent.objects.filter(user=user).exists())
+
     def test_server_calculation_is_logged_without_input_values(self):
         user = User.objects.create_user(username="tool-usage-calc-user")
         self.client.force_login(user)

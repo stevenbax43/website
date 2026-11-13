@@ -27,3 +27,13 @@ CLIENT_CALCULATION_TOOLS = {
     "W6",
     "E1",
 }
+
+EXCLUDED_USAGE_USERNAMES = {"stevenbax"}
+EXCLUDED_USAGE_EMAILS = {"steven.bax@kropman.nl"}
+
+
+def is_usage_tracking_excluded(user):
+    return (
+        user.get_username().casefold() in EXCLUDED_USAGE_USERNAMES
+        or (user.email or "").casefold() in EXCLUDED_USAGE_EMAILS
+    )

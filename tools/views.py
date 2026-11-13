@@ -8,7 +8,7 @@ from django.templatetags.static import static
 from tools.models import ProjectMollier, SfbClass, ToolUsageEvent
 from django.db.models import Q 
 from tools.services.sfb_scoring import analyse_search_term
-from .usage_tracking import CLIENT_CALCULATION_TOOLS
+from .usage_tracking import CLIENT_CALCULATION_TOOLS, is_usage_tracking_excluded
 
 from .Tool_A1_Gebouwdata import gebouwgegevens
 from .Tool_A3_klimaatjaar import klimaatjaar, generate_pdf_climate
@@ -36,6 +36,9 @@ def tools(request):
 @login_required(login_url='accounts:login')
 @require_POST
 def record_client_calculation(request):
+    if is_usage_tracking_excluded(request.user):
+        return HttpResponse(status=204)
+
     tool = request.POST.get("tool")
     if tool not in CLIENT_CALCULATION_TOOLS:
         return JsonResponse({"error": "Unknown client-side tool"}, status=400)
