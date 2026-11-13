@@ -1,0 +1,25 @@
+{% extends 'home/base.html'%}
+
+{% load static %} 
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'accounts/styles/accounts.css'%}">
+{% endblock %}
+
+{% block content%}
+{% csrf_token %}
+<div class="main-banner">
+    <div class="main-banner-items">
+        <div class="centered">
+            <h1> Sign Up </h1>
+            <form action="/accounts/signup/" class="site-form" method="post">
+                {% csrf_token %}
+                {{form}}
+                <input type="submit" value="Signup">
+            </form>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

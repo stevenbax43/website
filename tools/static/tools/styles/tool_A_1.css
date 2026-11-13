@@ -1,0 +1,46 @@
+/* ================================
+   Tool A1 – page-specific styles
+   Works with tools.css + Bootstrap
+   ================================ */
+
+/* Hero row: keep icon next to title as long as possible */
+.tools-hero .row.flex-nowrap { overflow: hidden; }
+.hero-icon { flex-shrink: 0; }
+
+/* Card visuals echo your previous “border + shadow” feel */
+.card { border: 1; border-radius: .75rem; }
+.card.shadow-sm { box-shadow: 0 .25rem .75rem rgba(0,0,0,.08); }
+.card-body h4 { margin-bottom: .75rem; }
+
+/* Output fields look like read-only inputs */
+output.form-control.output {
+  background-color: #f8f9fa;
+  border: 1px solid #13f539;
+  border-radius: .5rem;
+}
+
+/* Input groups with units */
+.input-group .input-group-text {
+  border-top-right-radius: .5rem;
+  border-bottom-right-radius: .5rem;
+}
+
+/* Logos under panels (links) */
+.panel-logo {
+  width: clamp(96px, 35%, 150px);
+  height: auto;
+  display: block;
+  margin: .5rem auto 0;
+  transition: opacity .2s ease;
+}
+.panel-logo:hover { opacity: .85; }
+
+/* Tighter spacing on small screens */
+@media (max-width: 575.98px) {
+  .card-body { padding: 1rem; }
+}
+
+/* Print */
+@media print {
+  .no-print { display: none !important; }
+}

@@ -1,0 +1,189 @@
+/* ===========================
+   Full-bleed Hero + Intro (same pattern as tools/forum)
+   =========================== */
+.tools-hero,
+.tools-intro{
+  position:relative; left:50%; right:50%;
+  margin-left:-50vw; margin-right:-50vw; width:100vw;
+}
+.tools-hero{
+  background: linear-gradient(to right, rgba(92,216,35,.75), rgba(10,92,3,.75));
+}
+.tools-hero .display-6{ color:#fff; }
+.hero-icon{ width:64px; height:auto; }
+@media (max-width:575.98px){ .hero-icon{ width:48px; } }
+
+.tools-intro{ background:#f5f6f7; }
+
+/* Keep your bold margin if you still show it in the intro */
+.second-banner-items b{ margin-top:40px; }
+
+/* ===========================
+   Layout / Containers
+   =========================== */
+.container{ align-items: stretch; }
+.shadow{ box-shadow:0 4px 8px rgba(0,0,0,.08); }
+
+.saved_conversations{ margin:10px 0; }
+.list-group{
+  max-height: 400px;
+  min-height: 280px;
+  overflow-y: auto;
+  border-radius: .5rem;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: #5e9e3d #f1f1f1;
+}
+
+/* ===========================
+   Chat Card
+   =========================== */
+#chat-container{
+  /* it's a .card in the new markup; keep id because JS uses it */
+  width: 100%;
+  border: 1px solid #e9ecef;
+  border-radius: .75rem;
+}
+
+/* Scrollable history area */
+#chat-display{
+  border: 1px solid #e9ecef;
+  border-radius: .5rem;
+  padding: 10px;
+  background: #fff;
+  overflow-y: auto;
+  /* Responsive height: between 320px and ~65vh */
+  min-height: 320px;
+  max-height: 65vh;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: #5e9e3d #f1f1f1;
+}
+
+/* On very small screens, give a bit more height */
+@media (max-width: 576px){
+  #chat-display{ max-height: 70vh; }
+}
+
+/* ===========================
+   Composer / Input
+   =========================== */
+#user-input-container{
+  display:flex;
+  align-items:center;
+  gap:.5rem;
+  width:100%;           /* no fixed 800px */
+  min-height: 44px;
+}
+
+#user_input_first,
+#user_input{
+  width:100%;
+  min-height: 44px;
+  padding: .5rem .75rem;
+  border:1px solid #ced4da;
+  border-radius:.5rem;
+  box-shadow: none;
+  resize:none;
+  white-space: normal;
+}
+
+/* Send button as normal input-group button (no absolute) */
+.send-button{
+  position: static !important;
+  background-color:#28a745;
+  color:#fff;
+  border:0;
+  border-radius:.5rem;
+}
+.send-button:hover{ background-color:#218838; }
+.arrow-up-icon{ font-size:16px; line-height:1; }
+
+/* ===========================
+   Message List
+   =========================== */
+.message{
+  margin-bottom:10px;
+  display:flex;
+  align-items:flex-start;
+}
+
+/* Avatars */
+.circle_user,
+.circle_bot{
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display:inline-flex;
+  align-items:center; justify-content:center;
+  color:#fff; font-weight:700; font-size:.8rem;
+  margin: 0 8px;
+}
+.circle_user{ background:#ce864b; }
+.circle_bot{ background:green; }
+
+/* Bubbles */
+.user-message{
+  margin-left:auto;                       /* push to right */
+  background:#fff;
+  border-radius:12px;
+  padding:10px;
+  max-width: min(85%, 720px);
+  text-align:right;
+  display:flex; align-items:flex-start; gap:.5rem;
+}
+.bot-message{
+  margin-right:auto;                      /* push to left */
+  background:#fff;
+  border-radius:12px;
+  padding:10px;
+  max-width: min(85%, 720px);
+  text-align:left;
+  display:flex; align-items:flex-start; gap:.5rem;
+}
+
+/* Inner content bubbles */
+.user_chat,
+.bot_response{
+  flex:1;
+  border-radius:12px;
+  padding:10px;
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  max-width:100%;
+}
+.user_chat{ background:#eaeaea; }
+.bot_response{ background:#f8f9fa; }
+
+.wrap{
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  white-space: pre-wrap !important;
+}
+
+/* ===========================
+   Sidebar items
+   =========================== */
+.list-group-item{
+  display:flex; justify-content:space-between; align-items:center;
+  padding: .6rem .75rem;
+}
+.list-group-item .btn-danger,
+.list-group-item .btn-outline-danger{
+  margin-left:10px;
+}
+.btn .icon{ height:20px; }
+
+/* Optional: make delete icon inside btn-outline-danger look crisp */
+.list-group-item img{ display:block; }
+
+/* ===========================
+   Utility
+   =========================== */
+.icon_container{
+  display:flex; justify-content:center; align-items:center; padding:10px;
+}
+.center-container{
+  display:flex; justify-content:center; align-items:flex-start; height:100%;
+}
+.chat-banner{ background:#f4f4f4; padding:20px; }

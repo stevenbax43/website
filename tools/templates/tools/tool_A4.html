@@ -1,0 +1,124 @@
+{% extends 'home/base.html'%}
+{% load static %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'tools/styles/tools.css' %}">
+  <link rel="stylesheet" href="{% static 'tools/styles/tool_A_4.css' %}">
+  <style>
+    /* ensure canvases fill their Bootstrap ratio wrappers */
+    .ratio > canvas { width: 100% !important; height: 100% !important; }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+{% endblock %}
+
+{% block content_wrapper_start %}{% endblock %}
+{% block content_wrapper_end %}{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+
+<!-- ===== HERO (full-bleed gradient, standardized) ===== -->
+<header class="tools-hero">
+  <div class="container py-3">
+    <div class="row align-items-center g-3 flex-nowrap">
+      <div class="col">
+        <h1 class="display-6 mb-0 text-white">Tool A4: NL-SfB Classificatie</h1>
+      </div>
+      <div class="col-auto">
+        <a href="{% url 'tools:tools' %}" class="d-inline-block">
+          <img src="{% static 'tools/images/engineering.png' %}" class="hero-icon flex-shrink-0" alt="Engineering">
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- INTRO -->
+<section class="tools-intro no-print py-3">
+  <div class="container">
+    <div class="row g-3 align-items-center">
+      <div class="col-12 col-lg-8">
+        <p class="lead mb-0">
+        Deze classificatie is gebaseerd op de Nederlandse SfB-classificatie, een systeem dat wordt gebruikt in de bouwsector om bouwdelen en -elementen te categoriseren. 
+        De classificatie is ontworpen om een gestructureerde manier te bieden om informatie over bouwprojecten te organiseren en te communiceren. <a href="https://ketenstandaard.nl/nlbe-sfb-facts/" target="_blank" rel="noopener">Meer info</a>. 
+      </div>
+      <div class="col-12 col-lg-4">
+        <div class="d-flex justify-content-lg-end align-items-center gap-3 flex-wrap">
+          <a href="{% url 'tools:tool-readme' 'A3' %}" target="_blank" rel="noopener" class="intro-link d-inline-flex align-items-center gap-2">
+            ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" class="icon-30" alt="PDF">
+          </a>
+          <a href="#" id="printButton" class="intro-link d-inline-flex align-items-center">
+            <img src="{% static 'tools/images/print.png' %}" class="icon-30" alt="Print">
+          </a>
+          <a href="#" id="excelButton" class="intro-link d-inline-flex align-items-center">
+            <img src="{% static 'tools/images/Excel.png' %}" class="icon-30" alt="Excel">
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===== MAIN ===== -->
+<section class="py-5 bg-light">
+  
+<!-- ===================== SEARCH ZONE ===================== -->
+<section id="search-zone" class="py-4 bg-light">
+  <div class="container">
+
+    <div class="card mb-4 shadow-sm">
+      <div class="card-body">
+        <div class="input-group">
+          <span class="input-group-text">🔎</span>
+          <input id="search" type="search" class="form-control"
+                 placeholder="Zoek installatie-element (bv. brandklep)">
+        </div>
+      </div>
+    </div>
+
+    <section id="results-advice" class="d-none">
+      <h5>Kan horen bij:</h5>
+      <div id="results-cards" class="row g-3"></div>
+      <div id="context-explanation" class="alert alert-warning d-none mt-3">
+        <strong>Context nodig</strong><br>
+        Dit element kan meerdere disciplines raken.
+      </div>
+    </section>
+
+  </div>
+</section>
+
+<!-- ===================== NL-SfB TREE ===================== -->
+<section id="nlsfb-tree" class="py-4">
+  <div class="container">
+    <table class="table table-striped table-hover align-middle nlsfb-table">
+      <thead class="table-success">
+        <tr>
+          <th>NL‑SfB</th>
+          <th>Omschrijving</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in classes %}
+          <tr data-nlsfb="{{ c.code }}">
+            <td><strong>{{ c.code }}</strong></td>
+            <td>{{ c.omschrijving }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+</section>
+
+
+
+
+{% endblock %}
+
+{% block extra_js %}
+  <!-- Page-specific behaviour (autosave/submit/print/excel) -->
+  <script src="{% static 'tools/scripts/script_tools_A4.js' %}"></script>
+{% endblock %}
