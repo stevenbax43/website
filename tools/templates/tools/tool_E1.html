@@ -33,8 +33,8 @@
     <div class="row align-items-center g-3">
       <div class="col-12 col-lg-8">
         <p class="mb-0">
-          Door het schuiven van de slides kan de spanning, de stroom en de vermogensfactor veranderd worden
-          met als uitkomst het actief-, schijnbaar- en blind vermogen.
+          Pas spanning, stroom en arbeidsfactor aan en bekijk direct het actief-, schijnbaar- en blindvermogen.
+          Het vectordiagram laat de onderlinge verhouding zien als een vermogensdriehoek.
         </p>
       </div>
       <div class="col-12 col-lg-4 d-flex justify-content-lg-end align-items-center gap-3 flex-wrap">
@@ -58,72 +58,82 @@
   <div class="container">
 
     <!-- Sliders + Results -->
-    <div class="row g-4">
+    <div class="row g-3">
       <div class="col-12 col-lg-8">
-        <div class="card card-input shadow-sm" data-chip="Input">
+        <div class="card card-input shadow-sm h-100" data-chip="Invoer">
+          <div class="card-header bg-primary-subtle">
+            <h2 class="h5 mb-0">Invoer</h2>
+          </div>
           <div class="card-body">
-            <!-- Spanning -->
             <div class="mb-4">
-              <label class="form-label">Spanning [V]</label>
+              <label for="slider-value1" class="form-label fw-semibold">Lijnspanning</label>
               <div class="row g-2 align-items-center slider-controls">
                 <div class="col-4 col-sm-3">
-                  <input type="number" id="slider-value1" class="form-control" value="400">
+                  <div class="input-group">
+                    <input type="number" id="slider-value1" class="form-control" value="400" min="0" max="500" step="1" aria-label="Lijnspanning">
+                    <span class="input-group-text">V</span>
+                  </div>
                 </div>
                 <div class="col">
-                  <input type="range" id="U_spanning" name="U_spanning" min="0" max="500" value="400" step="1" class="form-range">
+                  <input type="range" id="U_spanning" name="U_spanning" min="0" max="500" value="400" step="1" class="form-range" aria-label="Lijnspanning">
                 </div>
               </div>
+              <div class="d-flex justify-content-between text-muted small"><span>0 V</span><span>500 V</span></div>
             </div>
-            <!-- Stroom -->
+
             <div class="mb-4">
-              <label class="form-label">Stroom [A]</label>
+              <label for="slider-value2" class="form-label fw-semibold">Lijnstroom</label>
               <div class="row g-2 align-items-center slider-controls">
                 <div class="col-4 col-sm-3">
-                  <input type="number" id="slider-value2" class="form-control" value="300">
+                  <div class="input-group">
+                    <input type="number" id="slider-value2" class="form-control" value="300" min="0" max="500" step="1" aria-label="Lijnstroom">
+                    <span class="input-group-text">A</span>
+                  </div>
                 </div>
                 <div class="col">
-                  <input type="range" id="I_stroom" name="I_stroom" min="0" max="500" value="300" step="1" class="form-range">
+                  <input type="range" id="I_stroom" name="I_stroom" min="0" max="500" value="300" step="1" class="form-range" aria-label="Lijnstroom">
                 </div>
               </div>
+              <div class="d-flex justify-content-between text-muted small"><span>0 A</span><span>500 A</span></div>
             </div>
-            <!-- Vermogensfactor -->
+
             <div>
-              <label class="form-label">Vermogensfactor [cos(φ)]</label>
+              <label for="slider-value3" class="form-label fw-semibold">Arbeidsfactor (cos φ)</label>
               <div class="row g-2 align-items-center slider-controls">
                 <div class="col-4 col-sm-3">
-                  <input type="number" id="slider-value3" class="form-control" min="0" max="1" step="0.01" value="0.85">
+                  <div class="input-group">
+                    <input type="number" id="slider-value3" class="form-control" min="0" max="1" step="0.01" value="0.85" aria-label="Arbeidsfactor">
+                  </div>
                 </div>
                 <div class="col">
-                  <input type="range" id="Phi_factor" name="Phi_factor" min="0" max="1" value="0.85" step="0.01" class="form-range">
+                  <input type="range" id="Phi_factor" name="Phi_factor" min="0" max="1" value="0.85" step="0.01" class="form-range" aria-label="Arbeidsfactor">
                 </div>
               </div>
+              <div class="d-flex justify-content-between text-muted small"><span>0</span><span>1</span></div>
             </div>
           </div>
         </div>
       </div><!-- /col -->
 
       <div class="col-12 col-lg-4">
-        <div class="card card-output shadow-sm" data-chip="Output">
+        <div class="card card-output shadow-sm h-100" data-chip="Resultaat">
+          <div class="card-header bg-success-subtle">
+            <h2 class="h5 mb-0">Berekend vermogen</h2>
+          </div>
           <div class="card-body">
-            <div class="value-container">
-              <label class="fw-semibold" style="color:#0d6efd;">Actief vermogen (P)</label>
-              <div class="align-left-right">
-                <span>kW</span>
-                <p id="P_actief" class="result"></p>
-              </div>
-
-              <label class="fw-semibold" style="color:#dc3545;">Schijnbaar vermogen (S)</label>
-              <div class="align-left-right">
-                <span>kVA</span>
-                <p id="S_schijn" class="result"></p>
-              </div>
-
-              <label class="fw-semibold" style="color:#fd7e14;">Blind vermogen (Q)</label>
-              <div class="align-left-right">
-                <span>kVAr</span>
-                <p id="B_blind" class="result"></p>
-              </div>
+            <div class="power-result power-result--active">
+              <div><span class="power-result__symbol">P</span><span>Actief vermogen</span></div>
+              <strong><span id="P_actief" aria-live="polite">—</span><small>kW</small></strong>
             </div>
+            <div class="power-result power-result--apparent">
+              <div><span class="power-result__symbol">S</span><span>Schijnbaar vermogen</span></div>
+              <strong><span id="S_schijn" aria-live="polite">—</span><small>kVA</small></strong>
+            </div>
+            <div class="power-result power-result--reactive">
+              <div><span class="power-result__symbol">Q</span><span>Blindvermogen</span></div>
+              <strong><span id="B_blind" aria-live="polite">—</span><small>kVAr</small></strong>
+            </div>
+            <p class="small text-muted mb-0 mt-3">Berekend voor een driefasig systeem.</p>
           </div>
         </div>
       </div><!-- /col -->
@@ -133,11 +143,39 @@
     <div class="row g-4 mt-1">
       <div class="col-12">
         <div class="card card-output shadow-sm" data-chip="Output">
+          <div class="card-header bg-light">
+            <h2 class="h5 mb-0">Vermogensdriehoek</h2>
+          </div>
           <div class="card-body">
-            <h5 class="card-title mb-3">Vector diagram</h5>
-            <div class="ratio ratio-16x9">
-              <!-- Keep the same ID so your JS keeps working -->
-              <canvas id="arrowCanvas" width="800" height="550"></canvas>
+            <p class="text-muted small">P en Q vormen de rechthoekszijden; S is het totale schijnbare vermogen.</p>
+            <div class="power-diagram-wrap">
+              <svg id="powerVectorDiagram" viewBox="0 0 760 420" role="img"
+                   aria-labelledby="powerDiagramTitle powerDiagramDescription">
+                <title id="powerDiagramTitle">Vermogensdriehoek</title>
+                <desc id="powerDiagramDescription">Vectordiagram van actief vermogen P, blindvermogen Q en schijnbaar vermogen S.</desc>
+                <defs>
+                  <marker id="arrow-p" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head arrow-head--p"/></marker>
+                  <marker id="arrow-q" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head arrow-head--q"/></marker>
+                  <marker id="arrow-s" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head arrow-head--s"/></marker>
+                </defs>
+                <line x1="100" y1="350" x2="680" y2="350" class="diagram-axis"/>
+                <line x1="100" y1="350" x2="100" y2="34" class="diagram-axis"/>
+                <text x="680" y="382" text-anchor="end" class="diagram-axis-label">Actief vermogen P (kW)</text>
+                <text x="30" y="44" class="diagram-axis-label">Q (kVAr)</text>
+                <line id="vectorP" class="diagram-vector diagram-vector--p" marker-end="url(#arrow-p)"/>
+                <line id="vectorQ" class="diagram-vector diagram-vector--q" marker-end="url(#arrow-q)"/>
+                <line id="vectorS" class="diagram-vector diagram-vector--s" marker-end="url(#arrow-s)"/>
+                <path id="powerAngle" class="diagram-angle"/>
+                <text id="labelP" class="diagram-label diagram-label--p">P</text>
+                <text id="labelQ" class="diagram-label diagram-label--q">Q</text>
+                <text id="labelS" class="diagram-label diagram-label--s">S</text>
+                <text id="labelPhi" class="diagram-angle-label">φ</text>
+              </svg>
+            </div>
+            <div class="d-flex flex-wrap justify-content-center gap-3 mt-2 small">
+              <span><i class="diagram-key diagram-key--p"></i> P actief</span>
+              <span><i class="diagram-key diagram-key--q"></i> Q blind</span>
+              <span><i class="diagram-key diagram-key--s"></i> S schijnbaar</span>
             </div>
           </div>
         </div>

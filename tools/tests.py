@@ -481,6 +481,23 @@ class BuffervatWaterPropertiesTests(TestCase):
         self.assertNotContains(response, 'id="dichtheid"')
 
 
+class ThreePhasePowerToolTests(TestCase):
+    def test_e1_page_renders_bootstrap_inputs_results_and_power_triangle(self):
+        user = User.objects.create_user(username="three-phase-power-user")
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("tools:driefase_vermogen"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "class=\"card card-input shadow-sm h-100\"")
+        self.assertContains(response, "class=\"power-result power-result--active\"")
+        self.assertContains(response, 'id="powerVectorDiagram"')
+        self.assertContains(response, 'id="vectorP"')
+        self.assertContains(response, 'id="vectorQ"')
+        self.assertContains(response, 'id="vectorS"')
+        self.assertNotContains(response, 'id="arrowCanvas"')
+
+
 class MollierPdfExportTests(TestCase):
     def test_pdf_defaults_missing_project_details_to_not_determined(self):
         user = User.objects.create_user(username="mollier-pdf-defaults-user")
