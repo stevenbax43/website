@@ -8,7 +8,7 @@ const on = (el, evt, fn) => el && el.addEventListener(evt, fn);
 // Persist inputs
 // -------------------------
 function saveInputValues() {
-  const fields = document.querySelectorAll('input[type="number"],input[type="text"],input[type="checkbox"], select');
+  const fields = byId('inputForm')?.querySelectorAll('input[type="number"],input[type="text"],input[type="checkbox"], select') || [];
   fields.forEach(field => {
     const { id, type, name, value } = field;
     if (id && type !== 'hidden' && name !== 'csrfmiddlewaretoken') {
@@ -833,6 +833,96 @@ function loadSavedProject(projectId) {
     throw new Error(data.message || 'Fout bij laden');
   })
   .catch(err => { console.error(err); alert('⚠️ Verbindingsfout'); });
+}
+
+function loadMollierPreset(presetName) {
+  const presets = {
+    summer: {
+      name: 'Zomersituatie',
+      activeSteps: 3,
+      fields: {
+        qv_var: '10000',
+        varStart1: 'Tdb',
+        StartInput1: '32',
+        varStart2: 'RH',
+        StartInput2: '40',
+        proces1: 'heat_rec',
+        inputproces1_name: 'Warmtewiel',
+        Proces1_value4_input: '24',
+        Proces1_value6_input: '50',
+        Proces1_value7_input: '80',
+        Proces1_value8_input: '80',
+        proces2: 'cool',
+        proces2_func: 'power',
+        inputproces2_name: 'Koelbatterij',
+        Proces2_value1_input: '80',
+        Proces2_value2_input: '100',
+        proces3: 'heat',
+        proces3_func: 'toTemp',
+        inputproces3_name: 'Naverwarming',
+        Proces3_value2_input: '16',
+      },
+    },
+    winter: {
+      name: 'Wintersituatie',
+      activeSteps: 2,
+      fields: {
+        qv_var: '10000',
+        varStart1: 'Tdb',
+        StartInput1: '-8',
+        varStart2: 'AH',
+        StartInput2: '1',
+        proces1: 'heat_rec',
+        inputproces1_name: 'Warmtewiel',
+        Proces1_value4_input: '21',
+        Proces1_value6_input: '40',
+        Proces1_value7_input: '80',
+        Proces1_value8_input: '80',
+        proces2: 'heat',
+        proces2_func: 'toTemp',
+        inputproces2_name: 'Naverwarming',
+        Proces2_value2_input: '22',
+      },
+    },
+  };
+  const preset = presets[presetName];
+  const form = byId('inputForm');
+  const submitButton = byId('mollierButton');
+  if (!preset || !form || !submitButton) {
+    console.error(`[W1] Voorbeeld '${presetName}' kan niet worden geladen.`);
+    return;
+  }
+
+  for (let step = 1; step <= maxProces; step++) {
+    const processSelect = byId(`proces${step}`);
+    const functionSelect = byId(`proces${step}_func`);
+    const secondaryFunctionSelect = byId(`proces${step}_func2`);
+    const processName = byId(`inputproces${step}_name`);
+    if (processSelect) processSelect.value = 'selectProces';
+    if (functionSelect) functionSelect.value = 'power';
+    if (secondaryFunctionSelect) secondaryFunctionSelect.value = 'AdiabaticX';
+    if (processName) processName.value = '';
+    for (let inputIndex = 1; inputIndex <= 9; inputIndex++) {
+      const input = byId(`Proces${step}_value${inputIndex}_input`);
+      if (input) input.value = input.defaultValue;
+    }
+  }
+
+  Object.entries(preset.fields).forEach(([id, value]) => {
+    const field = byId(id);
+    if (field) field.value = value;
+  });
+
+  currentProces = preset.activeSteps;
+  sessionStorage.setItem('currentProces', String(currentProces));
+  updateProcesContainers();
+  initAirInputs();
+  initProcesDropdowns();
+  saveInputValues();
+  window.bootstrap?.Modal
+    .getOrCreateInstance(byId('loadProjectModal'))
+    .hide();
+  submitButton.click();
 }
 
 function getCookie(name) {

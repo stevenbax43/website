@@ -275,6 +275,79 @@ class MollierProjectPersistenceTests(TestCase):
         self.assertFalse(ProjectMollier.objects.filter(pk=project.pk).exists())
 
 
+class MollierExamplePresetTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="mollier-example-user")
+        self.client.force_login(self.user)
+
+    def test_examples_are_available_without_user_saved_projects(self):
+        response = self.client.get(reverse("tools:mollier"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Zomersituatie")
+        self.assertContains(response, "Wintersituatie")
+        self.assertContains(response, "loadMollierPreset('summer')")
+        self.assertContains(response, "loadMollierPreset('winter')")
+        self.assertFalse(ProjectMollier.objects.filter(user=self.user).exists())
+
+    def test_example_process_inputs_generate_process_rows(self):
+        examples = (
+            {
+                "currentProces": "1,2,3",
+                "qv_var": "10000",
+                "varStart1": "Tdb",
+                "StartInput1": "32",
+                "varStart2": "RH",
+                "StartInput2": "40",
+                "proces1": "heat_rec",
+                "inputproces1_name": "Warmtewiel",
+                "Proces1_value4_input": "24",
+                "Proces1_value6_input": "50",
+                "Proces1_value7_input": "80",
+                "Proces1_value8_input": "80",
+                "proces2": "cool",
+                "proces2_func": "power",
+                "inputproces2_name": "Koelbatterij",
+                "Proces2_value1_input": "80",
+                "Proces2_value2_input": "100",
+                "proces3": "heat",
+                "proces3_func": "toTemp",
+                "inputproces3_name": "Naverwarming",
+                "Proces3_value2_input": "16",
+            },
+            {
+                "currentProces": "1,2",
+                "qv_var": "10000",
+                "varStart1": "Tdb",
+                "StartInput1": "-8",
+                "varStart2": "AH",
+                "StartInput2": "1",
+                "proces1": "heat_rec",
+                "inputproces1_name": "Warmtewiel",
+                "Proces1_value4_input": "21",
+                "Proces1_value6_input": "40",
+                "Proces1_value7_input": "80",
+                "Proces1_value8_input": "80",
+                "proces2": "heat",
+                "proces2_func": "toTemp",
+                "inputproces2_name": "Naverwarming",
+                "Proces2_value2_input": "22",
+            },
+        )
+        expected_process_names = (
+            ("Warmtewiel", "Koelbatterij", "Naverwarming"),
+            ("Warmtewiel", "Naverwarming"),
+        )
+
+        for form_data, expected_names in zip(examples, expected_process_names):
+            with self.subTest(start=form_data["StartInput1"]):
+                response = self.client.post(reverse("tools:mollier"), form_data)
+
+                self.assertEqual(response.status_code, 200)
+                for process_name in expected_names:
+                    self.assertContains(response, process_name)
+
+
 class NlSfbSearchTests(TestCase):
     def create_class(self, code, description):
         return SfbClass.objects.create(

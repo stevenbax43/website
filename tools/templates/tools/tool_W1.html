@@ -586,6 +586,21 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Sluiten"></button>
       </div>
       <div class="modal-body">
+        <h6 class="mb-2">Voorbeelden (beschikbaar voor iedereen)</h6>
+        <div class="list-group mb-4">
+          <button type="button" class="list-group-item list-group-item-action"
+                  onclick="loadMollierPreset('summer')">
+            <span class="fw-semibold">Zomersituatie</span>
+            <span class="d-block small text-muted">32 °C, 40% RV, warmtewiel, koelbatterij en naverwarming</span>
+          </button>
+          <button type="button" class="list-group-item list-group-item-action"
+                  onclick="loadMollierPreset('winter')">
+            <span class="fw-semibold">Wintersituatie</span>
+            <span class="d-block small text-muted">−8 °C, 1 g/kg, warmtewiel en naverwarming</span>
+          </button>
+        </div>
+
+        <h6 class="mb-2">Mijn opgeslagen projecten</h6>
         {% if saved_projects %}
           <ul class="list-group">
             {% for project in saved_projects %}
@@ -599,7 +614,7 @@
             {% endfor %}
           </ul>
         {% else %}
-          <p class="mb-0">Je hebt nog geen projecten opgeslagen.</p>
+          <p class="mb-0 text-muted">Je hebt nog geen projecten opgeslagen.</p>
         {% endif %}
       </div>
     </div>
