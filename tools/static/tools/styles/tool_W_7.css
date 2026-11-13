@@ -23,6 +23,12 @@
   padding: .2rem 0;
 }
 
+.q-guide-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 @media print {
   .no-print,
   .calculate-button,

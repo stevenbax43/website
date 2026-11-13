@@ -115,6 +115,43 @@
               <div class="col-12 col-md-4">
                 <label for="directivity" class="form-label">Richtingscoëfficiënt Q</label>
                 <input id="directivity" class="form-control" type="number" value="2" min="0.000001" step="any" required>
+                <figure class="q-guide mt-3 mb-0">
+                  <figcaption class="small fw-semibold mb-2">Kies Q op basis van de positie van de bron</figcaption>
+                  <svg class="q-guide-diagram" viewBox="0 0 560 154" role="img" aria-labelledby="qGuideTitle qGuideDescription">
+                    <title id="qGuideTitle">Richtingscoëfficiënt Q en bronpositie</title>
+                    <desc id="qGuideDescription">Q is ongeveer 1 in het vrije veld, 2 bij een vlak, 4 bij twee vlakken en 8 bij drie vlakken die samen een hoek vormen.</desc>
+                    <g fill="none" stroke="#212529" stroke-linecap="round" stroke-linejoin="round">
+                      <g transform="translate(6 6)">
+                        <rect width="132" height="106" rx="8" stroke="#dee2e6" stroke-width="2"/>
+                        <circle cx="66" cy="52" r="5" fill="#212529" stroke="none"/>
+                        <path d="M66 20a32 32 0 0 1 32 32M66 84a32 32 0 0 1-32-32M34 52a32 32 0 0 1 32-32M98 52a32 32 0 0 1-32 32" stroke-width="2"/>
+                        <text x="66" y="132" text-anchor="middle" fill="#212529" stroke="none" font-size="16">Vrij veld · Q = 1</text>
+                      </g>
+                      <g transform="translate(146 6)">
+                        <rect width="132" height="106" rx="8" stroke="#dee2e6" stroke-width="2"/>
+                        <path d="M18 88h96" stroke-width="5"/>
+                        <circle cx="66" cy="82" r="5" fill="#212529" stroke="none"/>
+                        <path d="M40 82a26 26 0 0 1 52 0M28 82a38 38 0 0 1 76 0" stroke-width="2"/>
+                        <text x="66" y="132" text-anchor="middle" fill="#212529" stroke="none" font-size="16">1 vlak · Q = 2</text>
+                      </g>
+                      <g transform="translate(286 6)">
+                        <rect width="132" height="106" rx="8" stroke="#dee2e6" stroke-width="2"/>
+                        <path d="M18 16v78h96" stroke-width="5"/>
+                        <circle cx="25" cy="87" r="5" fill="#212529" stroke="none"/>
+                        <path d="M25 57a30 30 0 0 1 30 30M25 43a44 44 0 0 1 44 44" stroke-width="2"/>
+                        <text x="66" y="132" text-anchor="middle" fill="#212529" stroke="none" font-size="16">2 vlakken · Q = 4</text>
+                      </g>
+                      <g transform="translate(426 6)">
+                        <rect width="132" height="106" rx="8" stroke="#dee2e6" stroke-width="2"/>
+                        <path d="M18 14v80h96M18 94l28-28" stroke-width="5"/>
+                        <circle cx="25" cy="86" r="5" fill="#212529" stroke="none"/>
+                        <path d="M25 62a24 24 0 0 1 24 24M25 48a38 38 0 0 1 38 38" stroke-width="2"/>
+                        <text x="66" y="132" text-anchor="middle" fill="#212529" stroke="none" font-size="16">3 vlakken · Q = 8</text>
+                      </g>
+                    </g>
+                  </svg>
+                  <p class="form-text mb-0">Vuistregel volgens de README; bepaal Q passend bij de daadwerkelijke bronopstelling en reflecterende vlakken.</p>
+                </figure>
               </div>
               <div class="col-12 col-md-4">
                 <label for="distance" class="form-label">Afstand r</label>
