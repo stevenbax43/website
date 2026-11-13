@@ -9,41 +9,47 @@
   function saveInputValues() {
     document.querySelectorAll('input, select').forEach(field => {
       if (field.type !== 'hidden' && field.name !== 'csrfmiddlewaretoken' && field.id) {
-        sessionStorage.setItem(field.id, field.value);
+        const value = field.type === 'checkbox' ? String(field.checked) : field.value;
+        sessionStorage.setItem(field.id, value);
       }
     });
-    const locToggle = document.getElementById('locatieToggle');
-    if (locToggle) sessionStorage.setItem('locatieToggle', String(locToggle.checked));
   }
 
   function loadInputValues() {
     document.querySelectorAll('input, select').forEach(field => {
       if (field.type !== 'hidden' && field.name !== 'csrfmiddlewaretoken' && field.id) {
         const saved = sessionStorage.getItem(field.id);
-        if (saved !== null) field.value = saved;
+        if (saved !== null) {
+          if (field.type === 'checkbox') field.checked = saved === 'true';
+          else field.value = saved;
+        }
       }
     });
-    const locToggle = document.getElementById('locatieToggle');
-    if (locToggle) locToggle.checked = sessionStorage.getItem('locatieToggle') === 'true';
   }
 
-  // ===== Toggle “additional fields” =====
-  function toggleAdditionalFields(isExpanded) {
-    const additional = document.getElementById('additional_fields');
-    const toggleButton = document.getElementById('toggleButton');
-    if (!toggleButton) return;
+  function updateSystemVolumeMode() {
+    const unknownToggle = document.getElementById('sys_inhoud_onbekend');
+    const knownInput = document.getElementById('sys_inhoud');
+    const knownInputContainer = document.getElementById('system_volume_input');
+    const estimatedFields = document.getElementById('estimated_volume_fields');
+    const powerField = document.getElementById('boiler_power_field');
+    const cvField = document.getElementById('cv_emission_field');
+    const powerInput = document.getElementById('vermogen');
+    const cvSelect = document.getElementById('CVInstallatie');
+    if (!unknownToggle || !knownInput || !knownInputContainer || !estimatedFields ||
+        !powerField || !cvField || !powerInput || !cvSelect) return;
 
-    if (additional) {
-      additional.classList.toggle('show', !!isExpanded);
-    }
-    toggleButton.setAttribute('aria-expanded', String(!!isExpanded));
-    const icon = toggleButton.querySelector('i');
-    if (icon) {
-      icon.classList.toggle('fa-chevron-down', !isExpanded);
-      icon.classList.toggle('fa-chevron-up', isExpanded);
-    }
-    toggleButton.innerHTML = `<i class="fas ${isExpanded ? 'fa-chevron-up' : 'fa-chevron-down'}"></i> ${isExpanded ? 'Inklappen' : 'Uitbreiden'}`;
-    sessionStorage.setItem('additionalFieldsExpanded', String(!!isExpanded));
+    const isUnknown = unknownToggle.checked;
+    knownInputContainer.classList.toggle('d-none', isUnknown);
+    estimatedFields.classList.toggle('d-none', !isUnknown);
+    powerField.classList.toggle('d-none', !isUnknown);
+    cvField.classList.toggle('d-none', !isUnknown);
+    knownInput.disabled = isUnknown;
+    knownInput.required = !isUnknown;
+    powerInput.disabled = !isUnknown;
+    powerInput.required = isUnknown;
+    cvSelect.disabled = !isUnknown;
+    cvSelect.required = isUnknown;
   }
 
   // ===== Auto-trigger control (no reload loops) =====
@@ -120,23 +126,12 @@
     // load values
     loadInputValues();
 
-    // additional fields initial state + toggle button
-    const storedState = sessionStorage.getItem('additionalFieldsExpanded');
-    const isExpanded = storedState === 'true';
-    const additional = document.getElementById('additional_fields');
-    if (additional && document.getElementById('toggleButton')) {
-      toggleAdditionalFields(isExpanded);
-      additional.addEventListener('shown.bs.collapse', () => {
-        toggleAdditionalFields(true);
-      });
-      additional.addEventListener('hidden.bs.collapse', () => {
-        toggleAdditionalFields(false);
-      });
-    }
+    updateSystemVolumeMode();
 
     // Save & submit on change (single listener per field)
     document.querySelectorAll('input, select').forEach(field => {
       field.addEventListener('change', function () {
+        if (field.id === 'sys_inhoud_onbekend') updateSystemVolumeMode();
         saveInputValues();
         // submit/click
         const form = document.getElementById('inputForm');

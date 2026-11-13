@@ -74,11 +74,18 @@
               <span class="input-group-text">°C</span>
             </div>
           </div>
-          <div class="col">
+          <div class="col{% if system_volume_unknown %} d-none{% endif %}" id="system_volume_input">
             <label for="sys_inhoud" class="form-label">Systeeminhoud (V<sub>sys</sub>)</label>
             <div class="input-group">
-              <input type="number" class="form-control" id="sys_inhoud" name="sys_inhoud" value="1000" min="0" max="10000" required>
+              <input type="number" class="form-control" id="sys_inhoud" name="sys_inhoud" value="1000" min="0" max="10000"{% if not system_volume_unknown %} required{% else %} disabled{% endif %}>
               <span class="input-group-text">L</span>
+            </div>
+            <div class="form-check form-switch mt-2">
+              <input class="form-check-input" type="checkbox" role="switch"
+                     id="sys_inhoud_onbekend" name="sys_inhoud_onbekend"{% if system_volume_unknown %} checked{% endif %}>
+              <label class="form-check-label" for="sys_inhoud_onbekend">
+                Systeeminhoud onbekend
+              </label>
             </div>
           </div>
           <div class="col">
@@ -100,18 +107,21 @@
           <strong>Statische hoogte:</strong> vul het hoogteverschil in tussen de plaats waar het expansievat staat en de hoogste radiator. De voordruk wordt automatisch berekend: 0,1 bar per meter hoogteverschil + 0,3 bar veiligheidsmarge, afgerond naar boven op stappen van 0,5 bar.
         </div>
 
-        <div class="collapse mt-3" id="additional_fields">
-          <div class="row g-3 border-top pt-3">
-            <div class="col-12 col-sm-6 col-lg-4">
-              <label for="vermogen" class="form-label">Vermogen (P)</label>
+        <div class="row g-3 border-top pt-3 mt-3">
+            <div class="col-12 col-sm-6 col-lg-4{% if not system_volume_unknown %} d-none{% endif %}" id="estimated_volume_fields">
+              <p class="form-label mb-1">Systeeminhoud schatten</p>
+              <p class="form-text mt-0">Vsys wordt bepaald met het vermogen en de gekozen CV-afgifte.</p>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4{% if not system_volume_unknown %} d-none{% endif %}" id="boiler_power_field">
+              <label for="vermogen" class="form-label">Vermogen cv-ketel (P)</label>
               <div class="input-group">
-                <input type="number" class="form-control" id="vermogen" name="vermogen" value="0">
+                <input type="number" class="form-control" id="vermogen" name="vermogen" value="0" min="0.1" step="any"{% if system_volume_unknown %} required{% else %} disabled{% endif %}>
                 <span class="input-group-text">kW</span>
               </div>
             </div>
-            <div class="col-12 col-sm-6 col-lg-4">
+            <div class="col-12 col-sm-6 col-lg-4{% if not system_volume_unknown %} d-none{% endif %}" id="cv_emission_field">
               <label for="CVInstallatie" class="form-label">CV-afgifte</label>
-              <select name="CVInstallatie" class="form-select" id="CVInstallatie">
+              <select name="CVInstallatie" class="form-select" id="CVInstallatie"{% if system_volume_unknown %} required{% else %} disabled{% endif %}>
                 <option value="0">Convectors en/of luchtverhitters</option>
                 <option value="1">Inductie Units</option>
                 <option value="2">Luchtbehandelingsinstallaties</option>
@@ -123,20 +133,18 @@
                 <option value="8">Wijkverwarming</option>
               </select>
             </div>
-            <div class="col-12 col-lg-4 d-flex align-items-center">
+            <div class="col-12 col-sm-6 col-lg-4 d-flex align-items-center">
               <div class="form-check form-switch">
                 <input type="checkbox" class="form-check-input" id="locatieToggle" name="locatieToggle">
                 <label class="form-check-label" for="locatieToggle">Circulatiepomp in vertrek/retourleiding</label>
               </div>
             </div>
-          </div>
         </div>
-
-        <button type="button" class="btn btn-outline-primary btn-sm mt-3" id="toggleButton"
-                data-bs-toggle="collapse" data-bs-target="#additional_fields"
-                aria-controls="additional_fields" aria-expanded="false">
-          <i class="fas fa-chevron-down" aria-hidden="true"></i> Uitbreiden
-        </button>
+        {% if volume_input_error %}
+        <div class="alert alert-warning mt-3 mb-0" role="alert">
+          {{ volume_input_error }}
+        </div>
+        {% endif %}
       </div>
     </div>
 
@@ -191,6 +199,7 @@
                   <h3 class="h6">Volumes</h3>
                   <dl class="row mb-0">
                     <dt class="col-7">Systeem</dt><dd class="col-5 text-end">{{ expansievat_output.13 }} L</dd>
+                    <dt class="col-7">Berekend op basis van</dt><dd class="col-5 text-end">{{ expansievat_output.5 }}</dd>
                     <dt class="col-7">Bruto vat</dt><dd class="col-5 text-end">{{ expansievat_output.2 }} L</dd>
                     <dt class="col-7">Expansie</dt><dd class="col-5 text-end">{{ expansievat_output.8 }} L</dd>
                     <dt class="col-7">Norminhoud</dt><dd class="col-5 text-end">{{ expansievat_output.15 }} L/kW</dd>

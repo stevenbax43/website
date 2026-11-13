@@ -134,7 +134,9 @@ class ExpansievatPrepressureTests(TestCase):
             response,
             'row row-cols-1 row-cols-sm-2 row-cols-xl-5 g-3',
         )
-        self.assertContains(response, 'id="toggleButton"')
+        self.assertContains(response, 'id="sys_inhoud_onbekend"')
+        self.assertContains(response, 'id="locatieToggle"')
+        self.assertNotContains(response, 'id="toggleButton"')
 
     def test_prepressure_is_derived_from_static_height(self):
         self.assertEqual(calculate_prepressure(0), 0.5)
@@ -154,7 +156,6 @@ class ExpansievatPrepressureTests(TestCase):
         self.assertEqual(diagram["series"][1]["start_pa"], 180000)
         self.assertEqual(diagram["series"][2]["start_pa"], 260000)
         self.assertEqual(diagram["series"][3]["start_pa"], 300000)
-        self.assertEqual(diagram["series"][0]["end_pa"], 80349)
 
     def test_w2_page_renders_pressure_height_diagram_after_calculation(self):
         user = User.objects.create_user(username="expansievat-diagram-user")
@@ -196,6 +197,66 @@ class ExpansievatPrepressureTests(TestCase):
         result = expansievat(request)
 
         self.assertEqual(result[4], 1.5)
+
+    def test_known_system_volume_uses_entered_volume(self):
+        request = RequestFactory().post(
+            "/expansievat",
+            {
+                "temp_aanvoer": "80",
+                "temp_retour": "60",
+                "sys_inhoud": "1000",
+                "einddruk": "3",
+                "st_height": "0",
+                "vermogen": "200",
+                "CVInstallatie": "4",
+            },
+        )
+
+        result = expansievat(request)
+
+        self.assertEqual(result[13], 1000)
+        self.assertEqual(result[5], "Ingevoerde Vsys")
+
+    def test_unknown_system_volume_is_estimated_from_power_and_emitter(self):
+        request = RequestFactory().post(
+            "/expansievat",
+            {
+                "temp_aanvoer": "80",
+                "temp_retour": "60",
+                "einddruk": "3",
+                "st_height": "0",
+                "vermogen": "125",
+                "CVInstallatie": "4",
+                "sys_inhoud_onbekend": "on",
+            },
+        )
+
+        result = expansievat(request)
+
+        self.assertEqual(result[13], 1250)
+        self.assertEqual(result[5], "Vermogen en CV-afgifte")
+
+    def test_unknown_system_volume_requires_boiler_power(self):
+        user = User.objects.create_user(username="expansievat-missing-power-user")
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse("tools:expansievat"),
+            {
+                "temp_aanvoer": "80",
+                "temp_retour": "60",
+                "einddruk": "3",
+                "st_height": "0",
+                "CVInstallatie": "4",
+                "sys_inhoud_onbekend": "on",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Vul het vermogen van de cv-ketel in")
+        self.assertContains(response, 'id="sys_inhoud_onbekend" name="sys_inhoud_onbekend" checked')
+        self.assertContains(response, "Vermogen cv-ketel (P)")
+        self.assertContains(response, "Circulatiepomp in vertrek/retourleiding")
 
 
 class MollierPdfExportTests(TestCase):

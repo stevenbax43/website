@@ -17,7 +17,7 @@ from .Tool_W4_CO2verloop import CO2verloop, generate_pdf_CO2
 from .Tool_W5_buffervat import buffervat
 
 
-import json, io
+import json, io, math
 import pandas as pd
 
 # inhoudsopgave pagina 
@@ -186,7 +186,24 @@ def tool_W1(request):
 # expansievat pagina
 @login_required(login_url='accounts:login')
 def tool_W2(request):
-    expansievat_ouput = expansievat(request)
+    volume_input_error = None
+    system_volume_unknown = request.method == 'POST' and request.POST.get(
+        'sys_inhoud_onbekend'
+    ) == 'on'
+    if system_volume_unknown:
+        try:
+            entered_power = float(request.POST.get('vermogen', ''))
+        except ValueError:
+            entered_power = 0
+        if not math.isfinite(entered_power) or entered_power <= 0:
+            expansievat_ouput = []
+            volume_input_error = (
+                'Vul het vermogen van de cv-ketel in om de systeeminhoud te schatten.'
+            )
+        else:
+            expansievat_ouput = expansievat(request)
+    else:
+        expansievat_ouput = expansievat(request)
     pressure_diagram = None
     if expansievat_ouput:
         pressure_diagram = build_pressure_height_diagram(
@@ -197,6 +214,8 @@ def tool_W2(request):
     return render(request, 'tools/tool_W2.html', {
         'expansievat_output': expansievat_ouput,
         'pressure_diagram': pressure_diagram,
+        'volume_input_error': volume_input_error,
+        'system_volume_unknown': system_volume_unknown,
     })
 
 # drukverlies pagina

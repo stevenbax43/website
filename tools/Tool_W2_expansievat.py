@@ -101,15 +101,20 @@ def expansievat(request):
     VolumeExpansionPercentage, CVInstallatieValues,expansievat_output= [], [], []
     if request.method =='POST':
         
-        Temp_aanvoer, Temp_retour, input_sys_inhoud = map(int, [request.POST.get('temp_aanvoer'), request.POST.get('temp_retour'),  request.POST.get('sys_inhoud')])
+        Temp_aanvoer, Temp_retour = map(int, [
+            request.POST.get('temp_aanvoer'),
+            request.POST.get('temp_retour'),
+        ])
+        input_sys_inhoud = int(float(request.POST.get('sys_inhoud') or 0))
         einddruk, st_height, vermogen = map(float,[
             request.POST.get('einddruk'),
             request.POST.get('st_height'),
-            request.POST.get('vermogen'),
+            request.POST.get('vermogen') or 0,
         ])
         
                                                                      
-        CV_keuze = int(request.POST.get('CVInstallatie'))
+        CV_keuze = int(request.POST.get('CVInstallatie') or 4)
+        system_volume_unknown = request.POST.get('sys_inhoud_onbekend') == 'on'
         
         #bepaal einddruk 
         locatie_toggle = bool(request.POST.get('locatieToggle'))
@@ -123,13 +128,12 @@ def expansievat(request):
         closest_index_CV = min(range(len(CVInstallatieValues)), key=lambda i: abs(CVInstallatieValues[i][0] - CV_keuze))
         CV_volume_norm = CVInstallatieValues[closest_index_CV][1]
         calc_sys_inhoud = CV_volume_norm* vermogen 
-        #pak de grootste waarde
-        if calc_sys_inhoud > input_sys_inhoud:
+        if system_volume_unknown:
             sys_inhoud = calc_sys_inhoud
-            based_on_sys = '*Berekend op basis van vermogen & CV keuze'
-        else: 
+            based_on_sys = 'Vermogen en CV-afgifte'
+        else:
             sys_inhoud = input_sys_inhoud
-            based_on_sys = '*Berekend op basis van systseeminhoud input'
+            based_on_sys = 'Ingevoerde Vsys'
         
         #bepaal inhoud vat op basis van input waarde
         Temp_average = int((Temp_aanvoer + Temp_retour) /2)
