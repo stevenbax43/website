@@ -967,7 +967,14 @@ def generate_pdf_mollier(request):
         alignment=1,
     )
     data_style   = ParagraphStyle('data', parent=normal,
-                                  fontSize=8, leading=9, alignment=1)
+                                  fontSize=7, leading=8, alignment=1)
+    process_data_style = ParagraphStyle(
+        'process_data',
+        parent=normal,
+        fontSize=8,
+        leading=9,
+        alignment=1,
+    )
 
     metadata_label_style = ParagraphStyle(
         'metadata_label',
@@ -1061,6 +1068,9 @@ def generate_pdf_mollier(request):
         colWidths=metadata_col_widths,
     )
     input_table.setStyle(metadata_table_style)
+    input_table.setStyle(TableStyle([
+        ("SPAN", (2, 1), (3, 1)),
+    ]))
 
     project_heading = Paragraph(
         "Project- en pandgegevens",
@@ -1105,14 +1115,14 @@ def generate_pdf_mollier(request):
             s = s.replace('.', ',')
         return s
 
-    def build_export_table(data, headers, col_widths):
+    def build_export_table(data, headers, col_widths, cell_style):
         if not data:
             return None, 0
         data[0] = [Paragraph(cell, header_style) for cell in headers]
         if len(data) > 1:
             data[1] = [Paragraph(str(v), unit_style) for v in data[1]]
         for i in range(2, len(data)):
-            data[i] = [Paragraph(fmt(v), data_style) for v in data[i]]
+            data[i] = [Paragraph(fmt(v), cell_style) for v in data[i]]
         row_heights = [None, 10] + [None] * (len(data) - 2)
         table = Table(data, colWidths=col_widths, rowHeights=row_heights)
         table.setStyle(TableStyle([
@@ -1125,7 +1135,7 @@ def generate_pdf_mollier(request):
             ('FONTNAME',  (0,0),(-1,-1), 'Helvetica'),
             ('FONTSIZE',  (0,1),(-1,1), 6),
             ('TEXTCOLOR', (0,1),(-1,1), colors.grey),
-            ('FONTSIZE',  (0,2),(-1,-1), 7),
+            ('FONTSIZE',  (0,2),(-1,-1), cell_style.fontSize),
             ('ALIGN',     (0,2),(-1,-1), 'CENTER'),
             ('TOPPADDING', (0,0), (-1,-1), 1),
             ('BOTTOMPADDING', (0,0), (-1,-1), 1),
@@ -1140,11 +1150,17 @@ def generate_pdf_mollier(request):
                   "X","H","RH","P<sub>w</sub>","ρ","Q<sub>v</sub>"]
     proc_hdrs  = ["Proces","Actie 1","Actie 2","ΔT<sub>db</sub>","ΔX","ΔH",
                   "P<sub>totaal</sub>","P<sub>voelbaar</sub>","P<sub>latent</sub>","VWF"]
-    points_table, points_height = build_export_table(pts, point_hdrs, col_w)
+    points_table, points_height = build_export_table(
+        pts,
+        point_hdrs,
+        col_w,
+        data_style,
+    )
     processes_table, processes_height = build_export_table(
         procs,
         proc_hdrs,
         col_w,
+        process_data_style,
     )
 
     processes_bottom = 44
