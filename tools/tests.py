@@ -180,7 +180,9 @@ class ExpansievatPrepressureTests(TestCase):
         self.assertContains(response, "Drukbereik expansievat")
         self.assertContains(response, "Druk (bar)")
         self.assertContains(response, "Expansievolume (V<sub>exp</sub>):")
-        self.assertContains(response, "P<sub>1</sub> – voordruk")
+        self.assertContains(response, "P<sub>1</sub> = P<sub>v</sub> – voordruk")
+        self.assertContains(response, "P₁ = Pv")
+        self.assertContains(response, "P₂ = Pe")
         self.assertContains(response, "P<sub>bev</sub> – 0,5 bar boven Pe")
         self.assertContains(response, "Beveiligingsdruk</dt><dd class=\"col-5 text-end\">3.1 bar")
 

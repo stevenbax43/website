@@ -239,8 +239,9 @@
     <div class="card-body">
       <p class="text-muted">
         De verticale schaal begint bij 0 bar. P<sub>0</sub> volgt uit de statische hoogte;
-        P<sub>1</sub> is de voordruk met veiligheidsmarge. Het gemarkeerde gebied tussen
-        P<sub>1</sub> en P<sub>2</sub> (Pe) hoort bij het berekende expansievolume.
+        P<sub>1</sub> = P<sub>v</sub> is de voordruk met veiligheidsmarge.
+        P<sub>2</sub> = P<sub>e</sub> is de einddruk. Het gemarkeerde gebied tussen
+        P<sub>v</sub> en P<sub>e</sub> hoort bij het berekende expansievolume.
       </p>
       <div class="alert alert-success py-2 mb-2 text-center">
         <strong>Expansievolume (V<sub>exp</sub>):</strong>
@@ -272,6 +273,11 @@
                     x2="{{ pressure_diagram.plot_right }}" y2="{{ line.y }}"
                     stroke="{{ line.color }}" stroke-width="3"
                     {% if line.dash %}stroke-dasharray="{{ line.dash }}"{% endif %} />
+              <text x="{{ pressure_diagram.plot_right|add:'-8' }}"
+                    y="{{ line.y|add:'-7' }}" text-anchor="end"
+                    class="pressure-line-label">
+                {% if line.key == "p0" %}P₀{% elif line.key == "p1" %}P₁ = Pv{% elif line.key == "pe" %}P₂ = Pe{% else %}Pbev{% endif %}
+              </text>
               {% endfor %}
               <text x="22" y="164" text-anchor="middle" class="pressure-axis-title"
                     transform="rotate(-90 22 164)">Druk (bar)</text>
@@ -286,8 +292,8 @@
                     style="--pressure-line-color: {{ line.color }}"></span>
               <span>
                 {% if line.key == "p0" %}<strong>P<sub>0</sub> – statische druk</strong>
-                {% elif line.key == "p1" %}<strong>P<sub>1</sub> – voordruk</strong>
-                {% elif line.key == "pe" %}<strong>P<sub>2</sub> – einddruk (Pe)</strong>
+                {% elif line.key == "p1" %}<strong>P<sub>1</sub> = P<sub>v</sub> – voordruk</strong>
+                {% elif line.key == "pe" %}<strong>P<sub>2</sub> = P<sub>e</sub> – einddruk</strong>
                 {% else %}<strong>P<sub>bev</sub> – 0,5 bar boven Pe</strong>{% endif %}
                 <span class="d-block text-muted small">{{ line.pressure_bar|floatformat:2 }} bar</span>
               </span>
