@@ -1,0 +1,81 @@
+/* =========================
+   Tools page (Bootstrap 5)
+   ========================= */
+
+/* --- Full-bleed wrapper for hero/intro even inside base container --- */
+.tools-hero,
+.tools-intro {
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  width: 100vw;
+}
+
+/* --- Hero (gradient) --- */
+.tools-hero {
+  background: linear-gradient(to right, rgba(92,216,35,.75), rgba(10,92,3,.75));
+}
+.tools-hero .display-6 { color: #fff; }
+.hero-icon { width: 64px; height: auto; }
+@media (max-width: 575.98px) { .hero-icon { width: 48px; } }
+
+/* --- Intro (light) --- */
+.tools-intro {
+  background: #f5f6f7;
+}
+.intro-link {
+  text-decoration: none;
+  color: #333;
+  font-weight: 600;
+  font-size: 16px;
+}
+.intro-link:hover { color: #00c000; }
+.icon-30 { width: 30px; height: auto; vertical-align: middle; }
+
+/* --- Tool sections (colored backgrounds) --- */
+.tool-section { background: #f8f9fa; }
+.tool-section--algemeen { background: #edffe8; }
+.tool-section--hvac     { background: #dedeff; }
+.tool-section--elektra  { background: #ffbc9e; }
+
+/* --- Cards --- */
+.tool-card {
+  --bs-card-bg: transparent;     /* Bootstrap var */
+  background-color: transparent; /* safety */
+  border: 0;
+  box-shadow: none;
+}
+
+.tool-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 .5rem 1rem rgba(0,0,0,.08);
+  text-decoration: none;
+}
+.tool-card .card-body { padding: 1rem 0.75rem; }
+
+/* Tool icon inside cards */
+.tool-icon {
+  display: block;
+  width: 56%;
+  height: auto;
+  margin: 0 auto;
+  transition: opacity .2s ease;
+}
+.tool-card:hover .tool-icon { opacity: .85; }
+
+/* Headings in cards */
+.tool-card h3 {
+  color: #333;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* Typography (keep close to your original tone) */
+h1, h2, h3 { color: #333; }
+
+/* Print */
+@media print {
+  .no-print { display: none !important; }
+}

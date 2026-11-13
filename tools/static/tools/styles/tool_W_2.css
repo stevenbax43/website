@@ -1,0 +1,81 @@
+
+/* ===== Input & Output Cards ===== */
+.card-input {
+  border-left: 4px solid #267800;
+}
+.card-output {
+  border-left: 4px solid #0d6efd;
+}
+.card-title {
+  font-weight: 600;
+}
+
+/* ===== Table Styling (match A1/A2/A3) ===== */
+.table th {
+  background-color: #3fa500;
+  color: #fff;
+  vertical-align: middle;
+}
+.table thead.unit-row {
+  font-style: italic;
+  font-size: 0.875rem;
+  background-color: #e9ecef;
+}
+
+/* ===== Buttons ===== */
+.btn-outline-secondary {
+  font-size: 0.875rem;
+}
+#calculateButton {
+  background: linear-gradient(to right, rgba(92, 216, 35, 0.75), rgba(10, 92, 3, 0.75));
+  color: #fff;
+  border: none;
+}
+#calculateButton:hover {
+  background-color: #2980b9;
+}
+#resetButton {
+  background: linear-gradient(to right, rgba(255, 25, 0, 0.75), rgba(255, 255, 255, 0.75));
+  color: #fff;
+  border: none;
+}
+#resetButton:hover {
+  background-color: #ff7b00;
+}
+
+/* ===== Expansion Vessel Image & Overlay ===== */
+.image-container {
+  position: relative;
+  display: inline-block;
+}
+.image-container img {
+  width: 100%;
+  max-width: 320px;
+}
+.image-container .overlay {
+  position: absolute;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #000;
+}
+.image-container .o_1 {
+  top: 36%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.image-container .o_2 {
+  top: 63%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* ===== Print Rules ===== */
+@media print {
+  @page { size: A4 landscape; margin: 0; }
+  .no-print, .d-print-none { display: none !important; }
+  .shadow-sm { box-shadow: none !important; }
+  .card { border: 1px solid #000 !important; }
+  .card-input, .card-output { border-left: 4px solid #000; background: #fff; }
+  .ratio { height: auto !important; min-height: auto !important; }
+  canvas { width: 100% !important; height: auto !important; max-height: 400px !important; }
+}
