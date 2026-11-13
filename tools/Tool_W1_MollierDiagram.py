@@ -1128,7 +1128,7 @@ def generate_pdf_mollier(request):
             data[1] = [Paragraph(str(v), unit_style) for v in data[1]]
         for i in range(2, len(data)):
             data[i] = [Paragraph(fmt(v), cell_style) for v in data[i]]
-        row_heights = [16, 10] + [None] * (len(data) - 2)
+        row_heights = [20, 10] + [None] * (len(data) - 2)
         table = Table(data, colWidths=col_widths, rowHeights=row_heights)
         table.setStyle(TableStyle([
             ('BACKGROUND',(0,0),(-1,0), colors.HexColor('#3DAB39')),
