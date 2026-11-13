@@ -523,23 +523,47 @@ function initEventListeners() {
   // Inputs → recalc + keep UI visibility logic
   const heightInput = byId('Height_var');
   let confirmedHeight = heightInput?.value;
+  const heightModalElement = byId('confirmHeightModal');
+  const heightModal = heightModalElement && window.bootstrap?.Modal
+    ? bootstrap.Modal.getOrCreateInstance(heightModalElement)
+    : null;
+  let confirmingHeightChange = false;
+
+  const recalculateMollier = () => {
+    saveInputValues();
+    byId('mollierButton')?.click();
+    setTimeout(initProcesDropdowns, 100);
+  };
+
+  on(byId('confirmHeightChangeButton'), 'click', () => {
+    if (!heightInput || !heightModal) return;
+    confirmingHeightChange = true;
+    confirmedHeight = heightInput.value;
+    heightModal.hide();
+    recalculateMollier();
+  });
+
+  on(heightModalElement, 'hidden.bs.modal', () => {
+    if (!confirmingHeightChange && heightInput) {
+      heightInput.value = confirmedHeight;
+      sessionStorage.setItem(heightInput.id, confirmedHeight);
+    }
+    confirmingHeightChange = false;
+  });
+
   document.querySelectorAll('input[type="number"]').forEach(field => {
     on(field, 'change', () => {
       if (field === heightInput && field.value !== confirmedHeight) {
-        const shouldRecalculate = window.confirm(
-          'Weet je zeker dat je de hoogte wilt wijzigen? De berekeningen worden opnieuw uitgevoerd.'
-        );
-        if (!shouldRecalculate) {
+        if (!heightModal) {
+          console.error('[W1] Bootstrap-modal voor hoogtebevestiging is niet beschikbaar.');
           field.value = confirmedHeight;
-          sessionStorage.setItem(field.id, confirmedHeight);
           return;
         }
-        confirmedHeight = field.value;
+        heightModal.show();
+        return;
       }
 
-      saveInputValues();
-      byId('mollierButton')?.click();
-      setTimeout(initProcesDropdowns, 100);
+      recalculateMollier();
     });
     setAllProcessNameColors();   
   });
