@@ -670,8 +670,9 @@ class InstallationNoiseCalculationTests(TestCase):
         index = self.client.get(reverse("tools:tools"))
         self.assertEqual(index.status_code, 200)
         self.assertContains(index, "installatiegeluid.png")
-        self.assertContains(page, "qGuideDescription")
-        self.assertContains(page, "3 vlakken · Q = 8")
+        self.assertContains(page, "geluidsbron-Q-posities.png")
+        for position, coefficient in (("a", 1), ("b", 2), ("c", 4), ("d", 8)):
+            self.assertContains(page, f"({position})</strong> Q = {coefficient}")
 
         result = self.client.post(
             reverse("tools:installatiegeluid"),
