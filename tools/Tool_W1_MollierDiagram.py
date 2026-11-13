@@ -967,7 +967,7 @@ def generate_pdf_mollier(request):
         alignment=1,
     )
     data_style   = ParagraphStyle('data', parent=normal,
-                                  fontSize=7, leading=8, alignment=1)
+                                  fontSize=8, leading=9, alignment=1)
     process_data_style = ParagraphStyle(
         'process_data',
         parent=normal,
