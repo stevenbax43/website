@@ -1234,10 +1234,10 @@ def generate_pdf_mollier(request):
 
     # draw a header
     c.setFont('Helvetica-Bold',14)
-    c.drawString(40, h-125, "Informatie over de Processen")
+    c.drawString(40, h-65, "Informatie over de Processen")
 
     # place table in a frame
-    frame = Frame(20, 60, w-40, h-150, showBoundary=0)
+    frame = Frame(20, 120, w-40, h-220, showBoundary=0)
     frame.addFromList([info_table], c)
 
     # warning in red below the table

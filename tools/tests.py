@@ -140,6 +140,7 @@ class MollierPdfExportTests(TestCase):
         self.assertEqual(response["Content-Type"], "application/pdf")
         first_page = PdfReader(BytesIO(response.content)).pages[0]
         exported_text = first_page.extract_text()
+        second_page_text = PdfReader(BytesIO(response.content)).pages[1].extract_text()
 
         for value in (
             "Project & gebouw",
@@ -156,6 +157,9 @@ class MollierPdfExportTests(TestCase):
         ):
             with self.subTest(value=value):
                 self.assertIn(value, exported_text)
+
+        self.assertIn("Informatie over de Processen", second_page_text)
+        self.assertIn("Drogeboltemperatuur", second_page_text)
 
 
 class NlSfbSearchTests(TestCase):
