@@ -2,8 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-import os, re, nltk,json
-from openai import OpenAI
+import os, re,json
 from .models import Conversation, SingleUserBot
 from dotenv import load_dotenv
 from django.utils import timezone
@@ -12,12 +11,6 @@ from django.views.decorators.http import require_POST
 # Load environment variables from .env
 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config/settings/.env')
 load_dotenv(dotenv_path)
-
-# # Download NLTK data for title stopwords
-# nltk.download('punkt')
-# nltk.download('stopwords')
-# from nltk.corpus import stopwords
-# from nltk.tokenize import word_tokenize
 
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 
@@ -117,6 +110,8 @@ def generate_openai_response(user, user_input, pk=None, max_history=5):
     conversation_log.append({"role": "user", "content": user_input})
     try:
         # Initialize OpenAI client
+        from openai import OpenAI
+
         client = OpenAI(api_key=OPENAI_API_KEY)
 
         # Send combined messages to OpenAI for completion
