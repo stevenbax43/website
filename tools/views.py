@@ -359,7 +359,7 @@ def generate_pdf_A3(request):
     return generate_pdf_climate(request)
 
 # Whitelist allowed tools; add more as needed for the ReadME!
-ALLOWED = {"INDEX","A1","A2","A3", "E1","W1","W2", "W3", "W4", "W5", "W6", "W7"}
+ALLOWED = {"INDEX","A1","A2","A3","A4", "E1","W1","W2", "W3", "W4", "W5", "W6", "W7"}
 def tool_readme(request, tool):
     code = tool.upper()
     if code not in ALLOWED:
