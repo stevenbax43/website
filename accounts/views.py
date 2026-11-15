@@ -1,10 +1,31 @@
+import logging
+
+from django.conf import settings
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.decorators import user_passes_test, login_required
-from django.contrib.auth.views import PasswordChangeView
+from django.contrib.auth.views import PasswordChangeView, PasswordResetView
 from django.urls import reverse_lazy
 from .forms import CustomUserChangeForm
+
+email_logger = logging.getLogger('accounts.email')
+
+
+class DebugPasswordResetView(PasswordResetView):
+    def form_valid(self, form):
+        if getattr(settings, 'EMAIL_DEBUG', False):
+            eligible_accounts = sum(
+                1 for _ in form.get_users(form.cleaned_data['email'])
+            )
+            email_logger.info(
+                'Password reset submitted; eligible_accounts=%d; backend=%s',
+                eligible_accounts,
+                settings.EMAIL_BACKEND,
+            )
+        return super().form_valid(form)
+
+
 # Create your views here.
 @user_passes_test(lambda u: u.is_superuser)
 def signup_view(request):

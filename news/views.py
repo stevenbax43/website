@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from .models import NewsArticle
 from django.contrib.auth.decorators import login_required
-from .news_scrape import WeiiNews_extract, InstallatieNews_extract, EenWInstallatieTechniekNews_extract
+from .services import update_news
 from django.core.files.storage import default_storage
 from django.conf import settings
 import os, logging
@@ -14,10 +14,7 @@ def news(request):
    
     if request.method == 'POST':
         delete_all_news(request)
-       
-        InstallatieNews_extract(request)
-        WeiiNews_extract(request)
-        EenWInstallatieTechniekNews_extract(request)
+        update_news(request.user)
     
     articles = NewsArticle.objects.all().order_by('-date_published_datetime') 
     #print(articles)

@@ -30,6 +30,20 @@ STATICFILES_DIRS = [
 # Media files
 MEDIA_URL = '/media/'
 
+# Use SMTP locally when configured; otherwise print reset emails in the console.
+EMAIL_HOST = os.getenv('EMAIL_HOST', '')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'true').lower() == 'true'
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
+EMAIL_DEBUG = True
+EMAIL_BACKEND = (
+    'accounts.email_backends.DebugSMTPEmailBackend'
+    if EMAIL_HOST
+    else 'django.core.mail.backends.console.EmailBackend'
+)
+
 
 LOGGING = {
     "version": 1,
@@ -41,6 +55,10 @@ LOGGING = {
             "class": "logging.FileHandler",
             "filename": os.path.join(BASE_DIR, "debug.log"),
             "encoding": "utf-8",   # ✅ CRUCIAAL
+        },
+        "console": {
+            "class": "logging.StreamHandler",
+            "level": "INFO",
         },
     },
 
@@ -56,6 +74,11 @@ LOGGING = {
         "django.db.backends": {
             "handlers": ["file"],
             "level": "WARNING",
+            "propagate": False,
+        },
+        "accounts.email": {
+            "handlers": ["console", "file"],
+            "level": "INFO",
             "propagate": False,
         },
     },

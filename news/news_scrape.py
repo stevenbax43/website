@@ -7,11 +7,14 @@ from urllib.parse import urljoin
 import re, pytz
 from datetime import datetime
 
-def WeiiNews_extract(request):
+REQUEST_TIMEOUT = (5, 20)
+
+
+def WeiiNews_extract(author=None):
     base_url = 'https://www.weii.nl'
     url = base_url + '/nieuws'
 
-    response = requests.get(url)
+    response = requests.get(url, timeout=REQUEST_TIMEOUT)
 
     if response.status_code == 200:
         soup = BeautifulSoup(response.text, 'html.parser')
@@ -48,14 +51,14 @@ def WeiiNews_extract(request):
                     image_url = urljoin(base_url, image_src)
                     
                     #zonder foto sla de articelen niet op
-                    image_response = requests.get(image_url)
+                    image_response = requests.get(image_url, timeout=REQUEST_TIMEOUT)
                     if image_response.status_code == 200:
                         news_article = NewsArticle(
                             title=title,
                             url=href,
                             date_published_text=published_text,
                             date_published_datetime = datetime_title,
-                            author_id=request.user,
+                            author_id=author,
                         )
                         #print(image_url)
 
@@ -78,12 +81,12 @@ def WeiiNews_extract(request):
 #     return render(request, 'news/news.html', {'article':article})
 #     #return HttpResponse(slug)
 
-def InstallatieNews_extract(request):
+def InstallatieNews_extract(author=None):
     
     base_url = 'https://www.installatie.nl/'
     url = base_url + '/categorie/nieuws/'
   
-    response = requests.get(url)
+    response = requests.get(url, timeout=REQUEST_TIMEOUT)
  
 
     if response.status_code == 200:
@@ -111,7 +114,7 @@ def InstallatieNews_extract(request):
               
                 
                 #get date published van een andere URL website 
-                response_article = requests.get(href)
+                response_article = requests.get(href, timeout=REQUEST_TIMEOUT)
                 if response.status_code == 200:
                     soup_article = BeautifulSoup(response_article.text, 'html.parser')
                      #check of alleen niet-premium accounts
@@ -135,14 +138,14 @@ def InstallatieNews_extract(request):
                     match = re.search(r'url\(([^)]+)\)', style_attr)
                     if match:
                         image_url = match.group(1).strip('\'"')  # Remove quotes if they exist
-                        image_response = requests.get(image_url)
+                        image_response = requests.get(image_url, timeout=REQUEST_TIMEOUT)
                         if image_response.status_code == 200:
                             news_article = NewsArticle(
                                 title=title,
                                 url=href,
                                 date_published_text=publication_date,
                                 date_published_datetime=datetime_title,
-                                author_id=request.user,
+                                author_id=author,
                             )
                             #print(image_url)
                             
@@ -167,11 +170,11 @@ def InstallatieNews_extract(request):
     return 
 
 
-def EenWInstallatieTechniekNews_extract(request):
+def EenWInstallatieTechniekNews_extract(author=None):
     base_url = 'https://www.ew-installatietechniek.nl'
     url = base_url + '/home'
     
-    response = requests.get(url)
+    response = requests.get(url, timeout=REQUEST_TIMEOUT)
     
 
     if response.status_code == 200:
@@ -206,7 +209,7 @@ def EenWInstallatieTechniekNews_extract(request):
                     continue
                 
                 #get date published van een andere URL website 
-                response_article = requests.get(href)
+                response_article = requests.get(href, timeout=REQUEST_TIMEOUT)
                 if response.status_code == 200:
                     soup_article = BeautifulSoup(response_article.text, 'html.parser')
                     #print(soup_article)
@@ -247,7 +250,7 @@ def EenWInstallatieTechniekNews_extract(request):
                     img_src = img_element['src'] if img_element else None
                     full_img_url = urljoin(base_url, img_src) if img_src else None
                                          
-                    image_response = requests.get(full_img_url)
+                    image_response = requests.get(full_img_url, timeout=REQUEST_TIMEOUT)
                     
                     if image_response.status_code == 200:
                         news_article = NewsArticle(
@@ -255,7 +258,7 @@ def EenWInstallatieTechniekNews_extract(request):
                             url=href,
                             date_published_text=date_text,
                             date_published_datetime=date_obj,
-                            author_id=request.user,
+                            author_id=author,
                         )
                         #print(image_url)
                         

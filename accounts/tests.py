@@ -1,6 +1,10 @@
+from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.models import User
+from django.core import mail
+from django.test import RequestFactory, TestCase, override_settings
 from django.contrib.auth.signals import user_logged_in
-from django.test import RequestFactory, TestCase
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 
 from .models import LoginActivity
 
@@ -43,3 +47,65 @@ class LoginActivityTrackingTests(TestCase):
         activity = LoginActivity.objects.get()
         self.assertEqual(activity.user, user)
         self.assertTrue(activity.success)
+
+
+@override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+class PasswordResetTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='password-reset-user',
+            email='user@example.com',
+            password='Old-password-123',
+        )
+
+    def test_registered_email_receives_reset_link(self):
+        with self.assertLogs('accounts.email', level='INFO') as logs:
+            response = self.client.post(
+                '/accounts/password-reset/',
+                {'email': self.user.email},
+            )
+
+        self.assertRedirects(response, '/accounts/password-reset/done/')
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn('/accounts/password-reset/', mail.outbox[0].body)
+        self.assertIn('Kropman', mail.outbox[0].body)
+        self.assertEqual(mail.outbox[0].alternatives[0][1], 'text/html')
+        self.assertIn('O&amp;T-team van Kropman', mail.outbox[0].alternatives[0][0])
+        self.assertIn('eligible_accounts=1', logs.output[0])
+        self.assertNotIn(self.user.email, '\n'.join(logs.output))
+
+    def test_unregistered_email_gets_same_confirmation_without_email(self):
+        with self.assertLogs('accounts.email', level='INFO') as logs:
+            response = self.client.post(
+                '/accounts/password-reset/',
+                {'email': 'unknown@example.com'},
+            )
+
+        self.assertRedirects(response, '/accounts/password-reset/done/')
+        self.assertEqual(len(mail.outbox), 0)
+        self.assertIn('eligible_accounts=0', logs.output[0])
+
+    def test_valid_reset_link_changes_password(self):
+        reset_url = (
+            f'/accounts/password-reset/'
+            f'{urlsafe_base64_encode(force_bytes(self.user.pk))}/'
+            f'{default_token_generator.make_token(self.user)}/'
+        )
+        response = self.client.get(reset_url)
+        self.assertRedirects(
+            response,
+            f'/accounts/password-reset/'
+            f'{urlsafe_base64_encode(force_bytes(self.user.pk))}/set-password/',
+        )
+
+        response = self.client.post(
+            response.url,
+            {
+                'new_password1': 'New-password-456',
+                'new_password2': 'New-password-456',
+            },
+        )
+
+        self.assertRedirects(response, '/accounts/password-reset/complete/')
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password('New-password-456'))
