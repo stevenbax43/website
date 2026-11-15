@@ -41,12 +41,13 @@
             </p>
         </div>
         <div class="col-12 col-lg-4 newsupdate">
+        {% if user.is_authenticated and user.is_superuser %}
         <form method="post" action="{% url 'news:news' %}">
             {% csrf_token %}
             <button id="refreshButton" type="submit">Updaten</button>
         </form>
 
-        {% if user.is_authenticated and user.is_superuser %}
+        
         <form method="post" action="{% url 'news:delete_all_news' %}">
             {% csrf_token %}
             <button id="deleteDbButton" type="submit">Verwijder alle artikelen</button>
