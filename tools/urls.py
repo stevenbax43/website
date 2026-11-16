@@ -18,6 +18,7 @@ urlpatterns = [
     path('load-project/', views.load_project, name='load_project'),
     path('generate-pdf-w1/', views.generate_pdf_W1, name='generate_pdf_W1'),
     path('generate-pdf-w4/', views.generate_pdf_W4, name='generate_pdf_W4'),
+    path('generate-pdf-w2/', views.generate_pdf_w2, name='generate_pdf_w2'),
     path('delete-project/', views.delete_project, name='delete_project'),
     path('expansievat', views.tool_W2, name='expansievat'),
     path('leidingverliezen', views.tool_W3, name='drukverlies'),

@@ -68,6 +68,18 @@
 .btn-outline-secondary {
   font-size: 0.875rem;
 }
+.btn-save-pdf-w2 {
+  color: #dc3545;
+  border-color: #dc3545 !important;
+}
+.btn-save-pdf-w2:hover,
+.btn-save-pdf-w2:focus-visible {
+  color: #b02a37;
+  border-color: #b02a37 !important;
+}
+.btn-save-pdf-w2 .icon-pdf-red {
+  filter: brightness(0) saturate(100%) invert(18%) sepia(100%) saturate(6500%) hue-rotate(0deg) brightness(90%) contrast(105%);
+}
 #calculateButton {
   background: linear-gradient(to right, rgba(92, 216, 35, 0.75), rgba(10, 92, 3, 0.75));
   color: #fff;

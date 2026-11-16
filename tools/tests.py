@@ -21,6 +21,7 @@ from .Tool_W2_expansievat import (
     InvalidCoolingInputs,
     InvalidPressureRange,
     build_pressure_range_diagram,
+    calculate_nen_expansion_vessel,
     calculate_prepressure,
     cooling_expansion_percentage,
     expansievat,
@@ -144,22 +145,136 @@ class ExpansievatPrepressureTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'class="card card-input shadow-sm mb-3"')
         self.assertContains(response, 'id="st_height"')
-        self.assertContains(response, "hoogste radiator")
+        self.assertContains(response, "NEN-EN 12828 D.2")
+        self.assertContains(response, 'id="temp_min"')
         self.assertContains(response, 'id="calculation_mode"')
         self.assertContains(response, 'id="cooling_parameters"')
         self.assertContains(
             response,
-            'row row-cols-1 row-cols-sm-2 row-cols-xl-5 g-3',
+            'row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3',
         )
         self.assertContains(response, 'id="sys_inhoud_onbekend"')
         self.assertContains(response, 'id="locatieToggle"')
         self.assertNotContains(response, 'id="toggleButton"')
+
+    def test_pdf_button_and_required_project_details_render_after_calculation(self):
+        user = User.objects.create_user(username="expansievat-pdf-ui-user")
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse("tools:expansievat"),
+            {
+                "temp_aanvoer": "80",
+                "temp_retour": "60",
+                "temp_min": "10",
+                "sys_inhoud": "1000",
+                "einddruk": "3",
+                "st_height": "0",
+                "vermogen": "0",
+                "CVInstallatie": "4",
+                "locatieToggle": "on",
+            },
+        )
+
+        self.assertContains(response, "Save PDF")
+        self.assertContains(response, 'id="pdfDetailsModal"')
+        self.assertContains(response, 'id="pdf_project_name" maxlength="80" required')
+        self.assertContains(response, 'id="pdf_project_number" maxlength="40" required')
+        self.assertContains(response, 'id="pdf_project_description" maxlength="500" rows="3" required')
 
     def test_prepressure_is_derived_from_static_height(self):
         self.assertEqual(calculate_prepressure(0), 0.5)
         self.assertEqual(calculate_prepressure(2), 0.5)
         self.assertEqual(calculate_prepressure(2.1), 1.0)
         self.assertEqual(calculate_prepressure(7.1), 1.5)
+
+    def test_nen_sizing_uses_minimum_reserve_and_checks_initial_pressure(self):
+        sizing = calculate_nen_expansion_vessel(1000, 35.6, 1.0, 2.5)
+
+        self.assertEqual(sizing["reserve_volume_l"], 5)
+        self.assertAlmostEqual(sizing["minimum_nominal_volume_l"], 94.73333333333333)
+        self.assertEqual(sizing["nominal_volume_l"], 140)
+        self.assertAlmostEqual(sizing["initial_pressure_bar"], 0.353, places=3)
+
+    def test_nen_small_vessel_reserve_is_twenty_percent_of_nominal_volume(self):
+        sizing = calculate_nen_expansion_vessel(100, 1, 0.5, 3)
+
+        self.assertEqual(sizing["nominal_volume_l"], 4)
+        self.assertEqual(sizing["reserve_volume_l"], 0.8)
+
+    def test_flamco_vessel_selection_respects_catalogue_pressure_classes(self):
+        sizing = calculate_nen_expansion_vessel(
+            1000,
+            35.6,
+            1.0,
+            3.5,
+            safety_pressure_bar=4.0,
+        )
+
+        self.assertEqual(sizing["nominal_volume_l"], 110)
+        self.assertEqual(sizing["max_working_pressure_bar"], 6)
+        with self.assertRaises(InvalidPressureRange):
+            calculate_nen_expansion_vessel(
+                1000,
+                35.6,
+                1.0,
+                9.5,
+                safety_pressure_bar=11,
+            )
+
+    def test_nen_recalculates_flamco_classic_example_1_inputs(self):
+        request = RequestFactory().post(
+            "/expansievat",
+            {
+                "temp_aanvoer": "90",
+                "temp_retour": "70",
+                "sys_inhoud": "340",
+                "einddruk": "3.0",
+                "st_height": "2",
+                "vermogen": "0",
+                "CVInstallatie": "4",
+                "locatieToggle": "on",
+            },
+        )
+
+        result = expansievat(request)
+
+        self.assertAlmostEqual(result[7], 3.58, places=2)
+        self.assertEqual(result[8], 12.2)
+        self.assertEqual(result[22], 3)
+        self.assertEqual(result[3], 35)
+
+    def test_heating_expansion_uses_the_lowest_system_temperature(self):
+        base_inputs = {
+            "temp_aanvoer": "80",
+            "temp_retour": "60",
+            "sys_inhoud": "1000",
+            "einddruk": "3",
+            "st_height": "0",
+            "vermogen": "0",
+            "CVInstallatie": "4",
+            "locatieToggle": "on",
+        }
+        at_10_degrees = expansievat(
+            RequestFactory().post(
+                "/expansievat",
+                dict(base_inputs, temp_min="10"),
+            )
+        )
+        at_20_degrees = expansievat(
+            RequestFactory().post(
+                "/expansievat",
+                dict(base_inputs, temp_min="20"),
+            )
+        )
+
+        self.assertEqual(at_20_degrees[20], 20)
+        self.assertLess(at_20_degrees[8], at_10_degrees[8])
+        self.assertAlmostEqual(
+            at_20_degrees[7],
+            (at_20_degrees[30] / at_20_degrees[31] - 1) * 100,
+            places=2,
+        )
 
     def test_cooling_expansion_table_and_interpolation(self):
         self.assertEqual(cooling_expansion_percentage(30, 0), 0.43)
@@ -261,7 +376,7 @@ class ExpansievatPrepressureTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["pressure_diagram"]["fill_pressure_bar"], 1.0)
-        self.assertContains(response, "Koelinstallatie (Flamco)")
+        self.assertContains(response, "Koeling gebruikt de afzonderlijke Flamco-methode")
         self.assertContains(response, "Reserve (50% Vexp)")
         self.assertContains(response, "P<sub>g</sub> – laagste bedrijfsdruk")
         self.assertContains(response, "P_f=P_{\\mathrm{veilig}}")
@@ -309,11 +424,11 @@ class ExpansievatPrepressureTests(TestCase):
         self.assertContains(response, "Drukbereik expansievat")
         self.assertContains(response, "Druk (bar)")
         self.assertContains(response, "Expansievolume (V<sub>exp</sub>):")
-        self.assertContains(response, "P<sub>1</sub> = P<sub>v</sub> – voordruk")
-        self.assertContains(response, "P₁ = Pv")
-        self.assertContains(response, "P₂ = Pe")
-        self.assertContains(response, "P<sub>bev</sub> – 0,5 bar boven Pe")
-        self.assertContains(response, "Beveiligingsdruk</dt><dd class=\"col-5 text-end\">3.1 bar")
+        self.assertContains(response, "P<sub>0</sub> – voordruk")
+        self.assertContains(response, "Pfin")
+        self.assertContains(response, "kg/m³")
+        self.assertContains(response, "P<sub>s</sub> – insteldruk veiligheidsventiel")
+        self.assertContains(response, "Insteldruk veiligheidsventiel (P<sub>s</sub>)")
 
     def test_calculation_does_not_require_a_manual_prepressure(self):
         request = RequestFactory().post(
@@ -371,7 +486,7 @@ class ExpansievatPrepressureTests(TestCase):
         self.assertEqual(result[13], 1250)
         self.assertEqual(result[5], "Vermogen en CV-afgifte")
 
-    def test_flamco_calculation_example_2(self):
+    def test_flamco_example_2_inputs_use_nen_12828_sizing(self):
         request = RequestFactory().post(
             "/expansievat",
             {
@@ -391,11 +506,13 @@ class ExpansievatPrepressureTests(TestCase):
         self.assertEqual(result[13], 2464)
         self.assertEqual(result[14], 12)
         self.assertEqual(result[4], 1.5)
-        self.assertEqual(result[7], 2.25)
-        self.assertEqual(result[8], 55.4)
-        self.assertEqual(result[1], 0.375)
-        self.assertEqual(result[2], 184.7)
-        self.assertEqual(result[3], 185)
+        self.assertEqual(result[7], 2.88)
+        self.assertEqual(result[8], 71.0)
+        self.assertEqual(result[1], 0.286)
+        self.assertEqual(result[2], 291.7)
+        self.assertEqual(result[3], 425)
+        self.assertEqual(result[22], 12.3)
+        self.assertEqual(result[11], 2.5)
 
     def test_unknown_system_volume_requires_boiler_power(self):
         user = User.objects.create_user(username="expansievat-missing-power-user")
@@ -417,7 +534,7 @@ class ExpansievatPrepressureTests(TestCase):
         self.assertContains(response, "Vul het vermogen van de cv-ketel in")
         self.assertContains(response, 'id="sys_inhoud_onbekend" name="sys_inhoud_onbekend" checked')
         self.assertContains(response, "Vermogen cv-ketel (P)")
-        self.assertContains(response, "Circulatiepomp in vertrek/retourleiding")
+        self.assertContains(response, "Pomp in vertrekleiding (uit = retourleiding)")
 
     def test_static_height_that_exceeds_end_pressure_is_rejected(self):
         user = User.objects.create_user(username="expansievat-invalid-pressure-user")
@@ -458,6 +575,55 @@ class ExpansievatPrepressureTests(TestCase):
 
         with self.assertRaises(InvalidPressureRange):
             expansievat(request)
+
+
+class ExpansievatPdfTests(TestCase):
+    def setUp(self):
+        user = User.objects.create_user(username="expansievat-pdf-user")
+        self.client.force_login(user)
+
+    def test_pdf_includes_project_metadata_and_nen_results(self):
+        response = self.client.post(
+            reverse("tools:generate_pdf_w2"),
+            {
+                "temp_aanvoer": "80",
+                "temp_retour": "60",
+                "temp_min": "10",
+                "sys_inhoud": "1000",
+                "einddruk": "3",
+                "st_height": "0",
+                "vermogen": "0",
+                "CVInstallatie": "4",
+                "locatieToggle": "on",
+                "project_name": "Kantoor & werkplaats",
+                "project_number": "W2-2025",
+                "project_description": "Expansievat voor het hoofdgebouw",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "application/pdf")
+        self.assertIn("attachment;", response["Content-Disposition"])
+        pdf_text = " ".join(
+            page.extract_text()
+            for page in PdfReader(BytesIO(response.content)).pages
+        )
+        for value in (
+            "Kantoor & werkplaats",
+            "W2-2025",
+            "Expansievat voor het hoofdgebouw",
+            "NEN-EN 12828",
+            "Vexp",
+            "Flexcon",
+        ):
+            with self.subTest(value=value):
+                self.assertIn(value, pdf_text)
+
+    def test_pdf_rejects_missing_project_metadata(self):
+        response = self.client.post(reverse("tools:generate_pdf_w2"), {})
+
+        self.assertEqual(response.status_code, 400)
+        self.assertContains(response, "projectnaam", status_code=400)
 
 
 class BuffervatWaterPropertiesTests(TestCase):

@@ -19,6 +19,7 @@ from .Tool_W2_expansievat import (
     InvalidPressureRange,
     build_pressure_range_diagram,
     expansievat,
+    generate_pdf_expansion_vessel,
 )
 from .Tool_W4_CO2verloop import CO2verloop, generate_pdf_CO2
 from .Tool_W5_buffervat import buffervat
@@ -261,6 +262,9 @@ def tool_W2(request):
             expansievat_ouput[11],
             expansievat_ouput[8],
             expansievat_ouput[23] if cooling_mode else None,
+            safety_pressure_bar=(
+                None if cooling_mode else expansievat_ouput[17]
+            ),
         )
     return render(request, 'tools/tool_W2.html', {
         'expansievat_output': expansievat_ouput,
@@ -271,6 +275,12 @@ def tool_W2(request):
         'calculation_mode': calculation_mode,
         'cooling_mode': cooling_mode,
     })
+
+
+@login_required(login_url='accounts:login')
+def generate_pdf_w2(request):
+    return generate_pdf_expansion_vessel(request)
+
 
 # drukverlies pagina
 @login_required(login_url='accounts:login')

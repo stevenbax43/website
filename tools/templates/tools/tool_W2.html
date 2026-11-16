@@ -33,18 +33,21 @@
       <div class="col-12 col-lg-8">
         <p class="mb-0">
           Een expansievat vangt de volumeverandering van het water in een verwarmingsinstallatie op wanneer de temperatuur verandert.
-          De Flamco berekeningsmethode wordt gebruikt. Lees de ReadMe voor meer informatie over de berekening en de aannames die worden gemaakt.
+          Voor verwarming wordt de minimuminhoud volgens NEN-EN 12828, bijlage D.2 berekend; de Flamco Flexcon-vatmaten worden gebruikt voor het advies.
+          Koeling gebruikt de afzonderlijke Flamco-methode. De uitgangspunten en gebruikte grootheden staan bij de berekeningsgegevens.
         </p>
       </div>
       <div class="col-12 col-lg-4 d-flex justify-content-lg-end align-items-center gap-3 flex-wrap">
         <a href="{% url 'tools:tool-readme' 'W2' %}" target="_blank" rel="noopener" class="intro-link d-inline-flex align-items-center gap-2">
-          ReadMe <img src="{% static 'tools/images/PDF-icon.png' %}" class="icon-30" alt="PDF">
+          ReadMe (klassieke methode; niet volgens NEN-EN 12828) <img src="{% static 'tools/images/PDF-icon.png' %}" class="icon-30" alt="PDF">
         </a>
         <a href="#" id="printButton" class="intro-link d-inline-flex align-items-center">
           <img src="{% static 'tools/images/print.png' %}" class="icon-30" alt="Print">
         </a>
-        <a href="#" id="excelButton" class="intro-link d-inline-flex align-items-center">
-          <img src="{% static 'tools/images/Excel.png' %}" class="icon-30" alt="Excel">
+        <a href="#" id="excelButton" class="intro-link d-inline-flex align-items-center"
+           aria-label="Excel-rekenblad klassieke methode; niet volgens NEN-EN 12828"
+           title="Excel-rekenblad klassieke methode; niet volgens NEN-EN 12828">
+          <img src="{% static 'tools/images/Excel.png' %}" class="icon-30" alt="Excel (klassieke methode)">
         </a>
       </div>
     </div>
@@ -69,11 +72,11 @@
             </select>
           </div>
         </div>
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-5 g-3">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">
           <div class="col heating-temperature-field{% if cooling_mode %} d-none{% endif %}">
-            <label for="temp_aanvoer" class="form-label">Aanvoertemperatuur (T<sub>aanv</sub>)</label>
+            <label for="temp_aanvoer" class="form-label">Maximale bedrijfstemperatuur (T<sub>max</sub>)</label>
             <div class="input-group">
-              <input type="number" class="form-control" id="temp_aanvoer" name="temp_aanvoer" value="80" min="0" max="100"{% if not cooling_mode %} required{% else %} disabled{% endif %}>
+              <input type="number" class="form-control" id="temp_aanvoer" name="temp_aanvoer" value="80" min="10" max="100"{% if not cooling_mode %} required{% else %} disabled{% endif %}>
               <span class="input-group-text">°C</span>
             </div>
           </div>
@@ -84,6 +87,14 @@
               <span class="input-group-text">°C</span>
             </div>
           </div>
+          <div class="col heating-temperature-field{% if cooling_mode %} d-none{% endif %}">
+            <label for="temp_min" class="form-label">Laagste systeemtemperatuur (T<sub>min</sub>)</label>
+            <div class="input-group">
+              <input type="number" class="form-control" id="temp_min" name="temp_min" value="10" min="0" max="100" step="any"{% if not cooling_mode %} required{% else %} disabled{% endif %}>
+              <span class="input-group-text">°C</span>
+            </div>
+          </div>
+          
           <div class="col">
             <div id="system_volume_input" class="{% if system_volume_unknown %}d-none{% endif %}">
               <label for="sys_inhoud" class="form-label">Systeeminhoud (V<sub>sys</sub>)</label>
@@ -109,7 +120,7 @@
           </div>
           <div class="col">
             <label for="einddruk" class="form-label">
-              <span class="heating-only{% if cooling_mode %} d-none{% endif %}">Einddruk (P<sub>e</sub>)</span>
+              <span class="heating-only{% if cooling_mode %} d-none{% endif %}">Insteldruk veiligheidsventiel (P<sub>s</sub>)</span>
               <span class="cooling-only{% if not cooling_mode %} d-none{% endif %}">Insteldruk veiligheidsventiel</span>
             </label>
             <div class="input-group">
@@ -149,7 +160,7 @@
           </div>
         </div>
         <div class="alert alert-info py-2 mt-3 mb-0 heating-only{% if cooling_mode %} d-none{% endif %}" role="note">
-          <strong>Statische hoogte:</strong> vul het hoogteverschil in tussen de plaats waar het expansievat staat en de hoogste radiator. De voordruk wordt automatisch berekend: 0,1 bar per meter hoogteverschil + 0,3 bar veiligheidsmarge, afgerond naar boven op stappen van 0,5 bar.
+          <strong>NEN-EN 12828 D.2 (water):</strong> vul de laagst mogelijke systeemtemperatuur in; de expansie wordt berekend tot de maximale bedrijfstemperatuur. De minimale waterreserve is 0,5% van V<sub>sys</sub>, minimaal 3 L (bij een vat tot en met 15 L: 20% van het nominale vatvolume). H<sub>st</sub> is het hoogteverschil tussen het vat en het hoogste punt. De voordruk P<sub>0</sub> is de statische druk + 0,3 bar, naar boven afgerond op stappen van 0,5 bar. P<sub>fin</sub> is de veiligheidsventielinstelling − 0,5 bar, met 0,4 bar correctie bij een pomp in de retourleiding. De vatmaten en drukklassen zijn gebaseerd op de aangeleverde Flamco-catalogus 2015; controleer de actuele productgegevens.
         </div>
         <div class="alert alert-info py-2 mt-3 mb-0 cooling-only{% if not cooling_mode %} d-none{% endif %}" role="note">
           De koelberekening gebruikt de Flamco-tabel voor water/glycol (10–100 °C). Vul de werkelijke systeeminhoud in; de schatting op basis van cv-ketelvermogen is hier niet van toepassing.
@@ -184,7 +195,7 @@
             <div class="col-12 col-sm-6 col-lg-4 d-flex align-items-center">
               <div class="form-check form-switch">
                 <input type="checkbox" class="form-check-input" id="locatieToggle" name="locatieToggle">
-                <label class="form-check-label" for="locatieToggle">Circulatiepomp in vertrek/retourleiding</label>
+                <label class="form-check-label" for="locatieToggle">Pomp in vertrekleiding (uit = retourleiding)</label>
               </div>
             </div>
         </div>
@@ -203,6 +214,11 @@
     {% endif %}
 
     {% if expansievat_output %}
+    {% if not cooling_mode and expansievat_output.29 %}
+    <div class="alert alert-warning mt-3" role="note">
+      Volgens de Flamco-catalogus is bij een aanvoertemperatuur boven 90 °C of een retourtemperatuur boven 70 °C een voorschakelvat nodig om de membraantemperatuur te beperken.
+    </div>
+    {% endif %}
     <div class="row g-3">
       <div class="col-12 col-lg-5">
         <div class="card card-output shadow-sm h-100">
@@ -210,7 +226,7 @@
             <h2 class="h5 mb-0">Advies expansievat</h2>
           </div>
           <div class="card-body text-center">
-            <p class="text-muted mb-2">Benodigd bruto volume en berekende voordruk</p>
+            <p class="text-muted mb-2">{% if cooling_mode %}Benodigd bruto volume en berekende voordruk{% else %}Geadviseerde Flexcon-vatmaat en voordruk P<sub>0</sub>{% endif %}</p>
             <div class="image-container">
               <img src="{% static 'tools/images/expansion.png' %}" alt="Inhoud buffervat" class="img-fluid">
               <div class="overlay o_1">{{ expansievat_output.3 }} L</div>
@@ -237,10 +253,9 @@
                     <dt class="col-7">Hoogste temperatuur</dt><dd class="col-5 text-end">{{ expansievat_output.9 }} °C</dd>
                     <dt class="col-7">Glycol</dt><dd class="col-5 text-end">{{ expansievat_output.19 }} %</dd>
                     {% else %}
-                    <dt class="col-7">Aanvoer</dt><dd class="col-5 text-end">{{ expansievat_output.9 }} °C</dd>
+                    <dt class="col-7">Max. bedrijfstemperatuur</dt><dd class="col-5 text-end">{{ expansievat_output.9 }} °C</dd>
                     <dt class="col-7">Retour</dt><dd class="col-5 text-end">{{ expansievat_output.10 }} °C</dd>
-                    <dt class="col-7">Gemiddeld</dt><dd class="col-5 text-end">{{ expansievat_output.0 }} °C</dd>
-                    <dt class="col-7">Minimum</dt><dd class="col-5 text-end">10 °C</dd>
+                    <dt class="col-7">Laagste systeemtemperatuur</dt><dd class="col-5 text-end">{{ expansievat_output.20 }} °C</dd>
                     {% endif %}
                   </dl>
                 </section>
@@ -253,8 +268,8 @@
                     {% if cooling_mode %}
                     <dt class="col-7">Laagste bedrijfsdruk</dt><dd class="col-5 text-end">{{ expansievat_output.23 }} bar</dd>
                     {% endif %}
-                    <dt class="col-7">Einddruk</dt><dd class="col-5 text-end">{{ expansievat_output.11 }} bar</dd>
-                    <dt class="col-7">Beveiligingsdruk</dt><dd class="col-5 text-end">{{ expansievat_output.17 }} bar</dd>
+                    <dt class="col-7">{% if cooling_mode %}Einddruk{% else %}Einddruk (P<sub>fin</sub>){% endif %}</dt><dd class="col-5 text-end">{{ expansievat_output.11 }} bar</dd>
+                    <dt class="col-7">{% if cooling_mode %}Beveiligingsdruk{% else %}Insteldruk veiligheidsventiel (P<sub>s</sub>){% endif %}</dt><dd class="col-5 text-end">{{ expansievat_output.17 }} bar</dd>
                   </dl>
                 </section>
               </div>
@@ -262,10 +277,14 @@
                 <section class="h-100 rounded-3 bg-light p-3">
                   <h3 class="h6">Volumes</h3>
                   <dl class="row mb-0">
-                    <dt class="col-7">Systeem</dt><dd class="col-5 text-end">{{ expansievat_output.13 }} L</dd>
+                    <dt class="col-7">Systeem (V<sub>sys</sub>)</dt><dd class="col-5 text-end">{{ expansievat_output.13 }} L</dd>
                     <dt class="col-7">Berekend op basis van</dt><dd class="col-5 text-end">{{ expansievat_output.5 }}</dd>
-                    <dt class="col-7">Bruto vat</dt><dd class="col-5 text-end">{{ expansievat_output.2 }} L</dd>
-                    <dt class="col-7">Expansie</dt><dd class="col-5 text-end">{{ expansievat_output.8 }} L</dd>
+                    <dt class="col-7">{% if cooling_mode %}Bruto vat{% else %}Minimum nominaal volume (V<sub>N,min</sub>){% endif %}</dt><dd class="col-5 text-end">{{ expansievat_output.2 }} L</dd>
+                    {% if not cooling_mode %}
+                    <dt class="col-7">Geadviseerde Flexcon-vatmaat</dt><dd class="col-5 text-end">{{ expansievat_output.3 }} L</dd>
+                    <dt class="col-7">Maximale werkdruk vat</dt><dd class="col-5 text-end">{{ expansievat_output.28 }} bar</dd>
+                    {% endif %}
+                    <dt class="col-7">{% if cooling_mode %}Expansie{% else %}Expansievolume (V<sub>exp</sub>){% endif %}</dt><dd class="col-5 text-end">{{ expansievat_output.8 }} L</dd>
                     {% if not cooling_mode %}
                     <dt class="col-7">Norminhoud</dt><dd class="col-5 text-end">{{ expansievat_output.15 }} L/kW</dd>
                     {% endif %}
@@ -276,20 +295,24 @@
                 <section class="h-100 rounded-3 bg-light p-3">
                   <h3 class="h6">Overig</h3>
                   <dl class="row mb-0">
-                    <dt class="col-7">Nuttig effect</dt><dd class="col-5 text-end">{{ expansievat_output.1 }}</dd>
+                    <dt class="col-7">{% if cooling_mode %}Nuttig effect{% else %}Nuttig effect (n<sub>e</sub>){% endif %}</dt><dd class="col-5 text-end">{{ expansievat_output.1 }}</dd>
                     <dt class="col-7">Statische hoogte</dt><dd class="col-5 text-end">{{ expansievat_output.14 }} m</dd>
-                    <dt class="col-7">Expansiepercentage</dt><dd class="col-5 text-end">{{ expansievat_output.7 }} %</dd>
                     {% if cooling_mode %}
+                    <dt class="col-7">Expansiepercentage</dt><dd class="col-5 text-end">{{ expansievat_output.7 }} %</dd>
                     <dt class="col-7">Reserve (50% Vexp)</dt><dd class="col-5 text-end">{{ expansievat_output.22 }} L</dd>
                     {% else %}
-                    <dt class="col-7">Veiligheidsfactor</dt><dd class="col-5 text-end">25 %</dd>
+                    <dt class="col-7">Expansiecoëfficiënt (e)</dt><dd class="col-5 text-end">{{ expansievat_output.7 }} %</dd>
+                    <dt class="col-7">Dichtheid bij T<sub>min</sub></dt><dd class="col-5 text-end">{{ expansievat_output.30 }} kg/m³</dd>
+                    <dt class="col-7">Dichtheid bij T<sub>max</sub></dt><dd class="col-5 text-end">{{ expansievat_output.31 }} kg/m³</dd>
+                    <dt class="col-7">Minimale waterreserve (V<sub>wr,min</sub>)</dt><dd class="col-5 text-end">{{ expansievat_output.22 }} L</dd>
+                    <dt class="col-7">Berekende initiële druk (p<sub>ini</sub>)</dt><dd class="col-5 text-end">{{ expansievat_output.26 }} bar</dd>
                     {% endif %}
                   </dl>
                 </section>
               </div>
             </div>
             <div class="border-top mt-3 pt-3">
-              <h3 class="h6 mb-1">Formule bruto vatinhoud</h3>
+              <h3 class="h6 mb-1">{% if cooling_mode %}Formule bruto vatinhoud{% else %}Formule minimum nominaal volume{% endif %}</h3>
               <p class="mb-0 text-muted">Meer uitleg vind je in de ReadMe.</p>
               {% if cooling_mode %}
               <div class="fs-6">
@@ -299,7 +322,13 @@
                 \( V_{\mathrm{br}}=\frac{1{,}5V_{\exp}}{\min(n_e,0{,}63)} \)
               </div>
               {% else %}
-              <div class="fs-5">\( V_{br}[L] = \frac{ V_{\exp} \cdot \beta}{n_{e} } \)</div>
+              <div class="fs-6">
+                \( e=\frac{\rho(T_{\min})}{\rho(T_{\max})}-1 \), \( V_{\exp}=V_{\mathrm{sys}}\cdot e \)<br>
+                \( n_e=\frac{P_{\mathrm{fin}}-P_0}{P_{\mathrm{fin}}+1} \)<br>
+                \( V_{\mathrm{N,min}}=\frac{V_{\exp}+V_{\mathrm{wr,min}}}{n_e} \)<br>
+                \( P_0\ge p_{\mathrm{st}}+0{,}3 \), \( P_{\mathrm{fin}}=P_s-0{,}5-\Delta p \)<br>
+                \( P_0>p_{\mathrm{ini}}+0{,}3 \)
+              </div>
               {% endif %}
             </div>
           </div>
@@ -307,7 +336,53 @@
       </div>
     </div>
     {% endif %}
+    {% if expansievat_output %}
+    <div class="d-flex justify-content-end mt-3">
+      <button
+          id="SavePDFButton"
+          type="button"
+          data-bs-toggle="modal"
+          data-bs-target="#pdfDetailsModal"
+          data-pdf-url="{% url 'tools:generate_pdf_w2' %}"
+          class="btn border shadow btn-save-pdf-w2">
+        Save PDF
+        <img src="{% static 'tools/images/PDF-icon.png' %}" class="icon-pdf-red" alt="PDF" width="18">
+      </button>
+    </div>
+    {% endif %}
+    <input type="hidden" id="project_name" name="project_name">
+    <input type="hidden" id="project_number" name="project_number">
+    <input type="hidden" id="project_description" name="project_description">
   </form>
+
+  <div class="modal fade" id="pdfDetailsModal" tabindex="-1" aria-labelledby="pdfDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <form class="modal-content" id="pdfDetailsForm">
+        <div class="modal-header">
+          <h5 class="modal-title" id="pdfDetailsModalLabel">Projectgegevens voor de PDF</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Sluiten"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="pdf_project_name" class="form-label">Projectnaam</label>
+            <input type="text" class="form-control" id="pdf_project_name" maxlength="80" required>
+          </div>
+          <div class="mb-3">
+            <label for="pdf_project_number" class="form-label">Projectnummer</label>
+            <input type="text" class="form-control" id="pdf_project_number" maxlength="40" required>
+          </div>
+          <div>
+            <label for="pdf_project_description" class="form-label">Omschrijving</label>
+            <textarea class="form-control" id="pdf_project_description" maxlength="500" rows="3" required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuleren</button>
+          <button type="submit" class="btn btn-primary">Download PDF</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   {% if pressure_diagram %}
   <div class="card card-output shadow-sm mt-3">
@@ -320,10 +395,9 @@
         De Flamco-koelmethode houdt rekening met de werkdruk bij de laagste temperatuur,
         de reservefactor en 0,5 bar marge onder de veiligheidsventielinstelling.
         {% else %}
-        De verticale schaal begint bij 0 bar. P<sub>0</sub> volgt uit de statische hoogte;
-        P<sub>1</sub> = P<sub>v</sub> is de voordruk met veiligheidsmarge.
-        P<sub>2</sub> = P<sub>e</sub> is de einddruk. Het gemarkeerde gebied tussen
-        P<sub>v</sub> en P<sub>e</sub> hoort bij het berekende expansievolume.
+        De verticale schaal begint bij 0 bar. P<sub>st</sub> volgt uit de statische hoogte;
+        P<sub>fin</sub> is de einddruk. Het gemarkeerde gebied tussen
+        P<sub>0</sub> en P<sub>fin</sub> hoort bij het berekende expansievolume.
         {% endif %}
       </p>
       <div class="alert alert-success py-2 mb-2 text-center">
@@ -336,7 +410,7 @@
             <svg class="pressure-range-chart" viewBox="0 0 760 360" role="img"
                  aria-labelledby="pressure-chart-title pressure-chart-description">
               <title id="pressure-chart-title">Drukbereik van het expansievat</title>
-              <desc id="pressure-chart-description">{% if cooling_mode %}Drukschaal in bar vanaf nul met statische druk, laagste bedrijfsdruk, einddruk en beveiligingsdruk. Het gemarkeerde gebied geeft het expansievolume weer.{% else %}Drukschaal in bar vanaf nul met statische druk, voordruk, einddruk en beveiligingsdruk. Het gebied tussen voordruk en einddruk geeft het expansievolume weer.{% endif %}</desc>
+              <desc id="pressure-chart-description">{% if cooling_mode %}Drukschaal in bar vanaf nul met statische druk, laagste bedrijfsdruk, einddruk en beveiligingsdruk. Het gemarkeerde gebied geeft het expansievolume weer.{% else %}Drukschaal in bar vanaf nul met statische druk Pst, voordruk P0, einddruk Pfin en veiligheidsventielinstelling Ps. Het gebied tussen P0 en Pfin geeft het expansievolume weer.{% endif %}</desc>
               <rect x="{{ pressure_diagram.plot_left }}" y="{{ pressure_diagram.fill_area_top }}"
                     width="{{ pressure_diagram.plot_width }}"
                     height="{{ pressure_diagram.fill_area_height }}"
@@ -359,7 +433,7 @@
               <text x="{{ pressure_diagram.plot_right|add:'-8' }}"
                     y="{{ line.y|add:'-7' }}" text-anchor="end"
                     class="pressure-line-label">
-                {% if line.key == "p0" %}P₀{% elif line.key == "p1" %}{% if cooling_mode %}Pg{% else %}P₁ = Pv{% endif %}{% elif line.key == "pe" %}{% if cooling_mode %}Pf{% else %}P₂ = Pe{% endif %}{% else %}Pbev{% endif %}
+                {% if line.key == "p0" %}{% if cooling_mode %}P₀{% else %}Pst{% endif %}{% elif line.key == "p1" %}{% if cooling_mode %}Pg{% else %}P₀{% endif %}{% elif line.key == "pe" %}{% if cooling_mode %}Pf{% else %}Pfin{% endif %}{% else %}{% if cooling_mode %}Pbev{% else %}Ps{% endif %}{% endif %}
               </text>
               {% endfor %}
               <text x="22" y="164" text-anchor="middle" class="pressure-axis-title"
@@ -374,11 +448,11 @@
               <span class="pressure-legend-swatch{% if line.key == 'safety' %} is-safety{% endif %}"
                     style="--pressure-line-color: {{ line.color }}"></span>
               <span>
-                {% if line.key == "p0" %}<strong>P<sub>0</sub> – statische druk</strong>
-                {% elif line.key == "p1" %}{% if cooling_mode %}<strong>P<sub>g</sub> – laagste bedrijfsdruk</strong>{% else %}<strong>P<sub>1</sub> = P<sub>v</sub> – voordruk</strong>{% endif %}
-                {% elif line.key == "pe" %}{% if cooling_mode %}<strong>P<sub>f</sub> – einddruk</strong>{% else %}<strong>P<sub>2</sub> = P<sub>e</sub> – einddruk</strong>{% endif %}
+                {% if line.key == "p0" %}{% if cooling_mode %}<strong>P<sub>0</sub> – statische druk</strong>{% else %}<strong>P<sub>st</sub> – statische druk</strong>{% endif %}
+                {% elif line.key == "p1" %}{% if cooling_mode %}<strong>P<sub>g</sub> – laagste bedrijfsdruk</strong>{% else %}<strong>P<sub>0</sub> – voordruk</strong>{% endif %}
+                {% elif line.key == "pe" %}{% if cooling_mode %}<strong>P<sub>f</sub> – einddruk</strong>{% else %}<strong>P<sub>fin</sub> – einddruk</strong>{% endif %}
                 {% elif cooling_mode %}<strong>P<sub>bev</sub> – 0,5 bar boven P<sub>f</sub></strong>
-                {% else %}<strong>P<sub>bev</sub> – 0,5 bar boven Pe</strong>{% endif %}
+                {% else %}<strong>P<sub>s</sub> – insteldruk veiligheidsventiel</strong>{% endif %}
                 <span class="d-block text-muted small">{{ line.pressure_bar|floatformat:2 }} bar</span>
               </span>
             </div>

@@ -72,7 +72,7 @@
         field.required = isCooling;
       }
     });
-    ['temp_aanvoer', 'temp_retour'].forEach(id => {
+    ['temp_aanvoer', 'temp_retour', 'temp_min'].forEach(id => {
       const field = document.getElementById(id);
       if (field) {
         field.disabled = isCooling;
@@ -176,5 +176,33 @@
     document.getElementById('printButton')?.addEventListener('click', () => window.print());
 
     document.getElementById('excelButton')?.addEventListener('click', () => window.open(pdfUrlExcel, '_blank'));
+
+    document.getElementById('pdfDetailsForm')?.addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      const inputForm = document.getElementById('inputForm');
+      const pdfButton = document.getElementById('SavePDFButton');
+      if (!inputForm || !pdfButton) return;
+
+      const formData = new FormData(inputForm);
+      formData.set('project_name', document.getElementById('pdf_project_name').value.trim());
+      formData.set('project_number', document.getElementById('pdf_project_number').value.trim());
+      formData.set('project_description', document.getElementById('pdf_project_description').value.trim());
+
+      const pdfForm = document.createElement('form');
+      pdfForm.method = 'post';
+      pdfForm.action = pdfButton.dataset.pdfUrl;
+      pdfForm.hidden = true;
+      formData.forEach((value, name) => {
+        const field = document.createElement('input');
+        field.type = 'hidden';
+        field.name = name;
+        field.value = value;
+        pdfForm.appendChild(field);
+      });
+      document.body.appendChild(pdfForm);
+      pdfForm.submit();
+      window.setTimeout(() => pdfForm.remove(), 1000);
+    });
   });
 })();
