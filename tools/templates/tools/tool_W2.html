@@ -30,7 +30,13 @@
 <section class="bg-light py-3 no-print">
   <div class="container">
     <div class="row align-items-center g-3">
-      
+      <div class="col-12 col-lg-8">
+        <p class="mb-0">
+          Een expansievat vangt de volumeverandering van het water in een verwarmingsinstallatie op wanneer de temperatuur verandert.
+          Voor verwarming wordt de minimuminhoud volgens NEN-EN 12828, bijlage D.2 berekend; de Flamco Flexcon-vatmaten worden gebruikt voor het advies.
+          Koeling gebruikt de afzonderlijke Flamco-methode. De uitgangspunten en gebruikte grootheden staan bij de berekeningsgegevens.
+        </p>
+      </div>
       <div class="col-12 col-lg-4 d-flex justify-content-lg-end align-items-center gap-3 flex-wrap">
         <a href="{% url 'tools:tool-readme' 'W2' %}" target="_blank" rel="noopener" class="intro-link d-inline-flex align-items-center gap-2">
           ReadMe<img src="{% static 'tools/images/PDF-icon.png' %}" class="icon-30" alt="PDF">
@@ -153,9 +159,7 @@
             </select>
           </div>
         </div>
-        <div class="alert alert-info py-2 mt-3 mb-0 heating-only{% if cooling_mode %} d-none{% endif %}" role="note">
-          <strong>NEN-EN 12828 D.2 (water):</strong> vul de laagst mogelijke systeemtemperatuur in; de expansie wordt berekend tot de maximale bedrijfstemperatuur. De minimale waterreserve is 0,5% van V<sub>sys</sub>, minimaal 3 L (bij een vat tot en met 15 L: 20% van het nominale vatvolume). H<sub>st</sub> is het hoogteverschil tussen het vat en het hoogste punt. De voordruk P<sub>0</sub> is de statische druk + 0,3 bar, naar boven afgerond op stappen van 0,5 bar. P<sub>fin</sub> is de veiligheidsventielinstelling − 0,5 bar, met 0,4 bar correctie bij een pomp in de retourleiding. De vatmaten en drukklassen zijn gebaseerd op de aangeleverde Flamco-catalogus 2015; controleer de actuele productgegevens.
-        </div>
+        
         <div class="alert alert-info py-2 mt-3 mb-0 cooling-only{% if not cooling_mode %} d-none{% endif %}" role="note">
           De koelberekening gebruikt de Flamco-tabel voor water/glycol (10–100 °C). Vul de werkelijke systeeminhoud in; de schatting op basis van cv-ketelvermogen is hier niet van toepassing.
         </div>
