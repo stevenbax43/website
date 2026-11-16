@@ -159,13 +159,23 @@
 
     // Save & submit on change (single listener per field)
     const inputForm = document.getElementById('inputForm');
+    const pdfButton = document.getElementById('SavePDFButton');
+    let openingPdfModal = false;
+
+    pdfButton?.addEventListener('pointerdown', () => { openingPdfModal = true; });
+    document.addEventListener('pointerup', () => { openingPdfModal = false; });
+    document.addEventListener('pointercancel', () => { openingPdfModal = false; });
+    pdfButton?.addEventListener('focusin', () => { openingPdfModal = true; });
+    pdfButton?.addEventListener('focusout', () => { openingPdfModal = false; });
+    pdfButton?.addEventListener('click', () => { openingPdfModal = false; });
+
     inputForm?.querySelectorAll('input, select').forEach(field => {
       field.addEventListener('change', function () {
         if (field.id === 'sys_inhoud_onbekend' || field.id === 'calculation_mode') {
           updateSystemVolumeMode();
         }
         saveInputValues();
-        if (document.activeElement === document.getElementById('SavePDFButton')) return;
+        if (openingPdfModal || document.activeElement === pdfButton) return;
         // submit/click
         if (inputForm?.requestSubmit) inputForm.requestSubmit();
         else if (inputForm) inputForm.submit();
@@ -182,7 +192,6 @@
       event.preventDefault();
 
       const inputForm = document.getElementById('inputForm');
-      const pdfButton = document.getElementById('SavePDFButton');
       if (!inputForm || !pdfButton) return;
 
       const formData = new FormData(inputForm);
