@@ -334,20 +334,7 @@
       </div>
     </div>
     {% endif %}
-    {% if expansievat_output %}
-    <div class="d-flex justify-content-end mt-3">
-      <button
-          id="SavePDFButton"
-          type="button"
-          data-bs-toggle="modal"
-          data-bs-target="#pdfDetailsModal"
-          data-pdf-url="{% url 'tools:generate_pdf_w2' %}"
-          class="btn border shadow btn-save-pdf-w2">
-        Save PDF
-        <img src="{% static 'tools/images/PDF-icon.png' %}" class="icon-pdf-red" alt="PDF" width="18">
-      </button>
-    </div>
-    {% endif %}
+    
     <input type="hidden" id="project_name" name="project_name">
     <input type="hidden" id="project_number" name="project_number">
     <input type="hidden" id="project_description" name="project_description">
@@ -461,6 +448,20 @@
     </div>
   </div>
   {% endif %}
+  {% if expansievat_output %}
+    <div class="d-flex justify-content-end mt-3">
+      <button
+          id="SavePDFButton"
+          type="button"
+          data-bs-toggle="modal"
+          data-bs-target="#pdfDetailsModal"
+          data-pdf-url="{% url 'tools:generate_pdf_w2' %}"
+          class="btn border shadow btn-save-pdf-w2">
+        Save PDF
+        <img src="{% static 'tools/images/PDF-icon.png' %}" class="icon-pdf-red" alt="PDF" width="18">
+      </button>
+    </div>
+    {% endif %}
 </div>
 </section>
 {% endblock %}

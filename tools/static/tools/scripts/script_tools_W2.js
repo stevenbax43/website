@@ -158,16 +158,17 @@
     updateSystemVolumeMode();
 
     // Save & submit on change (single listener per field)
-    document.querySelectorAll('input, select').forEach(field => {
+    const inputForm = document.getElementById('inputForm');
+    inputForm?.querySelectorAll('input, select').forEach(field => {
       field.addEventListener('change', function () {
         if (field.id === 'sys_inhoud_onbekend' || field.id === 'calculation_mode') {
           updateSystemVolumeMode();
         }
         saveInputValues();
+        if (document.activeElement === document.getElementById('SavePDFButton')) return;
         // submit/click
-        const form = document.getElementById('inputForm');
-        if (form?.requestSubmit) form.requestSubmit();
-        else if (form) form.submit();
+        if (inputForm?.requestSubmit) inputForm.requestSubmit();
+        else if (inputForm) inputForm.submit();
         else document.getElementById('ExpansieButton')?.click();
       });
     });
