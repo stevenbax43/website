@@ -6,8 +6,10 @@ from django.core.files.base import ContentFile
 from urllib.parse import urljoin  
 import re, pytz
 from datetime import datetime
+import logging
 
 REQUEST_TIMEOUT = (5, 20)
+logger = logging.getLogger(__name__)
 
 
 def WeiiNews_extract(author=None):
@@ -92,6 +94,11 @@ def InstallatieNews_extract(author=None):
     if response.status_code == 200:
         soup = BeautifulSoup(response.text, 'html.parser')
         articles = soup.select('article.post-list') if soup else []
+        if not articles:
+            raise RuntimeError(
+                'Installatie.nl returned no news articles; the page may be blocked '
+                'or its markup may have changed.'
+            )
         # look for first 5 valid article in articles 
         saved_count = 0
         for article in articles:
@@ -214,9 +221,10 @@ def EenWInstallatieTechniekNews_extract(author=None):
                     soup_article = BeautifulSoup(response_article.text, 'html.parser')
                     #print(soup_article)
                     time_element = soup_article.find('span', class_='edition') 
-                    date_text = time_element.get_text(strip=True) if time_element else None
+                    date_text = time_element.get_text(strip=True) if time_element else ''
                     # convert to dateobject          
-                    try:
+                    date_obj = None
+                    if date_text:
                         month_mapping = {
                             "januari": "01",
                             "februari": "02",
@@ -231,16 +239,30 @@ def EenWInstallatieTechniekNews_extract(author=None):
                             "november": "11",
                             "december": "12"
                         }
-                        day, month_name, year = date_text.split()
-                        month = month_mapping[month_name]
-                        new_date_string = f"{day}-{month}-{year}"
-                        naive_date_obj = datetime.strptime(new_date_string, "%d-%m-%Y")
-                        timezone = pytz.timezone('Europe/Amsterdam')
-                        date_obj = timezone.localize(naive_date_obj)
-                        #date_obj = datetime.strptime(new_date_string, "%d-%m-%Y")
-                        #print(f"Extracted Date (as datetime object): {date_obj}")
-                    except ValueError as e:
-                        print(f"Error parsing date: {e}")
+                        try:
+                            date_parts = date_text.casefold().split()
+                            if len(date_parts) not in (2, 3):
+                                raise ValueError('Expected day, month, and optional year')
+                            day, month_name = date_parts[:2]
+                            amsterdam_timezone = pytz.timezone('Europe/Amsterdam')
+                            year = (
+                                date_parts[2]
+                                if len(date_parts) == 3
+                                else str(datetime.now(amsterdam_timezone).year)
+                            )
+                            month = month_mapping.get(month_name)
+                            if month is None:
+                                raise ValueError(f"Unknown month: {month_name}")
+                            new_date_string = f"{day}-{month}-{year}"
+                            naive_date_obj = datetime.strptime(new_date_string, "%d-%m-%Y")
+                            date_obj = amsterdam_timezone.localize(naive_date_obj)
+                        except ValueError as error:
+                            logger.warning(
+                                'Could not parse E&W publication date %r for %s: %s',
+                                date_text,
+                                href,
+                                error,
+                            )
                     
                 #print(f"Publication Date: {publication_date}")              
                 figure_element = soup_article.find('main').find('figure')
