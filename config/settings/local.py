@@ -30,19 +30,13 @@ STATICFILES_DIRS = [
 # Media files
 MEDIA_URL = '/media/'
 
-# Use SMTP locally when configured; otherwise print reset emails in the console.
-EMAIL_HOST = os.getenv('EMAIL_HOST', '')
-EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
-EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'true').lower() == 'true'
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
+# Resend API credentials are provided through the environment.
+EMAIL_BACKEND = "accounts.email_backends.DebugResendEmailBackend"
+ANYMAIL = {
+    "RESEND_API_KEY": os.environ.get("RESEND_API_KEY"),
+}
+DEFAULT_FROM_EMAIL = "Steven Bax <no-reply@stevenbaxontwerpt.nl>"
 EMAIL_DEBUG = True
-EMAIL_BACKEND = (
-    'accounts.email_backends.DebugSMTPEmailBackend'
-    if EMAIL_HOST
-    else 'django.core.mail.backends.console.EmailBackend'
-)
 
 
 LOGGING = {
