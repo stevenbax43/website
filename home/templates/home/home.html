@@ -88,7 +88,6 @@
     </div>
   </section>
 
-  {% if user.is_superuser %}
   <!-- SECTION: Community -->
   <section class="py-5">
     <div class="container">
@@ -111,6 +110,7 @@
     </div>
   </section>
 
+  {% if user.is_superuser %}
   <!-- SECTION: Chat -->
   <section class="py-5 bg-light">
     <div class="container">
