@@ -17,7 +17,7 @@ urlpatterns = [
     path('', include('chat.urls')),
     path('accounts/', include('accounts.urls')),
     path('forum/', include('forum.urls')),
-    path('favicon.ico', RedirectView.as_view(url='/static/home/images/favicon.png')),
+    path('favicon.ico', RedirectView.as_view(url='/static/home/images/favicon-32-32.png ')),
 ]
 
 # Serving static files during development : DEBUG = True

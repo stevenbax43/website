@@ -25,8 +25,6 @@
 /* ===========================
    Layout / Containers
    =========================== */
-.container{ align-items: stretch; }
-.shadow{ box-shadow:0 4px 8px rgba(0,0,0,.08); }
 
 .saved_conversations{ margin:10px 0; }
 .list-group{
@@ -47,6 +45,7 @@
   width: 100%;
   border:1px solid #dbe4ea;
   border-radius:16px;
+  background:#fff;
 }
 
 /* Scrollable history area */
@@ -61,7 +60,7 @@
   max-height: 65vh;
   scroll-behavior: smooth;
   scrollbar-width: thin;
-  scrollbar-color: #5e9e3d #f1f1f1;
+  scrollbar-color: var(--baxtools-teal) #f1f1f1;;
 }
 
 /* On very small screens, give a bit more height */
@@ -85,7 +84,7 @@
   width:100%;
   min-height: 44px;
   padding: .5rem .75rem;
-  border:1px solid #ced4da;
+  border:1px solid #dbe4ea;;
   border-radius:.5rem;
   box-shadow: none;
   resize:none;
@@ -161,11 +160,14 @@
   overflow-wrap: break-word !important;
   max-width:100%;
 }
-.user_chat{  background: rgba(16,42,67,.08);
-    color: var(--baxtools-blue); }
-.bot_response{   background: rgba(20,184,166,.08);
-    color: var(--baxtools-teal); }
-
+.user_chat{
+    background: rgba(16,42,67,.06);
+    color:#1f2937;
+}
+.bot_response{
+    background: rgba(20,184,166,.08);
+    color:#1f2937;
+}
 .wrap{
   word-wrap: break-word !important;
   overflow-wrap: break-word !important;
@@ -211,4 +213,8 @@
 .center-container{
   display:flex; justify-content:center; align-items:flex-start; height:100%;
 }
-.chat-banner{ background:#f4f4f4; padding:20px; }
+.chat-banner{
+    background:#f8fbfc;
+    border:1px solid #dbe4ea;
+    border-radius:12px;
+}

@@ -1,125 +1,175 @@
-/* ==============================
-   Home page styles (mobile-first)
-   ============================== */
+.banner{
+    background:linear-gradient(
+        135deg,
+        var(--baxtools-blue),
+        var(--baxtools-teal)
+    );
 
-/* ===== Hero / Banner ===== */
-.banner {
-  position: relative;
-  width: 100%;
-  min-height: clamp(250px, 45vh, 340px);
-  overflow: hidden;
+    min-height:70vh;
+
+    display:flex;
+    align-items:center;
+
+    overflow:hidden;
 }
 
-
-.bg-image {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  z-index: 1;
+.hero-content{
+    position:relative;
 }
 
-/* Ken Burns */
-@keyframes kenburnsZoom {
-  0%   { transform: scale(1) translate(0, 0); }
-  100% { transform: scale(1.1) translate(-2%, -2%); }
-}
-.kenburns { animation: kenburnsZoom 8s ease-in-out infinite alternate; transform-origin: center; }
+.hero-badge{
+    display:inline-block;
 
-/* Overlay */
-.banner::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-      rgba(16, 42, 67, 0.75),
-      rgba(16, 42, 67, 0.55)
-  );
-  z-index: 2;
+    padding:.5rem 1rem;
+
+    background:rgba(255,255,255,.15);
+
+    color:#fff;
+
+    border-radius:999px;
+
+    font-size:.85rem;
+    font-weight:600;
+
+    margin-bottom:1.5rem;
 }
 
+.hero-title{
+    color:#fff;
 
-/* Center text both horizontally and vertically */
-.banner-content {
-  position: relative;
-  z-index: 3;
-  display: flex;
-  align-items: center;       /* vertical center */
-  justify-content: center;   /* horizontal center */
-  height: 100%;
-  min-height: inherit;       /* overnemen van .banner */
-  text-align: center;
-  padding: 0 1rem;            /* side padding for small screens */
+    font-weight:800;
+
+    font-size:clamp(3rem,6vw,5rem);
+
+    line-height:1;
 }
 
-.text-box {
-    max-width: 900px;
-    margin: 0 auto;
+.hero-subtitle{
+    color:rgba(255,255,255,.9);
+
+    font-size:1.25rem;
+
+    max-width:650px;
+
+    margin:1.5rem 0 2rem;
 }
 
-
-/* Headings */
-.main-title {
-  color: white;
-  font-weight: 700;
-  letter-spacing: -1px;
-  margin-bottom: 1rem;
-  font-size: clamp(2rem, 4vw, 4rem);
+.hero-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:1rem;
 }
+.hero-dashboard{
+    background:#fff;
+    border-radius:20px;
+    overflow:hidden;
 
-.sub-title {
-    color: rgba(255,255,255,0.9);
-    font-size: clamp(1.1rem, 1.8vw, 1.5rem);
-}
+    padding:1rem;
 
-/* ===== Sections ===== */
-section {
-    overflow: hidden;
-    padding-top: 5rem;
-    padding-bottom: 5rem;
-}
-
-.section-img {
-    display: block;
-    width: 100%;
-    height: auto;
-    border-radius: 16px;
     box-shadow:
-        0 10px 30px rgba(16,42,67,0.08),
-        0 4px 8px rgba(16,42,67,0.05);
+        0 20px 50px rgba(0,0,0,.15);
+
+    transform: rotate(-2deg);
 }
 
-/* Responsive video keeps same shadow/radius */
-.section-video {
-  border-radius: .5rem;
-  overflow: hidden;
-  box-shadow: 0 .25rem .75rem rgba(0,0,0,.1);
-}
-section:nth-child(even) {
-    background-color: #F8FBFC;
+.hero-dashboard img{
+    border-radius:12px;
 }
 
-/* Quarter image button (kept from your design, more responsive) */
-.quarter {
-    width: clamp(140px, 28%, 240px);
-    transition: transform 0.2s ease;
+.feature-card{
+    height:100%;
+
+    background:#fff;
+
+    border:1px solid #dbe4ea;
+
+    border-radius:16px;
+
+    padding:2rem;
+
+    transition:.2s ease;
 }
 
-.quarter:hover {
-    transform: translateY(-4px);
+.feature-card:hover{
+    transform:translateY(-4px);
+
+    box-shadow:
+        0 10px 25px rgba(0,0,0,.08);
 }
-.center { margin-left: auto; margin-right: auto; }
-
-/* ===== AOS small tweaks ===== */
-[data-aos] { will-change: transform, opacity; }
-
-/* ===== Reduced motion ===== */
-@media (prefers-reduced-motion: reduce) {
-  .kenburns { animation: none !important; }
-  [data-aos] { transition: none !important; }
+.feature-card h3{
+    color:var(--baxtools-blue);
+    font-weight:700;
 }
 
-/* ===== Spacing tweaks for larger screens ===== */
-@media (min-width: 992px) {
-  .text-box { padding: 2rem 3rem; }
+.feature-icon{
+    font-size:2rem;
+
+    margin-bottom:1rem;
+}
+
+.tool-card{
+    height:100%;
+
+    background:#fff;
+
+    border:1px solid #dbe4ea;
+
+    border-radius:14px;
+
+    padding:1.5rem;
+
+    transition:.2s ease;
+}
+
+.tool-card:hover{
+    border-color:var(--baxtools-teal);
+
+    box-shadow:
+        0 10px 25px rgba(20,184,166,.12);
+
+    transform:translateY(-3px);
+}
+.tool-card h3{
+    color:var(--baxtools-blue);
+    font-size:1.1rem;
+    font-weight:700;
+}
+.community-image{
+    border-radius:16px;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,.08);
+}
+
+section{
+    padding-top:5rem;
+    padding-bottom:5rem;
+}
+section h2{
+    color:var(--baxtools-blue);
+    font-weight:700;
+}
+.btn-baxtools{
+    background:var(--baxtools-blue);
+    border:1px solid var(--baxtools-blue);
+
+    color:#fff;
+
+    border-radius:10px;
+
+    font-weight:600;
+
+    padding:.75rem 1.5rem;
+}
+
+.btn-baxtools:hover{
+    background:var(--baxtools-teal);
+    border-color:var(--baxtools-teal);
+    color:#fff;
+
+    transform:translateY(-1px);
+}
+
+.bg-light-section{
+    background:#f8fbfc;
 }

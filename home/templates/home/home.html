@@ -2,113 +2,301 @@
 {% load static %}
 
 {% block extra_css %}
-  <!-- Page-specific CSS -->
-  <link rel="stylesheet" href="{% static 'home/styles/home.css' %}">
-  <!-- AOS CSS for scroll animations -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
+<!-- Page-specific CSS -->
+<link rel="stylesheet" href="{% static 'home/styles/home.css' %}">
+<!-- AOS CSS for scroll animations -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
 
-  <!-- Set hero background via template tag -->
-  <style>
-    .bg-image { background-image: url("{% static 'home/images/trudo-bg.jpg' %}"); }
-  </style>
+<!-- Set hero background via template tag -->
+<style>
+  .bg-image { background-image: url("{% static 'home/images/trudo-bg.jpg' %}"); }
+</style>
 {% endblock %}
 
 {% block content_wrapper_start %}{% endblock %}
 {% block content_wrapper_end %}{% endblock %}
 {% block content %}
   <!-- HERO / BANNER -->
-  <header class="banner w-100">
-    <div class="bg-image kenburns" role="img" aria-label="Achtergrond"></div>
-    <div class="banner-content">
-      <div class="text-box">
-        <h1 class="main-title">BaxTools</h1>
-        <p class="sub-title">
-          Praktische ontwerptools voor installatieprofessionals. 
-          Berekeningen, ontwerpcontroles en technische ondersteuning voor HVAC en gebouwinstallaties.
-        </p>
-      </div>
+<header class="banner w-100">
+
+    <div class="hero-overlay"></div>
+
+    <div class="container hero-content">
+
+        <div class="row align-items-center">
+
+            <div class="col-lg-6">
+
+                <span class="hero-badge">
+                    HVAC • Utiliteit • Engineering
+                </span>
+
+                <h1 class="hero-title">
+                    BaxTools
+                </h1>
+
+                <p class="hero-subtitle">
+                    Praktische ontwerptools voor HVAC-professionals.
+                    Berekeningen, analyses, AI-ondersteuning en technische kennis
+                    voor gebouwinstallaties.
+                </p>
+
+                <div class="hero-actions">
+
+                    <a href="{% url 'tools:tools' %}"
+                       class="btn btn-baxtools">
+                        Open tools
+                    </a>
+
+                    <a href="/forum"
+                       class="btn btn-outline-baxtools">
+                        Community
+                    </a>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-6">
+
+                <div class="hero-dashboard">
+
+                    <img
+                        src="{% static 'home/images/Tool-W1.png' %}"
+                        alt="BaxTools dashboard"
+                        class="img-fluid">
+
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
-  </header>
+
+</header>
 
   <!-- SECTION: Tools -->
-  <section class="py-5">
-    <div class="container">
-      <div class="row align-items-center g-4">
-        <div class="col-md-6" data-aos="fade-right">
-          <img src="{% static 'home/images/drogekoeler.jpg' %}"
-               alt="Drogekoeler"
-               class="section-img img-fluid"
-               loading="lazy">
-        </div>
-        <div class="col-md-6" data-aos="fade-left">
-          <h2 class="h3 h-lg-2">BaxTools</h2>
-          <p class="text-dark lead mb-3">
-            Ontwikkeld vanuit de praktijk van de utiliteitsbouw om sneller en consistenter installaties te ontwerpen.
-            BaxTools biedt praktische hulpmiddelen voor HVAC-professionals. De tools zijn ontwikkeld vanuit dagelijkse ontwerpvraagstukken binnen utiliteitsgebouwen en worden continu uitgebreid op basis van praktijkervaring.
-          </p>
-          <a href="{% url 'tools:tools' %}" class="d-inline-block">
-            <img class="quarter center"
-                 src="{% static 'tools/images/engineering.png' %}"
-                 alt="Engineering"
-                 loading="lazy">
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
+<section class="py-5">
 
-  
+    <div class="container">
+
+        <div class="text-center mb-5">
+
+            <h2>
+                Ontwikkeld vanuit de praktijk
+            </h2>
+
+            <p class="lead">
+                Tools voor ontwerpers, adviseurs en installatietechnici.
+            </p>
+
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-md-4">
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">🔧</div>
+
+                    <h3>
+                        Ontwerptools
+                    </h3>
+
+                    <p>
+                        Capaciteitsberekeningen, ventilatie,
+                        expansievaten, buffervaten,
+                        geluid en energie.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">📊</div>
+
+                    <h3>
+                        Analyses
+                    </h3>
+
+                    <p>
+                        Van CO₂-verloop tot drukverlies,
+                        comfort en installatieprestaties.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">🤖</div>
+
+                    <h3>
+                        AI ondersteuning
+                    </h3>
+
+                    <p>
+                        Direct hulp bij ontwerpvragen,
+                        normen en berekeningen.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<section class="py-5 bg-light">
+
+    <div class="container">
+
+        <div class="text-center mb-5">
+
+            <h2>
+                Populaire tools
+            </h2>
+
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-md-4 col-xl-3">
+                <div class="tool-card">
+                    <h3>CO₂-verloop</h3>
+                    <p>Inzicht in ventilatie en binnenluchtkwaliteit.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4 col-xl-3">
+                <div class="tool-card">
+                    <h3>Mollierdiagram</h3>
+                    <p>Visualiseer de thermodynamische eigenschappen van vochtige lucht.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4 col-xl-3">
+                <div class="tool-card">
+                    <h3>Expansievat</h3>
+                    <p>Conform NEN-EN 12828 en Flamco.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4 col-xl-3">
+                <div class="tool-card">
+                    <h3>Installatiegeluid</h3>
+                    <p>Geluidsberekeningen voor utiliteit.</p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
 
   <!-- SECTION: Community -->
-  <section class="py-5">
+<section class="py-5">
+
     <div class="container">
-      <div class="row align-items-center g-4">
-        <div class="col-md-6" data-aos="fade-right">
-          <img src="{% static 'home/images/aansluitingWP.jpg' %}"
-               alt="Aansluiting warmtepomp"
-               class="section-img img-fluid"
-               loading="lazy">
-        </div>
-        <div class="col-md-6" data-aos="fade-left">
-          <h2 class="h3 h-lg-2">Community Forums</h2>
-          <p class="text-dark lead mb-0">
-            De <a href="/forum">Forums</a> fungeren als platform waar uitdagingen worden besproken,
-            maar ook als ideeën-box en broedplaats voor nieuwe tools. Ik geloof dat een actieve
-            en collaboratieve gemeenschap de voedingsbodem is voor innovatie.
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
 
-  {% if user.is_superuser %}
-  <!-- SECTION: Chat -->
-  <section class="py-5 bg-light">
+        <div class="row align-items-center g-5">
+
+            <div class="col-lg-6">
+
+                <img
+                    src="{% static 'home/images/forum.png' %}"
+                    alt="Community"
+                    class="img-fluid rounded-4">
+
+            </div>
+
+            <div class="col-lg-6">
+
+                <h2>
+                    Community
+                </h2>
+
+                <p class="lead">
+                    Deel kennis, bespreek technische vraagstukken
+                    en denk mee over nieuwe tools.
+                </p>
+
+                <a href="/forum"
+                   class="btn btn-baxtools">
+
+                    Naar het forum
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% if user.is_superuser %}
+
+<section class="py-5 bg-light">
+
     <div class="container">
-      <div class="row align-items-center g-4">
-        <div class="col-md-6 order-md-2" data-aos="fade-left">
-          <img src="{% static 'home/images/warmtepomp.jpg' %}"
-               alt="Warmtepomp"
-               class="section-img img-fluid"
-               loading="lazy">
+
+        <div class="row align-items-center">
+
+            <div class="col-lg-6">
+
+                <h2>
+                    AI Engineering Assistant
+                </h2>
+
+                <p class="lead">
+
+                    Stel technische vragen,
+                    controleer uitgangspunten
+                    en krijg direct ondersteuning
+                    tijdens het ontwerpen.
+
+                </p>
+
+                <a href="/create-new-chat"
+                   class="btn btn-baxtools">
+
+                    Open AI Chat
+
+                </a>
+
+            </div>
+
+            <div class="col-lg-6">
+
+                <img
+                    src="{% static 'home/images/chatbot.png' %}"
+                    alt="AI Chat"
+                    class="img-fluid rounded-4">
+
+            </div>
+
         </div>
-        <div class="col-md-6 order-md-1" data-aos="fade-right">
-          <h2 class="h3 h-lg-2">Interactie via Chatfunctie</h2>
-          <p class="text-dark lead mb-0">
-            Met deze website wil ik de huidige technologie integreren in de ontwerpfase.
-            Daarom heb ik een <a href="/create-new-chat">Chat</a>-functie toegevoegd, zodat
-            gebruikers eenvoudig en snel antwoorden kunnen krijgen op al hun vragen
-            tijdens het ontwerptraject.
-          </p>
-        </div>
-      </div>
+
     </div>
-  </section>
-  {% endif %}
 
-  
-  </section>
+</section>
 
+{% endif %}
  
 {% endblock content %}
 
