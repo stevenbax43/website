@@ -21,6 +21,7 @@
     });
   }
 
+
   // ================== Page-specific helpers ==================
 function updateMaxValue(changedId = null) {
   const HeatBuildingMax = document.getElementById("HeatBuildingMax");
@@ -47,6 +48,8 @@ function updateMaxValue(changedId = null) {
     LimitHeatMax.value = Math.round(PmaxHeat * 0.3);
   }
 }
+
+
 // Expose function for inline oninput="updateMaxValue()"
 window.updateMaxValue = updateMaxValue;
 

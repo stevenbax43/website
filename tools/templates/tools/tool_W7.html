@@ -15,7 +15,10 @@
   <div class="container py-3">
     <div class="row align-items-center g-3 flex-nowrap">
       <div class="col">
-        <h1 class="display-6 mb-0 text-white">Tool W7: Installatiegeluid</h1>
+        <h1 class="display-6 mb-0 text-white">Installatiegeluid</h1>
+          <p class="text-white-50 mb-0">
+              Analyse van geluidsniveaus en geluidsoverdracht van gebouwinstallaties
+          </p>
       </div>
       <div class="col-auto">
         <a href="{% url 'tools:tools' %}" class="d-inline-block">
@@ -26,7 +29,7 @@
   </div>
 </header>
 
-<section class="bg-light py-3 no-print">
+<section class="tools-intro py-3 no-print">
   <div class="container">
     <div class="row align-items-center g-3">
       <div class="col-12 col-lg-9">
@@ -50,8 +53,11 @@
     <div class="row g-4">
       <section class="col-12 col-xl-6" aria-labelledby="sumHeading">
         <div class="card card-input shadow-sm h-100" data-chip="Input">
+          <div class="card-header">
+            <h2 class="h5 mb-0" id="sumHeading"> Geluidsniveaus optellen</h2>
+          </div>
           <div class="card-body">
-            <h2 class="h5" id="sumHeading">Geluidsniveaus optellen</h2>
+           
             <p class="text-muted small">Tel niveaus energetisch op. Gebruik alleen geluidsdrukniveaus onderling (Lp) of geluidsvermogenniveaus onderling (Lw). Twee gelijke bronnen verhogen het niveau met circa 3 dB.</p>
             <div id="sourceLevels" class="vstack gap-2">
               <div class="input-group source-level">
@@ -68,19 +74,45 @@
               </div>
             </div>
             <div class="d-flex align-items-center justify-content-between mt-3">
-              <button type="button" class="btn btn-outline-primary btn-sm" id="addSource">+ Geluidsbron</button>
-              <button type="button" class="btn btn-primary calculate-button" data-calculation="sum">Bereken som</button>
+              <button type="button" class="btn btn-outline-sm btn-sm" id="addSource">+ Geluidsbron</button>
+              <button type="button" class="btn btn-baxtools calculate-button" data-calculation="sum">Bereken som</button>
             </div>
-            <p class="result-message mt-3 mb-0" id="sumResult" aria-live="polite">Resultaat: — dB</p>
-            <p class="error-message mt-2 mb-0" id="sumError" role="alert"></p>
+
+            <div class="card card-output shadow-sm mt-3">
+
+                <div class="card-header">
+                    <h2 class="h5 mb-0">
+                        Resultaat
+                    </h2>
+                </div>
+
+                <div class="card-body">
+
+                    <p id="sumResult"
+                      class="result-message mb-2"
+                      aria-live="polite">
+                        Resultaat: —
+                    </p>
+
+                    <p id="sumError"
+                      class="error-message mb-0"
+                      role="alert">
+                    </p>
+
+                </div>
+
+            </div>
           </div>
         </div>
       </section>
 
       <section class="col-12 col-xl-6" aria-labelledby="spectrumHeading">
         <div class="card card-input shadow-sm h-100" data-chip="Input">
+          <div class="card-header">
+            <h2 class="h5 mb-0" id="spectrumHeading"> Octaafbandspectrum en A-weging</h2>
+          </div>
           <div class="card-body">
-            <h2 class="h5" id="spectrumHeading">Octaafbandspectrum en A-weging</h2>
+           
             <p class="text-muted small">Vul de ongewogen geluidsdrukniveaus Lp per band in. Lege banden tellen niet mee.</p>
             <div class="row g-2">
               {% for frequency, correction, default in spectrum_bands %}
@@ -93,20 +125,57 @@
               </div>
               {% endfor %}
             </div>
-            <button type="button" class="btn btn-primary calculate-button mt-3" data-calculation="spectrum">Bereken dB(A)</button>
-            <p class="result-message mt-3 mb-0" id="spectrumUnweightedResult" aria-live="polite">Totaal Lw: — dB</p>
-            <p class="result-message mt-3 mb-0" id="spectrumResult" aria-live="polite">Totaal Lp,A: — dB(A)</p>
-            <div id="spectrumDetails" class="small mt-2"></div>
-            <p class="error-message mt-2 mb-0" id="spectrumError" role="alert"></p>
-            <p class="form-text mb-0 mt-2">Pas A-weging niet opnieuw toe als de invoer al A-gewogen is.</p>
+            <button type="button" class="btn btn-baxtools calculate-button mt-3" data-calculation="spectrum">Bereken dB(A)</button>
+           
+            <div class="card card-output shadow-sm mt-3">
+
+              <div class="card-header">
+                  <h2 class="h5 mb-0">
+                      Resultaat spectrumanalyse
+                  </h2>
+              </div>
+
+              <div class="card-body">
+
+                  <p id="spectrumUnweightedResult"
+                    class="result-message mb-2"
+                    aria-live="polite">
+                      Totaal Lw: —
+                  </p>
+
+                  <p id="spectrumResult"
+                    class="result-message mb-2"
+                    aria-live="polite">
+                      Totaal Lp,A: —
+                  </p>
+
+                  <div id="spectrumDetails"
+                      class="small mb-2">
+                  </div>
+
+                  <p id="spectrumError"
+                    class="error-message mb-2"
+                    role="alert">
+                  </p>
+
+                 <div class="tool-note small mb-0">
+                    <strong>Let op:</strong> pas A-weging niet opnieuw toe wanneer de invoer al A-gewogen is.
+                </div>
+              </div>
+
+          </div>
+                      
           </div>
         </div>
       </section>
 
       <section class="col-12 col-xl-6" aria-labelledby="distanceHeading">
         <div class="card card-input shadow-sm h-100" data-chip="Input">
+          <div class="card-header">
+            <h2 class="h5 mb-0" id="distanceHeading"> Geluidsvermogen naar geluidsdruk</h2>
+          </div>
           <div class="card-body">
-            <h2 class="h5" id="distanceHeading">Geluidsvermogen naar geluidsdruk</h2>
+           
             <p class="text-muted small">Open lucht: Lp = Lw + 10 log₁₀(Q / (4πr²)).</p>
             <div class="row g-3">
               <div class="col-12 col-md-4">
@@ -140,18 +209,45 @@
                 <div class="input-group"><input id="distance" class="form-control" type="number" value="10" min="0.000001" step="any" required><span class="input-group-text">m</span></div>
               </div>
             </div>
-            <button type="button" class="btn btn-primary calculate-button mt-3" data-calculation="distance">Bereken Lp</button>
-            <p class="result-message mt-3 mb-0" id="distanceResult" aria-live="polite">Lp: — dB</p>
-            <p class="error-message mt-2 mb-0" id="distanceError" role="alert"></p>
-            <p class="form-text mb-0 mt-2">Dit is een berekening voor vrije geluiduitbreiding; reflecties en afscherming zijn niet meegenomen.</p>
+            <button type="button" class="btn btn-baxtools calculate-button mt-3" data-calculation="distance">Bereken Lp</button>
+            <div class="card card-output shadow-sm mt-3">
+
+              <div class="card-header">
+                  <h2 class="h5 mb-0">
+                      Resultaat geluidsdrukniveau
+                  </h2>
+              </div>
+
+              <div class="card-body">
+
+                  <p id="distanceResult"
+                    class="result-message mb-2"
+                    aria-live="polite">
+                      Lp: —
+                  </p>
+
+                  <p id="distanceError"
+                    class="error-message mb-2"
+                    role="alert">
+                  </p>
+
+                  <div class="tool-note small mb-0">
+                      <strong>Let op:</strong> deze berekening gaat uit van vrije geluiduitbreiding. Reflecties, afscherming, ruimteabsorptie en nagalmtijd zijn niet meegenomen.
+                  </div>
+
+              </div>
+
+          </div>
           </div>
         </div>
       </section>
 
       <section class="col-12 col-xl-6" aria-labelledby="equivalentHeading">
         <div class="card card-input shadow-sm h-100" data-chip="Input">
+          <div class="card-header">
+            <h2 class="h5 mb-0" id="equivalentHeading"> Equivalente geluidsniveaus</h2>
+          </div>
           <div class="card-body">
-            <h2 class="h5" id="equivalentHeading">Equivalente geluidsniveaus</h2>
             <p class="text-muted small">Bedrijfsduurcorrectie: LA,eq = Lp,A + 10 log₁₀(Tb / T0).</p>
             <div class="row g-3">
               <div class="col-12">
@@ -167,10 +263,35 @@
                 <div class="input-group"><input id="assessmentHours" class="form-control" type="number" value="8" min="0.000001" max="8760" step="any" required><span class="input-group-text">uur</span></div>
               </div>
             </div>
-            <button type="button" class="btn btn-primary calculate-button mt-3" data-calculation="equivalent">Bereken LA,eq</button>
-            <p class="result-message mt-3 mb-0" id="equivalentResult" aria-live="polite">LA,eq: — dB(A)</p>
-            <p class="error-message mt-2 mb-0" id="equivalentError" role="alert"></p>
-            <p class="form-text mb-0 mt-2">De bedrijfsduur moet binnen de beoordelingsperiode vallen.</p>
+            <button type="button" class="btn btn-baxtools calculate-button mt-3" data-calculation="equivalent">Bereken LA,eq</button>
+           <div class="card card-output shadow-sm mt-3">
+
+              <div class="card-header">
+                  <h2 class="h5 mb-0">
+                      Resultaat equivalente geluidbelasting
+                  </h2>
+              </div>
+
+              <div class="card-body">
+
+                  <p id="equivalentResult"
+                    class="result-message mb-2"
+                    aria-live="polite">
+                      LA,eq: —
+                  </p>
+
+                  <p id="equivalentError"
+                    class="error-message mb-2"
+                    role="alert">
+                  </p>
+
+                  <div class="tool-note small mb-0">
+                      <strong>Let op:</strong> de bedrijfsduur (Tb) moet kleiner zijn dan of gelijk zijn aan de beoordelingsperiode (T0).
+                  </div>
+
+              </div>
+
+          </div>
           </div>
         </div>
       </section>

@@ -12,6 +12,7 @@ from reportlab.lib.styles import getSampleStyleSheet,ParagraphStyle
 from reportlab.lib.units import mm
 from reportlab.lib.utils import ImageReader
 from reportlab.platypus import Table, TableStyle, Paragraph, Frame, Spacer
+from pathlib import Path
 
 def klimaatjaar(request):
     
@@ -90,18 +91,33 @@ def klimaatjaar(request):
     return  [OnOffHours,HeatCoolEnergy,line_chart_data,line_chart_data_hoursONOFF, cumulative_data,limit_values, energy_values]
 
 def OnOffTime(startday,endday,starthour,endhour, method, startTemp, eindTemp):
-    df = pd.DataFrame()
-    if int(method) == 1:
-        df = pd.read_csv('tools/static/tools/files/Klimaatjaar2023deBilt.csv', sep=';')
-    elif int(method) == 2:
-        df = pd.read_csv('tools/static/tools/files/Klimaatjaar2018deBilt.csv', sep=';')
-    elif int(method) == 3:
-        df = pd.read_csv('tools/static/tools/files/KlimaatjaarNEN5060Energie2018.csv', sep=';')
-    else: 
-        print('error loading page.')
+   
+    CLIMATE_FILES = {
+        1: "Klimaatjaar2023deBilt.csv",
+        2: "Klimaatjaar2018deBilt.csv",
+        3: "KlimaatjaarNEN5060Energie2018.csv",
+    }
 
-    df['YYYYMMDD'] = pd.to_datetime(df['YYYYMMDD'], format='%Y%m%d')
-    df['day_of_week'] = df['YYYYMMDD'].dt.dayofweek+1
+    BASE_DIR = Path(__file__).resolve().parent.parent
+
+    csv_file = (
+        BASE_DIR
+        / "tools"
+        / "static"
+        / "tools"
+        / "files"
+        / CLIMATE_FILES[int(method)]
+    )
+
+    df = pd.read_csv(csv_file, sep=";")
+    df['YYYYMMDD'] = pd.to_datetime(
+        df['YYYYMMDD'],
+        format='%Y%m%d'
+    )
+
+    df['day_of_week'] = (
+        df['YYYYMMDD'].dt.dayofweek + 1
+    )
     
     # werkdagen en daguren in range van input
     df['within_range_day'] = df['day_of_week'].apply(lambda x: 1 if startday <= x <= endday else 0)

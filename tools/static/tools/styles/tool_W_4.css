@@ -1,39 +1,65 @@
 
-  /* page-local helpers to match A3 look */
+/* page-local helpers to match A3 look */
 
-  /* Make canvases fill Bootstrap ratio wrappers */
-  .ratio > canvas { width: 100% !important; height: 100% !important; }
+/* Make canvases fill Bootstrap ratio wrappers */
+.ratio > canvas { width: 100% !important; height: 100% !important; }
 
-  /* Input vs Output chips */
-  .card-input  { border-left: 6px solid #0d6efd; background: rgba(13,110,253,.03); position: relative; }
-  .card-output { border-left: 6px solid #13f539; position: relative; }
-  .card-input::after{
-    content:"Input"; position:absolute; top:.5rem; right:.5rem;
-    font-size:.75rem; padding:.25rem .5rem; border-radius:999px;
-    border:1px solid rgba(13,110,253,.25); background:rgba(13,110,253,.10); color:#0a58ca;
-  }
-  .card-output::after{
-    content:"Output"; position:absolute; top:.5rem; right:.5rem;
-    font-size:.75rem; padding:.25rem .5rem; border-radius:999px;
-    border:1px solid rgba(19,245,57,.25); background:rgba(19,245,57,.12); color:#146c43;
-  }
+/* Input vs Output chips */
+.card-input{
+  border-left:6px solid var(--baxtools-blue);
+  background:rgba(16,42,67,.03);
+}
 
-  /* PDF icon red */
-  .icon-30{ width:30px; height:30px; }
-  .icon-pdf-red { filter: brightness(0) saturate(100%) invert(18%) sepia(100%) saturate(6500%) hue-rotate(0deg) brightness(90%) contrast(105%); }
-  .btn-save-pdf-w4 { color:#dc3545; border-color:#dc3545 !important; }
-  .btn-save-pdf-w4:hover,
-  .btn-save-pdf-w4:focus-visible { color:#b02a37; border-color:#b02a37 !important; }
+.card-output{
+  border-left:6px solid var(--baxtools-teal);
+  background:rgba(20,184,166,.03);
+}
+.card-input::after{
+  content:"Input"; position:absolute; top:.5rem; right:.5rem;
+  font-size:.75rem; padding:.25rem .5rem; border-radius:999px;
+  border:1px solid rgba(13,110,253,.25); background:rgba(13,110,253,.10);  color:var(--baxtools-blue);
+}
+.card-output::after{
+  content:"Output"; position:absolute; top:.5rem; right:.5rem;
+  font-size:.75rem; padding:.25rem .5rem; border-radius:999px;
+  border:1px solid rgba(19,245,57,.25); background:rgba(19,245,57,.12); color:var(--baxtools-teal);
+}
+.card-input,
+.card-output{
+    position: relative;
+}
+/* PDF icon red */
+.icon-30{ width:30px; height:30px; }
+.icon-pdf-red { filter: brightness(0) saturate(100%) invert(18%) sepia(100%) saturate(6500%) hue-rotate(0deg) brightness(90%) contrast(105%); }
+.btn-save-pdf-w4 { color:#dc3545; border-color:#dc3545 !important; }
+.btn-save-pdf-w4:hover,
+.btn-save-pdf-w4:focus-visible { color:#b02a37; border-color:#b02a37 !important; }
 
-  /* Print */
-  @media print{
-    .no-print{ display:none !important; }
-    .shadow-sm{ box-shadow:none !important; }
-    .card-input::after,.card-output::after{ display:none; }
-    .card-input,.card-output{ border-left:4px solid #000; background:#fff; }
-  }
- 
+/* Print */
+@media print{
+  .no-print{ display:none !important; }
+  .shadow-sm{ box-shadow:none !important; }
+  .card-input::after,.card-output::after{ display:none; }
+  .card-input,.card-output{ border-left:4px solid #000; background:#fff; }
+}
 
+.parameter-card{
+    border:1px solid #dbe4ea;
+    border-radius:12px;
+}
+
+.parameter-card .card-header{
+    background:#f8fbfc;
+    color:var(--baxtools-blue);
+}
+.kpi-card{
+    border:1px solid #dbe4ea;
+    background:#fff;
+}
+
+.kpi-card .fs-3 {
+    color: var(--baxtools-blue) !important;
+}
 /* ====== Utility helpers ====== */
 .hidden{ display:none !important; }              /* legacy helper */
 .visible{ opacity:1; transition:opacity .5s ease; }
@@ -81,9 +107,26 @@ input:invalid{ border:1px solid #dc3545; }
 .custom-tooltip:hover .tooltiptext{ visibility:visible; opacity:1; }
 
 /* ====== Simple table skin (if you render tables later) ====== */
-table{ border-collapse:collapse; width:100%; }
-th, td{ border:1px solid #000; padding:8px; text-align:left; }
-th{ background:#3fa500; color:#fff; }
+.table {
+    width: 100%;
+}
+
+.table th {
+    background: var(--baxtools-blue);
+    color: #fff;
+    font-weight: 600;
+    border-color: #dbe4ea;
+    vertical-align: middle;
+}
+
+.table td {
+    border-color: #dbe4ea;
+    vertical-align: middle;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(16, 42, 67, 0.03);
+}
 
 /* ====== Buttons you referenced (fallback; prefer Bootstrap btn classes) ====== */
 #calculateButton{

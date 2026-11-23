@@ -16,7 +16,12 @@
   <div class="container py-3">
     <div class="row align-items-center g-3 flex-nowrap">
       <div class="col">
-        <h1 class="display-6 mb-0 text-white">Tool A1: Gebouwgegevens</h1>
+        <h1 class="display-6 mb-0 text-white">
+            Gebouwgegevens
+        </h1>
+        <p class="text-white-50 mb-0">
+            Adresgegevens, BAG-gegevens en energielabelinformatie
+        </p>
       </div>
       <div class="col-auto">
         <a href="{% url 'tools:tools' %}" class="d-inline-block">
@@ -59,7 +64,9 @@
       {% csrf_token %}
 
       <div class="row g-3 g-lg-4">
-
+        <div class="alert alert-info mb-4">
+            Zoek op postcode en huisnummer om BAG-, adres- en energielabelgegevens automatisch op te halen.
+        </div>
         <!-- Search panel -->
         <div class="col-12 col-lg-3">
           <div class="card h-100 shadow-sm">
@@ -98,7 +105,7 @@
                        value="{{ adr1.addition }}">
               </div>
 
-              <button type="submit" class="btn btn-secondary w-100" id="searchButton" name="searchButton">
+              <button type="submit" class="btn btn-baxtools w-100">
                 Zoeken
               </button>
             </div>
@@ -107,7 +114,7 @@
 
         <!-- Adres -->
         <div class="col-12 col-lg-3">
-          <div class="card h-100 shadow-sm">
+          <div class="card card-adres h-100 shadow-sm">
             <div class="card-body">
               <h4 class="h5">Adres</h4>
 
@@ -135,7 +142,7 @@
 
         <!-- BAG -->
         <div class="col-12 col-lg-3">
-          <div class="card h-100 shadow-sm">
+          <div class="card card-bag h-100 shadow-sm">
             <div class="card-body">
               <h4 class="h5">BAG</h4>
 
@@ -168,7 +175,7 @@
 
         <!-- EP-label-online -->
         <div class="col-12 col-lg-3">
-          <div class="card h-100 shadow-sm">
+          <div class="card card-ep h-100 shadow-sm">
             <div class="card-body">
               <h4 class="h5">EP-label-online</h4>
 

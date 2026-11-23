@@ -1,6 +1,6 @@
 
 .nlsfb-table tr.table-active {
-  background-color: rgba(25, 135, 84, 0.15);
+  background-color: rgba(20, 184, 166, 0.12);
 }
 
 .nlsfb-children {
@@ -10,15 +10,64 @@
   background-color: rgba(25, 135, 84, 0.15);
 }
 
-
+.nlsfb-table td:first-child {
+    font-family: monospace;
+    font-weight: 700;
+    color: var(--baxtools-blue);
+}
 /* Highlight geselecteerde NL-SfB code */
 .nlsfb-highlight {
-  background-color: rgba(25, 135, 84, 0.25) !important;
-  outline: 2px solid #198754;
-  border-radius: 4px;
+  background-color: rgba(20,184,166,.18) !important;
+  outline: 2px solid var(--baxtools-teal);
+  border-radius: 6px;
 }
 
 /* Zachte focus-scroll */
 .nlsfb-highlight {
   scroll-margin-top: 100px;
+}
+
+
+.nlsfb-header {
+    background: var(--baxtools-blue);
+    color: white;
+}
+
+.nlsfb-header th {
+    background: var(--baxtools-blue);
+    color: white;
+}
+
+#search-zone .card {
+    border: 1px solid #dbe4ea;
+    border-radius: 16px;
+}
+#search {
+    border-radius: 10px;
+}
+
+#search:focus {
+    border-color: var(--baxtools-teal);
+    box-shadow: 0 0 0 .25rem rgba(20,184,166,.15);
+}
+
+#context-explanation {
+    background: #f8fbfc;
+    border: 1px solid #d7e9f3;
+    color: var(--baxtools-blue);
+}
+
+.badge-installateur {
+    background: var(--baxtools-blue);
+    color: white;
+}
+
+.badge-afstemming {
+    background: #94A3B8;
+    color: white;
+}
+
+.badge-functioneel {
+    background: var(--baxtools-teal);
+    color: white;
 }

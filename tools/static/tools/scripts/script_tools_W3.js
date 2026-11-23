@@ -947,7 +947,7 @@ if (systemSelect) {
 // INIT
 // ==============================
 document.addEventListener("DOMContentLoaded", () => {
-
+    
     // Beginwaarden uitlezen uit de dropdowns
     if (systemSelect) {
         systemType = systemSelect.value;

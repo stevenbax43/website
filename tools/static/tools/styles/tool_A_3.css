@@ -23,54 +23,89 @@ canvas{ display:block; }
 .ratio > canvas { width: 100% !important; height: 100% !important; }
 
 /* INPUT vs OUTPUT visual cues on cards */
-.card-input  { border-left: 6px solid #0d6efd; background: rgba(13,110,253,.03); position: relative; }
-.card-output { border-left: 6px solid #13f539; position: relative; }
-
+.card-input {
+    border-left: 6px solid var(--baxtools-blue);
+    background: rgba(16,42,67,.03);
+    position: relative;
+}
+.card-output {
+    border-left: 6px solid var(--baxtools-teal);
+    position: relative;
+    transition: all .2s ease;
+}
+.card-output:hover {
+    box-shadow:
+        0 10px 30px rgba(16,42,67,.08);
+}
+.section-divider {
+    border-bottom: 1px solid #e5e7eb;
+}
 /* Little “chips” without extra markup */
+
 .card-input::after {
-content: "Input";
-position: absolute; top: .5rem; right: .5rem;
-font-size: .75rem; padding: .25rem .5rem; border-radius: 999px;
-border: 1px solid rgba(13,110,253,.25);
-background: rgba(13,110,253,.10);
-color: #0a58ca;
-}
-.card-output::after {
-content: "Output";
-position: absolute; top: .5rem; right: .5rem;
-font-size: .75rem; padding: .25rem .5rem; border-radius: 999px;
-border: 1px solid rgba(19,245,57,.25);
-background: rgba(19,245,57,.12);
-color: #146c43;
+    content: "Input";
+    position: absolute;
+    top: .75rem;
+    right: .75rem;
+
+    font-size: .75rem;
+    padding: .25rem .6rem;
+    border-radius: 999px;
+
+    border: 1px solid rgba(20,184,166,.25);
+    background: rgba(20,184,166,.08);
+    color: var(--baxtools-teal);
 }
 
+.card-output::after {
+    content: "Output";
+    position: absolute;
+    top: .75rem;
+    right: .75rem;
+
+    font-size: .75rem;
+    padding: .25rem .6rem;
+    border-radius: 999px;
+
+    border: 1px solid rgba(16,42,67,.15);
+    background: rgba(16,42,67,.08);
+    color: var(--baxtools-blue);
+}
 /* Output fields look like read-only inputs */
 output.form-control.output {
-background-color: #f8f9fa;
-border: 1px solid #13f539;
-border-radius: .5rem;
+    background-color: #f8fbfc;
+    border: 1px solid #dbe4ea;
+    border-radius: .5rem;
+    color: var(--baxtools-blue);
+    font-weight: 600;
 }
 
 /* ====== CUSTOM TOOLTIPS (optional) ====== */
 .chart-tooltip{
-  position:absolute; background:#b48080; color:#fff; border-radius:6px;
-  padding:10px; white-space:pre-line; pointer-events:none; font-size:14px;
+    position:absolute;
+    background: var(--baxtools-blue);
+    color:white;
+    border-radius:8px;
+    padding:10px;
+    white-space:pre-line;
+    pointer-events:none;
+    font-size:14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.15);
 }
 
 /* ====== ICON BUTTONS under chart ====== */
 /* Save = blue on hover */
-.btn.btn-save {
-  background-color: #fff;
-  border-color: #000000;
-  color: #474747;
-  transition: background-color .2s ease, color .2s ease, border-color .2s ease, filter .2s ease;
+.btn-save {
+    border-color: #dbe4ea;
+    color: var(--baxtools-blue);
+    background: white;
 }
-.btn.btn-save:hover,
-.btn.btn-save:focus {
-  background-color: #adadad !important;
-  border-color: #c2c2c2 !important;
-  color: #fff !important;
+
+.btn-save:hover {
+    background: var(--baxtools-blue);
+    color: white;
 }
+
 
 /* Make ReadMe PDF icon red */
 .icon-pdf-red { filter: brightness(0) saturate(100%) invert(18%) sepia(100%) saturate(6500%) hue-rotate(0deg) brightness(90%) contrast(105%); }

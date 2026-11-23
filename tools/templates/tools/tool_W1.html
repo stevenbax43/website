@@ -21,7 +21,8 @@
   <div class="container py-3">
     <div class="row align-items-center g-3 flex-nowrap">
       <div class="col">
-        <h1 class="display-6 mb-0 text-white ">Tool W1: Mollierdiagram</h1>
+        <h1 class="display-6 mb-0 text-white ">Mollierdiagram</h1>
+        <p class="text-white-50">Visualiseer de thermodynamische eigenschappen van vochtige lucht.</p>
       </div>
       <div class="col-auto">
         <a href="{% url 'tools:tools' %}" class="d-inline-block">
@@ -38,8 +39,8 @@
     <div class="row g-3 align-items-center">
       <div class="col-12 col-lg-8">
         <p class="lead mb-0">
-          Het Mollier- (H–x) diagram visualiseert de thermodynamische eigenschappen van vochtige lucht. 
-          Voer startcondities en processtappen in; resultaten worden grafisch en in tabellen weergegeven.
+          Analyseer luchtbehandelingsprocessen in het Mollierdiagram (h-x diagram). 
+          Voer startcondities en processtappen in en bekijk direct de invloed op temperatuur, vochtgehalte, enthalpie, vermogen en comfortcondities in zowel grafieken als tabellen.
         </p>
       </div>
       <div class="col-12 col-lg-4">
@@ -250,7 +251,7 @@
 
                 <!-- Centered floating badge (JS recolors via #proces{{ i }}_title) -->
                 <span class="position-absolute top-0 start-50 translate-middle z-1">
-                <span id="proces{{ i }}_title" class="badge rounded-pill bg-secondary px-3 py-2 shadow-sm">
+                <span id="proces{{ i }}_title" class="badge rounded-pill process-badgepx-3 py-2 shadow-sm">
                     Proces {{ i|add:"-1" }} → {{ i }}
                 </span>
                 </span>
@@ -620,7 +621,7 @@
         </ul>
       </div>
     </div>
-  </div>
+  </div> 
 </div>
 
 <div class="modal fade" id="pdfDetailsModal" tabindex="-1" aria-labelledby="pdfDetailsModalLabel" aria-hidden="true">
@@ -1261,10 +1262,10 @@ const comfortZonePlugin = {
 
         ctx.closePath();
 
-        ctx.fillStyle = 'rgba(40,167,69,0.3)';
+        ctx.fillStyle = 'rgba(20,184,166,0.15)';
         ctx.fill();
 
-        ctx.strokeStyle = 'rgba(40,167,69,1)';
+        ctx.strokeStyle = 'rgba(20,184,166,0.8)';
         ctx.lineWidth = 2;
         ctx.stroke();
 

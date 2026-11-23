@@ -4,21 +4,40 @@
    ================================ */
 
 /* Optional chips on cards (Input / Output) via data-chip attr */
-.card-input  { border-left: 6px solid #0d6efd; background: rgba(13,110,253,.03); position: relative; }
-.card-output { border-left: 6px solid #13f539; position: relative; }
+.card-input{
+    border-left:6px solid var(--baxtools-blue);
+    background:rgba(16,42,67,.03);
+    position:relative;
+}
+
+.card-output{
+    border-left:6px solid var(--baxtools-teal);
+    background:rgba(20,184,166,.03);
+    position:relative;
+}
 .card-input::after,
 .card-output::after{
   content: attr(data-chip);
   position: absolute; top: .5rem; right: .5rem;
   font-size: .75rem; padding: .25rem .5rem; border-radius: 999px;
   background:#fff; border: 1px solid #dee2e6;
+  
 }
-.card-input::after  { color:#0a58ca; border-color: rgba(13,110,253,.25); background: rgba(13,110,253,.10); }
-.card-output::after { color:#146c43; border-color: rgba(19,245,57,.25);  background: rgba(19,245,57,.12); }
+.card-input::after{
+    color:var(--baxtools-blue);
+    border-color:rgba(16,42,67,.20);
+    background:rgba(16,42,67,.08);
+}
+
+.card-output::after{
+    color:var(--baxtools-teal);
+    border-color:rgba(20,184,166,.25);
+    background:rgba(20,184,166,.12);
+}
 
 
 
-/* ================================
+/* ================================ 
    Slider groups
    ================================ */
 
@@ -35,7 +54,7 @@
 }
 .slider-wrapper{
   display:flex; flex-direction:column; gap:8px;
-  border:2px solid #ccc; border-radius:8px; background:#f9f9f9; padding:10px;
+  border:2px solid #ccc; border-radius:8px; background:#fff; padding:10px;
 }
 .value-container label,
 .slider-wrapper label{ margin-bottom:8px; font-weight:700; font-size:15px; }
@@ -57,16 +76,18 @@
   -webkit-appearance:none; -moz-appearance:none; appearance:none;
   background:transparent; height:8px; outline:none;
 }
-
+:root{
+    --w6-slider-color: var(--baxtools-teal);
+}
 /* Track */
 .slider-controls input[type="range"]::-webkit-slider-runnable-track,
 .slider-controls .form-range::-webkit-slider-runnable-track{
-  background: green !important;
+  background: var(--w6-slider-color) !important;
   height:6px; border-radius:999px;
 }
 .slider-controls input[type="range"]::-moz-range-track,
 .slider-controls .form-range::-moz-range-track{
-  background: green !important;
+  background: var(--w6-slider-color) !important;
   height:6px; border-radius:999px;
 }
 
@@ -74,15 +95,15 @@
 .slider-controls input[type="range"]::-webkit-slider-thumb,
 .slider-controls .form-range::-webkit-slider-thumb{
   -webkit-appearance:none; appearance:none;
-  width:40px; height:40px; border-radius:50%;
-  background: green !important; border:none;
-  margin-top:-17px; /* center on 6px track */
+  width:24px; height:24px; border-radius:50%;
+  background: var(--w6-slider-color) !important; border:none;
+  margin-top:-9px; /* center on 6px track */
   transition: opacity .15s ease-in-out, transform .1s ease-in-out;
 }
 .slider-controls input[type="range"]::-moz-range-thumb,
 .slider-controls .form-range::-moz-range-thumb{
-  width:40px; height:40px; border-radius:50%;
-  background: green !important; border:none;
+  width:24px; height:24px; border-radius:50%;
+  background: var(--w6-slider-color) !important; border:none;
   transition: opacity .15s ease-in-out, transform .1s ease-in-out;
 }
 
@@ -100,9 +121,9 @@
   transform: scale(1.02);
 }
 .slider-controls input[type="range"]:focus::-webkit-slider-thumb,
-.slider-controls .form-range:focus::-webkit-slider-thumb{ box-shadow:0 0 0 4px rgba(0,128,0,.15); }
+.slider-controls .form-range:focus::-webkit-slider-thumb{ box-shadow:0 0 0 4px rgba(20,184,166,.20); }
 .slider-controls input[type="range"]:focus::-moz-range-thumb,
-.slider-controls .form-range:focus::-moz-range-thumb{ box-shadow:0 0 0 4px rgba(0,128,0,.15); }
+.slider-controls .form-range:focus::-moz-range-thumb{ box-shadow:0 0 0 4px rgba(20,184,166,.20); }
 
 /* ================================
    Value rows (right-hand panels)
@@ -120,11 +141,15 @@
    Pretty selects (unit + medium)
    ================================ */
 
+.align-left-right{
+    background:#f8fbfc;
+    border:1px solid #dbe4ea;
+}
 /* In old wrappers */
 .slider-wrapper select,
 .slider-container select{
   appearance:none; -webkit-appearance:none; -moz-appearance:none;
-  background-color:#f9f9f9; border:2px solid #ccc; border-radius:8px;
+  background-color:#fff; border:1px solid #dbe4ea; border-radius:8px;
   padding:8px 12px; font-size:15px; font-weight:700; color:#333; cursor:pointer;
   width:100%; box-sizing:border-box; margin-top:4px;
   background-image:url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"%3E%3Cpath fill="%23333" d="M7 10l5 5 5-5H7z"/%3E%3C/svg%3E');
@@ -140,7 +165,7 @@
 /* New structure – target specific unit/medium selects so we don't affect all .form-select */
 #unit_debiet, #unit_time, #medium{
   appearance:none; -webkit-appearance:none; -moz-appearance:none;
-  background-color:#f9f9f9; border:2px solid #ccc; border-radius:8px;
+  border:1px solid #dbe4ea; background:#fff; font-weight:500;
   padding:8px 12px; font-size:15px; font-weight:700; color:#333; cursor:pointer;
   box-sizing:border-box;
   background-image:url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"%3E%3Cpath fill="%23333" d="M7 10l5 5 5-5H7z"/%3E%3C/svg%3E');

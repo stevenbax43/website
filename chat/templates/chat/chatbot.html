@@ -78,7 +78,7 @@
                   </div>
                   <form action="{% url 'chat:delete_specific_conversation' pk=conversation.pk %}" method="post" class="ms-2">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-outline-danger btn-sm" title="Verwijderen">
+                    <button type="submit" class="btn btn-outline-baxtools btn-sm" title="Verwijderen">
                       <img src="{% static 'chat/images/delete-icon.png' %}" alt="Delete" style="height:18px;">
                     </button>
                   </form>
@@ -147,7 +147,7 @@
                 onkeyup="handleEnterKey(event)"
                 autocomplete="off"
               >
-              <button id="send-button" class="btn btn-success" onclick="sendMessage()">
+              <button id="send-button" class="btn btn-baxtools" onclick="sendMessage()">
                 <span class="arrow-up-icon">&#9650;</span>
               </button>
             </div>

@@ -3,10 +3,6 @@
    Works with Bootstrap 5.3+
    ========================================= */
 
-/* ====== HERO (shared style lives in tools.css) ====== */
-.tools-hero{ background: linear-gradient(to right, rgba(92,216,35,.75), rgba(10,92,3,.75)); }
-
-
 /* ====== INTRO / ACTION LINKS ====== */
 .icon-30{ width:30px; height:30px; }
 
@@ -41,10 +37,10 @@
   justify-content:center;
   gap:.25rem;
   padding:.375rem .75rem;
-  border:1px solid #b8d8ae;
+  border:1px solid #d7e9f3;
+  background:#f8fbfc;
+  color:var(--baxtools-blue);
   border-radius:999px;
-  background-color:#f4faF2;
-  color:#246b20;
   font-size:.875rem;
   font-weight:600;
   line-height:1.25;
@@ -54,9 +50,9 @@
 }
 .comfort-zone-toggle:hover,
 .comfort-zone-toggle[aria-expanded="true"]{
-  border-color:#4b9b3e;
-  background-color:#e5f3e1;
-  color:#174f14;
+    border-color:var(--baxtools-teal);
+    background:#eefcf9;
+    color:var(--baxtools-teal);
 }
 .comfort-zone-toggle:focus-visible{
   outline:0;
@@ -79,12 +75,23 @@
 .climate-year-select{
   max-width:18rem;
 }
-
+.alert-warning{
+    background:#fff8e8;
+    border-color:#f4a261;
+    color:#7c4f00;
+}
 /* Output fields look like read-only inputs */
 output.form-control.output{
-  background-color:#f8f9fa;
-  border:1px solid #13f539;
+  background-color:#f8fbfc;
+  border:1px solid #d7e9f3;
   border-radius:.5rem;
+  color: var(--baxtools-blue);
+  font-weight:600;
+}
+
+.process-badge{
+    background: var(--baxtools-blue);
+    color:white;
 }
 
 /* ====== CHARTS (Canvas inside .ratio) ====== */
@@ -93,13 +100,43 @@ canvas{ display:block; }
 .ratio > canvas{ width:100% !important; height:100% !important; }
 
 /* ====== TABLES (preserve your green header) ====== */
-.table-title{ font-size:1.25rem; font-weight:700; margin-bottom:.5rem; }
-table{ width:100%; border-collapse:collapse; }
-th, td{ border:1px solid #dee2e6; padding:.5rem .65rem; text-align:left; }
-th{ background:#3fa500; color:#fff; }
-.unit-row th{ background:#fff; color:#6c757d; font-weight:400; font-size:.85rem; }
-.quantity-row th:first-child{ border-radius:.5rem 0 0 .5rem; }
-.quantity-row th:last-child{ border-radius:0 .5rem .5rem 0; }
+.table-title{
+    font-size:1.25rem;
+    font-weight:700;
+    margin-bottom:.5rem;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,
+td{
+    border:1px solid #dee2e6;
+    padding:.5rem .65rem;
+    text-align:left;
+}
+
+th{
+    background:var(--baxtools-blue);
+    color:#fff;
+}
+
+.unit-row th{
+    background:#fff;
+    color:#6c757d;
+    font-weight:400;
+    font-size:.85rem;
+}
+
+.quantity-row th:first-child{
+    border-radius:.5rem 0 0 .5rem;
+}
+
+.quantity-row th:last-child{
+    border-radius:0 .5rem .5rem 0;
+}
 
 /* Small helpers */
 .highlight{ color:#dc3545; font-weight:700; }
@@ -188,9 +225,9 @@ th{ background:#3fa500; color:#fff; }
 }
 /* Make the first header row green */
 .card-output table thead .quantity-row th{
-  background-color: #3fa500 !important; /* green */
-  color: #fff !important;
-  border-color: #2f7f00 !important;
+    background: var(--baxtools-blue);
+    color:white;
+    border-color: var(--baxtools-blue);
 }
 .text-purple { color:#6f42c1 !important; }
 /* Keep your rounded corners on the first header row */
@@ -209,8 +246,7 @@ th{ background:#3fa500; color:#fff; }
   background-color: #fff !important; /* white, not table-light */
   border-top: none;             /* tighter join with row above */
 }
-
-/* (Optional) give OUTPUT cards a faint green background as well */
 .card-output{
-  background: rgba(19,245,57,.03);
+    background:white;
 }
+

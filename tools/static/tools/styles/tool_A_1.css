@@ -13,18 +13,67 @@
 .card-body h4 { margin-bottom: .75rem; }
 
 /* Output fields look like read-only inputs */
-output.form-control.output {
-  background-color: #f8f9fa;
-  border: 1px solid #13f539;
-  border-radius: .5rem;
+output.form-control .output {
+    background-color: #f8fbfc;
+    border: 1px solid #e5e7eb;
+    color: var(--baxtools-blue);
+    font-weight: 600;
 }
-
+.panel-logo {
+    max-height: 60px;
+    width: auto;
+    object-fit: contain;
+    transition: transform .2s ease;
+}
+.panel-logo:hover {
+    transform: scale(1.05);
+}
+.card-body h4 {
+    color: var(--baxtools-blue);
+    font-weight: 700;
+}
 /* Input groups with units */
 .input-group .input-group-text {
   border-top-right-radius: .5rem;
   border-bottom-right-radius: .5rem;
 }
+.btn-baxtools {
+    background: var(--baxtools-blue);
+    border: none;
+    color: white;
+}
 
+.btn-baxtools:hover {
+    background: var(--baxtools-teal);
+    color: white;
+}
+.card {
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(16,42,67,0.05);
+    transition: all 0.2s ease;
+}
+.output {
+    background-color: #f8fbfc;
+    border: 1px solid #e5e7eb;
+    color: var(--baxtools-blue);
+    font-weight: 500;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+.card-bag {
+    border-top: 4px solid #F59E0B;
+}
+
+.card-ep {
+    border-top: 4px solid #14B8A6;
+}
+
+.card-adres {
+    border-top: 4px solid #102A43;
+}
 /* Logos under panels (links) */
 .panel-logo {
   width: clamp(96px, 35%, 150px);

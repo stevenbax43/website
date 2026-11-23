@@ -10,16 +10,19 @@
 
 {% block content_wrapper_start %}{% endblock %}
 {% block content_wrapper_end %}{% endblock %}
-
+ 
 {% block content %}
 {% csrf_token %}
 
 <!-- HERO -->
-  <header class="tools-hero">
+<header class="tools-hero">
   <div class="container py-3">
     <div class="row align-items-center g-3 flex-nowrap">
       <div class="col">
-        <h1 class="display-6 mb-0 text-white ">Tool W5: Inhoud Buffervat</h1>
+        <h1 class="display-6 mb-0 text-white ">Inhoud Buffervat</h1>
+        <p class="text-white-50 mb-0">
+          Bepaal de benodigde buffervatinhoud voor warmtepompen, koelmachines en hydraulische systemen
+      </p>
       </div>
       <div class="col-auto">
         <a href="{% url 'tools:tools' %}" class="d-inline-block">
@@ -33,7 +36,7 @@
 
 
 <!-- INTRO -->
-<section class="bg-light py-3 no-print">
+<section class="tools-intro py-3 no-print">
   <div class="container">
     <div class="row align-items-center g-3">
       <div class="col-12 col-lg-8">
@@ -101,7 +104,7 @@
                 </div>
               </div>
 
-              <div class="alert alert-info mb-0" role="note">
+              <div class="tools-note mb-0" role="note">
                 De berekening gaat uit van water met een vaste soortelijke warmte
                 <i>c</i><sub>v</sub> = 4,2 kJ/kgK en een dichtheid
                 &rho; = 998 kg/m<sup>3</sup>.
@@ -117,12 +120,26 @@
         <div class="col-12 col-lg-4">
           <div class="card card-output shadow-sm h-100" data-chip="Output">
             <div class="card-body">
-              <h4 class="h6 mb-3">Advies Buffervat</h4>
+              <div class="card-header">
+                  <h2 class="h5 mb-0">
+                      Advies buffervat
+                  </h2>
+              </div>
               <div class="image-container">
                 <img src="{% static 'tools/images/buffervat.png' %}" alt="Inhoud buffervat">
                 <div class="overlay">{{ buffervat_output.0 }} L</div>
               </div>
-              <h6 class="h6 mt-auto">* V = {{ buffervat_output.0 }}L &rarr; <strong>de minimale actieve systeeminhoud</strong> </h6>
+              <div class="text-center mt-3">
+
+                  <div class="display-5 fw-bold text-primary">
+                      {{ buffervat_output.0 }}
+                  </div>
+
+                  <div class="text-muted">
+                      Liter minimale actieve systeeminhoud
+                  </div>
+
+              </div>
             </div>
           </div>
         </div>
@@ -131,7 +148,11 @@
         <div class="col-12 col-lg-4">
           <div class="card card-output shadow-sm h-100" data-chip="Output">
             <div class="card-body">
-              <h4 class="h6 mb-3">Gegeven waarden</h4>
+              <div class="card-header">
+                  <h2 class="h5 mb-0">
+                      Berekening
+                  </h2>
+              </div>
               <div class="mb-3">
                 &Phi;<sub>min</sub> = {{ buffervat_output.1 }} kW<br>
                 &Delta;T = {{ buffervat_output.2 }} K<br>

@@ -22,8 +22,12 @@
   <div class="container py-3">
     <div class="row align-items-center g-3 flex-nowrap">
       <div class="col">
-        <h1 class="display-6 mb-0 text-white">Tool A3: Klimaatjaar</h1>
+        <h1 class="display-6 mb-0 text-white">Klimaatjaar</h1>
+        <p class="text-white-50 mb-0">
+           Inzicht in buitentemperatuur, vochtbelasting en comfort gedurende het ontwerpjaar
+        </p>
       </div>
+
       <div class="col-auto">
         <a href="{% url 'tools:tools' %}" class="d-inline-block">
           <img src="{% static 'tools/images/engineering.png' %}" class="hero-icon flex-shrink-0" alt="Engineering">
@@ -39,9 +43,9 @@
     <div class="row g-3 align-items-center">
       <div class="col-12 col-lg-8">
         <p class="lead mb-0">
-          Hey <strong>{{username.0}}</strong>! Deze klimaattool gebruikt een referentieklimaatjaar met een vermogen-temperatuurcurve om een de belastingduurkromme
-          te genereren. Op basis van bedrijfsuren, temperaturen en vermogens wordt de
-          warmte- en koudevraag automatisch aangepast. Sla je project op om later verder te gaan.
+          Analyse van bedrijfsuren, belastingduurkrommen en energieverdeling op 
+          basis van een referentieklimaatjaar. De tool ondersteunt de dimensionering van warmte- en koudeopwekking.
+        </p>
       </div>
       <div class="col-12 col-lg-4">
         <div class="d-flex justify-content-lg-end align-items-center gap-3 flex-wrap">
@@ -66,7 +70,7 @@
     <form method="post" id="inputForm">
       {% csrf_token %}
 
-      <!-- Top row: form + charts -->
+      <!-- Top row: form + charts --> 
       <div class="row g-3 mb-3 border-bottom border-3 pb-3">
 
         <!-- Sidebar form -->
@@ -439,6 +443,19 @@
 // URL for Excel download
 const downloadExcelUrl = "{% url 'tools:download_excel' %}";
 
+const COLORS = {
+    blue: '#102A43',
+    teal: '#14B8A6',
+
+    heat: '#D97706',
+    cool: '#0284C7',
+
+    Basislast: '#EAF8F6',
+    Middenlast: '#14B8A6',
+    Pieklast: '#102A43',
+
+    grey: '#CBD5E1'
+};
 // Safe JSON parsing helpers
 function safeParse(jsonStr, fallback) { try { return JSON.parse(jsonStr); } catch(e) { console.error('JSON parse error:', e); return fallback; } }
 
@@ -515,8 +532,8 @@ const whiteBgPlugin = {
       data: {
         labels: xTemp,
         datasets: [
-          { label: 'Vermogen Verwarmen', data: yHeat, borderColor: 'rgb(255, 99, 132)', tension: 0.1, pointRadius: 0, pointBackgroundColor: 'rgb(255, 99, 132)' },
-          { label: 'Vermogen Koelen',    data: yCool, borderColor: 'rgb(54, 162, 235)',  tension: 0.1, pointRadius: 0, pointBackgroundColor: 'rgb(54, 162, 235)' }
+          { label: 'Vermogen Verwarmen', data: yHeat, borderColor: COLORS.heat, backgroundColor: 'rgba(231,111,81,0.20)', tension: 0.1, pointRadius: 0, pointBackgroundColor: 'rgb(255, 99, 132)' },
+          { label: 'Vermogen Koelen',    data: yCool, borderColor: COLORS.cool, backgroundColor: 'rgba(0,119,182,0.20)', tension: 0.1, pointRadius: 0, pointBackgroundColor: 'rgb(54, 162, 235)' }
         ]
       },
       options: {
@@ -553,13 +570,13 @@ const whiteBgPlugin = {
           {
             label: 'Draaiuren',
             data: [onOffHours[0]], // first value
-            backgroundColor: 'rgb(50,205,50)',
+            backgroundColor: COLORS.teal,
             borderRadius: 8
           },
           {
             label: 'Buiten bedrijf',
             data: [onOffHours[1]], // second value
-            backgroundColor: 'rgb(255,165,0)',
+            backgroundColor: COLORS.grey,
             borderRadius: 8
           }
         ]
@@ -615,10 +632,10 @@ const whiteBgPlugin = {
       data: {
         labels: xOnOff,
         datasets: [
-          { label: 'Cumulatieve draaiuren', data: yCumOn,   borderColor: 'rgb(30,144,255)', backgroundColor: 'rgba(30,144,155, 0.3)', tension: 0.1, pointRadius: 1, yAxisID: 'y1', fill: false },
-          { label: 'Buitentemperatuur grens', data: yCumTemp, borderColor: 'rgb(30,44,155)',  backgroundColor: 'rgba(30,44,155, 0.35)', tension: 0.1, pointRadius: 1, yAxisID: 'y1', fill: true },
-          { label: 'Draaiuren', data: yOn, backgroundColor: 'rgb(50,205,50)', borderColor: 'rgb(50,205,50)', tension: 0.1, fill: true, pointRadius: 1 },
-          { label: 'Buiten bedrijf', data: yOff, backgroundColor: 'rgb(255,165,0)', borderColor: 'rgb(255,165,0)', tension: 0.1, fill: true, pointRadius: 1 } //hidden: true
+          { label: 'Cumulatieve draaiuren', data: yCumOn,   borderColor:  COLORS.teal, backgroundColor: 'rgba(20,184,166,0.15)', tension: 0.1, pointRadius: 1, yAxisID: 'y1', fill: false },
+          { label: 'Buitentemperatuur grens', data: yCumTemp, borderColor: COLORS.blue,  backgroundColor: 'rgba(16,42,67,0.12)', tension: 0.1, pointRadius: 1, yAxisID: 'y1', fill: true },
+          { label: 'Draaiuren', data: yOn, backgroundColor: COLORS.teal, borderColor: COLORS.teal, tension: 0.1, fill: true, pointRadius: 1 },
+          { label: 'Buiten bedrijf', data: yOff, backgroundColor: COLORS.grey, borderColor: COLORS.grey, tension: 0.1, fill: true, pointRadius: 1 } //hidden: true
         ]
       },
       options: {
@@ -649,9 +666,9 @@ const whiteBgPlugin = {
       data: {
         labels: ['Warmtevraag'],
         datasets: [
-          { label: 'Basislast',  data: [energyData[4]], backgroundColor: 'rgba(183, 255, 183, 0.4)', borderColor: 'rgba(0, 153, 0, 1)', borderWidth: 2 },
-          { label: 'Middenlast', data: [energyData[2]], backgroundColor: 'rgba(51,255,51, 0.4)',    borderColor: 'rgba(0, 153, 0, 1)', borderWidth: 2 },
-          { label: 'Pieklast',   data: [energyData[0]], backgroundColor: 'rgba(0, 123, 0, 0.4)',     borderColor: 'rgba(0, 153, 0, 1)', borderWidth: 2 }
+          { label: 'Basislast',  data: [energyData[4]], backgroundColor: COLORS.Basislast, borderColor: COLORS.Basislast, borderWidth: 2 },
+          { label: 'Middenlast', data: [energyData[2]], backgroundColor: COLORS.Middenlast, borderColor: COLORS.Middenlast, borderWidth: 2 },
+          { label: 'Pieklast',   data: [energyData[0]], backgroundColor: COLORS.Pieklast, borderColor: COLORS.Pieklast, borderWidth: 2 }
         ]
       },
       options: {
@@ -678,9 +695,9 @@ const whiteBgPlugin = {
       data: {
         labels: ['Koudevraag'],
         datasets: [
-          { label: 'Basislast',  data: [energyData[5]], backgroundColor: 'rgba(183, 255, 183, 0.4)', borderColor: 'rgba(0, 153, 0, 1)', borderWidth: 2 },
-          { label: 'Middenlast', data: [energyData[3]], backgroundColor: 'rgba(51,255,51, 0.4)',    borderColor: 'rgba(0, 153, 0, 1)', borderWidth: 2 },
-          { label: 'Pieklast',   data: [energyData[1]], backgroundColor: 'rgba(0, 123, 0, 0.4)',     borderColor: 'rgba(0, 153, 0, 1)', borderWidth: 2 }
+          { label: 'Basislast',  data: [energyData[5]], backgroundColor: COLORS.Basislast, borderColor: COLORS.Basislast, borderWidth: 2 },
+          { label: 'Middenlast', data: [energyData[3]], backgroundColor: COLORS.Middenlast, borderColor: COLORS.Middenlast, borderWidth: 2 },
+          { label: 'Pieklast',   data: [energyData[1]], backgroundColor: COLORS.Pieklast, borderColor: COLORS.Pieklast, borderWidth: 2 }
         ]
       },
       options: {
@@ -712,14 +729,14 @@ const whiteBgPlugin = {
     // show heat if present (energyData[6] holds total heat demand in your previous code)
     if (energyData[6] !== 0) {
       datasets.push(
-        { label: 'Verwarmen', data: pointsHeat, backgroundColor: 'rgba(255, 99, 132, 0.2)', borderColor: 'rgba(255, 99, 132, 1)', borderWidth: 1, fill: true, pointRadius: 1, groupID: 'heat' },
+        { label: 'Verwarmen', data: pointsHeat, backgroundColor: 'rgba(232,93,4,0.15)', borderColor: COLORS.Heat, borderWidth: 1, fill: true, pointRadius: 1, groupID: 'heat' },
         { label: 'Grens Verwarmen max', data: [{ x: 0, y: limHeatMax }, { x: limitHourValues[1], y: limHeatMax }], type: 'line', backgroundColor: 'rgba(125, 192, 192, 0.2)', borderColor: 'rgba(125, 192, 192, 1)', borderWidth: 2, fill: false, groupID: 'heat', showInLegend: false },
         { label: 'Grens Verwarmen min', data: [{ x: limitHourValues[0], y: limHeatMin }, { x: 0, y: limHeatMin }],  type: 'line', backgroundColor: 'rgba(125, 192, 192, 0.2)', borderColor: 'rgba(125, 192, 192, 1)', borderWidth: 2, fill: false, groupID: 'heat', showInLegend: false }
       );
     }
     if (energyData[7] !== 0) {
       datasets.push(
-        { label: 'Koelen', data: pointsCool, backgroundColor: 'rgba(54, 162, 235, 0.2)', borderColor: 'rgba(54, 162, 235, 1)', borderWidth: 1, fill: true, pointRadius: 1, groupID: 'cool' },
+        { label: 'Koelen', data: pointsCool, backgroundColor: 'rgba(0,119,182,0.15)', borderColor: COLORS.Cool, borderWidth: 1, fill: true, pointRadius: 1, groupID: 'cool' },
         { label: 'Grens Koelen max', data: [{ x: limitHourValues[3], y: limCoolMax }, { x: limitHourValues[4], y: limCoolMax }], type: 'line', backgroundColor: 'rgba(75, 192, 192, 0.2)', borderColor: 'rgba(75, 192, 192, 1)', borderWidth: 2, fill: false, groupID: 'cool', showInLegend: false },
         { label: 'Grens Koelen min', data: [{ x: limitHourValues[4], y: limCoolMin }, { x: limitHourValues[2], y: limCoolMin }], type: 'line', backgroundColor: 'rgba(75, 192, 192, 0.2)', borderColor: 'rgba(75, 192, 192, 1)', borderWidth: 2, fill: false, groupID: 'cool', showInLegend: false }
       );

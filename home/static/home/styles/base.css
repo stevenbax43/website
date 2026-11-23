@@ -1,15 +1,15 @@
 /* =========================================================
    Kropman – Base Styles (Bootstrap 5 compatible)
-   - Works with your current HTML (logo split across two images)
+   - Works with your current HTML 
    - Keeps original rotation + slide animation
    - Narrows only the "I" image
    ========================================================= */
 
 /* ---------- Brand variables ---------- */
 :root {
-  --kropman-green-1: rgba(92, 216, 35, 0.75);
-  --kropman-green-2: rgba(10, 92, 3, 0.75);
-  --kropman-underline: #13f539;
+  --baxtools-blue: #102A43;
+  --baxtools-teal: #14B8A6;
+  --baxtools-light: #EAF8F6;
 }
 .pt-0p03 { padding-top: 0.03rem !important; }  /* ~0.48px at 16px root */
 /* ---------- Global ---------- */
@@ -17,12 +17,27 @@ html { box-sizing: border-box; }
 *, *::before, *::after { box-sizing: inherit; }
 
 body {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;         /* sticky footer with .min-vh-100 body fallback */
-  background: #fff;
-  margin: 0;
-  padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: #fff;
+    margin: 0;
+    padding: 0;
+
+    font-family: "Segoe UI", "Inter", sans-serif;
+    color: #334155;
+}
+h1,h2,h3,h4,h5,h6 {
+    color: #102A43;
+    font-weight: 700;
+}
+a {
+    color: var(--baxtools-teal);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--baxtools-blue);
 }
 main { flex: 1 1 auto; }
 
@@ -30,9 +45,8 @@ img { max-width: 100%; height: auto; }
 
 /* ---------- Navbar / Header ---------- */
 .header-banner {
-  background-color: #fff;
-  border-bottom: 2px solid transparent;
-  border-image: linear-gradient(to right, var(--kropman-green-1), var(--kropman-green-2)) 1;
+    background: #fff;
+    border-bottom: 2px solid #14B8A6;
 }
 
 /* Prevent animation clipping */
@@ -40,8 +54,23 @@ img { max-width: 100%; height: auto; }
 .header-banner .navbar .container,
 .navbar-brand { overflow: visible; }
 
+.container {
+    max-width: 1320px;
+}
+button:focus,
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 2px solid var(--baxtools-teal);
+    outline-offset: 2px;
+}
+::selection {
+    background: var(--baxtools-teal);
+    color: white;
+}
 /* Brand block */
-.navbar-brand.logo-container {
+.navbar-brand {
   display: inline-flex;
   align-items: center;
   gap: .25rem;
@@ -51,21 +80,10 @@ img { max-width: 100%; height: auto; }
   position: relative;
 }
 
-/* ---------- Split-logo sizing (two images make one logo) ---------- */
-/* Base: keep height consistent and prevent flex stretch */
-.logo { height: 50px !important; flex: 0 0 auto !important; display: block; }
-
-/* Make ONLY the "I" narrower */
-.logo-i { width: 20px !important;  margin-right: -4px !important; /* tweak until perfect */ }              /* tweak to taste */
-
-/* Keep the >K full width */
-.logo-bigger-than { width: 50px !important; }
 
 /* Mobile tweak: slightly smaller to fit collapsed nav neatly */
 @media (max-width: 576px) {
-  .logo        { height: 40px !important; }
-  .logo-i      { width: 15px !important; }
-  .logo-bigger-than { width: 40px !important; }
+ 
 }
 
 /* Small nav icons (login/logout/profile) */
@@ -78,66 +96,17 @@ img { max-width: 100%; height: auto; }
     content: "";
     position: absolute; left: 0; bottom: -6px;
     height: 3px; width: 0;
-    background: var(--kropman-underline);
+    background: var(--baxtools-teal);
     transition: width .3s ease;
   }
   .navbar-nav .nav-link:hover::after,
   .navbar-nav .nav-link:focus::after { width: 100%; }
 }
 
-/* Optional: avoid z-index overlap on ultra-narrow screens */
-@media (max-width: 360px) {
-  .navbar .navbar-toggler { z-index: 2; }
-  .navbar .navbar-brand   { z-index: 1; }
-}
-
-/* ---------- Animations (unchanged behavior) ---------- */
-@keyframes rotateAnimation {
-  0% { transform: rotate(0); }
-  100% { transform: rotate(180deg); }
-}
-@keyframes rotateAnimationBack {
-  0% { transform: rotate(180deg); }
-  100% { transform: rotate(0); }
-}
-
-/* Original big slide for desktop */
-@keyframes moveLeft {
-  0%   { transform: translateX(0); }
-  50%  { transform: translateX(-300px) scale(1); }
-  100% { transform: translateX(0) scale(1); }
-}
-
-/* Gentler slide for small screens (so it doesn’t clip) */
-@keyframes moveLeftMobile {
-  0%   { transform: translateX(0); }
-  50%  { transform: translateX(-80px) scale(1); }
-  100% { transform: translateX(0) scale(1); }
-}
-
-/* Apply animations to the split-logo container */
-.logo-container:hover {
-  animation: rotateAnimation 0.5s linear forwards,
-             rotateAnimationBack 0.5s 2.4s linear forwards;
-}
-/* Default to mobile-friendly slide … */
-.logo-container:hover .logo-i {
-  animation: moveLeftMobile 2s 0.45s linear forwards;
-}
-/* … and on md+ use the original long slide */
-@media (min-width: 768px) {
-  .logo-container:hover .logo-i { animation-name: moveLeft; }
-}
-
-/* Respect user motion prefs */
-@media (prefers-reduced-motion: reduce) {
-  .logo-container:hover,
-  .logo-container:hover .logo-i { animation: none !important; }
-}
-
 /* ---------- Banners (use Bootstrap containers inside) ---------- */
 .top-banner {
-  background: linear-gradient(to right, var(--kropman-green-1), var(--kropman-green-2));
+  background: #102A43;
+  color: white;
 }
 .top-banner h1 { color: #f7f7f7; }
 
@@ -152,8 +121,9 @@ img { max-width: 100%; height: auto; }
 
 /* ---------- Footer ---------- */
 footer {
-  background: linear-gradient(to left, var(--kropman-green-1), var(--kropman-green-2));
-  color: #fdfdfd;
+    background: var(--baxtools-blue);
+    color: white;
+    font-size: 0.95rem;
 }
 .footer-image { cursor: pointer; }
 
@@ -165,7 +135,7 @@ footer {
 /* ---------- Auth buttons look like icons in nav ---------- */
 #logoutbutton, #login {
   border: none;
-  border-left: 4px solid #09ff00;
+  border-left: 4px solid var(--baxtools-teal);
   padding-left: 10px;
   color: #000;
   background: transparent;
@@ -180,13 +150,15 @@ footer {
   header, footer { display: none !important; }
 }
 /* ===== Nav link color override ===== */
-.navbar-nav .nav-link {
-  color: #000000 !important;         /* black by default */
-  position: relative;             /* for underline positioning */
-  transition: color 0.3s ease;
-  font-size: 1.2rem;           /* groter maken (standaard ≈16px → 17.6px) */
-  
+.navbar-nav .nav-link.active {
+    color: var(--baxtools-teal) !important;
+    font-weight: 600;
 }
+
+.navbar-nav .nav-link:hover {
+    color: #14B8A6 !important;
+}
+
 
 /* ===== Gradient underline on hover ===== */
 .navbar-nav .nav-link::after {
@@ -196,9 +168,11 @@ footer {
   bottom: -4px;                    /* adjust to taste */
   height: 3px;
   width: 0;
-  background: linear-gradient(to right,
-              rgba(92, 216, 35, 0.75),
-              rgba(10, 92, 3, 0.75));
+  background: linear-gradient(
+      to right,
+      #102A43,
+      #14B8A6
+  );
   transition: width 0.4s ease;
 }
 
@@ -209,4 +183,18 @@ footer {
 /* ===== Hover text color change ===== */
 .navbar-nav .nav-link:hover {
   color: #666 !important;          /* grey on hover */
+}
+
+.navbar {
+    min-height: 85px;
+}
+
+.navbar-brand {
+    padding: 0;
+}
+
+.navbar-logo {
+    height: 55px;
+    width: auto;
+    display: block;
 }

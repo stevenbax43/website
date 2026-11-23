@@ -7,7 +7,11 @@
   margin-left:-50vw; margin-right:-50vw; width:100vw;
 }
 .tools-hero{
-  background: linear-gradient(to right, rgba(92,216,35,.75), rgba(10,92,3,.75));
+    background: linear-gradient(
+        135deg,
+        var(--baxtools-blue),
+        var(--baxtools-teal)
+    );
 }
 .tools-hero .display-6{ color:#fff; }
 .hero-icon{ width:64px; height:auto; }
@@ -32,7 +36,7 @@
   border-radius: .5rem;
   scroll-behavior: smooth;
   scrollbar-width: thin;
-  scrollbar-color: #5e9e3d #f1f1f1;
+  scrollbar-color: var(--baxtools-teal) #f1f5f9;
 }
 
 /* ===========================
@@ -41,8 +45,8 @@
 #chat-container{
   /* it's a .card in the new markup; keep id because JS uses it */
   width: 100%;
-  border: 1px solid #e9ecef;
-  border-radius: .75rem;
+  border:1px solid #dbe4ea;
+  border-radius:16px;
 }
 
 /* Scrollable history area */
@@ -87,16 +91,21 @@
   resize:none;
   white-space: normal;
 }
-
-/* Send button as normal input-group button (no absolute) */
-.send-button{
-  position: static !important;
-  background-color:#28a745;
-  color:#fff;
-  border:0;
-  border-radius:.5rem;
+#send-button{
+    position: static !important;
+    background: var(--baxtools-blue);
+    border-color: var(--baxtools-blue);
+    color:white;
+    border:0;
+    border-radius:.5rem;
 }
-.send-button:hover{ background-color:#218838; }
+
+#send-button:hover{
+    background: var(--baxtools-teal);
+    border-color: var(--baxtools-teal);
+}
+
+
 .arrow-up-icon{ font-size:16px; line-height:1; }
 
 /* ===========================
@@ -118,8 +127,8 @@
   color:#fff; font-weight:700; font-size:.8rem;
   margin: 0 8px;
 }
-.circle_user{ background:#ce864b; }
-.circle_bot{ background:green; }
+.circle_user{ background: var(--baxtools-blue) }
+.circle_bot{  background: var(--baxtools-teal); }
 
 /* Bubbles */
 .user-message{
@@ -152,8 +161,10 @@
   overflow-wrap: break-word !important;
   max-width:100%;
 }
-.user_chat{ background:#eaeaea; }
-.bot_response{ background:#f8f9fa; }
+.user_chat{  background: rgba(16,42,67,.08);
+    color: var(--baxtools-blue); }
+.bot_response{   background: rgba(20,184,166,.08);
+    color: var(--baxtools-teal); }
 
 .wrap{
   word-wrap: break-word !important;
@@ -167,6 +178,11 @@
 .list-group-item{
   display:flex; justify-content:space-between; align-items:center;
   padding: .6rem .75rem;
+  transition: background-color .15s ease;
+}
+
+.list-group-item:hover{
+    background:#f8fbfc;
 }
 .list-group-item .btn-danger,
 .list-group-item .btn-outline-danger{
@@ -176,7 +192,16 @@
 
 /* Optional: make delete icon inside btn-outline-danger look crisp */
 .list-group-item img{ display:block; }
+.btn-outline-baxtools{
+    color: var(--baxtools-blue);
+    border-color: var(--baxtools-blue);
+}
 
+.btn-outline-baxtools:hover{
+    background: var(--baxtools-blue);
+    border-color: var(--baxtools-blue);
+    color:white;
+}
 /* ===========================
    Utility
    =========================== */

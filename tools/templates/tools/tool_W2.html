@@ -15,7 +15,10 @@
   <div class="container py-3">
     <div class="row align-items-center g-3 flex-nowrap">
       <div class="col">
-        <h1 class="display-6 mb-0 text-white">Tool W2: Inhoud Expansievat</h1>
+        <h1 class="display-6 mb-0 text-white">Expansievatberekening</h1>
+        <p class="text-white-50 mb-0">
+            Berekening volgens NEN-EN 12828 en de Flamco-methode voor verwarmings- en koelinstallaties
+        </p>
       </div>
       <div class="col-auto">
         <a href="{% url 'tools:tools' %}" class="d-inline-block">
@@ -27,7 +30,7 @@
 </header>
 
 
-<section class="bg-light py-3 no-print">
+<section class="tools-intro py-3 no-print">
   <div class="container">
     <div class="row align-items-center g-3">
       <div class="col-12 col-lg-8">
@@ -59,7 +62,7 @@
   <form method="post" id="inputForm">
     {% csrf_token %}
     <div class="card card-input shadow-sm mb-3">
-      <div class="card-header bg-primary-subtle">
+      <div class="card-header">
         <h2 class="h5 mb-0">Systeemeigenschappen</h2>
       </div>
       <div class="card-body">
@@ -160,7 +163,7 @@
           </div>
         </div>
         
-        <div class="alert alert-info py-2 mt-3 mb-0 cooling-only{% if not cooling_mode %} d-none{% endif %}" role="note">
+        <div class="tool-note py-2 mt-3 mb-0 cooling-only{% if not cooling_mode %} d-none{% endif %}" role="note">
           De koelberekening gebruikt de Flamco-tabel voor water/glycol (10–100 °C). Vul de werkelijke systeeminhoud in; de schatting op basis van cv-ketelvermogen is hier niet van toepassing.
         </div>
 
@@ -198,7 +201,7 @@
             </div>
         </div>
         {% if volume_input_error %}
-        <div class="alert alert-warning mt-3 mb-0" role="alert">
+        <div class="tool-note mt-3 mb-0" role="alert">
           {{ volume_input_error }}
         </div>
         {% endif %}
@@ -206,21 +209,21 @@
     </div>
 
     {% if calculation_error %}
-    <div class="alert alert-danger mt-3" role="alert">
+    <div class="tool-note mt-3" role="alert">
       <strong>Geen geldig expansievatadvies:</strong> {{ calculation_error }}
     </div>
     {% endif %}
 
     {% if expansievat_output %}
     {% if not cooling_mode and expansievat_output.29 %}
-    <div class="alert alert-warning mt-3" role="note">
+    <div class="tool-note mt-3" role="note">
       Volgens de Flamco-catalogus is bij een aanvoertemperatuur boven 90 °C of een retourtemperatuur boven 70 °C een voorschakelvat nodig om de membraantemperatuur te beperken.
     </div>
     {% endif %}
     <div class="row g-3">
       <div class="col-12 col-lg-5">
         <div class="card card-output shadow-sm h-100">
-          <div class="card-header bg-success-subtle">
+          <div class="card-header">
             <h2 class="h5 mb-0">Advies expansievat</h2>
           </div>
           <div class="card-body text-center">
@@ -237,13 +240,13 @@
 
       <div class="col-12 col-lg-7">
         <div class="card card-output shadow-sm h-100">
-          <div class="card-header bg-success-subtle">
+          <div class="card-header">
             <h2 class="h5 mb-0">Berekeningsgegevens</h2>
           </div>
           <div class="card-body">
             <div class="row g-3">
               <div class="col-12 col-md-6">
-                <section class="h-100 rounded-3 bg-light p-3">
+                <section class="detail-card">
                   <h3 class="h6">Temperaturen</h3>
                   <dl class="row mb-0">
                     {% if cooling_mode %}
@@ -259,7 +262,7 @@
                 </section>
               </div>
               <div class="col-12 col-md-6">
-                <section class="h-100 rounded-3 bg-light p-3">
+                <section class="detail-card">
                   <h3 class="h6">Drukken</h3>
                   <dl class="row mb-0">
                     <dt class="col-7">Voordruk</dt><dd class="col-5 text-end">{{ expansievat_output.4 }} bar</dd>
@@ -272,7 +275,7 @@
                 </section>
               </div>
               <div class="col-12 col-md-6">
-                <section class="h-100 rounded-3 bg-light p-3">
+                <section class="detail-card">
                   <h3 class="h6">Volumes</h3>
                   <dl class="row mb-0">
                     <dt class="col-7">Systeem (V<sub>sys</sub>)</dt><dd class="col-5 text-end">{{ expansievat_output.13 }} L</dd>
@@ -290,7 +293,7 @@
                 </section>
               </div>
               <div class="col-12 col-md-6">
-                <section class="h-100 rounded-3 bg-light p-3">
+                <section class="detail-card">
                   <h3 class="h6">Overig</h3>
                   <dl class="row mb-0">
                     <dt class="col-7">{% if cooling_mode %}Nuttig effect{% else %}Nuttig effect (n<sub>e</sub>){% endif %}</dt><dd class="col-5 text-end">{{ expansievat_output.1 }}</dd>
@@ -371,7 +374,7 @@
 
   {% if pressure_diagram %}
   <div class="card card-output shadow-sm mt-3">
-    <div class="card-header bg-success-subtle">
+    <div class="card-header">
       <h2 class="h5 mb-0">Drukbereik expansievat</h2>
     </div>
     <div class="card-body">
@@ -385,7 +388,7 @@
         P<sub>0</sub> en P<sub>fin</sub> hoort bij het berekende expansievolume.
         {% endif %}
       </p>
-      <div class="alert alert-success py-2 mb-2 text-center">
+      <div class="tool-note py-2 mb-2 text-center">
         <strong>Expansievolume (V<sub>exp</sub>):</strong>
         {{ pressure_diagram.expansion_volume }} L
       </div>

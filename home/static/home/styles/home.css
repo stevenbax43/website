@@ -31,7 +31,10 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(98, 97, 97, 0.55);
+  background: linear-gradient(
+      rgba(16, 42, 67, 0.75),
+      rgba(16, 42, 67, 0.55)
+  );
   z-index: 2;
 }
 
@@ -50,32 +53,40 @@
 }
 
 .text-box {
-  max-width: 60rem;
+    max-width: 900px;
+    margin: 0 auto;
 }
 
 
 /* Headings */
 .main-title {
-  color: #fff;
-  font-weight: 400;
+  color: white;
+  font-weight: 700;
+  letter-spacing: -1px;
   margin-bottom: 1rem;
-  font-size: clamp(1.75rem, 3.5vw, 3.4rem);
+  font-size: clamp(2rem, 4vw, 4rem);
 }
 
 .sub-title {
-  color: #fff;
-  font-size: clamp(1rem, 1.8vw, 1.5rem);
+    color: rgba(255,255,255,0.9);
+    font-size: clamp(1.1rem, 1.8vw, 1.5rem);
 }
 
 /* ===== Sections ===== */
-section { overflow: hidden; }
+section {
+    overflow: hidden;
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+}
 
 .section-img {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: .5rem;
-  box-shadow: 0 .25rem .75rem rgba(0,0,0,.1);
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 16px;
+    box-shadow:
+        0 10px 30px rgba(16,42,67,0.08),
+        0 4px 8px rgba(16,42,67,0.05);
 }
 
 /* Responsive video keeps same shadow/radius */
@@ -84,13 +95,18 @@ section { overflow: hidden; }
   overflow: hidden;
   box-shadow: 0 .25rem .75rem rgba(0,0,0,.1);
 }
+section:nth-child(even) {
+    background-color: #F8FBFC;
+}
 
 /* Quarter image button (kept from your design, more responsive) */
 .quarter {
-  width: clamp(120px, 25%, 220px);
-  height: auto;
-  display: block;
-  margin-top: 1rem;
+    width: clamp(140px, 28%, 240px);
+    transition: transform 0.2s ease;
+}
+
+.quarter:hover {
+    transform: translateY(-4px);
 }
 .center { margin-left: auto; margin-right: auto; }
 

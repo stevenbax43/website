@@ -14,13 +14,16 @@
 {% block content %}
 {% csrf_token %}
 
-
+ 
 <!-- HERO -->
   <header class="tools-hero">
   <div class="container py-3">
     <div class="row align-items-center g-3 flex-nowrap">
       <div class="col">
-        <h1 class="display-6 mb-0 text-white ">Tool W6: Vermogen, energie & kosten</h1>
+        <h1 class="display-6 mb-0 text-white ">Vermogen, energie & kosten</h1>
+         <p class="text-white-50 mb-0">
+            Bereken thermisch vermogen, energieverbruik en exploitatiekosten van installaties
+        </p>
       </div>
       <div class="col-auto">
         <a href="{% url 'tools:tools' %}" class="d-inline-block">
@@ -32,7 +35,7 @@
 </header>
 
 <!-- INTRO -->
-<section class="bg-light py-3 no-print">
+<section class="tools-intro py-3 no-print">
   <div class="container">
     <div class="row align-items-center g-3">
       <div class="col-12 col-lg-8">
@@ -63,27 +66,35 @@
 
       <!-- Medium select -->
       <div class="col-12 col-lg-8">
-        <div class="card card-input shadow-sm" data-chip="Input">
-          <div class="card-body">
-            <div class="row g-2 align-items-center">
-              <div class="col-12 col-sm-6 col-md-4">
-                <label for="medium" class="form-label">Medium</label>
-                <select name="medium" id="medium" class="form-select">
-                  <option value="water">Water</option>
-                  <option value="air">Lucht</option>
-                  <option value="prop30%">Propyleen-glycol 30%</option>
-                </select>
-              </div>
-            </div>
+        <div class="card card-input shadow-sm">
+
+          <div class="card-header">
+              <h2 class="h5 mb-0">
+                  Medium selecteren
+              </h2>
           </div>
+
+          <div class="card-body">
+            <select name="medium" id="medium" class="form-select">
+              <option value="water">Water</option>
+              <option value="air">Lucht</option>
+              <option value="prop30%">Propyleen-glycol 30%</option>
+            </select>
+          </div>
+           
         </div>
       </div>
 
       <!-- Eigenschappen -->
       <div class="col-12 col-lg-4">
         <div class="card card-output shadow-sm" data-chip="Output">
+          <div class="card-header">
+              <h2 class="h5 mb-0">
+                  Medium eigenschappen
+              </h2>
+          </div>
+
           <div class="card-body">
-            <h6 class="fw-bold mb-3">Eigenschappen</h6>
             <div class="align-left-right">
               <span>kg/m<sup>3</sup></span>
               <p id="dichtheid" class="result mb-0"></p>
@@ -92,6 +103,7 @@
               <span>kJ/kg·K</span>
               <p id="specific_heat" class="result mb-0"></p>
             </div>
+            
           </div>
         </div>
       </div>
@@ -99,6 +111,11 @@
       <!-- Debiet & ΔT -->
       <div class="col-12 col-lg-8">
         <div class="card card-input shadow-sm" data-chip="Input">
+          <div class="card-header">
+              <h2 class="h5 mb-0">
+                  Debiet en temperatuurverschil
+              </h2>
+          </div>
           <div class="card-body">
             <!-- Debiet -->
             <div class="mb-4">
@@ -145,23 +162,31 @@
       <!-- Vermogen -->
       <div class="col-12 col-lg-4">
         <div class="card card-output shadow-sm" data-chip="Output">
-          <div class="card-body">
-            <h6 class="fw-bold mb-3">Vermogen</h6>
-            <div class="align-left-right">
-              <span>kW</span>
-              <p id="powerkW" class="result mb-0"></p>
-            </div>
-            <div class="align-left-right">
-              <span>W (J/s)</span>
-              <p id="powerW" class="result mb-0"></p>
-            </div>
+          <div class="card-header">
+            <h2 class="h5 mb-0">
+                Vermogen
+            </h2>
           </div>
+          <div class="align-left-right">
+            <span>kW</span>
+            <p id="powerkW" class="result mb-0"></p>
+          </div>
+          <div class="align-left-right">
+            <span>W (J/s)</span>
+            <p id="powerW" class="result mb-0"></p>
+          </div>
+         
         </div>
       </div>
 
       <!-- Tijd -->
       <div class="col-12 col-lg-8">
         <div class="card card-input shadow-sm" data-chip="Input">
+           <div class="card-header">
+              <h2 class="h5 mb-0">
+                  Tijd
+              </h2>
+          </div>
           <div class="card-body">
             <div class="mb-2 d-flex gap-2 align-items-center">
               <label for="slider3" class="form-label mb-0">Tijd</label>
@@ -186,8 +211,13 @@
       <!-- Energie -->
       <div class="col-12 col-lg-4">
         <div class="card card-output shadow-sm" data-chip="Output">
+           <div class="card-header">
+              <h2 class="h5 mb-0">
+                  Energie
+              </h2>
+          </div>
           <div class="card-body">
-            <h6 class="fw-bold mb-3">Energie</h6>
+           
             <div class="align-left-right">
               <span>kWh</span>
               <p id="energykWh" class="result mb-0"></p>
@@ -203,6 +233,11 @@
       <!-- Eenheidsprijs -->
       <div class="col-12 col-lg-8">
         <div class="card card-input shadow-sm" data-chip="Input">
+           <div class="card-header">
+              <h2 class="h5 mb-0">
+                  Energieprijs
+              </h2>
+          </div>
           <div class="card-body">
             <label for="slider4" class="form-label">Eenheidsprijs [€/kWh]</label>
             <div class="row g-2 align-items-center slider-controls">
@@ -220,8 +255,13 @@
       <!-- Kosten -->
       <div class="col-12 col-lg-4">
         <div class="card card-output shadow-sm" data-chip="Output">
+          <div class="card-header">
+              <h2 class="h5 mb-0">
+                  Kosten
+              </h2>
+          </div>
           <div class="card-body">
-            <h6 class="fw-bold mb-3">Kosten</h6>
+           
             <div class="align-left-right">
               <span>€</span>
               <p id="euros" class="result mb-0"></p>

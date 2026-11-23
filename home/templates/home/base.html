@@ -15,7 +15,11 @@
   <!-- Your custom stylesheet (after Bootstrap so you can override) -->
   <link rel="stylesheet" href="{% static 'home/styles/base.css' %}">
 
-  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'home/images/favicon.ico' %}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'home/images/apple-touch-icon.png' %}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'home/images/favicon-32x32.png' %}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'home/images/favicon-16x16.png' %}">
+  <link rel="manifest" href="{% static 'home/images/site.webmanifest' %}">
+
   {% block extra_css %}{% endblock %}
 </head>
 
@@ -25,9 +29,11 @@
     <nav class="navbar navbar-expand-lg bg-white">
       <div class="container mt-2 mb-2">
         <!-- Brand -->
-        <a href="https://kropman.nl/" class="navbar-brand d-flex align-items-center logo-container" target="_blank" rel="noopener">
-          <img src="{% static 'home/images/I.png' %}" class="logo logo-i" alt="Logo I">
-          <img src="{% static 'home/images/bigger_than.png' %}" class="logo logo-bigger-than" alt="Logo Bigger Than">
+        <a class="navbar-brand d-flex align-items-center" href="/">
+            <img src="{% static 'home/images/BaxTools.png' %}"
+                alt="BaxTools"
+                class="navbar-logo"
+                loading="lazy">
         </a>
 
         <!-- Toggler -->
@@ -96,24 +102,11 @@
       <div class="container">
         <div class="row g-4 align-items-center">
           <div class="col-12 col-lg-7">
-            <p class="mb-1 mb-lg-2">&copy; 2025 www.kropman.nl</p>
-            <p class="mb-1 mb-lg-2">Lagelandseweg 84, 6545CG Nijmegen Nederland</p>
-            <p class="mb-1 mb-lg-0">Email: <a class="link-light text-decoration-underline" href="mailto:steven.bax@kropman.nl">steven.bax@kropman.nl</a></p>
-            <p class="mb-1 mb-lg-0">Versie 2.0</p>
+            <P class="mb-1 mb-lg-0">©2026 BaxTools. Alle rechten voorbehouden.</P>
+            <p class="mb-1 mb-lg-0">Ontwikkeld door Steven Bax, werkzaam als Engineer Werktuigbouwkundige Installaties.</p>
+            <p class="mb-1 mb-lg-0">Versie 2.1</p>
           </div>
-          <div class="col-12 col-lg-5 d-flex align-items-center justify-content-lg-end">
-            <span class="me-2">Volg ons op:</span>
-            <a href="https://www.facebook.com/KropmanInstallatietechniek" class="me-3">
-              <img class="footer-image img-fluid" src="{% static 'home/images/facebook.png' %}" alt="Facebook" width="30" height="30">
-            </a>
-            <a href="https://twitter.com/Kropman_nl" class="me-3">
-              <img class="footer-image img-fluid" src="{% static 'home/images/twitter.png' %}" alt="Twitter/X" width="30" height="30">
-            </a>
-            <a href="https://www.linkedin.com/company/kropman-installatietechniek">
-              <img class="footer-image img-fluid" src="{% static 'home/images/linkedin.png' %}" alt="LinkedIn" width="30" height="30">
-            </a>
           
-          </div>
                
         </div>
     

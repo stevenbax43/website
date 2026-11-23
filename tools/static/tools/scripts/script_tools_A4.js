@@ -128,9 +128,9 @@ function createScopeCard(route, item) {
     };
 
     const scopeClassMap = {
-        installateur: "bg-success",
-        functioneel: "bg-warning text-dark",
-        afstemming: "bg-secondary",
+        installateur: "badge-installateur",
+        functioneel: "badge-functioneel",
+        afstemming: "badge-afstemming",
     };
 
     const col = document.createElement("div");

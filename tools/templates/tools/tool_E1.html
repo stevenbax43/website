@@ -18,11 +18,25 @@
 <!-- HERO -->
 <header class="tools-hero py-3 text-white">
   <div class="container">
-    <div class="d-flex flex-wrap justify-content-between align-items-center">
-      <h1 class="h3 mb-2 mb-lg-0">Tool E1: Actief- &amp; schijnbaar vermogen</h1>
-      <a href="{% url 'tools:tools' %}" class="d-inline-block">
-        <img src="{% static 'tools/images/engineering.png' %}" alt="Engineering" class="hero-icon">
-      </a>
+    <div class="row align-items-center g-3 flex-nowrap">
+
+      <div class="col">
+        <h1 class="display-6 mb-0">
+          Actief- &amp; schijnbaar vermogen
+        </h1>
+        <p class="text-white-50 mb-0">
+          Inzicht in vermogen, blindstroom en cos φ van elektrische installaties
+        </p>
+      </div>
+
+      <div class="col-auto">
+        <a href="{% url 'tools:tools' %}" class="d-inline-block">
+          <img src="{% static 'tools/images/engineering.png' %}"
+               alt="Engineering"
+               class="hero-icon">
+        </a>
+      </div>
+
     </div>
   </div>
 </header>
@@ -61,7 +75,7 @@
     <div class="row g-3">
       <div class="col-12 col-lg-8">
         <div class="card card-input shadow-sm h-100" data-chip="Invoer">
-          <div class="card-header bg-primary-subtle">
+          <div class="card-header">
             <h2 class="h5 mb-0">Invoer</h2>
           </div>
           <div class="card-body">
@@ -117,7 +131,7 @@
 
       <div class="col-12 col-lg-4">
         <div class="card card-output shadow-sm h-100" data-chip="Resultaat">
-          <div class="card-header bg-success-subtle">
+          <div class="card-header">
             <h2 class="h5 mb-0">Berekend vermogen</h2>
           </div>
           <div class="card-body">

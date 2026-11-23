@@ -19,8 +19,11 @@
   <div class="container py-3">
     <div class="row align-items-center g-3 flex-nowrap">
       <div class="col">
-        <h1 class="display-6 mb-0 text-white ">Tool W4: CO<sub>2</sub>-verloop</h1>
-      </div>
+        <h1 class="display-6 mb-0 text-white ">Grafiek CO<sub>2</sub>-concentratie</h1>
+        <p class="text-white-50 mb-0">
+            Simuleer de ontwikkeling van de CO₂-concentratie op basis van bezetting en ventilatie
+        </p>
+      </div> 
       <div class="col-auto">
         <a href="{% url 'tools:tools' %}" class="d-inline-block">
           <img src="{% static 'tools/images/engineering.png' %}" class="hero-icon flex-shrink-0" alt="Engineering">
@@ -32,7 +35,7 @@
 
 
 <!-- INTRO -->
-<section class="bg-light py-3 no-print">
+<section class="tools-intro py-3 no-print">
   <div class="container">
     <div class="row align-items-center g-3">
       <div class="col-12 col-lg-8">
@@ -65,17 +68,19 @@
 
       <!-- INPUT CARD -->
       <div class="card card-input shadow-sm mb-3">
-        <div class="card-body">
-          <h4 class="h6 mb-3">Parameters</h4>
+            <div class="card-header">
+                <h2 class="h5 mb-0">Invoer</h2>
+            </div>
 
+            <div class="card-body">
           <div class="row g-4">
 
             <!-- ===================================================== -->
             <!-- RUIMTE -->
             <!-- ===================================================== -->
             <div class="col-12 col-lg-4">
-                <div class="card h-100 border-primary shadow-sm">
-                    <div class="card-header bg-primary-subtle">
+                <div class="card h-100 parameter-card shadow-sm">
+                    <div class="card-header">
                         <h5 class="mb-0">
                             🏢 Ruimte
                         </h5>
@@ -133,8 +138,8 @@
             <!-- BEZETTING -->
             <!-- ===================================================== -->
             <div class="col-12 col-lg-4">
-                <div class="card h-100 border-success shadow-sm">
-                    <div class="card-header bg-success-subtle">
+                <div class="card h-100 parameter-card shadow-sm">
+                    <div class="card-header">
                         <h5 class="mb-0">
                             👥 Bezetting
                         </h5>
@@ -251,8 +256,8 @@
             <!-- VENTILATIE -->
             <!-- ===================================================== -->
             <div class="col-12 col-lg-4">
-                <div class="card h-100 border-info shadow-sm">
-                    <div class="card-header bg-info-subtle">
+                <div class="card h-100 parameter-card shadow-sm">
+                    <div class="card-header">
                         <h5 class="mb-0">
                             🌬 Ventilatie
                         </h5>
@@ -344,21 +349,24 @@
         </div>
       </div>
       <!-- OUTPUT TITLE -->
-      <div class="card card-output shadow-sm mb-3">
-        <div class="card-body">
+     <div class="card card-output shadow-sm">
 
-            <h4 class="h6 mb-3">
+        <div class="card-header">
+            <h2 class="h5 mb-0">
                 Resultaten
-            </h4>
+            </h2>
+        </div>
+
+        <div class="card-body">
 
             <div class="row g-3">
               <div class="col-md-3">
-                  <div class="card border-0 shadow-sm h-100 bg-danger-subtle">
+                  <div class="card border-0 shadow-sm h-100 kpi-card">
                       <div class="card-body text-center">
 
                           <div
                               id="max_concentration_result"
-                              class="fs-3 fw-bold text-danger">
+                              class="fs-3 fw-bold">
                               -
                           </div>
 
@@ -371,12 +379,12 @@
               </div>
 
               <div class="col-md-3">
-                  <div class="card border-primary shadow-sm h-100">
+                  <div class="card parameter-card shadow-sm h-100">
                       <div class="card-body text-center">
 
                           <div
                               id="max_increase_result"
-                              class="fs-3 fw-bold text-primary">
+                              class="fs-3 fw-bold">
                               -
                           </div>
 
@@ -389,12 +397,12 @@
               </div>
 
               <div class="col-md-3">
-                  <div class="card border-success shadow-sm h-100">
+                  <div class="card parameter-card shadow-sm h-100">
                       <div class="card-body text-center">
 
                           <div
                               id="time_to_max_result"
-                              class="fs-3 fw-bold text-success">
+                              class="fs-3 fw-bold">
                               -
                           </div>
 
@@ -406,13 +414,13 @@
                   </div>
               </div>
               <div class="col-md-3">
-                <div class="card border-0 shadow-sm h-100 bg-info-subtle">
+                <div class="card border-0 shadow-sm h-100 parameter-card">
 
                     <div class="card-body text-center">
 
                         <div
                             id="ventilation_result"
-                            class="fs-3 fw-bold text-info">
+                            class="fs-3 fw-bold">
 
                             -
 
@@ -435,8 +443,14 @@
       </div> <!-- card-resultaten -->
       <!-- OUTPUT: chart -->
       <div class="card card-output shadow-sm">
+
+        <div class="card-header">
+            <h2 class="h5 mb-0">
+                CO₂-concentratie over de tijd
+            </h2>
+        </div>
+
         <div class="card-body">
-          <h5 class="card-title mb-3">CO₂-concentratie over de tijd</h5>
           <div class="ratio ratio-21x9">
             <canvas id="CO2_verloop"></canvas>
           </div>

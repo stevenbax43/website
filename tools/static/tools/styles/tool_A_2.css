@@ -17,31 +17,32 @@
 }
 
 .a2-pill {
-  display: grid;
-  gap: .5rem;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   text-align: center;
   cursor: pointer;
   user-select: none;
-  padding: clamp(.3rem, 1.6vw, .6rem) clamp(.5rem, 2.2vw, .85rem);
-  border: 1px solid rgba(92,216,35,.75);
-  border-radius: 999px;
-  background: #fff;
-  font-weight: 600;
-  font-size: clamp(.8rem, 2.6vw, .95rem);
-  transition: background .15s ease, color .15s ease, border-color .15s ease;
-}
 
+  padding: .6rem 1rem;
+
+  border: 1px solid #d7e9f3;
+  border-radius: 50px;
+
+  background: white;
+
+  color: var(--baxtools-blue);
+  font-weight: 600;
+
+  transition: all .2s ease;
+}
 .a2-pill:hover {
-  background: rgba(92,216,35,.08);
-  color: #0a5c03;
-  border-color: rgba(10,92,3,.75);
+  background: #f8fbfc;
+  border-color: var(--baxtools-teal);
+  color: var(--baxtools-teal);
 }
 
 .a2-pill.active {
-  background: linear-gradient(to right, rgba(92,216,35,.75), rgba(10,92,3,.75));
-  color: #fff;
-  border-color: transparent;
+    background: var(--baxtools-blue);
+    color: white;
+    border-color: var(--baxtools-blue);
 }
 
 /* ultra-narrow phones: tighten spacing; (optional) keep one line with horizontal scroll */
@@ -58,12 +59,15 @@
    Converter panel card
    -------------------- */
 #converter {
-  background-color: #f1f1f1;
-  border-radius: .5rem;
-  width: 100%;
-  max-width: 460px;
-  padding: .75rem;
-  margin-top: .25rem;
+  background: white;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+
+  padding: 1.5rem;
+
+  box-shadow:
+      0 4px 12px rgba(16,42,67,0.05);
 }
 #converter label { display: block; margin-bottom: .25rem; }
 #converter input[type="number"],
@@ -74,13 +78,11 @@
   border: 1px solid #ccc;
 }
 #converter .output {
-  background: #fafafa;
-  border: 1px solid #ccc;
-  border-radius: .5rem;
-  min-width: 172px;
-  max-width: 210px;
-  overflow: hidden;
-  white-space: nowrap;
+  background: #f8fbfc;
+  border: 1px solid #dbe4ea;
+
+  color: var(--baxtools-blue);
+  font-weight: 600;
 }
 
 /* -------------
@@ -93,16 +95,37 @@
   border-spacing: 0;
   border-radius: .625rem;
   overflow: hidden;
+  box-shadow:
+      0 4px 12px rgba(16,42,67,0.04);
+
+  border-radius: 12px;
 }
-.a2-table th,
 .a2-table td {
-  border: 1px solid #ddd;
+  border: 1px solid #e5e7eb;
   padding: .6rem .75rem;
   vertical-align: top;
-  background: #fff;
+  background: white;
+  color: #334155;
 }
-.a2-table th { background: #f1f1f1; }
-.a2-table td.colspan { background: #f1f1f1; font-weight: 600; }
+.a2-table th {
+  background: #f8fbfc;
+  color: var(--baxtools-blue);
+
+  font-weight: 700;
+
+  border: 1px solid #dbe4ea;
+  border-bottom: 2px solid var(--baxtools-teal);
+}
+
+.h5 u {
+    color: var(--baxtools-teal);
+    text-decoration: none;
+}
+.a2-table td.colspan {
+  background: #f8fbfc;
+  color: var(--baxtools-blue);
+  font-weight: 600;
+}
 .a2-table thead th:first-child { border-top-left-radius: .625rem; }
 .a2-table thead th:last-child  { border-top-right-radius: .625rem; }
 .rounded-corner { border-bottom-left-radius: .625rem; }

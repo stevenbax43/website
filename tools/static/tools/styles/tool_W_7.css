@@ -2,7 +2,7 @@
 .result-message {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #146c43;
+  color: var(--baxtools-teal);
   font-variant-numeric: tabular-nums;
 }
 
@@ -11,23 +11,43 @@
 }
 
 .error-message {
-  color: #b02a37;
+  color: var(--bs-danger);
+  font-weight:500;
   min-height: 1.25rem;
 }
-
-#spectrumDetails .spectrum-detail {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  border-bottom: 1px solid #e9ecef;
-  padding: .2rem 0;
+#spectrumDetails .spectrum-detail{
+    background:#f8fbfc;
+    border:1px solid #dbe4ea;
+    border-radius:8px;
+    padding:.5rem .75rem;
+    margin-bottom:.35rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+  
+}
+.btn-baxtools {
+    background: var(--baxtools-blue);
+    border: none;
+    color: white;
 }
 
-.q-guide-diagram {
-  display: block;
-  width: 100%;
-  height: auto;
+.btn-baxtools:hover {
+    background: var(--baxtools-teal);
+    color: white;
 }
+.q-guide{
+    background:#f8fbfc;
+    border:1px solid #dbe4ea;
+    border-radius:12px;
+    padding:1rem;
+}
+.q-guide-diagram{
+    border:none;
+    padding:0;
+    background:none;
+}
+
 
 .q-guide-key {
   display: grid;
@@ -35,7 +55,17 @@
   gap: .25rem .75rem;
   font-size: .9rem;
 }
-
+.tool-note{
+    background:#f8fbfc;
+    border:1px solid #dbe4ea;
+    border-radius:8px;
+    padding:.75rem 1rem;
+    color:#495057;
+}
+.btn-baxtools{
+    background:var(--baxtools-blue);
+    border-color:var(--baxtools-blue);
+}
 @media print {
   .no-print,
   .calculate-button,

@@ -21,10 +21,10 @@
     <div class="bg-image kenburns" role="img" aria-label="Achtergrond"></div>
     <div class="banner-content">
       <div class="text-box">
-        <h1 class="main-title">Ontwerptools installatietechniek</h1>
+        <h1 class="main-title">BaxTools</h1>
         <p class="sub-title">
-          Mijn visie is het creëren van een universeel platform dat ondersteuning biedt
-          bij het ontwerpen en dimensioneren van gebouwinstallaties.
+          Praktische ontwerptools voor installatieprofessionals. 
+          Berekeningen, ontwerpcontroles en technische ondersteuning voor HVAC en gebouwinstallaties.
         </p>
       </div>
     </div>
@@ -41,11 +41,10 @@
                loading="lazy">
         </div>
         <div class="col-md-6" data-aos="fade-left">
-          <h2 class="h3 h-lg-2">Tools voor HVAC-vraagstukken</h2>
+          <h2 class="h3 h-lg-2">BaxTools</h2>
           <p class="text-dark lead mb-3">
-            Dit wil ik realiseren door tools aan te bieden voor HVAC-vraagstukken die
-            continue in ontwikkeling blijven, waarbij eenvoud, ondersteuning en
-            tijdloosheid de kern vormen.
+            Ontwikkeld vanuit de praktijk van de utiliteitsbouw om sneller en consistenter installaties te ontwerpen.
+            BaxTools biedt praktische hulpmiddelen voor HVAC-professionals. De tools zijn ontwikkeld vanuit dagelijkse ontwerpvraagstukken binnen utiliteitsgebouwen en worden continu uitgebreid op basis van praktijkervaring.
           </p>
           <a href="{% url 'tools:tools' %}" class="d-inline-block">
             <img class="quarter center"
@@ -58,35 +57,7 @@
     </div>
   </section>
 
-  <!-- SECTION: Nieuws -->
-  <section class="py-5 bg-light">
-    <div class="container">
-      <div class="row align-items-center g-4">
-        <div class="col-md-6 order-md-2" data-aos="fade-left">
-          <!-- Responsive video -->
-          <div class="ratio ratio-16x9 section-video">
-            <video autoplay muted loop playsinline>
-              <source src="{% static 'home/images/dalux.mp4' %}" type="video/mp4">
-              Je browser ondersteunt de video niet.
-            </video>
-          </div>
-        </div>
-        <div class="col-md-6 order-md-1" data-aos="fade-right">
-          <h2 class="h3 h-lg-2">Nieuws en Trends</h2>
-          <p class="text-dark lead mb-3">
-            Verder is er een nieuws-sectie toegevoegd om gebruikers op de hoogte te houden
-            van de laatste ontwikkelingen en trends in de sector.
-          </p>
-          <a href="{% url 'news:news' %}" class="d-inline-block">
-            <img class="quarter center"
-                 src="{% static 'news/images/speaker.png' %}"
-                 alt="News"
-                 loading="lazy">
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
+  
 
   <!-- SECTION: Community -->
   <section class="py-5">
@@ -135,61 +106,10 @@
   </section>
   {% endif %}
 
-  <!-- SECTION: Energietransitie -->
-  <section class="py-5">
-    <div class="container">
-      <div class="row align-items-center g-4">
-        <div class="col-md-6" data-aos="fade-right">
-          <img src="{% static 'home/images/transitieschip.jpg' %}"
-               alt="Transitieschip"
-               class="section-img img-fluid"
-               loading="lazy">
-        </div>
-        <div class="col-lg-6 mt-0 mt-lg-0" data-aos="fade-left">
-          <div class="text-box p-0">
-            <h2 class="h3 h-lg-2">Energietransitie - schip</h2>
-            <p class="text-dark lead mb-3">
-              In mijn vorige functie als Trainee bij Talent voor Transitie heb ik samengewerkt
-              met Topsector Energie om een transitieschip te maken die fungeert als praatplaat
-              om de complexiteit van de energietransitie houvast te geven.
-            </p>
-            <div class="d-grid d-sm-inline-flex gap-2">
-              <a href="https://www.talentvoortransitie.nl/stapaanboord/"
-                 target="_blank" rel="noopener"
-                 class="btn btn-primary btn-md">
-                 Energietransitie
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+  
   </section>
 
-  <!-- SECTION: Kropman -->
-  <section class="py-5 bg-light">
-    <div class="container">
-      <div class="row align-items-center g-4">
-        <div class="col-md-6 order-md-2" data-aos="fade-left">
-          <img src="{% static 'home/images/kropman-man.png' %}"
-               alt="Kropman"
-               class="section-img img-fluid"
-               loading="lazy">
-        </div>
-        <div class="col-lg-6 mt-0 mt-lg-0" data-aos="fade-right">
-          <h2 class="h3 h-lg-2">Kropman</h2>
-          <p class="text-dark lead mb-3">Via onderstaande knop kom je op de officiële Kropman website.</p>
-          <div class="d-grid d-sm-inline-flex gap-2">
-            <a href="https://www.kropman.nl/"
-               target="_blank" rel="noopener"
-               class="btn btn-success btn-md">
-               Kropman website
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+ 
 {% endblock content %}
 
 {% block extra_js %}

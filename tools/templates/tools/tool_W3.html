@@ -23,8 +23,11 @@
       
       <div class="col">
         <h1 class="display-6 mb-0 text-white">
-          Tool W3: Dimensionering leidingen en kanalen
+          Dimensionering leidingen en kanalen
         </h1>
+        <p class="text-white-50 mb-0">
+            Bepaal leiding- en kanaalafmetingen op basis van debiet, snelheid en drukverlies
+        </p>
       </div>
 
       <div class="col-auto">
@@ -40,13 +43,13 @@
 <!-- ========================= -->
 <!-- INFO BAR -->
 <!-- ========================= -->
-<div class="bg-light py-3 no-print">
+<div class="tools-intro py-3 no-print">
   <div class="container">
     <div class="row align-items-center g-3">
 
       <div class="col-12 col-lg-8">
         <p class="mb-0">
-          Dimensioneer leidingen of luchtkanalen op basis van debiet, snelheid en drukverlies.
+           Selecteer een leiding- of kanaalsysteem en bepaal automatisch de geschikte diameter, snelheid en het drukverlies per meter.
         </p>
       </div>
 
@@ -79,106 +82,109 @@
   <!-- ========================= -->
   <!-- INPUT -->
   <!-- ========================= -->
-  <div class="p-3 border rounded shadow-sm bg-white mb-4">
+  <div class="card card-input shadow-sm mb-4">
+    <div class="card-header">
+        <h2 class="h5 mb-0">Input</h2>
+    </div>
 
-    <!-- SYSTEM SELECT -->
-    <!-- COMPACT INPUT ROW -->
-    <div class="row g-2 align-items-end">
+    <div class="card-body">
+      <div class="row g-2 align-items-end">
 
-      <!-- SYSTEM SELECT -->
-      <div class="col-12 col-sm-6 col-lg-3">
+        <!-- SYSTEM SELECT -->
+        <div class="col-12 col-sm-6 col-lg-3">
 
-        <label for="systemType" class="form-label mb-1">
-          Systeem
-        </label>
+          <label for="systemType" class="form-label mb-1">
+            Systeem
+          </label>
 
-        <div class="input-group">
+          <div class="input-group">
 
-          <span
-            id="systemIcon"
-            class="input-group-text system-input-icon"
-            aria-hidden="true"
-          >
-            <i class="fas fa-tint"></i>
-          </span>
+            <span
+              id="systemIcon"
+              class="input-group-text system-input-icon"
+              aria-hidden="true"
+            >
+              <i class="fas fa-tint"></i>
+            </span>
 
-          <select id="systemType" class="form-select">
-            <option value="pipes">Leidingen</option>
-            <option value="ducts">Kanalen</option>
+            <select id="systemType" class="form-select">
+              <option value="pipes">Leidingen</option>
+              <option value="ducts">Kanalen</option>
+            </select>
+
+          </div>
+
+        </div>
+
+        <!-- DUCT SHAPE SELECT -->
+        <div
+          id="ductShapeBlock"
+          class="col-12 col-sm-6 col-lg-3 d-none"
+        >
+
+          <label for="ductShape" class="form-label mb-1">
+            Kanaalvorm
+          </label>
+
+          <select id="ductShape" class="form-select">
+            <option value="round">○ Rond</option>
+            <option value="rectangular">▭ Rechthoekig</option>
           </select>
 
         </div>
 
-      </div>
-
-      <!-- DUCT SHAPE SELECT -->
-      <div
-        id="ductShapeBlock"
-        class="col-12 col-sm-6 col-lg-3 d-none"
-      >
-
-        <label for="ductShape" class="form-label mb-1">
-          Kanaalvorm
-        </label>
-
-        <select id="ductShape" class="form-select">
-          <option value="round">○ Rond</option>
-          <option value="rectangular">▭ Rechthoekig</option>
-        </select>
-
-      </div>
-
-      <!-- FLOW INPUT -->
-      <div
-        id="flowInputBlock"
-        class="col-7 col-sm-8 col-lg-4"
-      >
-
-        <label for="flowInput" class="form-label mb-1">
-          Debiet
-        </label>
-
-        <input
-          type="number"
-          id="flowInput"
-          class="form-control"
-          value="1"
-          min="0"
-          step="0.1"
+        <!-- FLOW INPUT -->
+        <div
+          id="flowInputBlock"
+          class="col-7 col-sm-8 col-lg-4"
         >
 
+          <label for="flowInput" class="form-label mb-1">
+            Debiet
+          </label>
+
+          <input
+            type="number"
+            id="flowInput"
+            class="form-control"
+            value="1"
+            min="0"
+            step="0.1"
+          >
+
+        </div>
+
+        <!-- FLOW UNIT -->
+        <div class="col-5 col-sm-4 col-lg-2">
+
+          <label for="unitSelect" class="form-label mb-1">
+            Eenheid
+          </label>
+
+          <select id="unitSelect" class="form-select">
+            <option value="ls">L/s</option>
+            <option value="m3h">m³/h</option>
+          </select>
+
+        </div>
+
+        <!-- FLOW SLIDER -->
+        <div class="col-12 mt-3">
+
+          <input
+            type="range"
+            id="flowSlider"
+            min="0"
+            max="100"
+            step="0.1"
+            value="1"
+            class="form-range"
+            aria-label="Debiet instellen"
+          >
+
+        </div>
+
       </div>
-
-      <!-- FLOW UNIT -->
-      <div class="col-5 col-sm-4 col-lg-2">
-
-        <label for="unitSelect" class="form-label mb-1">
-          Eenheid
-        </label>
-
-        <select id="unitSelect" class="form-select">
-          <option value="ls">L/s</option>
-          <option value="m3h">m³/h</option>
-        </select>
-
-      </div>
-
-      <!-- FLOW SLIDER -->
-      <div class="col-12 mt-3">
-
-        <input
-          type="range"
-          id="flowSlider"
-          min="0"
-          max="100"
-          step="0.1"
-          value="1"
-          class="form-range"
-          aria-label="Debiet instellen"
-        >
-
-      </div>
-
     </div>
 
     <hr>
@@ -225,32 +231,37 @@
   <!-- ========================= -->
   <!-- RESULTS -->
   <!-- ========================= -->
-  <div id= "roundResultBlock" class="d-none">
-    <div class="p-3 border rounded shadow-sm bg-white">
+  <div id="roundResultBlock" class="d-none">
 
-      <h6 class="fw-bold mb-3">
-        Geselecteerde diameter
-      </h6>
+    <div class="card card-output shadow-sm">
 
-      <div class="table-responsive">
-        <table class="table table-bordered text-center align-middle">
+        <div class="card-header">
+            <h2 class="h5 mb-0">
+                Resultaat
+            </h2>
+        </div>
 
-          <thead class="table-success">
-            <tr>
-              <th>DN / Ø</th>
-              <th>Di [mm]</th>
-              <th>δ [mm]</th>
-              <th>Du [mm]</th>
-              <th>Snelheid [m/s]</th>
-              <th>Pa/m</th>
-            </tr>
-          </thead>
+        <div class="card-body">
 
-          <tbody id="resultTable"></tbody>
+          <div class="table-responsive">
+            <table class="table table-bordered text-center align-middle">
 
-        </table>
-      </div>
+              <thead class="table-success">
+                <tr>
+                  <th>DN / Ø</th>
+                  <th>Di [mm]</th>
+                  <th>δ [mm]</th>
+                  <th>Du [mm]</th>
+                  <th>Snelheid [m/s]</th>
+                  <th>Pa/m</th>
+                </tr>
+              </thead>
 
+              <tbody id="resultTable"></tbody>
+
+            </table>
+          </div>
+        </div>
     </div>
   </div>
   <!-- ========================= -->
@@ -258,20 +269,20 @@
   <!-- ========================= -->
   <div id="rectangularMatrixBlock" class="mt-4 d-none">
 
-    <div class="p-3 border rounded shadow-sm bg-white">
+    <div class="card card-output shadow-sm">
 
-      <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-3">
+      <div class="card-header">
+          <h2 class="h5 mb-0">
+              Rechthoekige kanalen
+          </h2>
+      </div>
 
-        <div>
-          <h6 class="fw-bold mb-1">
-            Rechthoekige kanalen
-          </h6>
-
-          <small class="text-muted">
-            Hoogte op de x-as, breedte op de y-as. Klik op een cel voor details.
-          </small>
-        </div>
-
+      <div class="card-body">
+        <small class="text-muted">
+          Hoogte op de x-as, breedte op de y-as. Klik op een cel voor details.
+        </small>
+        
+      
         <div class="duct-legend">
           <span>
             <i class="legend-box legend-low"></i>
@@ -366,113 +377,118 @@
   <div id="chartBlock" class="mt-4">
     <canvas id="dnChart" height="100"></canvas>
   </div>
-  <div class="mt-4 p-4 border rounded bg-light">
+  <div class="card shadow-sm mt-4">
 
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h6 class="fw-bold mb-0">📐 Formules & ontwerp richtlijnen</h6>
-    <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#formulaBlock">
-      Toon / verberg
-    </button>
-  </div>
-
-  <div id="formulaBlock" class="collapse show">
-
-    <!-- FORMULES -->
-    <div class="row mb-4">
-
-      <div class="col-md-6 mb-3">
-        <div class="formula-card">
-          <div class="formula-title">Darcy–Weisbach</div>
-
-          \[
-          \Delta p = \lambda \cdot \frac{L}{D} \cdot \frac{\rho v^2}{2}
-          \]
-
-          <div class="formula-desc">
-            Drukverlies door wrijving in leidingen of kanalen
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-6 mb-3">
-        <div class="formula-card">
-          <div class="formula-title">Swamee–Jain</div>
-
-          \[
-          \lambda = \frac{1}{\left[-2 \log_{10} \left( \frac{\varepsilon}{3.72D} + \frac{5.74}{Re^{0.9}} \right)\right]^2}
-          \]
-
-          <div class="formula-desc">
-            Benadering van de Darcy wrijvingsfactor
-          </div>
-        </div>
-      </div>
+    <div class="card-header">
+        <h2 class="h5 mb-0">
+            📐 Formules & ontwerprichtlijnen 
+        </h2>
 
     </div>
 
-    <!-- RICHTWAARDEN -->
-    <div class="row">
+    <div id="formulaBlock" class="collapse show">
 
-      <!-- LUCHT -->
-      <div class="col-md-6 mb-3">
-        <div class="design-card air-card">
+      <div class="card-body">
+        
 
-          <div class="design-title">🌬️ Luchtkanalen</div>
+          <!-- FORMULES -->
+          <div class="row mb-4">
 
-          <table class="table table-sm mb-2">
-            <tr>
-              <td>Hoofdkanaal</td>
-              <td><strong>5 – 8 m/s</strong></td>
-            </tr>
-            <tr>
-              <td>Aftakking</td>
-              <td><strong>3 – 5 m/s</strong></td>
-            </tr>
-            <tr>
-              <td>Drukverlies</td>
-              <td><strong>0.5 – 1.5 Pa/m</strong></td>
-            </tr>
-          </table>
+            <div class="col-md-6 mb-3">
+              <div class="formula-card">
+                <div class="formula-title">Darcy–Weisbach</div>
 
-          <small class="text-muted">
-            Lager = stiller, hoger = compacter systeem
-          </small>
+                \[
+                \Delta p = \lambda \cdot \frac{L}{D} \cdot \frac{\rho v^2}{2}
+                \]
 
-        </div>
+                <div class="formula-desc">
+                  Drukverlies door wrijving in leidingen of kanalen
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <div class="formula-card">
+                <div class="formula-title">Swamee–Jain</div>
+
+                \[
+                \lambda = \frac{1}{\left[-2 \log_{10} \left( \frac{\varepsilon}{3.72D} + \frac{5.74}{Re^{0.9}} \right)\right]^2}
+                \]
+
+                <div class="formula-desc">
+                  Benadering van de Darcy wrijvingsfactor
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- RICHTWAARDEN -->
+          <div class="row">
+
+            <!-- LUCHT -->
+            <div class="col-md-6 mb-3">
+              <div class="design-card air-card">
+
+                <div class="design-title">🌬️ Luchtkanalen</div>
+
+                <table class="table table-sm mb-2">
+                  <tr>
+                    <td>Hoofdkanaal</td>
+                    <td><strong>5 – 8 m/s</strong></td>
+                  </tr>
+                  <tr>
+                    <td>Aftakking</td>
+                    <td><strong>3 – 5 m/s</strong></td>
+                  </tr>
+                  <tr>
+                    <td>Drukverlies</td>
+                    <td><strong>0.5 – 1.5 Pa/m</strong></td>
+                  </tr>
+                </table>
+
+                <small class="text-muted">
+                  Lager = stiller, hoger = compacter systeem
+                </small>
+
+              </div>
+            </div>
+
+            <!-- WATER -->
+            <div class="col-md-6 mb-3">
+              <div class="design-card water-card">
+
+                <div class="design-title">💧 Waterleidingen</div>
+
+                <table class="table table-sm mb-2">
+                  <tr>
+                    <td>Distributie</td>
+                    <td><strong>0.5 – 1.5 m/s</strong></td>
+                  </tr>
+                  <tr>
+                    <td>Aansluiting</td>
+                    <td><strong>0.3 – 1.0 m/s</strong></td>
+                  </tr>
+                  <tr>
+                    <td>Drukverlies</td>
+                    <td><strong>50 – 300 Pa/m</strong></td>
+                  </tr>
+                </table>
+
+                <small class="text-muted">
+                  Hogere snelheid = meer geluid en slijtage
+                </small>
+
+              </div>
+            </div>
+
+          </div>
+
+        
       </div>
-
-      <!-- WATER -->
-      <div class="col-md-6 mb-3">
-        <div class="design-card water-card">
-
-          <div class="design-title">💧 Waterleidingen</div>
-
-          <table class="table table-sm mb-2">
-            <tr>
-              <td>Distributie</td>
-              <td><strong>0.5 – 1.5 m/s</strong></td>
-            </tr>
-            <tr>
-              <td>Aansluiting</td>
-              <td><strong>0.3 – 1.0 m/s</strong></td>
-            </tr>
-            <tr>
-              <td>Drukverlies</td>
-              <td><strong>50 – 300 Pa/m</strong></td>
-            </tr>
-          </table>
-
-          <small class="text-muted">
-            Hogere snelheid = meer geluid en slijtage
-          </small>
-
-        </div>
-      </div>
-
     </div>
-
   </div>
-</div>
 </div>
 
 {% endblock %}

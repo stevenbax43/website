@@ -13,7 +13,13 @@
   <div class="container py-3">
     <div class="row align-items-center g-3 flex-nowrap">
         <div class="col">
-            <h1 class="display-6 mb-0 text-white">Tools</h1>
+            <h1 class="display-6 mb-0 text-white">
+                BaxTools Platform
+            </h1>
+
+            <p class="text-white-50 mb-0">
+                Praktische ontwerptools voor installatieprofessionals
+            </p>
         </div>
         <div class="col-auto">
             <a href="/tools/" class="d-inline-block">
@@ -56,7 +62,26 @@
 <!-- ===== CONTENTS ===== -->
 <section class="py-4">
   <div class="container">
-
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="stats-card">
+                <h3>12+</h3>
+                <p>Beschikbare tools</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stats-card">
+                <h3>HVAC</h3>
+                <p>Ontwerpondersteuning</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stats-card">
+                <h3>NL-SfB</h3>
+                <p>Kennis & classificatie</p>
+            </div>
+        </div>
+    </div>
     <h1 class="h3 mb-3">Inhoudsopgave tools</h1>
 
     <!-- Algemeen -->
@@ -99,14 +124,14 @@
     </div>
 
     <!-- HVAC-tools -->
-    <h2 class="h4 mt-4 mb-3">HVAC-tools</h2>
+    <h2 class="h4 mt-4 mb-3">HVAC & Klimaattechniek</h2>
     <div class="tool-section tool-section--hvac rounded-4 p-3 p-md-4 mb-4">
       <div class="row row-cols-2 row-cols-sm-3 row-cols-lg-4 g-3 g-lg-4">
         <div class="col">
           <a href="{% url 'tools:mollier' %}" class="tool-card card h-100 text-center">
             <div class="card-body">
               <img src="{% static 'tools/images/humidity.png' %}" class="tool-icon" alt="Mollier Diagram" loading="lazy">
-              <h3 class="h6 mt-3 mb-0">Mollier Diagram</h3>
+              <h3 class="h6 mt-3 mb-0">Mollierdiagram</h3>
             </div>
           </a>
         </div>
@@ -122,7 +147,7 @@
           <a href="{% url 'tools:drukverlies' %}" class="tool-card card h-100 text-center">
             <div class="card-body">
               <img src="{% static 'tools/images/drukverlies.png' %}" class="tool-icon" alt="Leidingverliezen" loading="lazy">
-              <h3 class="h6 mt-3 mb-0">Dimensionering Leidingen en Kanalen</h3>
+              <h3 class="h6 mt-3 mb-0">Dimensionering leidingen en kanalen</h3>
             </div>
           </a>
         </div>
@@ -130,7 +155,7 @@
           <a href="{% url 'tools:CO2verloop' %}" class="tool-card card h-100 text-center">
             <div class="card-body">
               <img src="{% static 'tools/images/CO2.png' %}" class="tool-icon" alt="CO2-verloop ruimte" loading="lazy">
-              <h3 class="h6 mt-3 mb-0">CO<sub>2</sub>-verloop Ruimte</h3>
+              <h3 class="h6 mt-3 mb-0">CO<sub>2</sub>-verloop ruimte</h3>
             </div>
           </a>
         </div>
@@ -146,7 +171,7 @@
           <a href="{% url 'tools:thermisch_vermogen' %}" class="tool-card card h-100 text-center">
             <div class="card-body">
               <img src="{% static 'tools/images/thermal-power.png' %}" class="tool-icon" alt="Thermisch Vermogen & Energie" loading="lazy">
-              <h3 class="h6 mt-3 mb-0">Thermisch Vermogen &amp; Energie</h3>
+              <h3 class="h6 mt-3 mb-0">Thermisch vermogen &amp; energie</h3>
             </div>
           </a>
         </div>
@@ -160,9 +185,24 @@
         </div>
       </div>
     </div>
+    <!-- Energie & Duurzaamheid -->
+    <!-- <h2 class="h4 mt-4 mb-3">Energie & Duurzaamheid</h2>
+    <div class="tool-section tool-section--elektra rounded-4 p-3 p-md-4 mb-4">
+      <div class="row row-cols-2 row-cols-sm-3 row-cols-lg-4 g-3 g-lg-4">
+        <div class="col">
+          <a href="{% url 'tools:driefase_vermogen' %}" class="tool-card card h-100 text-center">
+            <div class="card-body">
+              <img src="{% static 'tools/images/cosine.png' %}" class="tool-icon" alt="Actief- & Schijnbaarvermogen" loading="lazy">
+              <h3 class="h6 mt-3 mb-0">Actief- &amp; schijnbaarvermogen</h3>
+            </div>
+          </a>
+        </div>
+        {# Add more tools as needed #}
+      </div>
+    </div> -->
 
-    <!-- E-tools -->
-    <h2 class="h4 mt-4 mb-3">E-tools</h2>
+    <!-- Elektrotechniek tools -->
+    <h2 class="h4 mt-4 mb-3">Elektrotechniek</h2>
     <div class="tool-section tool-section--elektra rounded-4 p-3 p-md-4 mb-4">
       <div class="row row-cols-2 row-cols-sm-3 row-cols-lg-4 g-3 g-lg-4">
         <div class="col">
@@ -176,7 +216,21 @@
         {# Add more tools as needed #}
       </div>
     </div>
-
+    <!-- Kennis & Classificatie tools -->
+    <!-- <h2 class="h4 mt-4 mb-3">Kennis & Classificatie</h2>
+    <div class="tool-section tool-section--elektra rounded-4 p-3 p-md-4 mb-4">
+      <div class="row row-cols-2 row-cols-sm-3 row-cols-lg-4 g-3 g-lg-4">
+        <div class="col">
+          <a href="{% url 'tools:driefase_vermogen' %}" class="tool-card card h-100 text-center">
+            <div class="card-body">
+              <img src="{% static 'tools/images/cosine.png' %}" class="tool-icon" alt="Actief- & Schijnbaarvermogen" loading="lazy">
+              <h3 class="h6 mt-3 mb-0">Actief- &amp; schijnbaarvermogen</h3>
+            </div>
+          </a>
+        </div>
+        {# Add more tools as needed #}
+      </div>
+    </div> -->
   </div>
 </section>
 {% endblock %}

@@ -16,6 +16,7 @@ from reportlab.lib.units import mm
 from reportlab.lib.utils import ImageReader
 from reportlab.platypus import Table, TableStyle, Paragraph, Frame, Spacer
 from scipy.ndimage import gaussian_filter
+from pathlib import Path
 
 def MollierView(request): 
     # Defaults
@@ -1330,12 +1331,11 @@ def adjust_humidity_ratio_for_pressure(
 
 
 def heatmapNEN5060(pressure=101325):
+    BASE_DIR = Path(__file__).resolve().parent.parent
+    csv_file = BASE_DIR / "tools" / "static" / "tools" / "files" / "KlimaatjaarNEN5060Energie2018.csv"
 
-    df = pd.read_csv(
-        'tools/static/tools/files/KlimaatjaarNEN5060Energie2018.csv',
-        sep=';'
-    )
-    
+    df = pd.read_csv(csv_file, sep=';')
+    print(df.columns.tolist())
     # datum
     df['YYYYMMDD'] = pd.to_datetime(
         df['YYYYMMDD'],
