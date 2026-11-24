@@ -37,7 +37,7 @@ EMAIL_BACKEND = "accounts.email_backends.DebugResendEmailBackend"
 ANYMAIL = {
     "RESEND_API_KEY": os.environ.get("RESEND_API_KEY"),
 }
-DEFAULT_FROM_EMAIL = "Steven Bax <no-reply@baxtools.nl>"
+DEFAULT_FROM_EMAIL = "BaxTools <no-reply@baxtools.nl>"
 
 
 LOGGING = {
